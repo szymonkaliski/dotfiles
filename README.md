@@ -1,4 +1,3 @@
-
 #Dotfiles
 
 Simple repo with my dotfiles, `zshrc` in parts is more tahn six years old, so if your looking for intersting stuff you should look there first.
