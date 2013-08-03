@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Mostly stolen from: https://github.com/mathiasbynens/dotfiles/blob/master/.osx
+
+# Disable opening and closing window animations
+# defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
+
+# Expand save panel by default
+# defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+
+# Expand print panel by default
+# defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+
+# Disable automatic termination of inactive apps
+# defaults write NSGlobalDomain NSDisableAutomaticTermination -bool true
+
+# Disable press-and-hold for keys in favor of key repeat
+defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+
+# Set fast keyboard repeat rate
+defaults write NSGlobalDomain KeyRepeat -int 4
+
+# Disable auto-correct
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+
+# Finder: disable window animations and Get Info animations
+# defaults write com.apple.finder DisableAllAnimations -bool true
+
+# Finder: allow text selection in Quick Look
+defaults write com.apple.finder QLEnableTextSelection -bool true
+
+# Use list view in all Finder windows by default
+# Four-letter codes for the other view modes: `icnv`, `clmv`, `Flwv`
+# defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+
+# Set the icon size of Dock items to 48 pixels
+defaults write com.apple.dock tilesize -int 48
+
+# Lock Dock size
+defaults write com.apple.dock size-immutable -bool yes
+
+# Enable the 2D Dock
+# defaults write com.apple.dock no-glass -bool true
+
+# Make Dock icons of hidden applications translucent
+# defaults write com.apple.dock showhidden -bool true
+
+# Completely disable Dashboard
+# defaults write com.apple.dashboard mcx-disabled -boolean YES
+
+# Disable Safari thumbnail cache for History and Top Sites
+defaults write com.apple.Safari DebugSnapshotsUpdatePolicy -int 2
+
+# Make Safari search banners default to Contains instead of Starts With
+defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool false
+
+# Disable send and reply animations in Mail.app
+# defaults write com.apple.mail DisableReplyAnimations -bool true
+# defaults write com.apple.mail DisableSendAnimations -bool true
+
+# Disable inline attachement viewing in Mail.app
+defaults write com.apple.mail DisableInlineAttachmentViewing -bool yes
+
+# Check for software updates daily, not just once per week
+defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
+
+# Disable local Time Machine backups
+hash tmutil &> /dev/null && sudo tmutil disablelocal
+
+# Disable the sound effects on boot
+sudo nvram SystemAudioVolume=" "
+
+# Disable Sudden Motion Sensor (default - 1)
+sudo pmset -a sms 0 &> /dev/null
+
+# Kill affected apps
+for app in "Dashboard" "Dock" "Finder" "Mail" "Safari" "SystemUIServer"
+do
+	killall "$app" > /dev/null 2>&1
+done
+echo "$(tput setaf 1)Done. Note that some of these changes require a logout/restart to take effect.$(tput sgr0)"

@@ -1,0 +1,119 @@
+" make vim more useful
+set nocompatible
+
+" vundle settings
+filetype off
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+Bundle 'gmarik/vundle'
+Bundle 'ctrlp.vim'
+Bundle 'tComment'
+Bundle 'delimitMate.vim'
+" Bundle 'The-NERD-tree'
+Bundle 'Syntastic'
+Bundle 'airblade/vim-gitgutter'
+
+" disable startup message
+set shortmess+=I
+
+" syntax coloring
+syntax enable
+filetype plugin indent on
+
+" encoding
+set encoding=utf-8
+set fileencodings=utf-8
+
+" indentation
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set smartindent
+
+" additional settings
+set backspace=indent,eol,start
+set number
+set linebreak
+set ruler
+set scrolloff=5
+
+" show cmd and current mode
+set showcmd
+set showmode
+
+" open new buffers always in new tabs
+set switchbuf=usetab,newtab
+
+" centralize backups, swapfiles and undo history
+set backupdir=~/.vim/backups
+set directory=~/.vim/swaps
+if exists("&undodir")
+  set undodir=~/.vim/undo
+endif
+
+" highlight searches
+set hlsearch
+" ignore case of searches
+set ignorecase
+" don't ignore case if character is upper
+set smartcase
+" highlight dynamically as pattern is typed
+set incsearch
+
+" status line
+set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+set laststatus=2
+" set noru
+
+" disable split char
+set fillchars+=vert:\ 
+
+" default color theme
+colorscheme Tomorrow-Night-Mine
+
+" tComment settings
+vmap gcc gc
+
+" indend lines with cmd-[/]
+" nmap <C-]> >>
+" nmap <C-[> <<
+" vmap <C-[> <gv
+" vmap <C-]> >gv
+
+" ctrlp settings
+let g:ctrlp_cmd='CtrlPMixed'
+let g:ctrlp_working_path_mode='ra'
+let g:ctrlp_switch_buffer='et'
+let g:ctrlp_use_caching=1
+let g:ctrlp_clear_cache_on_exit=0
+
+let g:ctrlp_prompt_mappings={
+  \ 'AcceptSelection("e")': [],
+  \ 'AcceptSelection("t")': ['<cr>', '<c-m>'],
+  \ }
+
+" nerdtree settings
+let NERDTreeMinimalUI=1
+" let NERDTreeMapOpenInTab='<ENTER>'
+
+" syntastic settings
+let g:syntastic_check_on_open=1
+let g:syntastic_error_symbol='!'
+let g:syntastic_warning_symbol='?'
+let g:syntastic_style_error_symbol='!'
+let g:syntastic_style_warning_symbol='?'
+
+" os specific settings
+if has("unix")
+	let s:uname=system("uname")
+	if s:uname=="Darwin\n"
+		" use mdfind on mac for ctrlp
+		" let g:ctrlp_user_command='mdfind -onlyin %s kind:file'
+		" set jslint config file on mac
+		let g:syntastic_javascript_jsl_conf="/Users/Szymon/Dropbox/Code/Dotfiles/jsl.conf"
+	endif
+endif
+
+" kills trailing whitespaces
+command! KillWhitespace :normal :%s/ *$//g<cr><c-o><cr>

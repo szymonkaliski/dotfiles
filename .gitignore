@@ -1,0 +1,8 @@
+# OSX
+.DS_Store
+
+# simple script I use to copy files from different places into this repository
+# this allows me to keep my dotfiles in other (private) repo
+# and post to github only what I think is safe :)
+copy-files.sh
+

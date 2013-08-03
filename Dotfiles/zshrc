@@ -1,0 +1,582 @@
+# options
+setopt histverify             # when using ! cmds, confirm first
+setopt hist_ignore_all_dups   # ignore all double commands in history
+setopt hist_reduce_blanks     # reduce blanks in history
+setopt share_history          # share history among zsh sessions
+setopt no_check_jobs          # don't report on bg processes when exiting
+setopt no_hup                 # and don't kill them
+setopt correct                # correct only commands
+setopt complete_in_word       # completion "inside" word
+setopt auto_param_slash       # add trailing slash to directory names
+setopt auto_remove_slash      # remove trailing slash when appropriate
+setopt list_types             # show ls -F style marks in file completion
+setopt no_cdable_vars         # who wants to cd apache?
+setopt prompt_subst           # dynamic prompt changes
+setopt combining_chars        # fixes for completion and UTF-8
+setopt no_list_beep           # no beep sound when complete list displayed
+setopt no_beep                # no beep on zle errors
+
+# custom completion paths
+if [ -d ~/.zsh/completion ]; then
+	export FPATH="~/.zsh/completion:$FPATH"
+fi
+
+if [ -d /usr/local/share/zsh/site-functions ]; then
+	export FPATH="/usr/local/share/zsh/site-functions:$FPATH"
+fi
+
+if [ -d /usr/local/share/zsh-completions ]; then
+	export FPATH="/usr/local/share/zsh-completions:$FPATH"
+fi
+
+# path modifications
+if [ -d /usr/local/bin ]; then
+	export PATH="/usr/local/bin:$PATH"
+fi
+
+if [ -d $HOME/Dropbox/Code/Scripts ]; then
+	export PATH="$PATH:$HOME/Dropbox/Code/Scripts"
+elif [ -d $HOME/Documents/Scripts ]; then
+	export PATH="$PATH:$HOME/Documents/Scripts"
+fi
+
+if [ -d /usr/local/opt/coreutils/libexec/gnubin ]; then
+	export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+fi
+
+if [ -d /usr/local/share/npm/bin ]; then
+	export PATH="$PATH:/usr/local/share/npm/bin"
+fi
+
+# clean paths
+typeset -gU fpath path #cdpath manpath
+
+# load modules
+autoload -Uz compinit colors zrecompile edit-command-line vcs_info
+
+# completions without security check
+compinit -C
+
+# colors
+colors
+
+# zrecompile for faster zsh
+[ -f ~/.zshrc ] && zrecompile -q -p ~/.zshrc
+[ -f ~/.zcompdump ] && zrecompile -q -p ~/.zcompdump
+[ -f ~/.zshrc.zwc.old ] && rm -f ~/.zshrc.zwc.old
+[ -f ~/.zcompdump.zwc.old ] && rm -f ~/.zcompdump.zwc.old
+
+# ctrl-x ctrl-e to edit current line in $EDITOR
+zle -N edit-command-line
+bindkey '\C-x\C-e' edit-command-line
+
+# npm completions
+if [ -f /usr/lib/node_modules/npm/lib/utils/completion.sh ]; then
+	source /usr/lib/node_modules/npm/lib/utils/completion.sh
+elif [ -f /usr/local/opt/node/lib/node_modules/npm/lib/utils/completion.sh ]; then
+	source /usr/local/lib/node_modules/npm/lib/utils/completion.sh
+fi
+
+# live command coloring
+if [ -f ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+	source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+	ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor pattern)
+
+	ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=white,bg=red')
+	ZSH_HIGHLIGHT_PATTERNS+=('ssh *' 'fg=white,bg=blue')
+
+	ZSH_HIGHLIGHT_STYLES[precommand]='fg=magenta'
+	ZSH_HIGHLIGHT_STYLES[commandseparator]='fg=yellow'
+	ZSH_HIGHLIGHT_STYLES[path]='none'
+	ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=yellow'
+	ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=yellow'
+	ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=magenta'
+	ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=red'
+	ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=red'
+fi
+
+# grc for more colors
+if hash grc 2> /dev/null; then
+	alias colourify="grc -es --colour=auto"
+	alias diff="colourify diff"
+	alias make="colourify make"
+	alias gcc="colourify gcc"
+	alias g++="colourify g++"
+	alias ld="colourify ld"
+	alias netstat="colourify netstat"
+	alias ping="colourify ping"
+	alias traceroute="colourify traceroute"
+fi
+
+# z for better jumps
+if [ -f ~/.zsh/plugins/z/z.sh ]; then
+	_Z_CMD="j"
+	source ~/.zsh/plugins/z/z.sh
+fi
+
+# vcs info
+zstyle ":vcs_info:*" enable git #svn
+zstyle ":vcs_info:*" check-for-changes true
+zstyle ":vcs_info:*" stagedstr "%{$fg[red]%}"
+zstyle ":vcs_info:*" unstagedstr "%{$fg[red]%}"
+zstyle ":vcs_info:*" branchformat "%r"
+zstyle ":vcs_info:*" actionformats "%{$fg[yellow]%}%u%c"
+zstyle ":vcs_info:*" formats "%{$fg[yellow]%}%u%c"
+local VCS='$vcs_info_msg_0_'
+
+# prompt for tmux & screen
+if [ $TMUX ]; then
+	tmux display-message "#I"
+	export WINDOW="`tmux show-messages | tail -1 | cut -d ' ' -f6`"
+fi
+
+if [ $WINDOW ]; then
+	local WINNUM="%{$fg[green]%}$WINDOW%{$reset_color%}: "
+else
+	local WINNUM=""
+fi
+
+# prompt colors
+if [ "`uname`" = "Darwin" ]; then
+	PROMPTCOLOR=blue
+else
+	PROMPTCOLOR=magenta
+fi
+
+if [ "`whoami`" = "root" ]; then
+	PROMPTCOLOR=red
+fi
+
+# main prompt
+PROMPT="$WINNUM%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS→ %{$reset_color%}"
+
+# right prompt
+RPROMPT="%(?,,%{$fg[red]%}✕%{$reset_color%})"
+
+# unfinished loops prompt
+PROMPT2="%{$fg[yellow]%}%_%{$reset_color%} → "
+
+# spelling prompt
+SPROMPT="correct '%R' to '%r' ? ([Y]es/[N]o/[E]dit/[A]bort) "
+
+# colors
+export GREP_COLOR=34
+[ -f ~/.dircolors ] && eval $(dircolors -b ~/.dircolors)
+
+# homebrew exports
+export HOMEBREW_NO_EMOJI=1
+
+# locale exports
+export LANG="en_US.UTF-8"
+export LC_COLLATE="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
+
+# less modifications (including man colors)
+export LESSCHARSET="utf-8"
+export LESS_TERMCAP_mb=$(tput setaf 2)
+export LESS_TERMCAP_md=$(tput setaf 6)
+export LESS_TERMCAP_me=$(tput sgr0)
+export LESS_TERMCAP_so=$(tput setaf 3; tput setab 4)
+export LESS_TERMCAP_se=$(tput rmso; tput sgr0)
+export LESS_TERMCAP_us=$(tput smul; tput setaf 7)
+export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)
+export LESS_TERMCAP_mr=$(tput rev)
+export LESS_TERMCAP_mh=$(tput dim)
+export LESS_TERMCAP_ZN=$(tput ssubm)
+export LESS_TERMCAP_ZV=$(tput rsubm)
+export LESS_TERMCAP_ZO=$(tput ssupm)
+export LESS_TERMCAP_ZW=$(tput rsupm)
+export LESS="-R --RAW-CONTROL-CHARS"
+
+# editor export
+export EDITOR="vim"
+
+# aliases
+alias edit=$EDITOR
+alias sudo="sudo "
+
+alias ls="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable"
+alias ll="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable -l"
+alias la="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable -l --almost-all"
+
+alias rm="rm -iv"
+alias mv="mv -iv"
+alias cp="cp -iv"
+
+alias back="cd - > /dev/null"
+alias jumps="j | cut -b12- | tail -10"
+alias dirs="dirs -v"
+alias mkdir="mkdir -p"
+
+alias df="df -h"
+alias du="du -sh"
+alias ag="ag -i"
+
+alias grep="egrep --color=auto"
+alias less="less -i --tabs=2"
+alias diff="colordiff"
+alias wget="wget -c"
+
+alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
+alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
+alias codetodo="ag '(TODO:|FIXME:)' -C0 --nobreak --group --noheading"
+
+alias x="exit"
+alias c="clear"
+alias reboot="sudo reboot"
+alias shutdown="sudo shutdown -h now"
+
+alias -g C="| wc -l"
+alias -g G="| egrep -i --color=auto"
+alias -g H="| head"
+alias -g T="| tail"
+alias -g L="| less"
+alias -g M="| more -i"
+alias -g S="| sort"
+alias -g B="> /dev/null 2>&1 &"
+
+alias -g N="&& tput bel"
+alias -g P="&& pushover-terminal"
+
+# screen
+function sn() {
+	if [ "$#" -eq 0 ]; then
+		screen
+	else
+		screen -S $@
+	fi
+}
+
+alias sl="screen -ls"
+alias sr="screen -R"
+alias sf="screen -dRR"
+alias sx="screen -x"
+
+# mac only
+if [ "`uname`" = "Darwin" ]; then
+	# make completion /Applications aware
+	compctl -f \
+		-x 'p[2]' \
+		-s "`/bin/ls -d1 /Applications/*/*.app /Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g'`" \
+		-- open
+	alias run="open -a"
+
+	alias localip="ipconfig getifaddr en1"
+	alias httpserver="python -m SimpleHTTPServer 3000"
+
+	alias qopen="qlmanage -p "$@" >& /dev/null"
+	alias flush="dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
+	alias clearlogs="sudo rm -rfv /private/var/log/asl/*.asl"
+	alias clearxcode="sudo rm -rfv /private/var/tmp/Xcode/DerivedData"
+
+	# output of last command to clipboard
+	alias clout="fc -e - | pbcopy"
+	# current pwd to clipboard
+	alias cpwd='echo \"$(pwd | tr -d "\n")\" | pbcopy'
+
+	function pman() {
+		man -t $1 | open -f -a Preview;
+	}
+	compdef _man pman=man
+
+	function cdf() {
+		finder_dir=`osascript -e 'try' \
+			-e 'tell application "Finder" to get POSIX path of (target of front Finder window as text)' \
+			-e 'end try'`
+		cd "$finder_dir"
+	}
+
+	function o() {
+		_z "$@"
+		open .
+		cd - > /dev/null
+	}
+fi
+
+# linux only
+if [ "`uname`" = "Linux" ]; then
+	alias localip="ifconfig eth0 | grep inet | awk '{ print \$2 }'"
+	alias httpserver="python -m http.server 3000"
+fi
+
+# sudo previous command
+function sudothat() {
+	echo -e "$(tput setaf 1)sudo$(tput sgr0) → $(fc -ln -1)"
+	eval "sudo $(fc -ln -1)"
+}
+
+# history
+function h() {
+	if [ "$#" -eq 0 ]; then
+		history
+	else
+		history 0 | egrep -i --color=auto $@
+	fi
+}
+
+# go up n directories
+function up() {
+	for updirs in $(seq ${1:-1}); do
+		cd ..
+	done
+}
+
+# mkdir & cd
+function cdir() {
+	if [ ! -d "$@" ]; then
+		mkdir -p "$@"
+	fi
+	cd "$@"
+}
+
+# cd & ls
+function cdl() {
+	cd "$@" && LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable
+}
+compdef _cd cdl=cd
+
+# rename files
+function name() {
+	newname=$1
+	vared -c -p "rename to: " newname
+	command mv $1 $newname
+}
+
+# code pager with highlight
+function codecat() {
+	local syntax=""
+	if [ -t 0 ]; then
+		case $@ in
+			*.m|*.mm)          syntax="--syntax=objc" ;;
+			*rc|*config|*.*sh) syntax="--syntax=sh"   ;;
+			*.*json)           syntax="--syntax=js"   ;;
+		esac
+		highlight $syntax --out-format=ansi --replace-tabs=2 "$@" | less
+	else
+		cat - | highlight --out-format=ansi --replace-tabs=2 "$@" | less
+	fi
+}
+compdef _gnu_generic codecat=cat
+
+# dropbox notes
+if [ -d ~/Dropbox/Notes ]; then
+	function ns() {
+		if [ "$#" -eq 0 ]; then
+			for f in ~/Dropbox/Notes/*.txt; do
+				basename $f .txt
+			done
+		else
+			if [ -n "`find ~/Dropbox/Notes -iname "*$@*"`" ]; then
+				find ~/Dropbox/Notes -iname "*$@*" \
+					-exec echo -e "$(tput setaf 5)\n`basename {} .txt`:\n$(tput sgr0)" \; \
+					-exec cat {} \;
+			else
+				echo "No note matches your search!"
+			fi
+		fi
+	}
+	function ne() {
+		if [ "$#" -eq 0 ]; then
+			echo "You must give note name!"
+		else
+			find ~/Dropbox/Notes -iname "*$@*" -exec $EDITOR {} \;
+		fi
+	}
+fi
+
+# simple find functions
+function fn() {
+	find . -iname "*$@*" 2>/dev/null
+}
+
+function fd() {
+	find . -iname "*$@*" -type d 2>/dev/null
+}
+
+function ff() {
+	find . -iname "*$@*" -type f 2>/dev/null
+}
+
+# archive extractor
+function extract() {
+	if [ "`uname`" = "Linux" ]; then
+		if [[ -z "$1" ]]; then
+			echo "extracts files based on extensions"
+		elif [[ -f $1 ]]; then
+			case ${(L)1} in
+				*.tar.bz2) tar -jxvf $1  ;;
+				*.tar.gz)  tar -zxvf $1  ;;
+				*.bz2)     bunzip2 $1    ;;
+				*.gz)      gunzip $1     ;;
+				*.jar)     unzip $1      ;;
+				*.rar)     unrar x $1    ;;
+				*.tar)     tar -xvf $1   ;;
+				*.tbz2)    tar -jxvf $1  ;;
+				*.tgz)     tar -zxvf $1  ;;
+				*.zip)     unzip $1      ;;
+				*.Z)       uncompress $1 ;;
+				*)         echo "unable to extract '$1'"
+			esac
+	 else
+			echo "file '$1' does not exist!"
+	 fi
+	else
+		open "$@" # The Unarchiver.app can deal with archives on Mac
+	fi
+}
+compctl -g '*.tar.bz2 *.tar.gz *.bz2 *.gz *.jar *.rar *.tar *.tbz2 *.tgz *.zip *.Z' + -g '*(-/)' extract
+
+# calculator
+function calc() {
+	local result=""
+	result="$(printf "scale=10;$*\n" | bc --mathlib | tr -d '\\\n')"
+
+	if [ "$result" == *.* ]; then
+		printf "$result" | sed -e 's/^\./0./' -e 's/^-\./-0./' -e 's/0*$//;s/\.$//'
+	else
+		printf "$result"
+	fi
+
+	printf "\n"
+}
+
+# clock
+function clock() {
+	while sleep 1; do
+		printf "\r%s " "$(date +%T)"
+	done
+}
+
+# sanitize permissions
+function sanitize() {
+	if [ "$#" -eq 0 ]; then
+		local DIR="."
+	else
+		local DIR="$@"
+	fi
+
+	find "$DIR" -type d -print0 | xargs -0 chmod 755
+	find "$DIR" -type f -print0 | xargs -0 chmod 644
+}
+
+# history
+HISTFILE=~/.zshhistory
+HISTSIZE=10000
+SAVEHIST=10000
+
+# bindkeys - find yours by: cat > /dev/null
+bindkey "^[b"   backward-word
+bindkey "^[f"   forward-word
+bindkey "^[[2~" overwrite-mode
+bindkey "^[[3~" delete-char
+bindkey "^[[5~" up-line-or-search
+bindkey "^[[6~" down-line-or-search
+bindkey "^R"    history-incremental-search-backward
+bindkey "^[[A"  history-beginning-search-backward
+bindkey "^[[B"  history-beginning-search-forward
+
+case $TERM in
+	*xterm*|urxvt|(u|dt|k|E)term)
+		bindkey "^[[H" beginning-of-line
+		bindkey "^[[F" end-of-line
+	;;
+	*screen*)
+		bindkey "^[[1~" beginning-of-line
+		bindkey "^[[4~" end-of-line
+	;;
+esac
+
+# terminal titles & vcs refresh
+case $TERM in
+	*xterm*|urxvt|(u|dt|k|E)term)
+	precmd () {
+		vcs_info
+		print -nP "\033]0;%m: %3~\007"
+	}
+	preexec () {
+		print -nP "\033]0;%m: $1\007"
+	}
+	;;
+	*screen*)
+	precmd () {
+		vcs_info
+		print -nP "\ek%3~\e\\"
+		print -nP "\e]2;%3~\a"
+		print -nP "\033]0;%m $WINDOW: %3~\007"
+	}
+	preexec () {
+		print -nP "\ek%3~ $1\e\\"
+		print -nP "\e]2;%3~ $1\a"
+		print -nP "\033]0;%m $WINDOW: $1\007"
+	}
+	;;
+esac
+
+# complete with dots on slow systems
+expand-or-complete-with-dots() {
+	echo -n "$(tput setaf 6)...$(tput sgr0)"
+	zle expand-or-complete
+	zle redisplay
+}
+zle -N expand-or-complete-with-dots
+bindkey "^I" expand-or-complete-with-dots
+
+# speed up completion by avoiding partial globs.
+zstyle ':completion:*' accept-exact '*(N)'
+zstyle ':completion:*' accept-exact-dirs true
+
+# use completion cache
+zstyle ":completion:*" use-cache true
+
+# colors in completion
+zstyle ":completion:*" list-colors ${(s.:.)LS_COLORS}
+
+# separate directories from files.
+zstyle ':completion:*' list-dirs-first true
+
+# separate matches into groups.
+# zstyle ':completion:*:matches' group yes
+# zstyle ':completion:*' group-name ''
+
+# process names from ps
+zstyle ":completion:*:processes" command "ps cx -o pid,user,%cpu,%mem,comm"
+zstyle ":completion:*:processes-names" command "ps -aeo comm="
+
+# kill & killall completion colors
+zstyle ":completion:*:*:kill:*:processes" list-colors "=(#b) #([0-9]#)*=0=01;31"
+zstyle ":completion:*:*:killall:*:processes-names" list-colors "=(#b) #([0-9]#f)*=0=01;31"
+
+# complete with menu
+setopt menucomplete
+zstyle ":completion:*" menu select=long-list select=1
+
+# list of completers to use
+zstyle ":completion:*" completer _expand _complete _approximate
+
+# remove the trailing slash (usefull in ln)
+zstyle ":completion:*" squeeze-slashes true
+
+# complete ssh/scp
+zstyle ':completion:*:scp:*' tag-order 'hosts:-host hosts:-domain:domain hosts:-ipaddr:IP\ address *'
+zstyle ':completion:*:scp:*' group-order users files all-files hosts-domain hosts-host hosts-ipaddr
+zstyle ':completion:*:ssh:*' tag-order users 'hosts:-host hosts:-domain:domain hosts:-ipaddr:IP\ address *'
+zstyle ':completion:*:ssh:*' group-order hosts-domain hosts-host users hosts-ipaddr
+
+zstyle ':completion:*:(ssh|scp):*:hosts-host' ignored-patterns '*.*' loopback localhost
+zstyle ':completion:*:(ssh|scp):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^*.*' '*@*'
+zstyle ':completion:*:(ssh|scp):*:hosts-ipaddr' ignored-patterns '^<->.<->.<->.<->' '127.0.0.<->'
+zstyle ':completion:*:(ssh|scp):*:users' ignored-patterns adm bin daemon halt lp named shutdown sync
+
+# complete custom hosts
+zstyle -e ':completion:*:(ssh|scp):*' hosts 'reply=(
+	${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ }
+	${=${(f)"$(cat /etc/hosts(|)(N) <<(ypcat hosts 2>/dev/null))"}%%\#*}
+	${=${${${${(@M)${(f)"$(<~/.ssh/config)"}:#Host *}#Host }:#*\**}:#*\?*}}
+)'
+
+# ignore completions for commands that we dont have
+zstyle ":completion:*:functions" ignored-patterns "_*"
+
+# auto rehash commands
+zstyle ":completion:*" rehash true

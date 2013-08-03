@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# get $TOKEN and $USER from .pushover
+source ~/.pushover
+
+MESSAGE="notification!"
+if [ "$#" -ne 0 ]; then
+	MESSAGE="$@"
+fi
+
+curl -s -F "token=$TOKEN" -F "user=$USER" -F "message=$MESSAGE" https://api.pushover.net/1/messages > /dev/null
