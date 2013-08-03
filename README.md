@@ -1,6 +1,6 @@
 #Dotfiles
 
-Simple repo with my dotfiles, `zshrc` in parts is more than six years old, so if your looking for intersting stuff you should look there first.
+Simple repo with my dotfiles, `zshrc` in parts is more than six years old, so if you're searching for interesting stuff you should look there first.
 
 `vimrc`, `screenrc` and `gitconfig` are fairly simple, but do their job on my machine(s).
 
