@@ -10,7 +10,6 @@ Bundle 'gmarik/vundle'
 Bundle 'ctrlp.vim'
 Bundle 'tComment'
 Bundle 'delimitMate.vim'
-" Bundle 'The-NERD-tree'
 Bundle 'Syntastic'
 Bundle 'airblade/vim-gitgutter'
 

@@ -3,7 +3,7 @@
 # remount everything on wake
 /usr/sbin/diskutil list | awk '/Apple_HFS/ {print $NF}' | xargs -I{} /usr/sbin/diskutil mount {} > /dev/null 2>&1 &
 
-# check if docked
+# check if docked - DELL monitor is connected
 sleep 0.1s
 DELLCOUNT=$(/usr/sbin/system_profiler SPDisplaysDataType | grep -i dell | wc -l)
 

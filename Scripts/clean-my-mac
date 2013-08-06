@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# simple interactive mac cleanup script
 
 read -p "$(tput setaf 3)Run periodic scripts?$(tput sgr0) (y/n) " RESP
 if [ "$RESP" = "y" ]; then

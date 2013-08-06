@@ -268,7 +268,7 @@ if [ "`uname`" = "Darwin" ]; then
 	alias qopen="qlmanage -p "$@" >& /dev/null"
 	alias flush="dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
 	alias clearlogs="sudo rm -rfv /private/var/log/asl/*.asl"
-	alias clearxcode="sudo rm -rfv /private/var/tmp/Xcode/DerivedData"
+	alias cleartmp="sudo rm -rfv /private/var/tmp/Xcode/ /private/var/tmp/Processing/"
 
 	# output of last command to clipboard
 	alias clout="fc -e - | pbcopy"

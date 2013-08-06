@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# get $TOKEN and $USER from .pushover
+# get $TOKEN and $USER
 source ~/.pushover
 
 MESSAGE="notification!"

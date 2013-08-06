@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# script to launch processing apps from command line
+
+DIR="$(pwd)"
+
+cd "/Applications/Processing.app/Contents/Resources/Java"
+/usr/libexec/java_home --request --version 1.6 --exec java -cp lib/pde.jar:lib/antlr.jar:lib/jna.jar:lib/ant.jar:lib/ant-launcher.jar:core/library/core.jar processing.mode.java.Commander --output=/var/tmp/Processing --force --run --sketch="$DIR/$@"
