@@ -88,6 +88,8 @@ if [ -f ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; th
 	ZSH_HIGHLIGHT_STYLES[precommand]='fg=magenta'
 	ZSH_HIGHLIGHT_STYLES[commandseparator]='fg=yellow'
 	ZSH_HIGHLIGHT_STYLES[path]='none'
+	ZSH_HIGHLIGHT_STYLES[path_prefix]='none'
+	ZSH_HIGHLIGHT_STYLES[path_approx]='none'
 	ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=yellow'
 	ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=yellow'
 	ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=magenta'

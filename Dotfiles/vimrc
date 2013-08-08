@@ -74,12 +74,6 @@ colorscheme Tomorrow-Night-Mine
 " tComment settings
 vmap gcc gc
 
-" indend lines with cmd-[/]
-" nmap <C-]> >>
-" nmap <C-[> <<
-" vmap <C-[> <gv
-" vmap <C-]> >gv
-
 " ctrlp settings
 let g:ctrlp_cmd='CtrlPMixed'
 let g:ctrlp_working_path_mode='ra'
@@ -93,7 +87,7 @@ let g:ctrlp_prompt_mappings={
   \ }
 
 " nerdtree settings
-let NERDTreeMinimalUI=1
+" let NERDTreeMinimalUI=1
 " let NERDTreeMapOpenInTab='<ENTER>'
 
 " syntastic settings
