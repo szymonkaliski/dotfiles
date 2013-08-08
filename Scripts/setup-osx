@@ -67,7 +67,9 @@ defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 hash tmutil &> /dev/null && sudo tmutil disablelocal
 
 # disable the sound effects on boot
-sudo nvram SystemAudioVolume=" "
+# doesn't work for me: sudo nvram SystemAudioVolume=" "
+# this one does:
+sudo nvram SystemAudioVolume=%80
 
 # disable Sudden Motion Sensor (default - 1)
 sudo pmset -a sms 0 &> /dev/null
