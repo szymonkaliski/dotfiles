@@ -1,0 +1,26 @@
+if has("gui_macvim")
+	" gui disable scrollbar
+	set guioptions-=r
+	set go-=L
+	" gui font
+	set guifont=Consolas:h12
+	" gui turn off blinking cursor
+	set gcr=n:blinkon0
+	" gui theme
+	colorscheme Tomorrow-Mine
+
+	" default window size
+	set lines=68 columns=150
+
+	" always show tabs
+	set showtabline=2
+
+	" cmd-p for ctrlp plugin
+	macmenu &File.Print key=<nop>
+	map <D-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
+
+	" comment lines with cmd+/
+	map <D-/> :TComment<cr>
+	vmap <D-/> :TComment<cr>gv
+endif
+

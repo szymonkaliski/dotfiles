@@ -1,17 +1,35 @@
 " make vim more useful
 set nocompatible
 
-" vundle settings
-filetype off
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+" neobundle
+if has('vim_starting')
+	set runtimepath+=~/.vim/bundle/neobundle.vim/
+endif
+call neobundle#rc(expand('~/.vim/bundle/'))
+NeoBundleFetch 'Shougo/neobundle.vim'
 
-Bundle 'gmarik/vundle'
-Bundle 'ctrlp.vim'
-Bundle 'tComment'
-Bundle 'delimitMate.vim'
-Bundle 'Syntastic'
-Bundle 'airblade/vim-gitgutter'
+NeoBundle 'tComment'
+NeoBundle 'delimitMate.vim'
+NeoBundle 'Syntastic'
+NeoBundle 'airblade/vim-gitgutter'
+NeoBundle 'Shougo/vimfiler.vim'
+NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/vimproc', {
+	\ 'build': {
+	\		'mac': 'make -f make_mac.mak',
+	\		'unix': 'make -f make_unix.mak',
+	\		},
+	\ }
+
+" syntaxes
+if system("uname")=="Darwin\n"
+	NeoBundle 'sophacles/vim-processing'
+	NeoBundle 'tikhomirov/vim-glsl'
+	NeoBundle 'sudar/vim-arduino-syntax'
+	NeoBundle 'briancollins/vim-jst'
+
+	au BufNewFile,BufRead *.tpl set filetype=jst
+endif
 
 " disable startup message
 set shortmess+=I
@@ -74,21 +92,14 @@ colorscheme Tomorrow-Night-Mine
 " tComment settings
 vmap gcc gc
 
-" ctrlp settings
-let g:ctrlp_cmd='CtrlPMixed'
-let g:ctrlp_working_path_mode='ra'
-let g:ctrlp_switch_buffer='et'
-let g:ctrlp_use_caching=1
-let g:ctrlp_clear_cache_on_exit=0
-
-let g:ctrlp_prompt_mappings={
-  \ 'AcceptSelection("e")': [],
-  \ 'AcceptSelection("t")': ['<cr>', '<c-m>'],
-  \ }
-
-" nerdtree settings
-" let NERDTreeMinimalUI=1
-" let NERDTreeMapOpenInTab='<ENTER>'
+" unite settings
+nnoremap <C-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
+if executable('ag')
+	let g:unite_source_grep_command = 'ag'
+	let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
+	let g:unite_source_grep_recursive_opt = ''
+	nnoremap <C-g> :Unite -start-insert grep:.<cr>
+endif
 
 " syntastic settings
 let g:syntastic_check_on_open=1
@@ -97,12 +108,20 @@ let g:syntastic_warning_symbol='?'
 let g:syntastic_style_error_symbol='!'
 let g:syntastic_style_warning_symbol='?'
 
+" vimfiler settings
+let g:vimfiler_as_default_explorer=1
+let g:vimfiler_directory_display_top=1
+let g:vimfiler_tree_leaf_icon = ' '
+let g:vimfiler_tree_opened_icon = '▾'
+let g:vimfiler_tree_closed_icon = '▸'
+let g:vimfiler_file_icon = ' '
+let g:vimfiler_marked_file_icon = '*'
+nnoremap <C-n> :VimFilerExplorer<cr>
+
 " os specific settings
 if has("unix")
 	let s:uname=system("uname")
 	if s:uname=="Darwin\n"
-		" use mdfind on mac for ctrlp
-		" let g:ctrlp_user_command='mdfind -onlyin %s kind:file'
 		" set jslint config file on mac
 		let g:syntastic_javascript_jsl_conf="/Users/Szymon/Dropbox/Code/Dotfiles/jsl.conf"
 	endif
@@ -110,3 +129,4 @@ endif
 
 " kills trailing whitespaces
 command! KillWhitespace :normal :%s/ *$//g<cr><c-o><cr>
+

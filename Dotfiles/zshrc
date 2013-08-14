@@ -126,12 +126,7 @@ zstyle ":vcs_info:*" actionformats "%{$fg[yellow]%}%u%c"
 zstyle ":vcs_info:*" formats "%{$fg[yellow]%}%u%c"
 local VCS='$vcs_info_msg_0_'
 
-# prompt for tmux & screen
-if [ $TMUX ]; then
-	tmux display-message "#I"
-	export WINDOW="`tmux show-messages | tail -1 | cut -d ' ' -f6`"
-fi
-
+# prompt for screen
 if [ $WINDOW ]; then
 	local WINNUM="%{$fg[green]%}$WINDOW%{$reset_color%}: "
 else
@@ -139,13 +134,13 @@ else
 fi
 
 # prompt colors
-if [ "`uname`" = "Darwin" ]; then
+if [ "$(uname)" = "Darwin" ]; then
 	PROMPTCOLOR=blue
 else
 	PROMPTCOLOR=magenta
 fi
 
-if [ "`whoami`" = "root" ]; then
+if [ "$(whoami)" = "root" ]; then
 	PROMPTCOLOR=red
 fi
 
@@ -256,11 +251,11 @@ alias sf="screen -dRR"
 alias sx="screen -x"
 
 # mac only
-if [ "`uname`" = "Darwin" ]; then
+if [ "$(uname)" = "Darwin" ]; then
 	# make completion /Applications aware
 	compctl -f \
 		-x 'p[2]' \
-		-s "`/bin/ls -d1 /Applications/*/*.app /Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g'`" \
+		-s "$(/bin/ls -d1 /Applications/*/*.app /Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g')" \
 		-- open
 	alias run="open -a"
 
@@ -283,9 +278,9 @@ if [ "`uname`" = "Darwin" ]; then
 	compdef _man pman=man
 
 	function cdf() {
-		finder_dir=`osascript -e 'try' \
+		finder_dir=$(osascript -e 'try' \
 			-e 'tell application "Finder" to get POSIX path of (target of front Finder window as text)' \
-			-e 'end try'`
+			-e 'end try')
 		cd "$finder_dir"
 	}
 
@@ -297,7 +292,7 @@ if [ "`uname`" = "Darwin" ]; then
 fi
 
 # linux only
-if [ "`uname`" = "Linux" ]; then
+if [ "$(uname)" = "Linux" ]; then
 	alias localip="ifconfig eth0 | grep inet | awk '{ print \$2 }'"
 	alias httpserver="python -m http.server 3000"
 fi
@@ -369,10 +364,17 @@ if [ -d ~/Dropbox/Notes ]; then
 				basename $f .txt
 			done
 		else
-			if [ -n "`find ~/Dropbox/Notes -iname "*$@*"`" ]; then
-				find ~/Dropbox/Notes -iname "*$@*" \
-					-exec echo -e "$(tput setaf 5)\n`basename {} .txt`:\n$(tput sgr0)" \; \
-					-exec cat {} \;
+			if [ -n "$(find ~/Dropbox/Notes -iname "*$@*")" ]; then
+				if [ -t 0 -a -t 1 ]; then
+					find ~/Dropbox/Notes -iname "*$@*" \
+						-exec echo -e "$(tput setaf 5)\n$(basename {} .txt)\n$(tput sgr0)" \; \
+						-exec cat {} \; \
+						-exec echo \;
+				else
+					find ~/Dropbox/Notes -iname "*$@*" \
+						-exec echo -e "$(basename {} .txt)\n" \; \
+						-exec cat {} \;
+				fi
 			else
 				echo "No note matches your search!"
 			fi
@@ -402,7 +404,7 @@ function ff() {
 
 # archive extractor
 function extract() {
-	if [ "`uname`" = "Linux" ]; then
+	if [ "$(uname)" = "Linux" ]; then
 		if [[ -z "$1" ]]; then
 			echo "extracts files based on extensions"
 		elif [[ -f $1 ]]; then
@@ -492,26 +494,26 @@ esac
 # terminal titles & vcs refresh
 case $TERM in
 	*xterm*|urxvt|(u|dt|k|E)term)
-	precmd () {
-		vcs_info
-		print -nP "\033]0;%m: %3~\007"
-	}
-	preexec () {
-		print -nP "\033]0;%m: $1\007"
-	}
+		precmd () {
+			vcs_info
+			print -nP "\033]0;%m: %3~\007"
+		}
+		preexec () {
+			print -nP "\033]0;%m: $1\007"
+		}
 	;;
 	*screen*)
-	precmd () {
-		vcs_info
-		print -nP "\ek%3~\e\\"
-		print -nP "\e]2;%3~\a"
-		print -nP "\033]0;%m $WINDOW: %3~\007"
-	}
-	preexec () {
-		print -nP "\ek%3~ $1\e\\"
-		print -nP "\e]2;%3~ $1\a"
-		print -nP "\033]0;%m $WINDOW: $1\007"
-	}
+		precmd () {
+			vcs_info
+			print -nP "\ek%3~\e\\"
+			print -nP "\e]2;%3~\a"
+			print -nP "\033]0;%m $WINDOW: %3~\007"
+		}
+		preexec () {
+			print -nP "\ek%3~ $1\e\\"
+			print -nP "\e]2;%3~ $1\a"
+			print -nP "\033]0;%m $WINDOW: $1\007"
+		}
 	;;
 esac
 
@@ -582,3 +584,4 @@ zstyle ":completion:*:functions" ignored-patterns "_*"
 
 # auto rehash commands
 zstyle ":completion:*" rehash true
+
