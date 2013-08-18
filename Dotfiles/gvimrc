@@ -1,12 +1,15 @@
 if has("gui_macvim")
-	" gui disable scrollbar
+	" disable scrollbar
 	set guioptions-=r
 	set go-=L
-	" gui font
+
+	" font
 	set guifont=Consolas:h12
-	" gui turn off blinking cursor
+
+	" turn off blinking cursor
 	set gcr=n:blinkon0
-	" gui theme
+
+	" theme
 	colorscheme Tomorrow-Mine
 
 	" default window size
@@ -15,11 +18,11 @@ if has("gui_macvim")
 	" always show tabs
 	set showtabline=2
 
-	" cmd-p for ctrlp plugin
+	" cmd-p for unit eplugin
 	macmenu &File.Print key=<nop>
 	map <D-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
 
-	" comment lines with cmd+/
+	" comment lines with cmd-/
 	map <D-/> :TComment<cr>
 	vmap <D-/> :TComment<cr>gv
 endif

@@ -10,8 +10,11 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 
 NeoBundle 'tComment'
 NeoBundle 'delimitMate.vim'
+NeoBundle 'tpope/vim-surround'
+NeoBundle 'ervandew/supertab'
 NeoBundle 'Syntastic'
 NeoBundle 'airblade/vim-gitgutter'
+NeoBundle 'bling/vim-airline'
 NeoBundle 'Shougo/vimfiler.vim'
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/vimproc', {
@@ -22,14 +25,33 @@ NeoBundle 'Shougo/vimproc', {
 	\ }
 
 " syntaxes
-if system("uname")=="Darwin\n"
+if system('uname')=="Darwin\n"
 	NeoBundle 'sophacles/vim-processing'
 	NeoBundle 'tikhomirov/vim-glsl'
 	NeoBundle 'sudar/vim-arduino-syntax'
 	NeoBundle 'briancollins/vim-jst'
+	NeoBundle 'plasticboy/vim-markdown'
 
 	au BufNewFile,BufRead *.tpl set filetype=jst
 endif
+
+" extended % matching
+runtime macros/matchit.vim
+
+" automaticaly cd into dir
+" set autochdir
+" autocmd BufEnter * silent! lcd %:p:h
+
+" watch for file changes
+set autoread
+
+" redraw only when needed and fast tty
+set lazyredraw
+set ttyfast
+
+" don't beep
+set noerrorbells visualbell t_vb=
+autocmd GUIEnter * set visualbell t_vb=
 
 " disable startup message
 set shortmess+=I
@@ -53,52 +75,87 @@ set backspace=indent,eol,start
 set number
 set linebreak
 set ruler
-set scrolloff=5
+set scrolloff=10
+
+" hidden chars as in textmate
+set list
+set listchars=tab:▸\ ,trail:∙ " ,eol:¬
 
 " show cmd and current mode
 set showcmd
 set showmode
 
-" open new buffers always in new tabs
-set switchbuf=usetab,newtab
+" buffers/tabs settings
+set switchbuf=useopen,usetab,newtab
+set hidden
 
-" centralize backups, swapfiles and undo history
-set backupdir=~/.vim/backups
-set directory=~/.vim/swaps
-if exists("&undodir")
-  set undodir=~/.vim/undo
+" no backups or swapfiles, centralized undo history
+set nobackup
+set noswapfile
+if exists('&undodir')
+	set undodir=~/.vim/undo
 endif
 
-" highlight searches
+" long history and undo
+set history=1000
+set undolevels=1000
+
+" search settings
 set hlsearch
-" ignore case of searches
 set ignorecase
-" don't ignore case if character is upper
 set smartcase
-" highlight dynamically as pattern is typed
 set incsearch
 
-" status line
-set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+" always disaplay status line
 set laststatus=2
-" set noru
+
+" airline
+let g:airline_theme='tomorrow'
+let g:airline_left_sep=''
+let g:airline_right_sep=''
+let g:airline_detect_whitespace=0
+let g:airline_inactive_collapse=1
+let g:airline_enable_fugitive=0
+let g:airline_enable_syntastic=1
+let g:airline_section_b="%F"
+let g:airline_section_c=""
+let g:airline_section_x=""
+let g:airline_section_y=""
+
+" code folding
+set foldmethod=syntax
+autocmd BufEnter * exe 'normal zR'
 
 " disable split char
 set fillchars+=vert:\ 
 
-" default color theme
-colorscheme Tomorrow-Night-Mine
+" color theme in cli
+if !has("gui_running")
+	colorscheme Tomorrow-Night-Mine
+endif
 
 " tComment settings
 vmap gcc gc
 
+" supertab settings
+let g:SuperTabDefaultCompletionType="context"
+let g:SuperTabContextDefaultCompletionType="<c-n>"
+set pumheight=15
+
 " unite settings
+let g:unite_data_directory=expand('~/.vim/unite')
+let g:unite_source_history_yank_enable = 1
+call unite#filters#matcher_default#use(['matcher_fuzzy'])
+
 nnoremap <C-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
+nnoremap <C-b> :Unite -buffer-name=buffer -start-insert buffer_tab<cr>
+nnoremap <C-h> :Unite -buffer-name=yank -start-insert history/yank<cr>
+
 if executable('ag')
-	let g:unite_source_grep_command = 'ag'
-	let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
-	let g:unite_source_grep_recursive_opt = ''
-	nnoremap <C-g> :Unite -start-insert grep:.<cr>
+	let g:unite_source_grep_command='ag'
+	let g:unite_source_grep_default_opts='--nogroup --nocolor --column'
+	let g:unite_source_grep_recursive_opt=''
+	nnoremap <C-g> :Unite -buffer-name=grep -start-insert grep:.<cr>
 endif
 
 " syntastic settings
@@ -111,22 +168,32 @@ let g:syntastic_style_warning_symbol='?'
 " vimfiler settings
 let g:vimfiler_as_default_explorer=1
 let g:vimfiler_directory_display_top=1
-let g:vimfiler_tree_leaf_icon = ' '
-let g:vimfiler_tree_opened_icon = '▾'
-let g:vimfiler_tree_closed_icon = '▸'
-let g:vimfiler_file_icon = ' '
-let g:vimfiler_marked_file_icon = '*'
+let g:vimfiler_tree_leaf_icon=' '
+let g:vimfiler_tree_opened_icon='▾'
+let g:vimfiler_tree_closed_icon='▸'
+let g:vimfiler_file_icon=' '
+let g:vimfiler_marked_file_icon='*'
+let g:vimfiler_data_directory=expand('~/.vim/vimfiler')
 nnoremap <C-n> :VimFilerExplorer<cr>
 
 " os specific settings
-if has("unix")
-	let s:uname=system("uname")
-	if s:uname=="Darwin\n"
+if has('unix')
+	if system('uname')=="Darwin\n"
 		" set jslint config file on mac
-		let g:syntastic_javascript_jsl_conf="/Users/Szymon/Dropbox/Code/Dotfiles/jsl.conf"
+		let g:syntastic_javascript_jsl_conf=expand('~/Dropbox/Code/Dotfiles/jsl.conf')
 	endif
 endif
 
 " kills trailing whitespaces
 command! KillWhitespace :normal :%s/ *$//g<cr><c-o><cr>
+
+" kill whitespace with <leader>k
+nmap <silent> <leader>k :KillWhitespace<cr>
+" clean search using <leader>s
+nmap <silent> <leader>s :nohlsearch<cr>
+" toggle list chars with <leader>l
+nmap <silent> <leader>l :set list!<cr>
+" toggle numbers
+nmap <silent> <leader>n :set number!<cr>
+
 

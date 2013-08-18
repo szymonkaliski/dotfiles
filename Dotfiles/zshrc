@@ -272,6 +272,14 @@ if [ "$(uname)" = "Darwin" ]; then
 	# current pwd to clipboard
 	alias cpwd='echo \"$(pwd | tr -d "\n")\" | pbcopy'
 
+
+	# nice markdown files in cli using markdown-pdf from npm
+	if [ -d /usr/local/share/npm/lib/node_modules/markdown-pdf/bin ]; then
+		alias markdown-pdf="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf"
+		alias markdown-pdf-nice="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf \
+			-css-path ~/Dropbox/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
+	fi
+
 	function pman() {
 		man -t $1 | open -f -a Preview;
 	}

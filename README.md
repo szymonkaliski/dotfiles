@@ -13,3 +13,4 @@ Small part of scripts I've written over the years, these are the ones worth shar
 * `setup-osx` - mostly stolen from https://github.com/mathiasbynens/dotfiles/blob/master/.osx
 * `sleepwatcher-*` - scripts I use with [sleepwatcher daemon](http://www.bernhard-baehr.de)
 * `system-stats` - simple one line system info, I used to have it at the end of my `zshrc`
+
