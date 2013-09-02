@@ -1,9 +1,26 @@
 " XVim settings
 
+" no toolbar
+set guioptions-=T
+
 " proper search
 set incsearch
 set ignorecase
 set smartcase
+set wrap
+set wrapscan
+
+" no bells
+set noerrorbells
+
+" use system pasteboard
+set pasteboard
+
+" move between assistant editors
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+nnoremap <C-h> <C-w>h
 
 " comments
 vmap gc :xccmd commentAndUncommentCurrentLines<CR>

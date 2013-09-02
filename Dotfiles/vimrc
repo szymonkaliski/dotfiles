@@ -8,11 +8,10 @@ endif
 call neobundle#rc(expand('~/.vim/bundle/'))
 NeoBundleFetch 'Shougo/neobundle.vim'
 
-NeoBundle 'tComment'
-NeoBundle 'delimitMate.vim'
+NeoBundle 'tomtom/tcomment_vim'
+NeoBundle 'Raimondi/delimitMate'
 NeoBundle 'tpope/vim-surround'
 NeoBundle 'ervandew/supertab'
-NeoBundle 'Syntastic'
 NeoBundle 'airblade/vim-gitgutter'
 NeoBundle 'bling/vim-airline'
 NeoBundle 'Shougo/vimfiler.vim'
@@ -23,24 +22,32 @@ NeoBundle 'Shougo/vimproc', {
 	\		'unix': 'make -f make_unix.mak',
 	\		},
 	\ }
+NeoBundle 'zweifisch/pipe2eval'
 
 " syntaxes
+NeoBundle 'mmalecki/vim-node.js'
+NeoBundle 'briancollins/vim-jst'
+NeoBundle 'plasticboy/vim-markdown'
+
+" osx specific syntaxes
 if system('uname')=="Darwin\n"
 	NeoBundle 'sophacles/vim-processing'
 	NeoBundle 'tikhomirov/vim-glsl'
 	NeoBundle 'sudar/vim-arduino-syntax'
-	NeoBundle 'briancollins/vim-jst'
-	NeoBundle 'plasticboy/vim-markdown'
-
-	au BufNewFile,BufRead *.tpl set filetype=jst
 endif
+
+au BufNewFile,BufRead *.mm set filetype=objc
+au BufNewFile,BufRead *.tpl set filetype=jst
 
 " extended % matching
 runtime macros/matchit.vim
 
 " automaticaly cd into dir
-" set autochdir
+set autochdir
 " autocmd BufEnter * silent! lcd %:p:h
+
+" yank and paste with system clipboard
+set clipboard=unnamed
 
 " watch for file changes
 set autoread
@@ -78,12 +85,8 @@ set ruler
 set scrolloff=10
 
 " hidden chars as in textmate
-set list
+set nolist
 set listchars=tab:▸\ ,trail:∙ " ,eol:¬
-
-" show cmd and current mode
-set showcmd
-set showmode
 
 " buffers/tabs settings
 set switchbuf=useopen,usetab,newtab
@@ -106,33 +109,54 @@ set ignorecase
 set smartcase
 set incsearch
 
+" set split char to space (looks nice)
+set fillchars+=vert:\ 
+
 " always disaplay status line
 set laststatus=2
 
-" airline
-let g:airline_theme='tomorrow'
-let g:airline_left_sep=''
-let g:airline_right_sep=''
-let g:airline_detect_whitespace=0
-let g:airline_inactive_collapse=1
-let g:airline_enable_fugitive=0
-let g:airline_enable_syntastic=1
-let g:airline_section_b="%F"
-let g:airline_section_c=""
-let g:airline_section_x=""
-let g:airline_section_y=""
-
-" code folding
-set foldmethod=syntax
-autocmd BufEnter * exe 'normal zR'
-
-" disable split char
-set fillchars+=vert:\ 
+" don't show current mode/cmd
+set noshowmode
+set noshowcmd
 
 " color theme in cli
 if !has("gui_running")
 	colorscheme Tomorrow-Night-Mine
 endif
+
+" airline
+let g:airline_left_sep=''
+let g:airline_right_sep=''
+let g:airline_inactive_collapse=0
+let g:airline#extensions#whitespace#enabled=0
+let g:airline#extensions#syntastic#enabled=0
+let g:airline#extensions#hunks#enabled=0
+let g:airline_section_b="%{getcwd()}"
+let g:airline_section_c="%t"
+let g:airline_section_x=""
+let g:airline_section_y=""
+
+" remove bold fonts from airline tomorrow theme
+let g:airline_theme_patch_func = 'AirlineThemePatch'
+function! AirlineThemePatch(palette)
+	if g:airline_theme == 'tomorrow'
+		let paletes = [a:palette.normal, a:palette.insert, a:palette.replace, a:palette.visual]
+		for palete in paletes
+			for colors in values(palete)
+				if len(colors) == 5
+					let colors[4] = "NONE"
+				endif
+			endfor
+		endfor
+	endif
+endfunction
+
+" code folding
+set foldmethod=syntax
+autocmd BufEnter * exe 'normal zR'
+
+" gitgutter settings
+let g:gitgutter_eager=0
 
 " tComment settings
 vmap gcc gc
@@ -149,11 +173,13 @@ call unite#filters#matcher_default#use(['matcher_fuzzy'])
 
 nnoremap <C-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
 nnoremap <C-b> :Unite -buffer-name=buffer -start-insert buffer_tab<cr>
-nnoremap <C-h> :Unite -buffer-name=yank -start-insert history/yank<cr>
+nnoremap <C-y> :Unite -buffer-name=yank -start-insert history/yank<cr>
 
 if executable('ag')
 	let g:unite_source_grep_command='ag'
-	let g:unite_source_grep_default_opts='--nogroup --nocolor --column'
+	let g:unite_source_grep_default_opts=
+	  \ '--line-numbers --nocolor --nogroup --hidden --ignore ' .
+	  \  '''.hg'' --ignore ''.svn'' --ignore ''.git'' --ignore ''.bzr'''
 	let g:unite_source_grep_recursive_opt=''
 	nnoremap <C-g> :Unite -buffer-name=grep -start-insert grep:.<cr>
 endif
@@ -166,6 +192,7 @@ let g:syntastic_style_error_symbol='!'
 let g:syntastic_style_warning_symbol='?'
 
 " vimfiler settings
+let g:vimfiler_enable_auto_cd=1
 let g:vimfiler_as_default_explorer=1
 let g:vimfiler_directory_display_top=1
 let g:vimfiler_tree_leaf_icon=' '
@@ -179,21 +206,34 @@ nnoremap <C-n> :VimFilerExplorer<cr>
 " os specific settings
 if has('unix')
 	if system('uname')=="Darwin\n"
-		" set jslint config file on mac
-		let g:syntastic_javascript_jsl_conf=expand('~/Dropbox/Code/Dotfiles/jsl.conf')
+		" pipe2eval setting - better set here than in zshrc
+		let $PIP2EVAL_TMP_FILE_PATH="/tmp/shm"
 	endif
 endif
 
 " kills trailing whitespaces
-command! KillWhitespace :normal :%s/ *$//g<cr><c-o><cr>
+command! KillWhitespace :normal :%s/\s\+$//g<cr>
+
+" dont loose selection on indenting
+vnoremap > >gv
+vnoremap < <gv
+
+" move between windows
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+nnoremap <C-h> <C-w>h
 
 " kill whitespace with <leader>k
-nmap <silent> <leader>k :KillWhitespace<cr>
+nmap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
 " clean search using <leader>s
 nmap <silent> <leader>s :nohlsearch<cr>
 " toggle list chars with <leader>l
 nmap <silent> <leader>l :set list!<cr>
 " toggle numbers
 nmap <silent> <leader>n :set number!<cr>
-
+" buffer mappings
+nmap <silent> <leader>bd :bdelete<CR>
+nmap <silent> <leader>bn :bNext<CR>
+nmap <silent> <leader>bp :bprevious<CR>
 

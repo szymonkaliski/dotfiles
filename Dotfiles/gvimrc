@@ -1,10 +1,15 @@
 if has("gui_macvim")
+	" path for macvim running from finder
+	if system('uname')=="Darwin\n"
+		let $PATH=$PATH . ":/Users/Szymon/Dropbox/Code/Scripts"
+	endif
+
 	" disable scrollbar
 	set guioptions-=r
 	set go-=L
 
 	" font
-	set guifont=Consolas:h12
+	set guifont=Menlo:h11
 
 	" turn off blinking cursor
 	set gcr=n:blinkon0
@@ -13,10 +18,13 @@ if has("gui_macvim")
 	colorscheme Tomorrow-Mine
 
 	" default window size
-	set lines=68 columns=150
+	set lines=72 columns=150
 
 	" always show tabs
 	set showtabline=2
+
+	" automatically resize splits when resizing MacVim window
+	autocmd VimResized * wincmd =
 
 	" cmd-p for unit eplugin
 	macmenu &File.Print key=<nop>
