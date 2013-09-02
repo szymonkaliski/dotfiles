@@ -1,0 +1,10 @@
+" XVim settings
+
+" proper search
+set incsearch
+set ignorecase
+set smartcase
+
+" comments
+vmap gc :xccmd commentAndUncommentCurrentLines<CR>
+
