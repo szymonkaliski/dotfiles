@@ -15,7 +15,7 @@ if has("gui_macvim")
 	set gcr=n:blinkon0
 
 	" theme
-	colorscheme Tomorrow-Mine
+	colorscheme Tomorrow-Night-Mine
 
 	" default window size
 	set lines=72 columns=150

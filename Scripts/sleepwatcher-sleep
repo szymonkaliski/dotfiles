@@ -4,4 +4,4 @@
 /usr/bin/osascript -e "tell application \"Finder\"" -e "eject (every disk)" -e "end tell"
 
 # set location to disconnected
-# /usr/sbin/scselect Disconnected > /dev/null 2>&1 &
+/usr/sbin/scselect Disconnected > /dev/null 2>&1 &

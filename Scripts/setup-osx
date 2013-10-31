@@ -14,13 +14,13 @@
 # defaults write NSGlobalDomain NSDisableAutomaticTermination -bool true
 
 # disable press-and-hold for keys in favor of key repeat
-defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+# defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
 # set fast keyboard repeat rate
-defaults write NSGlobalDomain KeyRepeat -int 4
+# defaults write NSGlobalDomain KeyRepeat -int 4
 
 # disable auto-correct
-defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+# defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 
 # finder: disable window animations and Get Info animations
 # defaults write com.apple.finder DisableAllAnimations -bool true
@@ -45,7 +45,7 @@ defaults write com.apple.dock size-immutable -bool yes
 # defaults write com.apple.dock showhidden -bool true
 
 # completely disable Dashboard
-# defaults write com.apple.dashboard mcx-disabled -boolean YES
+defaults write com.apple.dashboard mcx-disabled -boolean YES
 
 # disable Safari thumbnail cache for History and Top Sites
 defaults write com.apple.Safari DebugSnapshotsUpdatePolicy -int 2
@@ -61,7 +61,7 @@ defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool false
 defaults write com.apple.mail DisableInlineAttachmentViewing -bool yes
 
 # check for software updates daily, not just once per week
-defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
+# defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
 # disable local Time Machine backups
 hash tmutil &> /dev/null && sudo tmutil disablelocal
@@ -69,7 +69,7 @@ hash tmutil &> /dev/null && sudo tmutil disablelocal
 # disable the sound effects on boot
 # doesn't work for me: sudo nvram SystemAudioVolume=" "
 # this one does:
-sudo nvram SystemAudioVolume=%80
+# sudo nvram SystemAudioVolume=%80
 
 # disable Sudden Motion Sensor (default - 1)
 sudo pmset -a sms 0 &> /dev/null

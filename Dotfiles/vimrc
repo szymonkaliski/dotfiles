@@ -34,6 +34,7 @@ if system('uname')=="Darwin\n"
 	NeoBundle 'sophacles/vim-processing'
 	NeoBundle 'tikhomirov/vim-glsl'
 	NeoBundle 'sudar/vim-arduino-syntax'
+	NeoBundle 'kchmck/vim-coffee-script'
 endif
 
 au BufNewFile,BufRead *.mm set filetype=objc

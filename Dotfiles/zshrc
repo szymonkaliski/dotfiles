@@ -34,6 +34,10 @@ if [ -d /usr/local/bin ]; then
 	export PATH="/usr/local/bin:$PATH"
 fi
 
+if [ -d /usr/local/sbin ]; then
+	export PATH="/usr/local/sbin:$PATH"
+fi
+
 if [ -d $HOME/Dropbox/Code/Scripts ]; then
 	export PATH="$PATH:$HOME/Dropbox/Code/Scripts"
 elif [ -d $HOME/Documents/Scripts ]; then
@@ -126,22 +130,24 @@ zstyle ":vcs_info:*" actionformats "%{$fg[yellow]%}%u%c"
 zstyle ":vcs_info:*" formats "%{$fg[yellow]%}%u%c"
 local VCS='$vcs_info_msg_0_'
 
-# prompt for screen
-if [ $WINDOW ]; then
-	local WINNUM="%{$fg[green]%}$WINDOW%{$reset_color%}: "
-else
-	local WINNUM=""
-fi
-
 # prompt colors
 if [ "$(uname)" = "Darwin" ]; then
 	PROMPTCOLOR=blue
+elif [ "$(hostname)" = "Disa" ]; then
+	PROMPTCOLOR=yellow
 else
 	PROMPTCOLOR=magenta
 fi
 
 if [ "$(whoami)" = "root" ]; then
 	PROMPTCOLOR=red
+fi
+
+# prompt for screen
+if [ $WINDOW ]; then
+	local WINNUM="%{$fg[$PROMPTCOLOR]%}$WINDOW%{$reset_color%}: "
+else
+	local WINNUM=""
 fi
 
 # main prompt
@@ -260,12 +266,13 @@ if [ "$(uname)" = "Darwin" ]; then
 	alias run="open -a"
 
 	alias localip="ipconfig getifaddr en1"
-	alias httpserver="python -m SimpleHTTPServer 3000"
+
 
 	alias qopen="qlmanage -p "$@" >& /dev/null"
 	alias flush="dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
 	alias clearlogs="sudo rm -rfv /private/var/log/asl/*.asl"
 	alias cleartmp="sudo rm -rfv /private/var/tmp/Xcode/ /private/var/tmp/Processing/"
+	alias purge="sudo purge"
 
 	# output of last command to clipboard
 	alias clout="fc -e - | pbcopy"
@@ -277,7 +284,7 @@ if [ "$(uname)" = "Darwin" ]; then
 	if [ -d /usr/local/share/npm/lib/node_modules/markdown-pdf/bin ]; then
 		alias markdown-pdf="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf"
 		alias markdown-pdf-nice="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf \
-			-css-path ~/Dropbox/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
+			--css-path ~/Dropbox/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
 	fi
 
 	function pman() {
@@ -293,7 +300,13 @@ if [ "$(uname)" = "Darwin" ]; then
 	}
 
 	function o() {
-		_z "$@"
+		if [ $# -ne 0 ]; then
+			OPEN_DIR="/"$(j -l "$@" | head -1 | cut -d '/' -f2-)
+		else
+			OPEN_DIR="."
+		fi
+
+		cd $OPEN_DIR
 		open .
 		cd - > /dev/null
 	}
@@ -302,7 +315,6 @@ fi
 # linux only
 if [ "$(uname)" = "Linux" ]; then
 	alias localip="ifconfig eth0 | grep inet | awk '{ print \$2 }'"
-	alias httpserver="python -m http.server 3000"
 fi
 
 # sudo previous command
@@ -363,6 +375,23 @@ function codecat() {
 	fi
 }
 compdef _gnu_generic codecat=cat
+
+# simple httpserver
+function httpserver() {
+	local command=""
+	if [ "$(uname)" = "Darwin" ]; then
+		command="SimpleHTTPServer"
+	else
+		command="http.server"
+	fi
+
+	local port="3000"
+	if [ $# -ne 0 ]; then
+		port="$@"
+	fi
+
+	python -m $command $port
+}
 
 # dropbox notes
 if [ -d ~/Dropbox/Notes ]; then
