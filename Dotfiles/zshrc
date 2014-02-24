@@ -30,6 +30,12 @@ if [ -d /usr/local/share/zsh-completions ]; then
 fi
 
 # path modifications
+if [ -d $HOME/Dropbox/Code/Scripts ]; then
+	export PATH="$HOME/Dropbox/Code/Scripts:$PATH"
+elif [ -d $HOME/Documents/Scripts ]; then
+	export PATH="$HOME/Documents/Scripts:$PATH"
+fi
+
 if [ -d /usr/local/bin ]; then
 	export PATH="/usr/local/bin:$PATH"
 fi
@@ -38,10 +44,12 @@ if [ -d /usr/local/sbin ]; then
 	export PATH="/usr/local/sbin:$PATH"
 fi
 
-if [ -d $HOME/Dropbox/Code/Scripts ]; then
-	export PATH="$PATH:$HOME/Dropbox/Code/Scripts"
-elif [ -d $HOME/Documents/Scripts ]; then
-	export PATH="$PATH:$HOME/Documents/Scripts"
+if [ -d /sbin ]; then
+	export PATH="/sbin:$PATH"
+fi
+
+if [ -d /usr/sbin ]; then
+	export PATH="/usr/sbin:$PATH"
 fi
 
 if [ -d /usr/local/opt/coreutils/libexec/gnubin ]; then
@@ -143,7 +151,11 @@ if [ "$(whoami)" = "root" ]; then
 	PROMPTCOLOR=red
 fi
 
-# prompt for screen
+# prompt for screen & tmux
+if [ -n "$TMUX" ]; then
+	WINDOW="$(tmux display-message -p '#I')"
+fi
+
 if [ $WINDOW ]; then
 	local WINNUM="%{$fg[$PROMPTCOLOR]%}$WINDOW%{$reset_color%}: "
 else
@@ -168,6 +180,10 @@ export GREP_COLOR=34
 
 # homebrew exports
 export HOMEBREW_NO_EMOJI=1
+
+# vim mode
+# bindkey -v
+# export KEYTIMEOUT=1
 
 # locale exports
 export LANG="en_US.UTF-8"
@@ -267,7 +283,6 @@ if [ "$(uname)" = "Darwin" ]; then
 
 	alias localip="ipconfig getifaddr en1"
 
-
 	alias qopen="qlmanage -p "$@" >& /dev/null"
 	alias flush="dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
 	alias clearlogs="sudo rm -rfv /private/var/log/asl/*.asl"
@@ -279,7 +294,6 @@ if [ "$(uname)" = "Darwin" ]; then
 	# current pwd to clipboard
 	alias cpwd='echo \"$(pwd | tr -d "\n")\" | pbcopy'
 
-
 	# nice markdown files in cli using markdown-pdf from npm
 	if [ -d /usr/local/share/npm/lib/node_modules/markdown-pdf/bin ]; then
 		alias markdown-pdf="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf"
@@ -287,11 +301,13 @@ if [ "$(uname)" = "Darwin" ]; then
 			--css-path ~/Dropbox/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
 	fi
 
+	# man in preview
 	function pman() {
 		man -t $1 | open -f -a Preview;
 	}
 	compdef _man pman=man
 
+	# cd to currently open dir in finder
 	function cdf() {
 		finder_dir=$(osascript -e 'try' \
 			-e 'tell application "Finder" to get POSIX path of (target of front Finder window as text)' \
@@ -299,16 +315,15 @@ if [ "$(uname)" = "Darwin" ]; then
 		cd "$finder_dir"
 	}
 
+	# shorter open
 	function o() {
 		if [ $# -ne 0 ]; then
-			OPEN_DIR="/"$(j -l "$@" | head -1 | cut -d '/' -f2-)
+			OPEN_DIR="$@"
 		else
 			OPEN_DIR="."
 		fi
 
-		cd $OPEN_DIR
-		open .
-		cd - > /dev/null
+		open $OPEN_DIR
 	}
 fi
 
@@ -421,7 +436,7 @@ if [ -d ~/Dropbox/Notes ]; then
 		if [ "$#" -eq 0 ]; then
 			echo "You must give note name!"
 		else
-			find ~/Dropbox/Notes -iname "*$@*" -exec $EDITOR {} \;
+			find ~/Dropbox/Notes -iname "*$@*" -exec $EDITOR "{}" +
 		fi
 	}
 fi
@@ -530,7 +545,7 @@ esac
 
 # terminal titles & vcs refresh
 case $TERM in
-	*xterm*|urxvt|(u|dt|k|E)term)
+	xterm*|urxvt|(u|dt|k|E)term)
 		precmd () {
 			vcs_info
 			print -nP "\033]0;%m: %3~\007"
@@ -539,16 +554,16 @@ case $TERM in
 			print -nP "\033]0;%m: $1\007"
 		}
 	;;
-	*screen*)
+	screen*)
 		precmd () {
 			vcs_info
 			print -nP "\ek%3~\e\\"
-			print -nP "\e]2;%3~\a"
+			print -nP "\e]0;%3~\a"
 			print -nP "\033]0;%m $WINDOW: %3~\007"
 		}
 		preexec () {
 			print -nP "\ek%3~ $1\e\\"
-			print -nP "\e]2;%3~ $1\a"
+			print -nP "\e]0;%3~ $1\a"
 			print -nP "\033]0;%m $WINDOW: $1\007"
 		}
 	;;

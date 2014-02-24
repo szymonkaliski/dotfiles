@@ -1,6 +1,7 @@
 TERM putty
 TERM screen
 TERM screen-256color
+TERM screen-256color-bce
 TERM xterm
 TERM xterm-256color
 

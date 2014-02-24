@@ -16,35 +16,89 @@ NeoBundle 'airblade/vim-gitgutter'
 NeoBundle 'bling/vim-airline'
 NeoBundle 'Shougo/vimfiler.vim'
 NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/vimshell.vim'
 NeoBundle 'Shougo/vimproc', {
 	\ 'build': {
 	\		'mac': 'make -f make_mac.mak',
 	\		'unix': 'make -f make_unix.mak',
 	\		},
 	\ }
-NeoBundle 'zweifisch/pipe2eval'
 
 " syntaxes
-NeoBundle 'mmalecki/vim-node.js'
-NeoBundle 'briancollins/vim-jst'
 NeoBundle 'plasticboy/vim-markdown'
+NeoBundle 'briancollins/vim-jst'
+NeoBundle 'jelera/vim-javascript-syntax'
+NeoBundle 'pangloss/vim-javascript'
+NeoBundle 'moll/vim-node'
+NeoBundle 'kchmck/vim-coffee-script'
+NeoBundle 'sophacles/vim-processing'
+NeoBundle 'tikhomirov/vim-glsl'
+NeoBundle 'sudar/vim-arduino-syntax'
 
-" osx specific syntaxes
-if system('uname')=="Darwin\n"
-	NeoBundle 'sophacles/vim-processing'
-	NeoBundle 'tikhomirov/vim-glsl'
-	NeoBundle 'sudar/vim-arduino-syntax'
-	NeoBundle 'kchmck/vim-coffee-script'
-endif
-
+" autoload syntaxes
 au BufNewFile,BufRead *.mm set filetype=objc
+au BufNewFile,BufRead *.tpl let b:jst_subtype='html'
 au BufNewFile,BufRead *.tpl set filetype=jst
+
+" return to same lane after reopenning file
+augroup line_return
+	au!
+	au BufReadPost *
+		\ if line("'\"") > 0 && line("'\"") <= line("$") |
+		\		execute 'normal! g`"zvzz' |
+		\ endif
+augroup END
 
 " extended % matching
 runtime macros/matchit.vim
 
-" automaticaly cd into dir
-set autochdir
+" set path
+if system('uname')=="Darwin\n"
+	let $PATH="/usr/local/bin:" . $PATH . ":/Users/Szymon/Dropbox/Code/Scripts"
+endif
+
+" set nice window title
+function DirPath()
+	let l:splited = split(getcwd(), "/")
+	let l:cut = 3
+	if len(l:splited) < l:cut
+		let cut = len(l:splited)
+	endif
+
+	let l:cut = -l:cut
+
+	" return join(split(fnamemodify(getcwd(), ':~'), "/")[-3:-1], "/")
+	return join(l:splited[l:cut : -1], "/")
+endfunction
+
+function WindowTitle()
+	return "vim: " . DirPath() . "/" . fnamemodify(expand("%:f"), ":.")
+endfunction
+
+" set title on start as simple 'vim'
+set title
+set titlestring=vim
+" set titlestring=vim :\ %-25.55F\ %a%r%m
+
+" update titlestring with proper title
+au BufEnter * let &titlestring = WindowTitle()
+
+" only needed in screen
+if &term == "screen-256color"
+	" screen caption is set by iconstring
+	set t_IS=k
+	set t_IE=\
+	set icon
+
+	au BufEnter * let &iconstring = WindowTitle()
+
+	" screen window title is set by titlestring
+	set t_ts=]2;
+	set t_fs=\
+endif
+
+" automaticaly cd into dir - breaks vimshell
+" set autochdir
 " autocmd BufEnter * silent! lcd %:p:h
 
 " yank and paste with system clipboard
@@ -66,27 +120,30 @@ set shortmess+=I
 
 " syntax coloring
 syntax enable
-filetype plugin indent on
+
+" don't try to highlight lines longer than 800 character
+set synmaxcol=800
 
 " encoding
 set encoding=utf-8
 set fileencodings=utf-8
 
 " indentation
+filetype plugin indent on
+set autoindent
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
-set smartindent
 
 " additional settings
 set backspace=indent,eol,start
 set number
 set linebreak
 set ruler
-set scrolloff=10
+set scrolloff=3
 
-" hidden chars as in textmate
-set nolist
+" hidden chars liketextmate
+set list
 set listchars=tab:▸\ ,trail:∙ " ,eol:¬
 
 " buffers/tabs settings
@@ -97,7 +154,7 @@ set hidden
 set nobackup
 set noswapfile
 if exists('&undodir')
-	set undodir=~/.vim/undo
+	set undodir=~/.vim/undo//
 endif
 
 " long history and undo
@@ -120,19 +177,21 @@ set laststatus=2
 set noshowmode
 set noshowcmd
 
-" color theme in cli
-if !has("gui_running")
-	colorscheme Tomorrow-Night-Mine
-endif
+" completion in command line
+set wildmenu
 
-" airline
+" color theme
+set t_Co=256
+colorscheme tomorrow-night-mine
+
+" airline settings
 let g:airline_left_sep=''
 let g:airline_right_sep=''
 let g:airline_inactive_collapse=0
 let g:airline#extensions#whitespace#enabled=0
 let g:airline#extensions#syntastic#enabled=0
 let g:airline#extensions#hunks#enabled=0
-let g:airline_section_b="%{getcwd()}"
+let g:airline_section_b="%{DirPath()}"
 let g:airline_section_c="%t"
 let g:airline_section_x=""
 let g:airline_section_y=""
@@ -141,14 +200,21 @@ let g:airline_section_y=""
 let g:airline_theme_patch_func = 'AirlineThemePatch'
 function! AirlineThemePatch(palette)
 	if g:airline_theme == 'tomorrow'
-		let paletes = [a:palette.normal, a:palette.insert, a:palette.replace, a:palette.visual]
-		for palete in paletes
-			for colors in values(palete)
-				if len(colors) == 5
-					let colors[4] = "NONE"
+		let palettes = [a:palette.normal, a:palette.insert, a:palette.replace, a:palette.visual]
+		for palette in palettes
+			for colors in values(palette)
+				if len(colors) >= 5
+					let colors[4] = 'none'
 				endif
 			endfor
+			let palette.airline_c[3] = '0'
 		endfor
+		if !has("gui_running")
+			for colors in values(a:palette.inactive)
+				let colors[2] = '245'
+				let colors[3] = '0'
+			endfor
+		endif
 	endif
 endfunction
 
@@ -172,9 +238,9 @@ let g:unite_data_directory=expand('~/.vim/unite')
 let g:unite_source_history_yank_enable = 1
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 
-nnoremap <C-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
-nnoremap <C-b> :Unite -buffer-name=buffer -start-insert buffer_tab<cr>
-nnoremap <C-y> :Unite -buffer-name=yank -start-insert history/yank<cr>
+nnoremap <silent> <C-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
+nnoremap <silent> <C-b> :Unite -buffer-name=buffer -start-insert buffer<cr>
+nnoremap <silent> <C-y> :Unite -buffer-name=yank -start-insert history/yank<cr>
 
 if executable('ag')
 	let g:unite_source_grep_command='ag'
@@ -182,15 +248,8 @@ if executable('ag')
 	  \ '--line-numbers --nocolor --nogroup --hidden --ignore ' .
 	  \  '''.hg'' --ignore ''.svn'' --ignore ''.git'' --ignore ''.bzr'''
 	let g:unite_source_grep_recursive_opt=''
-	nnoremap <C-g> :Unite -buffer-name=grep -start-insert grep:.<cr>
+	nnoremap <silent> <C-g> :Unite -no-quit -keep-focus -buffer-name=grep -no-start-insert grep:.<cr>
 endif
-
-" syntastic settings
-let g:syntastic_check_on_open=1
-let g:syntastic_error_symbol='!'
-let g:syntastic_warning_symbol='?'
-let g:syntastic_style_error_symbol='!'
-let g:syntastic_style_warning_symbol='?'
 
 " vimfiler settings
 let g:vimfiler_enable_auto_cd=1
@@ -202,15 +261,30 @@ let g:vimfiler_tree_closed_icon='▸'
 let g:vimfiler_file_icon=' '
 let g:vimfiler_marked_file_icon='*'
 let g:vimfiler_data_directory=expand('~/.vim/vimfiler')
-nnoremap <C-n> :VimFilerExplorer<cr>
 
-" os specific settings
-if has('unix')
-	if system('uname')=="Darwin\n"
-		" pipe2eval setting - better set here than in zshrc
-		let $PIP2EVAL_TMP_FILE_PATH="/tmp/shm"
-	endif
-endif
+" no numbers in vimfiler
+au FileType vimfiler setlocal nonumber
+
+" open vimfilerexplorer
+nnoremap <silent> <C-n> :VimFilerExplorer<cr>
+
+" vimshell settings
+let g:vimshell_prompt_expr='escape(DirPath(),  "\\[]()?! "). " → "'
+let g:vimshell_prompt_pattern='^\(\f\|\\.\)\+ → '
+
+" vimshell mappings
+nmap <silent> <leader>vs :VimShell<cr>
+nmap <silent> <leader>vp :VimShellPop<cr>
+nmap <silent> <leader>ss :VimShellSendString<cr>
+
+" no numbers in vimshell
+au FileType vimshell setlocal nonumber
+au FileType int-node setlocal nonumber
+au FileType int-lein setlocal nonumber
+
+" run interactive vimshells
+command! ShellNode :VimShellInteractive node
+command! ShellClojure :VimShellInteractive lein repl
 
 " kills trailing whitespaces
 command! KillWhitespace :normal :%s/\s\+$//g<cr>
@@ -219,22 +293,43 @@ command! KillWhitespace :normal :%s/\s\+$//g<cr>
 vnoremap > >gv
 vnoremap < <gv
 
+" dot works in visual selection mode!
+vnoremap . :norm.<cr>
+
 " move between windows
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 nnoremap <C-h> <C-w>h
 
-" kill whitespace with <leader>k
+" better line begin (H) and end (L)
+noremap H ^
+noremap L $
+vnoremap L g_noremap <C-h> <C-w>h
+
+" don't move on *
+nnoremap <silent> * :let stay_star_view = winsaveview()<cr>*:call winrestview(stay_star_view)<cr>
+
+" keep search matches in the middle of the window
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
+" same when jumping around
+nnoremap g; g;zz
+nnoremap g, g,zz
+nnoremap <c-o> <c-o>zz
+
+" kill whitespace
 nmap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
-" clean search using <leader>s
+
+" clean current search
 nmap <silent> <leader>s :nohlsearch<cr>
-" toggle list chars with <leader>l
+
+" toggle list chars
 nmap <silent> <leader>l :set list!<cr>
+
 " toggle numbers
 nmap <silent> <leader>n :set number!<cr>
-" buffer mappings
-nmap <silent> <leader>bd :bdelete<CR>
-nmap <silent> <leader>bn :bNext<CR>
-nmap <silent> <leader>bp :bprevious<CR>
 
+" change dir to current file
+nmap <silent> <leader>cd :lcd %:h<cr>

@@ -6,11 +6,6 @@ if [ "$RESP" = "y" ]; then
 	sudo periodic daily weekly monthly
 fi
 
-read -p "$(tput setaf 3)Repair disk permissions?$(tput sgr0) (y/n) " RESP
-if [ "$RESP" = "y" ]; then
-	diskutil repairPermissions /
-fi
-
 read -p "$(tput setaf 3)Clean .DS_Store files?$(tput sgr0) (y/n) " RESP
 if [ "$RESP" = "y" ]; then
 	sudo find / -name ".DS_Store" -depth -exec rm {} \;
@@ -18,8 +13,8 @@ fi
 
 read -p "$(tput setaf 3)Clean caches?$(tput sgr0) (y/n) " RESP
 if [ "$RESP" = "y" ]; then
-	sudo rm -rf /private/var/folders/*
-	sudo rm -rf /System/Library/Caches/*
+	# sudo rm -rf /private/var/folders/*
+	# sudo rm -rf /System/Library/Caches/*
 	sudo rm -rf /Library/Caches/*
 	rm -rf ~/Library/Caches/*
 fi
@@ -52,6 +47,11 @@ fi
 read -p "$(tput setaf 3)Rebuild Spotlight?$(tput sgr0) (y/n) " RESP
 if [ "$RESP" = "y" ]; then
 	sudo mdutil -E /
+fi
+
+read -p "$(tput setaf 3)Repair disk permissions?$(tput sgr0) (y/n) " RESP
+if [ "$RESP" = "y" ]; then
+	diskutil repairPermissions /
 fi
 
 echo -e "\n$(tput setaf 1)Clean done, restart your computer!$(tput sgr0)"

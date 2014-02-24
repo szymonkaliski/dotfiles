@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# remount everything on wake
-/usr/sbin/diskutil list | awk '/Apple_HFS/ {print $NF}' | xargs -I{} /usr/sbin/diskutil mount {} > /dev/null 2>&1 &
-
 # set location to wireless
 /usr/sbin/scselect Wireless > /dev/null 2>&1 &
+
+# remount everything on wake
+/usr/sbin/diskutil list | awk '/Apple_HFS/ {print $NF}' | xargs -I{} /usr/sbin/diskutil mount {} > /dev/null 2>&1 &
 
 # check if docked - DELL monitor is connected
 DELLCOUNT=$(sleep 0.1s && /usr/sbin/system_profiler SPDisplaysDataType | grep -i dell | wc -l)
@@ -13,4 +13,5 @@ POWER=0
 if [[ $DELLCOUNT -eq 1 ]]; then
 	POWER=1
 fi
+
 /usr/local/bin/blueutil power $POWER > /dev/null 2>&1 &

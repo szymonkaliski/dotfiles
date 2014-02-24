@@ -1,9 +1,4 @@
 if has("gui_macvim")
-	" path for macvim running from finder
-	if system('uname')=="Darwin\n"
-		let $PATH=$PATH . ":/Users/Szymon/Dropbox/Code/Scripts"
-	endif
-
 	" disable scrollbar
 	set guioptions-=r
 	set go-=L
@@ -14,9 +9,6 @@ if has("gui_macvim")
 	" turn off blinking cursor
 	set gcr=n:blinkon0
 
-	" theme
-	colorscheme Tomorrow-Night-Mine
-
 	" default window size
 	set lines=72 columns=150
 
@@ -26,12 +18,19 @@ if has("gui_macvim")
 	" automatically resize splits when resizing MacVim window
 	autocmd VimResized * wincmd =
 
-	" cmd-p for unit eplugin
+	" cmd-p for unite plugin
 	macmenu &File.Print key=<nop>
 	map <D-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
 
 	" comment lines with cmd-/
 	map <D-/> :TComment<cr>
 	vmap <D-/> :TComment<cr>gv
+
+	" vimshell tomorrow colors
+	let g:vimshell_escape_colors = [
+		\"#000000", "#912226", "#778900", "#ae7b00", "#1d2594", "#682a9b", "#2b6651", "#929593",
+		\"#666666", "#cc6666", "#b5bd68", "#f0c674", "#81a2be", "#b294bb", "#8abeb7", "#ecebec"
+		\]
+
 endif
 

@@ -6,11 +6,15 @@ hardstatus off
 altscreen on
 defflow off
 term "screen-256color"
+msgwait 0
 
 # force utf8, probably overkill
 defutf8 on
 defencoding utf-8
 encoding utf-8 utf-8
+
+# BCE?
+# defbce on
 
 # resize split windows
 bind - resize -1
@@ -19,10 +23,12 @@ bind _ resize -10
 bind + resize +10
 
 # caption for split windows
-caption splitonly "%{= kG}%n%{W}: %{B}%t"
+caption splitonly "%{= kG}%n%{W}: %{b}%t" # tomorrow
+# caption splitonly "%{= KG}%n%{W}: %{B}%t" # solarized
 
 # screen messages color
-sorendition "= kM"
+sorendition "= kM" # tomorrow
+# sorendition "= KM" # solarized
 
 # titles
 termcapinfo xterm* 'hs:ts=\E]0;:fs=\007:ds=\E]0;\007'

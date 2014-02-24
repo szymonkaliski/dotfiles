@@ -1,7 +1,7 @@
 " XVim settings
 
 " no toolbar
-set guioptions-=T
+" set guioptions-=T
 
 " proper search
 set incsearch
@@ -22,6 +22,16 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 nnoremap <C-h> <C-w>h
 
-" comments
-vmap gc :xccmd commentAndUncommentCurrentLines<CR>
+" quick open
+nnoremap <C-p> :xccmd openQuickly<CR>
 
+" navigator
+nnoremap <C-n> :xccmd toggleNavigatorsVisibility<CR>
+
+" comments
+nnoremap gc :xccmd commentAndUncommentCurrentLines<CR>
+vnoremap gc :xccmd commentAndUncommentCurrentLines<CR>
+
+" dont loose selection on indenting
+vnoremap > >gv
+vnoremap < <gv
