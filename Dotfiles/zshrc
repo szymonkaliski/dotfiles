@@ -263,7 +263,7 @@ function sn() {
 	if [ "$#" -eq 0 ]; then
 		screen
 	else
-		screen -S $@
+		screen -S "${1:+"$@"}"
 	fi
 }
 
@@ -271,6 +271,17 @@ alias sl="screen -ls"
 alias sr="screen -R"
 alias sf="screen -dRR"
 alias sx="screen -x"
+
+# shorter vim
+function v() {
+	if [ $# -ne 0 ]; then
+		ARG="${1:+"$@"}"
+	else
+		ARG="."
+	fi
+
+	vim $ARG
+}
 
 # mac only
 if [ "$(uname)" = "Darwin" ]; then
@@ -318,12 +329,23 @@ if [ "$(uname)" = "Darwin" ]; then
 	# shorter open
 	function o() {
 		if [ $# -ne 0 ]; then
-			OPEN_DIR="$@"
+			ARG="${1:+"$@"}"
 		else
-			OPEN_DIR="."
+			ARG="."
 		fi
 
-		open $OPEN_DIR
+		open $ARG
+	}
+
+	# shorter mvim
+	function m() {
+		if [ $# -ne 0 ]; then
+			ARG="${1:+"$@"}"
+		else
+			ARG="."
+		fi
+
+		mvim $ARG
 	}
 fi
 

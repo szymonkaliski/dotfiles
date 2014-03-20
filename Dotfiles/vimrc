@@ -1,21 +1,28 @@
-" make vim more useful
-set nocompatible
-
-" neobundle
+" neobundle {{{
 if has('vim_starting')
 	set runtimepath+=~/.vim/bundle/neobundle.vim/
 endif
 call neobundle#rc(expand('~/.vim/bundle/'))
 NeoBundleFetch 'Shougo/neobundle.vim'
 
-NeoBundle 'tomtom/tcomment_vim'
+" nicer editing bundles
 NeoBundle 'Raimondi/delimitMate'
-NeoBundle 'tpope/vim-surround'
 NeoBundle 'ervandew/supertab'
-NeoBundle 'airblade/vim-gitgutter'
+NeoBundle 'tomtom/tcomment_vim'
+NeoBundle 'tpope/vim-surround'
+
+" probably unnecessary, but nice to have
 NeoBundle 'bling/vim-airline'
-NeoBundle 'Shougo/vimfiler.vim'
+
+" load this only on OSX
+if system("uname -s") == "Darwin\n"
+	NeoBundle 'airblade/vim-gitgutter'
+	NeoBundle 'scrooloose/syntastic'
+endif
+
+" shugo bundles
 NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/vimfiler.vim'
 NeoBundle 'Shougo/vimshell.vim'
 NeoBundle 'Shougo/vimproc', {
 	\ 'build': {
@@ -24,78 +31,23 @@ NeoBundle 'Shougo/vimproc', {
 	\		},
 	\ }
 
-" syntaxes
-NeoBundle 'plasticboy/vim-markdown'
+" custom syntax bundles
 NeoBundle 'briancollins/vim-jst'
+NeoBundle 'davidoc/taskpaper.vim'
 NeoBundle 'jelera/vim-javascript-syntax'
-NeoBundle 'pangloss/vim-javascript'
-NeoBundle 'moll/vim-node'
 NeoBundle 'kchmck/vim-coffee-script'
+NeoBundle 'moll/vim-node'
+NeoBundle 'pangloss/vim-javascript'
+NeoBundle 'plasticboy/vim-markdown'
 NeoBundle 'sophacles/vim-processing'
-NeoBundle 'tikhomirov/vim-glsl'
 NeoBundle 'sudar/vim-arduino-syntax'
+NeoBundle 'tikhomirov/vim-glsl'
 
-" autoload syntaxes
-au BufNewFile,BufRead *.mm set filetype=objc
-au BufNewFile,BufRead *.tpl let b:jst_subtype='html'
-au BufNewFile,BufRead *.tpl set filetype=jst
+" }}}
+" vim settings {{{
 
-" return to same lane after reopenning file
-augroup line_return
-	au!
-	au BufReadPost *
-		\ if line("'\"") > 0 && line("'\"") <= line("$") |
-		\		execute 'normal! g`"zvzz' |
-		\ endif
-augroup END
-
-" extended % matching
-runtime macros/matchit.vim
-
-" set path
-if system('uname')=="Darwin\n"
-	let $PATH="/usr/local/bin:" . $PATH . ":/Users/Szymon/Dropbox/Code/Scripts"
-endif
-
-" set nice window title
-function DirPath()
-	let l:splited = split(getcwd(), "/")
-	let l:cut = 3
-	if len(l:splited) < l:cut
-		let cut = len(l:splited)
-	endif
-
-	let l:cut = -l:cut
-
-	" return join(split(fnamemodify(getcwd(), ':~'), "/")[-3:-1], "/")
-	return join(l:splited[l:cut : -1], "/")
-endfunction
-
-function WindowTitle()
-	return "vim: " . DirPath() . "/" . fnamemodify(expand("%:f"), ":.")
-endfunction
-
-" set title on start as simple 'vim'
-set title
-set titlestring=vim
-" set titlestring=vim :\ %-25.55F\ %a%r%m
-
-" update titlestring with proper title
-au BufEnter * let &titlestring = WindowTitle()
-
-" only needed in screen
-if &term == "screen-256color"
-	" screen caption is set by iconstring
-	set t_IS=k
-	set t_IE=\
-	set icon
-
-	au BufEnter * let &iconstring = WindowTitle()
-
-	" screen window title is set by titlestring
-	set t_ts=]2;
-	set t_fs=\
-endif
+" make vim more useful
+set nocompatible
 
 " automaticaly cd into dir - breaks vimshell
 " set autochdir
@@ -112,8 +64,7 @@ set lazyredraw
 set ttyfast
 
 " don't beep
-set noerrorbells visualbell t_vb=
-autocmd GUIEnter * set visualbell t_vb=
+set noeb vb t_vb=
 
 " disable startup message
 set shortmess+=I
@@ -135,6 +86,9 @@ set tabstop=2
 set shiftwidth=2
 set softtabstop=2
 
+" html indent fixes
+let g:html_indent_tags=['p', 'li', 'ol', 'ul', 'div', 'head', 'html', 'body']
+
 " additional settings
 set backspace=indent,eol,start
 set number
@@ -142,33 +96,33 @@ set linebreak
 set ruler
 set scrolloff=3
 
-" hidden chars liketextmate
-set list
-set listchars=tab:▸\ ,trail:∙ " ,eol:¬
+" hidden chars liketextmate, disabled by default
+" set list
+set listchars=tab:▸\ ,trail:∙,eol:¬
 
 " buffers/tabs settings
 set switchbuf=useopen,usetab,newtab
 set hidden
 
-" no backups or swapfiles, centralized undo history
+" no backups or swapfiles, with centralized and persistent undo history
 set nobackup
 set noswapfile
-if exists('&undodir')
-	set undodir=~/.vim/undo//
-endif
+set undofile
+set undodir=~/.vim/undo//
+
+" fix for node fs.watch
+set backupcopy=yes
 
 " long history and undo
 set history=1000
 set undolevels=1000
+set undoreload=10000
 
 " search settings
 set hlsearch
 set ignorecase
 set smartcase
 set incsearch
-
-" set split char to space (looks nice)
-set fillchars+=vert:\ 
 
 " always disaplay status line
 set laststatus=2
@@ -180,9 +134,129 @@ set noshowcmd
 " completion in command line
 set wildmenu
 
+" insert completion height
+set pumheight=10
+
+" code folding
+set foldmethod=syntax
+" set foldlevel=999
+
 " color theme
 set t_Co=256
-colorscheme tomorrow-night-mine
+colorscheme tomorrow-night
+
+" set split char to space (looks nice)
+set fillchars+=vert:\ 
+
+" extended % matching
+runtime macros/matchit.vim
+
+" }}}
+" autocommands {{{
+
+" return to same line after reopenning file
+augroup line_return
+	au!
+	au BufReadPost *
+		\ if line("'\"") > 0 && line("'\"") <= line("$") |
+		\		execute 'normal! g`"zvzz' |
+		\ endif
+augroup END
+
+" automatically resize splits when resizing window
+augroup split_resize
+	au!
+	au VimResized * wincmd =
+augroup END
+
+" set proper syntaxes
+augroup syntaxes
+	au!
+
+	au BufNewFile,BufRead *.mm set filetype=objc
+	au BufNewFile,BufRead *.tpl let b:jst_subtype='html'
+	au BufNewFile,BufRead *.tpl set filetype=jst
+
+	au BufNewFile,BufRead ~/Dropbox/Notes/* set filetype=markdown
+
+	au FileType int-node set filetype=javascript
+	au FileType int-lein set filetype=clojure
+augroup END
+
+" custom settings based on filetype
+augroup ft_settings
+	au!
+
+	au BufNewFile,BufRead *.coffee setl shiftwidth=2 expandtab
+	au FileType vim set foldmethod=marker foldlevel=0
+augroup END
+
+" no numbers based on file types
+augroup nonumbers
+	au!
+
+	au FileType vimfiler setlocal nonumber
+	au FileType vimshell setlocal nonumber
+	au FileType int-node setlocal nonumber
+	au FileType int-lein setlocal nonumber
+	au FileType text     setlocal nonumber
+	au FileType markdown setlocal nonumber
+augroup END
+
+" }}}
+" window titles{{{
+
+" set path
+if system('uname')=="Darwin\n"
+	let $PATH="/usr/local/bin:" . $PATH . ":/Users/Szymon/Dropbox/Code/Scripts"
+endif
+
+" set nice window title
+function! DirPath()
+	let l:splited = split(getcwd(), "/")
+	let l:cut = 3
+	if len(l:splited) < l:cut
+		let cut = len(l:splited)
+	endif
+
+	let l:cut = -l:cut
+
+	return join(l:splited[l:cut : -1], "/")
+endfunction
+
+function! WindowTitle()
+	return "vim: " . DirPath() . "/" . fnamemodify(expand("%:f"), ":.")
+endfunction
+
+" set title on start as simple 'vim'
+set title
+set titlestring=vim
+
+" update titlestring with proper title
+augroup title_titlestring
+	au!
+	au BufEnter * let &titlestring = WindowTitle()
+augroup END
+
+" only needed in screen
+if &term == "screen-256color"
+	" screen caption is set by iconstring
+	set t_IS=k
+	set t_IE=\
+	set icon
+
+	augroup title_iconstring
+		au!
+		au BufEnter * let &iconstring = WindowTitle()
+	augroup END
+
+	" screen window title is set by titlestring
+	set t_ts=]2;
+	set t_fs=\
+endif
+
+" }}}
+" plugin: airline {{{
 
 " airline settings
 let g:airline_left_sep=''
@@ -200,14 +274,14 @@ let g:airline_section_y=""
 let g:airline_theme_patch_func = 'AirlineThemePatch'
 function! AirlineThemePatch(palette)
 	if g:airline_theme == 'tomorrow'
-		let palettes = [a:palette.normal, a:palette.insert, a:palette.replace, a:palette.visual]
+		let palettes = [a:palette.normal, a:palette.insert, a:palette.replace, a:palette.visual, a:palette.accents]
 		for palette in palettes
 			for colors in values(palette)
 				if len(colors) >= 5
 					let colors[4] = 'none'
 				endif
 			endfor
-			let palette.airline_c[3] = '0'
+			" let palette.airline_c[3] = '0'
 		endfor
 		if !has("gui_running")
 			for colors in values(a:palette.inactive)
@@ -218,30 +292,37 @@ function! AirlineThemePatch(palette)
 	endif
 endfunction
 
-" code folding
-set foldmethod=syntax
-autocmd BufEnter * exe 'normal zR'
+" }}}
+" plugin: syntastic {{{
 
-" gitgutter settings
-let g:gitgutter_eager=0
+let g:syntastic_enable_highlighting=0
+let g:syntastic_check_on_open=1
+let g:syntastic_always_populate_loc_list=1
+let g:syntastic_error_symbol='!'
+let g:syntastic_style_error_symbol='!'
+let g:syntastic_warning_symbol='?'
+let g:syntastic_style_warning_symbol='?'
 
-" tComment settings
-vmap gcc gc
+" }}}
+" plugin: supertab {{{
 
-" supertab settings
 let g:SuperTabDefaultCompletionType="context"
 let g:SuperTabContextDefaultCompletionType="<c-n>"
-set pumheight=15
 
-" unite settings
+" }}}
+" plugin: unite {{{
+
+" settings
 let g:unite_data_directory=expand('~/.vim/unite')
-let g:unite_source_history_yank_enable = 1
+let g:unite_source_history_yank_enable=1
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 
+" mappings
 nnoremap <silent> <C-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
 nnoremap <silent> <C-b> :Unite -buffer-name=buffer -start-insert buffer<cr>
 nnoremap <silent> <C-y> :Unite -buffer-name=yank -start-insert history/yank<cr>
 
+" grep
 if executable('ag')
 	let g:unite_source_grep_command='ag'
 	let g:unite_source_grep_default_opts=
@@ -251,7 +332,19 @@ if executable('ag')
 	nnoremap <silent> <C-g> :Unite -no-quit -keep-focus -buffer-name=grep -no-start-insert grep:.<cr>
 endif
 
-" vimfiler settings
+" NV notes
+if isdirectory($HOME . "/Dropbox/Notes")
+	command! -nargs=* Notes :silent Unite -buffer-name=notes -start-insert file_rec/async:~/Dropbox/Notes -input=<args>
+endif
+
+" TaskPaper tasks
+if isdirectory($HOME . "/Dropbox/Tasks")
+	command! -nargs=* Tasks :silent Unite -buffer-name=tasks -start-insert file_rec/async:~/Dropbox/Tasks -input=<args>
+endif
+
+" }}}
+" plugin: vimfiler {{{
+
 let g:vimfiler_enable_auto_cd=1
 let g:vimfiler_as_default_explorer=1
 let g:vimfiler_directory_display_top=1
@@ -262,32 +355,71 @@ let g:vimfiler_file_icon=' '
 let g:vimfiler_marked_file_icon='*'
 let g:vimfiler_data_directory=expand('~/.vim/vimfiler')
 
-" no numbers in vimfiler
-au FileType vimfiler setlocal nonumber
-
 " open vimfilerexplorer
 nnoremap <silent> <C-n> :VimFilerExplorer<cr>
 
-" vimshell settings
+" }}}
+" plugin: vimshell {{{
+
 let g:vimshell_prompt_expr='escape(DirPath(),  "\\[]()?! "). " → "'
 let g:vimshell_prompt_pattern='^\(\f\|\\.\)\+ → '
 
-" vimshell mappings
+" mappings
 nmap <silent> <leader>vs :VimShell<cr>
-nmap <silent> <leader>vp :VimShellPop<cr>
 nmap <silent> <leader>ss :VimShellSendString<cr>
-
-" no numbers in vimshell
-au FileType vimshell setlocal nonumber
-au FileType int-node setlocal nonumber
-au FileType int-lein setlocal nonumber
+vmap <silent> <leader>ss :VimShellSendString<cr>
 
 " run interactive vimshells
-command! ShellNode :VimShellInteractive node
+command! ShellNode VimShellInteractive node
 command! ShellClojure :VimShellInteractive lein repl
+command! ShellCljsListen :VimShellInteractive lein trampoline cljsbuild repl-listen
+
+" }}}
+" plugin: vimproc {{{
+
+" simple app running functions
+command! Plask :VimProcBang plask %
+command! Node :VimProcBang node %
+
+" }}}
+" custom commands {{{
 
 " kills trailing whitespaces
 command! KillWhitespace :normal :%s/\s\+$//g<cr>
+
+" shows syntax highlight group for element
+command! ShowSyntax :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+
+" destroy all buffers that are not open in any tabs or windows
+" https://github.com/artnez/vim-wipeout/blob/master/plugin/wipeout.vim
+command! -bang Wipeout :call Wipeout(<bang>0)
+function! Wipeout(bang)
+	" figure out which buffers are visible in any tab
+	let visible = {}
+	for t in range(1, tabpagenr('$'))
+		for b in tabpagebuflist(t)
+			let visible[b] = 1
+		endfor
+	endfor
+	" close any buffer that are loaded and not visible
+	let l:tally = 0
+	let l:cmd = 'bw'
+	if a:bang
+		let l:cmd .= '!'
+	endif
+	for b in range(1, bufnr('$'))
+		if buflisted(b) && !has_key(visible, b)
+			let l:tally += 1
+			exe l:cmd . ' ' . b
+		endif
+	endfor
+	echon "Deleted " . l:tally . " buffer" . (l:tally == 1 ? "" : "s")
+endfun
+
+" }}}
+" custom mappings {{{
 
 " dont loose selection on indenting
 vnoremap > >gv
@@ -296,16 +428,22 @@ vnoremap < <gv
 " dot works in visual selection mode!
 vnoremap . :norm.<cr>
 
+" select whole buffer
+nnoremap <silent> <leader>va ggVG
+
 " move between windows
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 nnoremap <C-h> <C-w>h
 
+" D deletes to the end of the line
+nnoremap D d$
+
 " better line begin (H) and end (L)
 noremap H ^
 noremap L $
-vnoremap L g_noremap <C-h> <C-w>h
+vnoremap L g_
 
 " don't move on *
 nnoremap <silent> * :let stay_star_view = winsaveview()<cr>*:call winrestview(stay_star_view)<cr>
@@ -323,7 +461,7 @@ nnoremap <c-o> <c-o>zz
 nmap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
 
 " clean current search
-nmap <silent> <leader>s :nohlsearch<cr>
+nmap <silent> <leader>c :nohlsearch<cr>
 
 " toggle list chars
 nmap <silent> <leader>l :set list!<cr>
@@ -331,5 +469,4 @@ nmap <silent> <leader>l :set list!<cr>
 " toggle numbers
 nmap <silent> <leader>n :set number!<cr>
 
-" change dir to current file
-nmap <silent> <leader>cd :lcd %:h<cr>
+" }}}

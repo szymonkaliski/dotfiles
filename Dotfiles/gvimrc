@@ -1,4 +1,7 @@
 if has("gui_macvim")
+	" no bells
+	set vb t_vb=
+
 	" disable scrollbar
 	set guioptions-=r
 	set go-=L
@@ -15,16 +18,16 @@ if has("gui_macvim")
 	" always show tabs
 	set showtabline=2
 
-	" automatically resize splits when resizing MacVim window
-	autocmd VimResized * wincmd =
-
-	" cmd-p for unite plugin
+	" disable printing from menu
 	macmenu &File.Print key=<nop>
-	map <D-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
 
 	" comment lines with cmd-/
 	map <D-/> :TComment<cr>
 	vmap <D-/> :TComment<cr>gv
+
+	" change tabs with ctrl-tab
+	noremap <C-Tab> :tabnext<cr>
+	noremap <C-S-Tab> :tabprev<cr>
 
 	" vimshell tomorrow colors
 	let g:vimshell_escape_colors = [
@@ -32,5 +35,22 @@ if has("gui_macvim")
 		\"#666666", "#cc6666", "#b5bd68", "#f0c674", "#81a2be", "#b294bb", "#8abeb7", "#ecebec"
 		\]
 
-endif
+	" cursorlines in special buffers - only looks nice in gvim
+	augroup cursorlines
+		au!
+		au FileType vimfiler setlocal cursorline
+	augroup END
 
+	" fullscreen switching command
+	function! FullScreen()
+		set fullscreen!
+
+		if &fullscreen
+			set guioptions-=e
+		else
+			set guioptions+=e
+		endif
+	endfun
+
+	command! FullScreen :call FullScreen()
+endif
