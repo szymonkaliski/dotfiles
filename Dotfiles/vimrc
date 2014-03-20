@@ -177,18 +177,19 @@ augroup syntaxes
 	au BufNewFile,BufRead *.tpl let b:jst_subtype='html'
 	au BufNewFile,BufRead *.tpl set filetype=jst
 
-	au BufNewFile,BufRead ~/Dropbox/Notes/* set filetype=markdown
+	au BufNewFile,BufRead ~/Dropbox/Notes/* setlocal filetype=markdown
 
-	au FileType int-node set filetype=javascript
-	au FileType int-lein set filetype=clojure
+	au FileType int-node setlocal filetype=javascript
+	au FileType int-lein setlocal filetype=clojure
 augroup END
 
 " custom settings based on filetype
 augroup ft_settings
 	au!
 
-	au BufNewFile,BufRead *.coffee setl shiftwidth=2 expandtab
-	au FileType vim set foldmethod=marker foldlevel=0
+  au FileType javascript call JavaScriptFold()
+	au FileType coffee setlocal shiftwidth=2 expandtab
+	au FileType vim setlocal foldmethod=marker foldlevel=0
 augroup END
 
 " no numbers based on file types
@@ -458,15 +459,15 @@ nnoremap g, g,zz
 nnoremap <c-o> <c-o>zz
 
 " kill whitespace
-nmap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
+nnoremap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
 
 " clean current search
-nmap <silent> <leader>c :nohlsearch<cr>
+nnoremap <silent> <leader>c :nohlsearch<cr>
 
 " toggle list chars
-nmap <silent> <leader>l :set list!<cr>
+nnoremap <silent> <leader>l :set list!<cr>
 
 " toggle numbers
-nmap <silent> <leader>n :set number!<cr>
+nnoremap <silent> <leader>n :set number!<cr>
 
 " }}}
