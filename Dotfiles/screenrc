@@ -23,12 +23,12 @@ bind _ resize -10
 bind + resize +10
 
 # caption for split windows
-caption splitonly "%{= kG}%n%{W}: %{b}%t" # tomorrow
-# caption splitonly "%{= KG}%n%{W}: %{B}%t" # solarized
+# caption splitonly "%{= kG}%n%{W}: %{b}%t" # tomorrow
+caption splitonly "%{= KG}%n%{W}: %{B}%t" # solarized
 
 # screen messages color
-sorendition "= kM" # tomorrow
-# sorendition "= KM" # solarized
+# sorendition "= kM" # tomorrow
+sorendition "= KM" # solarized
 
 # titles
 termcapinfo xterm* 'hs:ts=\E]0;:fs=\007:ds=\E]0;\007'

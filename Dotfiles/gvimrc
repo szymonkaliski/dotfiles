@@ -1,10 +1,20 @@
 if has("gui_macvim")
+	" gui vim has light background by default
+	set background=light
+
 	" no bells
 	set vb t_vb=
 
 	" disable scrollbar
 	set guioptions-=r
 	set go-=L
+
+	" enable native tabs
+	let g:airline#extensions#tabline#enabled=0
+	set guioptions+=e
+
+	" always show tabs
+	set showtabline=2
 
 	" font
 	set guifont=Menlo:h11
@@ -14,9 +24,6 @@ if has("gui_macvim")
 
 	" default window size
 	set lines=72 columns=150
-
-	" always show tabs
-	set showtabline=2
 
 	" disable printing from menu
 	macmenu &File.Print key=<nop>
@@ -28,18 +35,6 @@ if has("gui_macvim")
 	" change tabs with ctrl-tab
 	noremap <C-Tab> :tabnext<cr>
 	noremap <C-S-Tab> :tabprev<cr>
-
-	" vimshell tomorrow colors
-	let g:vimshell_escape_colors = [
-		\"#000000", "#912226", "#778900", "#ae7b00", "#1d2594", "#682a9b", "#2b6651", "#929593",
-		\"#666666", "#cc6666", "#b5bd68", "#f0c674", "#81a2be", "#b294bb", "#8abeb7", "#ecebec"
-		\]
-
-	" cursorlines in special buffers - only looks nice in gvim
-	augroup cursorlines
-		au!
-		au FileType vimfiler setlocal cursorline
-	augroup END
 
 	" fullscreen switching command
 	function! FullScreen()

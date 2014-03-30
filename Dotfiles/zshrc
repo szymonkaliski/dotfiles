@@ -439,21 +439,20 @@ if [ -d ~/Dropbox/Notes ]; then
 			done
 		else
 			if [ -n "$(find ~/Dropbox/Notes -iname "*$@*")" ]; then
-				if [ -t 0 -a -t 1 ]; then
+				if [ -t 1 ]; then
 					find ~/Dropbox/Notes -iname "*$@*" \
 						-exec echo -e "$(tput setaf 5)\n$(basename {} .txt)\n$(tput sgr0)" \; \
 						-exec cat {} \; \
 						-exec echo \;
 				else
-					find ~/Dropbox/Notes -iname "*$@*" \
-						-exec echo -e "$(basename {} .txt)\n" \; \
-						-exec cat {} \;
+					find ~/Dropbox/Notes -iname "*$@*" -exec cat {} \;
 				fi
 			else
 				echo "No note matches your search!"
 			fi
 		fi
 	}
+
 	function ne() {
 		if [ "$#" -eq 0 ]; then
 			echo "You must give note name!"
