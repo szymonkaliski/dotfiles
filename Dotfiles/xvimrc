@@ -35,3 +35,26 @@ vnoremap gc :xccmd commentAndUncommentCurrentLines<CR>
 " dont loose selection on indenting
 vnoremap > >gv
 vnoremap < <gv
+
+" dot works in visual selection mode!
+vnoremap . :norm.<cr>
+
+" D deletes to the end of the line
+nnoremap D d$
+
+" better line begin (H) and end (L)
+noremap H ^
+noremap L $
+vnoremap L g_
+
+" don't move on *
+nnoremap <silent> * :let stay_star_view = winsaveview()<cr>*:call winrestview(stay_star_view)<cr>
+
+" keep search matches in the middle of the window
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
+" same when jumping around
+nnoremap g; g;zz
+nnoremap g, g,zz
+nnoremap <c-o> <c-o>zz

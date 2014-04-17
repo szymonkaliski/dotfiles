@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+multi=false
+while [ $# -gt 0 ]; do
+	opt=$1
+	shift
+
+	case ${opt} in
+		--multi)
+			multi=true
+			;;
+		*)
+			argv+=(${opt})
+			;;
+	esac
+done
+
+if [[ ${multi} ]]; then
+	killall Plask > /dev/null 2>&1
+fi
+
+/Users/Szymon/Documents/Frameworks/Plask/build/Release/Plask.app/Contents/MacOS/Plask ${argv[0]}

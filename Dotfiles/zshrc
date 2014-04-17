@@ -272,6 +272,18 @@ alias sr="screen -R"
 alias sf="screen -dRR"
 alias sx="screen -x"
 
+# tmux
+function tn() {
+	if [ "$#" -eq 0 ]; then
+		tmux
+	else
+		tmux new -s "${1:+"$@"}"
+	fi
+}
+
+alias tl="tmux ls"
+alias ta="tmux a -t"
+
 # shorter vim
 function v() {
 	if [ $# -ne 0 ]; then
