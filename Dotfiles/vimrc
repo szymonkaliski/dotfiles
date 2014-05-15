@@ -53,7 +53,7 @@ NeoBundle 'tikhomirov/vim-glsl'
 " make vim more useful
 set nocompatible
 
-" automaticaly cd into dir - breaks vimshell
+" automaticaly cd into dir
 " set autochdir
 " autocmd BufEnter * silent! lcd %:p:h
 
@@ -96,7 +96,7 @@ let g:html_indent_inctags="p,li,ol,ul,div,head,html,body,style,script"
 
 " additional settings
 set backspace=indent,eol,start
-" set number
+set number
 set linebreak
 set ruler
 set scrolloff=3
@@ -154,12 +154,12 @@ set foldcolumn=0
 " color theme
 set t_Co=256
 set background=dark
-" colorscheme tomorrow-night
 
 let g:solarized_bold=0
 let g:solarized_italic=0
 let g:solarized_underline=0
 colorscheme solarized
+" colorscheme tomorrow-night
 
 " open splits to the right and bottom
 set splitright
@@ -170,6 +170,11 @@ set fillchars=fold:\ ,vert:│
 
 " extended % matching
 runtime macros/matchit.vim
+
+" set path
+if system('uname')=="Darwin\n"
+	let $PATH="/usr/local/bin:" . $PATH . ":/Users/Szymon/Dropbox/Code/Scripts"
+endif
 
 " }}}
 " autocommands {{{
@@ -183,14 +188,6 @@ augroup line_return
 		\ endif
 augroup END
 
-" automatically save and restore view
-" augroup save_view
-" 	au!
-"
-" 	autocmd BufWrite * mkview
-" 	autocmd BufNewFile,BufRead * silent loadview
-" augroup END
-
 " automatically resize splits when resizing window
 augroup split_resize
 	au!
@@ -203,16 +200,13 @@ augroup syntaxes
 
 	" extend highlights
 	au Syntax * call matchadd('Todo','\W\zs\(ASSUMPTION\)')
-	au Syntax * call matchadd('Error', '\s\+\%#\@<!$')
+	" au Syntax * call matchadd('Error', '\s\+\%#\@<!$')
 
+	" proper filetypes based on name
 	au BufNewFile,BufRead *.mm set filetype=objc
 	au BufNewFile,BufRead *.tpl let b:jst_subtype='html'
 	au BufNewFile,BufRead *.tpl set filetype=jst
-
-	" au BufNewFile,BufRead ~/Dropbox/Notes/* setlocal filetype=markdown
-
-	au FileType int-node setlocal filetype=javascript
-	au FileType int-lein setlocal filetype=clojure
+	au BufNewFile,BufRead ~/Dropbox/Notes/* setlocal filetype=markdown
 augroup END
 
 " custom settings based on filetype
@@ -256,14 +250,9 @@ augroup END
 " }}}
 " window titles {{{
 
-" set path
-if system('uname')=="Darwin\n"
-	let $PATH="/usr/local/bin:" . $PATH . ":/Users/Szymon/Dropbox/Code/Scripts"
-endif
-
 " set nice window title
 function! DirPath()
-	let l:splited = split(getcwd(), "/")
+	let l:splited = split(expand("%:p"), "/")
 	let l:cut = 3
 	if len(l:splited) < l:cut
 		let cut = len(l:splited)
@@ -271,11 +260,15 @@ function! DirPath()
 
 	let l:cut = -l:cut
 
-	return join(l:splited[l:cut : -1], "/")
+	if len(l:splited) == 0
+		return "[No Name]"
+	else
+		return join(l:splited[l:cut : -1], "/")
+	endif
 endfunction
 
 function! WindowTitle()
-	return "vim: " . DirPath() . "/" . fnamemodify(expand("%:f"), ":.")
+	return "vim: " . DirPath()
 endfunction
 
 " set title on start as simple 'vim'
@@ -355,7 +348,6 @@ function! AirlineThemePatch(palette)
 			endfor
 		endif
 
-		" if g:airline_theme == 'solarized' && !has("gui_running")
 		if g:airline_theme == 'solarized'
 			for colors in values(a:palette.inactive)
 				if &background == "dark"
@@ -440,6 +432,13 @@ let g:vimfiler_data_directory=expand('~/.vim/vimfiler')
 
 " open vimfilerexplorer
 nnoremap <silent> <C-n> :VimFilerExplorer<cr>
+nnoremap <silent> <C-f> :VimFiler<cr>
+
+" open files with enter
+autocmd FileType vimfiler nmap <buffer><silent> <Enter>
+			\ :<C-u>execute "normal " . vimfiler#mappings#smart_cursor_map(
+			\  "\<Plug>(vimfiler_cd_file)",
+			\  "\<Plug>(vimfiler_edit_file)")<CR>
 
 " }}}
 " plugin: vimproc {{{
@@ -451,9 +450,6 @@ command! Node :VimProcBang node %
 " }}}
 " plugin: tslime {{{
 
-" let g:tslime_normal_mapping = '<leader>sl'
-" let g:tslime_visual_mapping = '<leader>sl'
-" let g:tslime_vars_mapping = '<leader>sv'
 let g:tslime_ensure_trailing_newlines = 1
 
 " }}}
@@ -468,9 +464,12 @@ command! Zen :Goyo
 command! KillWhitespace :normal :%s/\s\+$//g<cr>
 
 " shows syntax highlight group for element
-command! ShowSyntax :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+command! ShowSyntax
+			\ :echo "hi<".synIDattr(synID(line("."),col("."),1),"name").'>'
+			\ . ' trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+			\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"
+			\ <cr>:execute "highlight " .
+			\ synIDattr(synIDtrans(synID(line("."),col("."),1)),"name")<cr>
 
 " destroy all buffers that are not open in any tabs or windows
 " https://github.com/artnez/vim-wipeout/blob/master/plugin/wipeout.vim

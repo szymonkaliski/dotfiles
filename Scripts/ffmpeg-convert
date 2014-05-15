@@ -18,6 +18,10 @@ case $1 in
 		OPTIONS="-f mp3 -acodec libmp3lame -ab 320000 -ar 44100"
 		EXT=".mp3"
 		;;
+	remove-audio)
+		OPTIONS="-vcodec copy -an"
+		EXT=".no-audio.mp4"
+		;;
 	*)
 		echo "Usage: $0 [preset] [files]"
 		;;

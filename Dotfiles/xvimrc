@@ -1,5 +1,3 @@
-" XVim settings
-
 " no toolbar
 " set guioptions-=T
 
@@ -15,6 +13,10 @@ set noerrorbells
 
 " use system pasteboard
 set pasteboard
+
+" remove whitespace
+command! KillWhitespace :normal :%s/\s\+$//g<cr>
+nnoremap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
 
 " move between assistant editors
 nnoremap <C-j> <C-w>j
@@ -58,3 +60,6 @@ nnoremap N Nzzzv
 nnoremap g; g;zz
 nnoremap g, g,zz
 nnoremap <c-o> <c-o>zz
+
+" select whole buffer
+nnoremap <silent> <leader>va ggVG

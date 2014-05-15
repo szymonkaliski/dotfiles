@@ -1,30 +1,35 @@
 #!/usr/bin/env bash
 # simple single line system statistics
 
-UPTIME="`uptime`"
+UPTIME="$(uptime)"
 
-UP=`echo $UPTIME | \
+UP=$(echo $UPTIME | \
 awk '{
 	sub(/.*up[ ]+/,"",$0)
 	sub(/,[ ]+[0-9]+ user.*/,"",$0)
 	sub(/,/,"",$0)
 	print($0)
-}'`
+}')
 MSG="uptime: $(tput setaf 4)$UP$(tput sgr0)"
 
-#PS=`ps h -d | wc -l`
-#MSG="$MSG, processes: $(tput setaf 1)$PS$(tput sgr0)"
+# PS=$(ps h -d | wc -l)
+# MSG="$MSG, processes: $(tput setaf 1)$PS$(tput sgr0)"
 
-LOAD=`echo $UPTIME | sed 's/.*load average: //' | awk -F\, '{print $2}'`
+LOAD=$(echo $UPTIME | sed 's/.*load average: //' | awk -F\, '{print $2}')
 MSG="$MSG, load:$(tput setaf 5)$LOAD$(tput sgr0)"
 
-SCREEN=`screen -ls | egrep '\(*\)' | wc -l`
+SCREEN=$(screen -ls | egrep '\(*\)' | wc -l)
 if [ "$SCREEN" != "0" ]; then
 	MSG="$MSG, screens: $(tput setaf 2)$SCREEN$(tput sgr0)"
 fi
 
-if [ "`uname`" = "Darwin" ]; then
-	BATTERY=`pmset -g ps | sed -n 's/.*[[:blank:]]+*\(.*%\).*/\1/p'`
+TMUX=$(tmux ls 2> /dev/null | grep window | wc -l)
+if [ "$TMUX" != "0" ]; then
+	MSG="$MSG, tmuxes: $(tput setaf 2)$TMUX$(tput sgr0)"
+fi
+
+if [ "$(uname)" = "Darwin" ]; then
+	BATTERY=$(pmset -g ps | sed -n 's/.*[[:blank:]]+*\(.*%\).*/\1/p')
 	if [ "$BATTERY" != "100%" ]; then
 		MSG="$MSG, battery: $(tput setaf 3)$BATTERY$(tput sgr0)"
 	fi

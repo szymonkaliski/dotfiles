@@ -78,10 +78,6 @@ colors
 [ -f ~/.zshrc.zwc.old ] && rm -f ~/.zshrc.zwc.old
 [ -f ~/.zcompdump.zwc.old ] && rm -f ~/.zcompdump.zwc.old
 
-# ctrl-x ctrl-e to edit current line in $EDITOR
-zle -N edit-command-line
-bindkey '\C-x\C-e' edit-command-line
-
 # npm completions
 if [ -f /usr/lib/node_modules/npm/lib/utils/completion.sh ]; then
 	source /usr/lib/node_modules/npm/lib/utils/completion.sh
@@ -152,21 +148,23 @@ if [ "$(whoami)" = "root" ]; then
 fi
 
 # prompt for screen & tmux
-if [ -n "$TMUX" ]; then
-	WINDOW="$(tmux display-message -p '#I')"
-fi
-
-if [ $WINDOW ]; then
-	local WINNUM="%{$fg[$PROMPTCOLOR]%}$WINDOW%{$reset_color%}: "
-else
-	local WINNUM=""
-fi
+# if [ -n "$TMUX" ]; then
+# 	WINDOW="$(tmux display-message -p '#I')"
+# fi
+#
+# if [ $WINDOW ]; then
+# 	local WINNUM="%{$fg[$PROMPTCOLOR]%}$WINDOW%{$reset_color%}: "
+# else
+# 	local WINNUM=""
+# fi
 
 # main prompt
-PROMPT="$WINNUM%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS→ %{$reset_color%}"
+# PROMPT="$WINNUM%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS%(?,→,%{$fg[red]%}✕%{$reset_color%}) %{$reset_color%}"
+PROMPT="%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS%(?,→,%{$fg[red]%}✕%{$reset_color%}) %{$reset_color%}"
 
 # right prompt
-RPROMPT="%(?,,%{$fg[red]%}✕%{$reset_color%})"
+# RPROMPT="%(?,,%{$fg[red]%}✕%{$reset_color%})"
+RPROMPT=""
 
 # unfinished loops prompt
 PROMPT2="%{$fg[yellow]%}%_%{$reset_color%} → "
@@ -174,16 +172,25 @@ PROMPT2="%{$fg[yellow]%}%_%{$reset_color%} → "
 # spelling prompt
 SPROMPT="correct '%R' to '%r' ? ([Y]es/[N]o/[E]dit/[A]bort) "
 
+# zsh vim mode
+bindkey -v
+export KEYTIMEOUT=1
+
+# right prompt with mode
+function zle-line-init zle-keymap-select {
+	RPS1="${${KEYMAP/vicmd/NORMAL}/(main|viins)/INSERT}"
+	RPS2=$RPS1
+	zle reset-prompt
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
+
 # colors
 export GREP_COLOR=34
 [ -f ~/.dircolors ] && eval $(dircolors -b ~/.dircolors)
 
 # homebrew exports
 export HOMEBREW_NO_EMOJI=1
-
-# vim mode
-# bindkey -v
-# export KEYTIMEOUT=1
 
 # locale exports
 export LANG="en_US.UTF-8"
@@ -281,8 +288,37 @@ function tn() {
 	fi
 }
 
+function tm() {
+	local attach
+	if [ -n $1 ]; then
+		attach=""
+
+		tmux has-session -t $1 > /dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			attach=$1
+			shift
+		else
+			for session in `(tmux ls | awk -F ":" '{ print $1 }') > /dev/null 2>&1`; do
+				if [[ $session =~ ^$1  ]]; then
+					attach=$session
+					shift
+					break
+				fi
+			done
+		fi
+
+		if [[ $attach != "" ]]; then
+			tmux attach -t $attach
+		else
+			tmux new -s $1
+		fi
+	else
+		tmux new
+	fi
+}
+
 alias tl="tmux ls"
-alias ta="tmux a -t"
+alias ta="tmux attach -t"
 
 # shorter vim
 function v() {
@@ -487,6 +523,48 @@ function ff() {
 	find . -iname "*$@*" -type f 2>/dev/null
 }
 
+# fzf functions
+if hash fzf 2> /dev/null; then
+	# default options
+	export FZF_DEFAULT_OPTS="+2"
+
+	# edit file in editor
+	function fze() {
+		local file
+		file=$(fzf --query="$1")
+		[ -n "$file" ] && ${EDITOR:-vim} "$file"
+	}
+
+	# open file using mac open
+	function fzo() {
+		local file
+		file=$(fzf --query="$1")
+		[ -n "$file" ] && open "$file"
+	}
+
+	# cd to directory
+	function fzd() {
+		local dir
+		dir=$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --query="$1") && cd "$dir"
+	}
+
+	# jump in fzf
+	function fzj() {
+		local dir
+		dir=$(j -l | sed "s/[0-9.]* *//" | fzf +s --query="$1") && cd "$dir"
+	}
+
+	# search through history
+	function fzh() {
+		eval $(fc -l 1 | sed 's/ *[0-9]* *//' | fzf +s )
+	}
+
+	# kill process
+	function fzkill() {
+		ps -ef | sed 1d | fzf +2 -m | awk '{print $2}' | xargs kill -${1:-9}
+	}
+fi
+
 # archive extractor
 function extract() {
 	if [ "$(uname)" = "Linux" ]; then
@@ -592,12 +670,14 @@ case $TERM in
 			vcs_info
 			print -nP "\ek%3~\e\\"
 			print -nP "\e]0;%3~\a"
-			print -nP "\033]0;%m $WINDOW: %3~\007"
+			# print -nP "\033]0;%m $WINDOW: %3~\007"
+			print -nP "\033]0;%m: %3~\007"
 		}
 		preexec () {
 			print -nP "\ek%3~ $1\e\\"
 			print -nP "\e]0;%3~ $1\a"
-			print -nP "\033]0;%m $WINDOW: $1\007"
+			# print -nP "\033]0;%m $WINDOW: $1\007"
+			print -nP "\033]0;%m: $1\007"
 		}
 	;;
 esac
