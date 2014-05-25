@@ -16,16 +16,16 @@ slate.configAll({
 var pushLeft = slate.operation("move", {
 	"x": "screenOriginX +" + margin,
 	"y": "screenOriginY +" + margin,
-	"width": "screenSizeX / 2 -" + margin * 1.5,
-	"height": "screenSizeY -" + margin * 1.5
+	"width": "screenSizeX / 2 -" + margin * 1.75,
+	"height": "screenSizeY -" + margin * 1.75
 });
 
 // 1/2 right
 var pushRight = slate.operation("move", {
 	"x": "screenOriginX + screenSizeX / 2 +" + margin / 2,
 	"y": "screenOriginY +" + margin,
-	"width": "screenSizeX / 2 -" + margin * 1.5,
-	"height": "screenSizeY -" + margin * 1.5
+	"width": "screenSizeX / 2 -" + margin * 1.75,
+	"height": "screenSizeY -" + margin * 1.75
 });
 
 // 1/2 top
@@ -41,7 +41,7 @@ var pushBottom = slate.operation("move", {
 	"x": "screenOriginX +" + margin,
 	"y": "screenOriginY + screenSizeY / 2 + " + margin,
 	"width": "screenSizeX -" + margin * 2,
-	"height": "screenSizeY / 2 -" + margin * 1.5
+	"height": "screenSizeY / 2 -" + margin * 1.75
 });
 
 // full respecting margin
@@ -49,11 +49,13 @@ var fullscreen = slate.operation("move", {
   "x": "screenOriginX +" + margin,
   "y": "screenOriginY +" + margin,
   "width": "screenSizeX -" + margin * 2,
-  "height": "screenSizeY -" + margin * 2
+  "height": "screenSizeY -" + margin * 1.75
 });
 
 // center
 var center = function(window) {
+	if (!window) { return false; }
+
 	var rect = window.rect();
 
 	window.doOperation(
@@ -68,6 +70,8 @@ var center = function(window) {
 
 // throw to next display
 var nextDisplay = function(window) {
+	if (!window) { return false; }
+
 	var rect = window.rect();
 
 	window.doOperation(
@@ -83,6 +87,8 @@ var nextDisplay = function(window) {
 
 // resize window if bigger than screen
 var fitToScreen = function(window) {
+	if (!window) { return false; }
+
 	var rect = window.rect();
 	var screen = window.screen().visibleRect();
 
@@ -96,8 +102,8 @@ var fitToScreen = function(window) {
 		shouldFit = true;
 	}
 
-	if (height + margin * 2 > screen.height) {
-		height = screen.height - margin * 2;
+	if (height + margin * 1.75 > screen.height) {
+		height = screen.height - margin * 1.75;
 		shouldFit = true;
 	}
 
@@ -136,6 +142,8 @@ var centerWindowWithSize = function(width, height) {
 // move window in direction respecting screen edges and margins
 var nudgeWindow = function(direction) {
 	return function(window) {
+		if (!window) { return false; }
+
 		var rect = window.rect();
 		var screen = window.screen().visibleRect();
 
@@ -159,7 +167,7 @@ var nudgeWindow = function(direction) {
 
 		if (direction === "down") {
 			y += margin;
-			y = Math.min(screen.y + screen.height - margin - rect.height, y);
+			y = Math.min(screen.y + screen.height - margin * 0.5 - rect.height, y);
 		}
 
 		window.doOperation("move", {

@@ -74,6 +74,9 @@ hash tmutil &> /dev/null && sudo tmutil disablelocal
 # disable Sudden Motion Sensor (default - 1)
 sudo pmset -a sms 0 &> /dev/null
 
+# show the /Users folder
+# sudo chflags nohidden /Users
+
 # kill affected apps
 for app in "Dashboard" "Dock" "Finder" "Mail" "Safari" "SystemUIServer"
 do

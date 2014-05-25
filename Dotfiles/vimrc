@@ -6,46 +6,56 @@ call neobundle#rc(expand('~/.vim/bundle/'))
 NeoBundleFetch 'Shougo/neobundle.vim'
 
 " nicer editing bundles
-NeoBundle 'Raimondi/delimitMate'
-NeoBundle 'ervandew/supertab'
-NeoBundle 'thinca/vim-visualstar'
-NeoBundle 'tomtom/tcomment_vim'
-NeoBundle 'tpope/vim-repeat'
 NeoBundle 'tpope/vim-surround'
+NeoBundle 'tpope/vim-repeat'
+NeoBundle 'tomtom/tcomment_vim'
+NeoBundle 'thinca/vim-visualstar'
+NeoBundle 'ervandew/supertab'
+NeoBundle 'Raimondi/delimitMate'
 
 " probably unnecessary, but nice to have
+NeoBundleLazy 'sjl/tslime.vim', { 'autoload': { 'mappings': '<Plug>tslime_'  } }
+NeoBundleLazy 'junegunn/goyo.vim', { 'autoload': { 'commands': 'Goyo' } }
 NeoBundle 'bling/vim-airline'
-NeoBundle 'junegunn/goyo.vim'
-NeoBundle 'sjl/tslime.vim'
 
 " load this only on OSX
 if system("uname -s") == "Darwin\n"
-	" NeoBundle 'airblade/vim-gitgutter'
+	NeoBundle 'airblade/vim-gitgutter'
 	NeoBundle 'scrooloose/syntastic'
 endif
 
 " shugo bundles
-NeoBundle 'Shougo/unite.vim'
-NeoBundle 'Shougo/vimfiler.vim'
-NeoBundle 'Shougo/vimproc', {
-	\ 'build': {
-	\		'mac': 'make -f make_mac.mak',
-	\		'unix': 'make -f make_unix.mak',
-	\		},
-	\ }
+NeoBundleLazy 'Shougo/unite.vim', {
+			\		'autoload': {
+			\			'commands': 'Unite'
+			\		},
+			\		'depends': 'Shougo/vimproc'
+			\ }
+NeoBundleLazy 'Shougo/vimfiler.vim', {
+			\		'autoload': {
+			\			'commands': [ 'VimFiler', 'VimFilerExplorer' ],
+			\			'explorer': 1
+			\		}
+			\ }
+NeoBundleLazy 'Shougo/vimproc', {
+			\		'build': {
+			\			'mac': 'make -f make_mac.mak',
+			\			'unix': 'make -f make_unix.mak',
+			\		},
+			\ }
 
 " custom syntax bundles
-NeoBundle 'briancollins/vim-jst'
-NeoBundle 'davidoc/taskpaper.vim'
-NeoBundle 'groenewege/vim-less'
-NeoBundle 'jelera/vim-javascript-syntax'
-NeoBundle 'kchmck/vim-coffee-script'
-NeoBundle 'moll/vim-node'
-NeoBundle 'pangloss/vim-javascript'
-NeoBundle 'plasticboy/vim-markdown'
-NeoBundle 'sophacles/vim-processing'
-NeoBundle 'sudar/vim-arduino-syntax'
-NeoBundle 'tikhomirov/vim-glsl'
+NeoBundleLazy 'tikhomirov/vim-glsl', { 'autoload': { 'filename_patterns': [ '\.frag$', '\.vert$', '\.glsl$' ] } }
+NeoBundleLazy 'sudar/vim-arduino-syntax', { 'autoload': { 'filename_patterns': '\.ino$' } }
+NeoBundleLazy 'sophacles/vim-processing', { 'autoload': { 'filename_patterns': '\.pde$' } }
+NeoBundleLazy 'plasticboy/vim-markdown', { 'autoload': { 'filetypes': [ 'markdown' ] } }
+NeoBundleLazy 'pangloss/vim-javascript', { 'autoload': { 'filetypes': [ 'javascript' ] } }
+NeoBundleLazy 'moll/vim-node', { 'autoload': { 'filetypes': [ 'javascript' ] } }
+NeoBundleLazy 'kchmck/vim-coffee-script', { 'autoload': { 'filename_patterns': '\.coffee$' } }
+NeoBundleLazy 'jelera/vim-javascript-syntax', { 'autoload': { 'filetypes': [ 'javascript' ] } }
+NeoBundleLazy 'groenewege/vim-less', { 'autoload': { 'filename_patterns': '\.less$' } }
+NeoBundleLazy 'davidoc/taskpaper.vim', { 'autoload': { 'filename_patterns': '\.taskpaper$' } }
+NeoBundleLazy 'briancollins/vim-jst', { 'autoload': { 'filename_patterns': '\.tpl$' } }
 
 " }}}
 " vim settings {{{
@@ -198,15 +208,20 @@ augroup END
 augroup syntaxes
 	au!
 
+	" proper filetypes based on name
+	au BufNewFile,BufRead *.mm        set filetype=objc
+	au BufNewFile,BufRead *.tpl       let b:jst_subtype='html' | set filetype=jst
+	au BufNewFile,BufRead *.md        set filetype=markdown
+	au BufNewFile,BufRead *.ino       set filetype=arduino
+	au BufNewFile,BufRead *.pde       set filetype=processing
+	au BufNewFile,BufRead *.frag      set filetype=glsl
+	au BufNewFile,BufRead *.vert      set filetype=glsl
+	au BufNewFile,BufRead *.glsl      set filetype=glsl
+	au BufNewFile,BufRead *.taskpaper set filetype=taskpaper
+	au BufNewFile,BufRead ~/Dropbox/Notes/* setlocal filetype=markdown
+
 	" extend highlights
 	au Syntax * call matchadd('Todo','\W\zs\(ASSUMPTION\)')
-	" au Syntax * call matchadd('Error', '\s\+\%#\@<!$')
-
-	" proper filetypes based on name
-	au BufNewFile,BufRead *.mm set filetype=objc
-	au BufNewFile,BufRead *.tpl let b:jst_subtype='html'
-	au BufNewFile,BufRead *.tpl set filetype=jst
-	au BufNewFile,BufRead ~/Dropbox/Notes/* setlocal filetype=markdown
 augroup END
 
 " custom settings based on filetype
@@ -219,31 +234,20 @@ augroup ft_settings
 	au FileType taskpaper call taskpaper#fold_projects()
 augroup END
 
-" no numbers based on file types
-augroup nonumbers
+" no numbers / special chars based on file types
+augroup plain_filetypes
 	au!
 
-	au FileType vimfiler  setlocal nonumber
-	au FileType vimshell  setlocal nonumber
-	au FileType int-node  setlocal nonumber
-	au FileType int-lein  setlocal nonumber
-	au FileType text      setlocal nonumber
-	au FileType markdown  setlocal nonumber
-	au FileType taskpaper setlocal nonumber
-augroup END
-
-" don't show special chars in 'normal' files
-augroup nolist
-	au!
-
-	au FileType text      setlocal nolist
-	au FileType markdown  setlocal nolist
-	au FileType taskpaper setlocal nolist
+	au FileType vimfiler  setlocal nonumber | setlocal nolist
+	au FileType text      setlocal nonumber | setlocal nolist
+	au FileType markdown  setlocal nonumber | setlocal nolist
+	au FileType taskpaper setlocal nonumber | setlocal nolist
 augroup END
 
 " cursorlines in special buffers
 augroup cursorlines
 	au!
+
 	au FileType vimfiler setlocal cursorline
 augroup END
 

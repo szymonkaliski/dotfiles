@@ -160,11 +160,12 @@ fi
 
 # main prompt
 # PROMPT="$WINNUM%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS%(?,→,%{$fg[red]%}✕%{$reset_color%}) %{$reset_color%}"
-PROMPT="%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS%(?,→,%{$fg[red]%}✕%{$reset_color%}) %{$reset_color%}"
+# PROMPT="%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS%(?,→,%{$fg[red]%}✕%{$reset_color%}) %{$reset_color%}"
+PROMPT="%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS→ %{$reset_color%}"
 
 # right prompt
-# RPROMPT="%(?,,%{$fg[red]%}✕%{$reset_color%})"
-RPROMPT=""
+RPROMPT="%(?,,%{$fg[red]%}✕%{$reset_color%})"
+# RPROMPT=""
 
 # unfinished loops prompt
 PROMPT2="%{$fg[yellow]%}%_%{$reset_color%} → "
@@ -177,13 +178,13 @@ bindkey -v
 export KEYTIMEOUT=1
 
 # right prompt with mode
-function zle-line-init zle-keymap-select {
-	RPS1="${${KEYMAP/vicmd/NORMAL}/(main|viins)/INSERT}"
-	RPS2=$RPS1
-	zle reset-prompt
-}
-zle -N zle-line-init
-zle -N zle-keymap-select
+# function zle-line-init zle-keymap-select {
+# 	RPS1="${${KEYMAP/vicmd/NORMAL}/(main|viins)/INSERT}"
+# 	RPS2=$RPS1
+# 	zle reset-prompt
+# }
+# zle -N zle-line-init
+# zle -N zle-keymap-select
 
 # colors
 export GREP_COLOR=34
@@ -285,35 +286,6 @@ function tn() {
 		tmux
 	else
 		tmux new -s "${1:+"$@"}"
-	fi
-}
-
-function tm() {
-	local attach
-	if [ -n $1 ]; then
-		attach=""
-
-		tmux has-session -t $1 > /dev/null 2>&1
-		if [ $? -eq 0 ]; then
-			attach=$1
-			shift
-		else
-			for session in `(tmux ls | awk -F ":" '{ print $1 }') > /dev/null 2>&1`; do
-				if [[ $session =~ ^$1  ]]; then
-					attach=$session
-					shift
-					break
-				fi
-			done
-		fi
-
-		if [[ $attach != "" ]]; then
-			tmux attach -t $attach
-		else
-			tmux new -s $1
-		fi
-	else
-		tmux new
 	fi
 }
 
