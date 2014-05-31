@@ -8,18 +8,18 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 " nicer editing bundles
 NeoBundle 'tpope/vim-surround'
 NeoBundle 'tpope/vim-repeat'
-NeoBundle 'tomtom/tcomment_vim'
+NeoBundle 'tpope/vim-commentary'
 NeoBundle 'thinca/vim-visualstar'
 NeoBundle 'ervandew/supertab'
 NeoBundle 'Raimondi/delimitMate'
 
 " probably unnecessary, but nice to have
-NeoBundleLazy 'sjl/tslime.vim', { 'autoload': { 'mappings': '<Plug>tslime_'  } }
-NeoBundleLazy 'junegunn/goyo.vim', { 'autoload': { 'commands': 'Goyo' } }
 NeoBundle 'bling/vim-airline'
+NeoBundleLazy 'junegunn/goyo.vim', { 'autoload': { 'commands': 'Goyo' } }
 
 " load this only on OSX
 if system("uname -s") == "Darwin\n"
+	NeoBundle 'sjl/tslime.vim'
 	NeoBundle 'airblade/vim-gitgutter'
 	NeoBundle 'scrooloose/syntastic'
 endif
@@ -55,7 +55,7 @@ NeoBundleLazy 'kchmck/vim-coffee-script', { 'autoload': { 'filename_patterns': '
 NeoBundleLazy 'jelera/vim-javascript-syntax', { 'autoload': { 'filetypes': [ 'javascript' ] } }
 NeoBundleLazy 'groenewege/vim-less', { 'autoload': { 'filename_patterns': '\.less$' } }
 NeoBundleLazy 'davidoc/taskpaper.vim', { 'autoload': { 'filename_patterns': '\.taskpaper$' } }
-NeoBundleLazy 'briancollins/vim-jst', { 'autoload': { 'filename_patterns': '\.tpl$' } }
+NeoBundleLazy 'briancollins/vim-jst', { 'autoload': { 'filename_patterns': [ '\.tpl$', '\.ejs$' ] } }
 
 " }}}
 " vim settings {{{
@@ -394,7 +394,9 @@ let g:unite_data_directory=expand('~/.vim/unite')
 let g:unite_source_history_yank_enable=1
 let g:unite_cursor_line_time=0
 let g:unite_cursor_line_highlight='CursorLine'
+
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
+call unite#filters#sorter_default#use(['sorter_rank'])
 
 " mappings
 nnoremap <silent> <C-p> :Unite -buffer-name=files -start-insert file_rec/async:!<cr>
@@ -405,7 +407,7 @@ nnoremap <silent> <C-y> :Unite -buffer-name=yank -start-insert history/yank<cr>
 if executable('ag')
 	let g:unite_source_grep_command='ag'
 	let g:unite_source_grep_default_opts=
-	  \ '--line-numbers --nocolor --nogroup --hidden --ignore ' .
+	  \ '--line-numbers --nocolor --nogroup --ignore-case --hidden --ignore ' .
 	  \  '''.hg'' --ignore ''.svn'' --ignore ''.git'' --ignore ''.bzr'''
 	let g:unite_source_grep_recursive_opt=''
 	nnoremap <silent> <C-g> :Unite -buffer-name=grep -no-quit -keep-focus -no-start-insert grep:.<cr>

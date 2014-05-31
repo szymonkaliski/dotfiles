@@ -5,7 +5,7 @@ var clamp = function(value, min, max) { return Math.max(min, Math.min(value, max
 
 var mod1 = [ "ctrl", "cmd" ];
 var mod2 = [ "ctrl", "cmd", "alt" ];
-var padding = 10;
+var padding = 8;
 var windowSizes = {};
 
 api.bind('left',  mod1, function() { Window.focusedWindow().setGrid(0.0, 0.0, 0.5, 1.0); });
@@ -55,7 +55,6 @@ Window.prototype.setGrid = function(x, y, width, height) {
 	this.save();
 
 	var screen = this.screen().frameWithoutDockOrMenu();
-
 	var frame = {
 		"x": Math.round(x * screen.width) + padding + screen.x,
 		"y": Math.round(y * screen.height) + padding + screen.y,
