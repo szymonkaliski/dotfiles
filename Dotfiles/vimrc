@@ -56,6 +56,7 @@ NeoBundleLazy 'jelera/vim-javascript-syntax', { 'autoload': { 'filetypes': [ 'ja
 NeoBundleLazy 'groenewege/vim-less', { 'autoload': { 'filename_patterns': '\.less$' } }
 NeoBundleLazy 'davidoc/taskpaper.vim', { 'autoload': { 'filename_patterns': '\.taskpaper$' } }
 NeoBundleLazy 'briancollins/vim-jst', { 'autoload': { 'filename_patterns': [ '\.tpl$', '\.ejs$' ] } }
+NeoBundleLazy 'othree/html5.vim', { 'autoload': { 'filetypes': [ 'html' ] } }
 
 " }}}
 " vim settings {{{
@@ -100,9 +101,7 @@ set autoindent
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
-
-" html indent fixes
-let g:html_indent_inctags="p,li,ol,ul,div,head,html,body,style,script"
+set shiftround
 
 " additional settings
 set backspace=indent,eol,start
@@ -158,7 +157,7 @@ set pumheight=10
 
 " code folding
 set foldmethod=syntax
-set foldlevel=999
+set foldlevelstart=99
 set foldcolumn=0
 
 " color theme
@@ -655,5 +654,8 @@ nnoremap <silent> <leader>n :set number!<cr>
 
 " switch cwd to the directory of the open buffer
 nnoremap <silent> <leader>d :cd %:p:h<cr>
+
+" center on cursor using scrollof
+nnoremap <silent> <leader>z :let &scrolloff=999-&scrolloff<cr>
 
 " }}}

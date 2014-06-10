@@ -64,7 +64,7 @@ fi
 typeset -gU fpath path #cdpath manpath
 
 # load modules
-autoload -Uz compinit colors zrecompile edit-command-line vcs_info
+autoload -Uz colors compinit vcs_info zmv zrecompile
 
 # completions without security check
 compinit -C
@@ -253,6 +253,9 @@ alias x="exit"
 alias c="clear"
 alias reboot="sudo reboot"
 alias shutdown="sudo shutdown -h now"
+
+alias zmv="zmv -w"
+alias zcp="zmv -Cw"
 
 alias -g C="| wc -l"
 alias -g G="| egrep -i --color=auto"
