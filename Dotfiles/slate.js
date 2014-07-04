@@ -10,6 +10,7 @@ slate.configAll({
 	"checkDefaultsOnLoad": true,
 	"focusCheckWidthMax": 3000,
 	"orderScreensLeftToRight": true
+	// "menuBarIconHidden": false
 });
 
 // push window to 1/2 left/right/top/down

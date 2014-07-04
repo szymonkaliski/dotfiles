@@ -1,62 +1,63 @@
 " neobundle {{{
-if has('vim_starting')
+if has("vim_starting")
 	set runtimepath+=~/.vim/bundle/neobundle.vim/
 endif
-call neobundle#rc(expand('~/.vim/bundle/'))
-NeoBundleFetch 'Shougo/neobundle.vim'
+
+call neobundle#rc(expand("~/.vim/bundle/"))
+NeoBundleFetch "Shougo/neobundle.vim"
 
 " nicer editing bundles
-NeoBundle 'tpope/vim-surround'
-NeoBundle 'tpope/vim-repeat'
-NeoBundle 'tpope/vim-commentary'
-NeoBundle 'thinca/vim-visualstar'
-NeoBundle 'ervandew/supertab'
-NeoBundle 'Raimondi/delimitMate'
+NeoBundle "tpope/vim-surround"
+NeoBundle "tpope/vim-repeat"
+NeoBundle "tpope/vim-commentary"
+NeoBundle "thinca/vim-visualstar"
+NeoBundle "ervandew/supertab"
+NeoBundle "Raimondi/delimitMate"
 
 " probably unnecessary, but nice to have
-NeoBundle 'bling/vim-airline'
-NeoBundleLazy 'junegunn/goyo.vim', { 'autoload': { 'commands': 'Goyo' } }
+NeoBundle "bling/vim-airline"
+NeoBundleLazy "junegunn/goyo.vim", { "autoload": { "commands": "Goyo" } }
 
 " load this only on OSX
 if system("uname -s") == "Darwin\n"
-	NeoBundle 'sjl/tslime.vim'
-	NeoBundle 'airblade/vim-gitgutter'
-	NeoBundle 'scrooloose/syntastic'
+	NeoBundle "sjl/tslime.vim"
+	NeoBundle "scrooloose/syntastic"
+	NeoBundle "airblade/vim-gitgutter"
 endif
 
 " shugo bundles
-NeoBundleLazy 'Shougo/unite.vim', {
-			\		'autoload': {
-			\			'commands': 'Unite'
+NeoBundleLazy "Shougo/unite.vim", {
+			\		"autoload": {
+			\			"commands": "Unite"
 			\		},
-			\		'depends': 'Shougo/vimproc'
+			\		"depends": "Shougo/vimproc"
 			\ }
-NeoBundleLazy 'Shougo/vimfiler.vim', {
-			\		'autoload': {
-			\			'commands': [ 'VimFiler', 'VimFilerExplorer' ],
-			\			'explorer': 1
+NeoBundleLazy "Shougo/vimfiler.vim", {
+			\		"autoload": {
+			\			"commands": [ "VimFiler", "VimFilerExplorer" ],
+			\			"explorer": 1
 			\		}
 			\ }
-NeoBundleLazy 'Shougo/vimproc', {
-			\		'build': {
-			\			'mac': 'make -f make_mac.mak',
-			\			'unix': 'make -f make_unix.mak',
+NeoBundleLazy "Shougo/vimproc", {
+			\		"build": {
+			\			"mac": "make -f make_mac.mak",
+			\			"unix": "make -f make_unix.mak"
 			\		},
 			\ }
 
 " custom syntax bundles
-NeoBundleLazy 'tikhomirov/vim-glsl', { 'autoload': { 'filename_patterns': [ '\.frag$', '\.vert$', '\.glsl$' ] } }
-NeoBundleLazy 'sudar/vim-arduino-syntax', { 'autoload': { 'filename_patterns': '\.ino$' } }
-NeoBundleLazy 'sophacles/vim-processing', { 'autoload': { 'filename_patterns': '\.pde$' } }
-NeoBundleLazy 'plasticboy/vim-markdown', { 'autoload': { 'filetypes': [ 'markdown' ] } }
-NeoBundleLazy 'pangloss/vim-javascript', { 'autoload': { 'filetypes': [ 'javascript' ] } }
-NeoBundleLazy 'moll/vim-node', { 'autoload': { 'filetypes': [ 'javascript' ] } }
-NeoBundleLazy 'kchmck/vim-coffee-script', { 'autoload': { 'filename_patterns': '\.coffee$' } }
-NeoBundleLazy 'jelera/vim-javascript-syntax', { 'autoload': { 'filetypes': [ 'javascript' ] } }
-NeoBundleLazy 'groenewege/vim-less', { 'autoload': { 'filename_patterns': '\.less$' } }
-NeoBundleLazy 'davidoc/taskpaper.vim', { 'autoload': { 'filename_patterns': '\.taskpaper$' } }
-NeoBundleLazy 'briancollins/vim-jst', { 'autoload': { 'filename_patterns': [ '\.tpl$', '\.ejs$' ] } }
-NeoBundleLazy 'othree/html5.vim', { 'autoload': { 'filetypes': [ 'html' ] } }
+NeoBundleLazy "tikhomirov/vim-glsl", { "autoload": { "filename_patterns": [ "\.frag$", "\.vert$", "\.glsl$" ] } }
+NeoBundleLazy "sudar/vim-arduino-syntax", { "autoload": { "filename_patterns": "\.ino$" } }
+NeoBundleLazy "sophacles/vim-processing", { "autoload": { "filename_patterns": "\.pde$" } }
+NeoBundleLazy "plasticboy/vim-markdown", { "autoload": { "filetypes": [ "markdown" ] } }
+NeoBundleLazy "pangloss/vim-javascript", { "autoload": { "filetypes": [ "javascript" ] } }
+NeoBundleLazy "moll/vim-node", { "autoload": { "filetypes": [ "javascript" ] } }
+NeoBundleLazy "kchmck/vim-coffee-script", { "autoload": { "filename_patterns": "\.coffee$" } }
+NeoBundleLazy "jelera/vim-javascript-syntax", { "autoload": { "filetypes": [ "javascript" ] } }
+NeoBundleLazy "groenewege/vim-less", { "autoload": { "filename_patterns": "\.less$" } }
+NeoBundleLazy "davidoc/taskpaper.vim", { "autoload": { "filename_patterns": "\.taskpaper$" } }
+NeoBundleLazy "briancollins/vim-jst", { "autoload": { "filename_patterns": [ "\.tpl$", "\.ejs$" ] } }
+NeoBundleLazy "othree/html5.vim", { "autoload": { "filetypes": [ "html" ] } }
 
 " }}}
 " vim settings {{{
@@ -79,7 +80,7 @@ set lazyredraw
 set ttyfast
 set ttyscroll=3
 
-" don't beep
+" don"t beep
 set noeb vb t_vb=
 
 " disable startup message
@@ -88,7 +89,7 @@ set shortmess+=I
 " syntax coloring
 syntax enable
 
-" don't try to highlight longer lines
+" don"t try to highlight longer lines
 set synmaxcol=1024
 
 " encoding
@@ -105,7 +106,8 @@ set shiftround
 
 " additional settings
 set backspace=indent,eol,start
-set number
+" set number
+set nonumber
 set linebreak
 set ruler
 set scrolloff=3
@@ -145,12 +147,16 @@ set laststatus=2
 " show tabline only when needed
 set showtabline=1
 
-" don't show current mode/cmd
+" don"t show current mode/cmd
 set noshowmode
 set noshowcmd
 
 " completion in command line
 set wildmenu
+
+" fast timeouts
+set timeoutlen=1000
+set ttimeoutlen=0
 
 " insert completion height
 set pumheight=10
@@ -168,7 +174,6 @@ let g:solarized_bold=0
 let g:solarized_italic=0
 let g:solarized_underline=0
 colorscheme solarized
-" colorscheme tomorrow-night
 
 " open splits to the right and bottom
 set splitright
@@ -181,7 +186,7 @@ set fillchars=fold:\ ,vert:│
 runtime macros/matchit.vim
 
 " set path
-if system('uname')=="Darwin\n"
+if system("uname")=="Darwin\n"
 	let $PATH="/usr/local/bin:" . $PATH . ":/Users/Szymon/Dropbox/Code/Scripts"
 endif
 
@@ -191,16 +196,25 @@ endif
 " return to same line after reopenning file
 augroup line_return
 	au!
+
 	au BufReadPost *
-		\ if line("'\"") > 0 && line("'\"") <= line("$") |
-		\		execute 'normal! g`"zvzz' |
+		\ if line("\"\\\"") > 0 && line("\"\\\"") <= line("$") |
+		\		execute "normal! g`"zvzz" |
 		\ endif
 augroup END
 
 " automatically resize splits when resizing window
 augroup split_resize
 	au!
+
 	au VimResized * wincmd =
+augroup END
+
+" aupdate checktime for file re-reads
+augroup checktime_update
+	au!
+
+	au BufEnter * checktime
 augroup END
 
 " set proper syntaxes
@@ -208,46 +222,36 @@ augroup syntaxes
 	au!
 
 	" proper filetypes based on name
-	au BufNewFile,BufRead *.mm        set filetype=objc
-	au BufNewFile,BufRead *.tpl       let b:jst_subtype='html' | set filetype=jst
-	au BufNewFile,BufRead *.md        set filetype=markdown
-	au BufNewFile,BufRead *.ino       set filetype=arduino
-	au BufNewFile,BufRead *.pde       set filetype=processing
-	au BufNewFile,BufRead *.frag      set filetype=glsl
-	au BufNewFile,BufRead *.vert      set filetype=glsl
-	au BufNewFile,BufRead *.glsl      set filetype=glsl
-	au BufNewFile,BufRead *.taskpaper set filetype=taskpaper
-	au BufNewFile,BufRead ~/Dropbox/Notes/* setlocal filetype=markdown
+	au BufNewFile,BufRead *.mm              set filetype=objc
+	au BufNewFile,BufRead *.tpl             let b:jst_subtype="html" | set filetype=jst
+	au BufNewFile,BufRead *.md              set filetype=markdown
+	au BufNewFile,BufRead *.ino             set filetype=arduino
+	au BufNewFile,BufRead *.pde             set filetype=processing
+	au BufNewFile,BufRead *.frag            set filetype=glsl
+	au BufNewFile,BufRead *.vert            set filetype=glsl
+	au BufNewFile,BufRead *.glsl            set filetype=glsl
+	au BufNewFile,BufRead *.taskpaper       set filetype=taskpaper
+	au BufNewFile,BufRead ~/Dropbox/Notes/* set filetype=markdown
 
 	" extend highlights
-	au Syntax * call matchadd('Todo','\W\zs\(ASSUMPTION\)')
+	au Syntax * call matchadd("Todo", "\W\zs\(ASSUMPTION\)")
 augroup END
 
 " custom settings based on filetype
 augroup ft_settings
 	au!
 
-  " au FileType javascript call JavaScriptFold()
-	au FileType coffee setlocal shiftwidth=2 expandtab
-	au FileType vim setlocal foldmethod=marker foldlevel=0
-	au FileType taskpaper call taskpaper#fold_projects()
-augroup END
+	" indents, folds, etc
+	au FileType coffee     setlocal shiftwidth=2 expandtab
+	au FileType vim        setlocal foldmethod=marker foldlevel=0
+	au FileType clojure    let b:delimitMate_quotes = "\""
 
-" no numbers / special chars based on file types
-augroup plain_filetypes
-	au!
+	" no numbers / special chars based on file types
+	au FileType vimfiler   setlocal nonumber | setlocal nolist | setlocal cursorline
+	au FileType text       setlocal nonumber | setlocal nolist
+	au FileType markdown   setlocal nonumber | setlocal nolist
+	au FileType taskpaper  setlocal nonumber | setlocal nolist
 
-	au FileType vimfiler  setlocal nonumber | setlocal nolist
-	au FileType text      setlocal nonumber | setlocal nolist
-	au FileType markdown  setlocal nonumber | setlocal nolist
-	au FileType taskpaper setlocal nonumber | setlocal nolist
-augroup END
-
-" cursorlines in special buffers
-augroup cursorlines
-	au!
-
-	au FileType vimfiler setlocal cursorline
 augroup END
 
 " }}}
@@ -274,7 +278,7 @@ function! WindowTitle()
 	return "vim: " . DirPath()
 endfunction
 
-" set title on start as simple 'vim'
+" set title on start as simple "vim"
 set title
 set titlestring=vim
 
@@ -302,17 +306,42 @@ if &term == "screen-256color"
 endif
 
 " }}}
+" plugin: taskpaper {{{
+
+augroup taskpaper_plugin
+	au!
+
+	au FileType taskpaper call taskpaper#fold_projects()
+augroup END
+
+" }}}
+" plugin: javascript {{{
+
+augroup javascript_plugin
+	au!
+
+	au FileType javascript call JavaScriptFold() | set foldlevelstart=99
+augroup END
+
+" }}}
 " plugin: airline {{{
 
-" airline settings
-let g:airline_left_sep=''
-let g:airline_right_sep=''
+augroup airline_plugin
+	au!
+
+	au BufEnter * let g:airline_section_y=airline#section#create(["hunks", "branch"])
+augroup END
+
+" settings
+let g:airline_left_sep=""
+let g:airline_right_sep=""
 let g:airline_inactive_collapse=0
 let g:airline#extensions#whitespace#enabled=0
-let g:airline#extensions#syntastic#enabled=0
-let g:airline#extensions#hunks#enabled=0
+let g:airline#extensions#syntastic#enabled=1
+let g:airline#extensions#hunks#enabled=1
+let g:airline#extensions#hunks#non_zero_only=1
 let g:airline_section_b="%{DirPath()}"
-let g:airline_section_c="%t"
+let g:airline_section_c=""
 let g:airline_section_x=""
 let g:airline_section_y=""
 
@@ -323,61 +352,70 @@ if !has("gui_running")
 	let g:airline#extensions#tabline#show_tab_type=0
 	let g:airline#extensions#tabline#tab_min_count=2
 	let g:airline#extensions#tabline#show_tab_nr=0
-	let g:airline#extensions#tabline#left_sep=''
-	let g:airline#extensions#tabline#left_alt_sep=''
-	let g:airline#extensions#tabline#right_sep=''
-	let g:airline#extensions#tabline#right_alt_sep=''
+	let g:airline#extensions#tabline#left_sep=""
+	let g:airline#extensions#tabline#left_alt_sep=""
+	let g:airline#extensions#tabline#right_sep=""
+	let g:airline#extensions#tabline#right_alt_sep=""
 endif
 
 " remove bold fonts from airline tomorrow theme
-let g:airline_theme_patch_func = 'AirlineThemePatch'
+let g:airline_theme_patch_func = "AirlineThemePatch"
 function! AirlineThemePatch(palette)
-	if g:airline_theme == 'tomorrow' || g:airline_theme == "solarized"
+	if g:airline_theme == "tomorrow" || g:airline_theme == "solarized"
 		let palettes = [a:palette.normal, a:palette.insert, a:palette.replace, a:palette.visual, a:palette.accents]
 
 		for palette in palettes
 			for colors in values(palette)
 				if len(colors) >= 5
-					let colors[4] = 'none'
+					let colors[4] = "none"
 				endif
 			endfor
-			" let palette.airline_c[3] = '0'
+			" let palette.airline_c[3] = "0"
 		endfor
 
-		if g:airline_theme == 'tomorrow' && !has("gui_running")
+		if g:airline_theme == "tomorrow" && !has("gui_running")
 			for colors in values(a:palette.inactive)
-				let colors[2] = '245'
-				let colors[3] = '0'
+				let colors[2] = "245"
+				let colors[3] = "0"
 			endfor
 		endif
 
-		if g:airline_theme == 'solarized'
+		if g:airline_theme == "solarized"
 			for colors in values(a:palette.inactive)
 				if &background == "dark"
-					let colors[0] = '#586e75'
-					let colors[1] = '#073642'
+					let colors[0] = "#586e75"
+					let colors[1] = "#073642"
 				else
-					let colors[0] = '#93a1a1'
-					let colors[1] = '#eee8d5'
+					let colors[0] = "#93a1a1"
+					let colors[1] = "#eee8d5"
 				endif
-				let colors[2] = '10'
-				let colors[3] = '0'
+				let colors[2] = "10"
+				let colors[3] = "0"
 			endfor
 		endif
 	endif
 endfunction
 
 " }}}
+" plugin: gitgutter {{{
+
+let g:gitgutter_signs=0
+let g:gitgutter_realtime=0
+let g:gitgutter_eager=0
+
+" }}}
 " plugin: syntastic {{{
 
-let g:syntastic_enable_highlighting=0
+let g:syntastic_enable_signs=0 " enable/disable sign column
+let g:syntastic_enable_highlighting=0 " enable/disable highlighting errors with syntax
 let g:syntastic_check_on_open=1
 let g:syntastic_check_on_wq=0
 let g:syntastic_always_populate_loc_list=1
-let g:syntastic_error_symbol='!'
-let g:syntastic_style_error_symbol='!'
-let g:syntastic_warning_symbol='?'
-let g:syntastic_style_warning_symbol='?'
+let g:syntastic_error_symbol="!"
+let g:syntastic_style_error_symbol="!"
+let g:syntastic_warning_symbol="?"
+let g:syntastic_style_warning_symbol="?"
+let g:syntastic_stl_format="%E{Error: %fe}%B{ }%W{Warning: %fw}"
 
 " }}}
 " plugin: supertab {{{
@@ -389,26 +427,27 @@ let g:SuperTabContextDefaultCompletionType="<c-n>"
 " plugin: unite {{{
 
 " settings
-let g:unite_data_directory=expand('~/.vim/unite')
+let g:unite_data_directory=expand("~/.vim/unite")
 let g:unite_source_history_yank_enable=1
 let g:unite_cursor_line_time=0
-let g:unite_cursor_line_highlight='CursorLine'
+let g:unite_cursor_line_highlight="CursorLine"
 
-call unite#filters#matcher_default#use(['matcher_fuzzy'])
-call unite#filters#sorter_default#use(['sorter_rank'])
+call unite#filters#matcher_default#use(["matcher_fuzzy"])
+call unite#filters#sorter_default#use(["sorter_rank"])
 
 " mappings
-nnoremap <silent> <C-p> :Unite -buffer-name=files -start-insert file_rec/async:!<cr>
+nnoremap <silent> <C-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
 nnoremap <silent> <C-b> :Unite -buffer-name=buffer -start-insert buffer<cr>
 nnoremap <silent> <C-y> :Unite -buffer-name=yank -start-insert history/yank<cr>
 
 " grep
-if executable('ag')
-	let g:unite_source_grep_command='ag'
+if executable("ag")
+	let g:unite_source_grep_command="ag"
+	let g:unite_source_grep_recursive_opt=""
+	let g:unite_source_grep_max_candidates=200
 	let g:unite_source_grep_default_opts=
-	  \ '--line-numbers --nocolor --nogroup --ignore-case --hidden --ignore ' .
-	  \  '''.hg'' --ignore ''.svn'' --ignore ''.git'' --ignore ''.bzr'''
-	let g:unite_source_grep_recursive_opt=''
+				\ "--line-numbers --nocolor --nogroup --smart-case --hidden " .
+				\ "--ignore \".hg\" --ignore \".svn\" --ignore \".git\" --ignore \".bzr\""
 	nnoremap <silent> <C-g> :Unite -buffer-name=grep -no-quit -keep-focus -no-start-insert grep:.<cr>
 endif
 
@@ -425,25 +464,32 @@ endif
 " }}}
 " plugin: vimfiler {{{
 
+augroup vimfiler_plugin
+	au!
+
+	" smart open / edit with enter
+	au FileType vimfiler nmap <buffer><silent> <Enter>
+				\ :<C-u>execute "normal " .
+				\ vimfiler#mappings#smart_cursor_map("\<Plug>(vimfiler_cd_file)", "\<Plug>(vimfiler_edit_file)")<cr>
+
+	" smart open / edit with e
+	au FileType vimfiler nmap <buffer><expr> e
+				\ vimfiler#smart_cursor_map("\<Plug>(vimfiler_cd_file)", "\<Plug>(vimfiler_edit_file)")
+augroup END
+
 let g:vimfiler_enable_auto_cd=1
 let g:vimfiler_as_default_explorer=1
 let g:vimfiler_directory_display_top=1
-let g:vimfiler_tree_leaf_icon=' '
-let g:vimfiler_tree_opened_icon='▾'
-let g:vimfiler_tree_closed_icon='▸'
-let g:vimfiler_file_icon=' '
-let g:vimfiler_marked_file_icon='*'
-let g:vimfiler_data_directory=expand('~/.vim/vimfiler')
+let g:vimfiler_tree_leaf_icon=" "
+let g:vimfiler_tree_opened_icon="▾"
+let g:vimfiler_tree_closed_icon="▸"
+let g:vimfiler_file_icon=" "
+let g:vimfiler_marked_file_icon="*"
+let g:vimfiler_data_directory=expand("~/.vim/vimfiler")
 
 " open vimfilerexplorer
 nnoremap <silent> <C-n> :VimFilerExplorer<cr>
 nnoremap <silent> <C-f> :VimFiler<cr>
-
-" open files with enter
-autocmd FileType vimfiler nmap <buffer><silent> <Enter>
-			\ :<C-u>execute "normal " . vimfiler#mappings#smart_cursor_map(
-			\  "\<Plug>(vimfiler_cd_file)",
-			\  "\<Plug>(vimfiler_edit_file)")<CR>
 
 " }}}
 " plugin: vimproc {{{
@@ -455,7 +501,7 @@ command! Node :VimProcBang node %
 " }}}
 " plugin: tslime {{{
 
-let g:tslime_ensure_trailing_newlines = 1
+let g:tslime_ensure_trailing_newlines=1
 
 " }}}
 " plugin: goyo {{{
@@ -470,8 +516,8 @@ command! KillWhitespace :normal :%s/\s\+$//g<cr>
 
 " shows syntax highlight group for element
 command! ShowSyntax
-			\ :echo "hi<".synIDattr(synID(line("."),col("."),1),"name").'>'
-			\ . ' trans<' . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+			\ :echo "hi<".synIDattr(synID(line("."),col("."),1),"name").">"
+			\ . " trans<" . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 			\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"
 			\ <cr>:execute "highlight " .
 			\ synIDattr(synIDtrans(synID(line("."),col("."),1)),"name")<cr>
@@ -481,22 +527,22 @@ command! ShowSyntax
 command! -bang Wipeout :call Wipeout(<bang>0)
 function! Wipeout(bang)
 	" figure out which buffers are visible in any tab
-	let visible = {}
-	for t in range(1, tabpagenr('$'))
+	let visible={}
+	for t in range(1, tabpagenr("$"))
 		for b in tabpagebuflist(t)
-			let visible[b] = 1
+			let visible[b]=1
 		endfor
 	endfor
 	" close any buffer that are loaded and not visible
-	let l:tally = 0
-	let l:cmd = 'bw'
+	let l:tally=0
+	let l:cmd="bw"
 	if a:bang
-		let l:cmd .= '!'
+		let l:cmd .= "!"
 	endif
-	for b in range(1, bufnr('$'))
+	for b in range(1, bufnr("$"))
 		if buflisted(b) && !has_key(visible, b)
 			let l:tally += 1
-			exe l:cmd . ' ' . b
+			exe l:cmd . " " . b
 		endif
 	endfor
 	echon "Deleted " . l:tally . " buffer" . (l:tally == 1 ? "" : "s")
@@ -523,55 +569,56 @@ function! ToggleBackground()
 		set background=dark
 	endif
 endfunction
+
 command! ToggleBackground :call ToggleBackground()
 
 " visual selection function
 function! VisualSelection(direction) range
-	let l:saved_reg = @"
+	let l:saved_reg=@"
 	execute "normal! vgvy"
 
-	let l:pattern = escape(@", '\\/.*$^~[]')
-	let l:pattern = substitute(l:pattern, "\n$", "", "")
+	let l:pattern=escape(@", "\\/.*$^~[]")
+	let l:pattern=substitute(l:pattern, "\n$", "", "")
 
-	if a:direction == 'b'
+	if a:direction == "b"
 		execute "normal ?" . l:pattern . "^M"
-	elseif a:direction == 'gv'
-		call CmdLine("vimgrep " . '/'. l:pattern . '/' . ' **/*.')
-	elseif a:direction == 'replace'
-		call CmdLine("%s" . '/'. l:pattern . '/')
-	elseif a:direction == 'f'
+	elseif a:direction == "gv"
+		call CmdLine("vimgrep " . "/". l:pattern . "/" . " **/*.")
+	elseif a:direction == "replace"
+		call CmdLine("%s" . "/". l:pattern . "/")
+	elseif a:direction == "f"
 		execute "normal /" . l:pattern . "^M"
 	endif
 
-	let @/ = l:pattern
-	let @" = l:saved_reg
+	let @/=l:pattern
+	let @"=l:saved_reg
 endfunction
 
 " visual mode pressing * or # searches for the current selection
-vnoremap <silent> * :call VisualSelection('f')<cr>
-vnoremap <silent> # :call VisualSelection('b')<cr>
+vnoremap <silent> * :call VisualSelection("f")<cr>
+vnoremap <silent> # :call VisualSelection("b")<cr>
 
-" motion for 'next' and 'last' text object
+" motion for "next" and "last" text object
 " from: https://gist.github.com/sjl/3762227
-onoremap an :<c-u>call <SID>NextTextObject('a', 'f')<cr>
-xnoremap an :<c-u>call <SID>NextTextObject('a', 'f')<cr>
-onoremap in :<c-u>call <SID>NextTextObject('i', 'f')<cr>
-xnoremap in :<c-u>call <SID>NextTextObject('i', 'f')<cr>
+onoremap an :<c-u>call <SID>NextTextObject("a", "f")<cr>
+xnoremap an :<c-u>call <SID>NextTextObject("a", "f")<cr>
+onoremap in :<c-u>call <SID>NextTextObject("i", "f")<cr>
+xnoremap in :<c-u>call <SID>NextTextObject("i", "f")<cr>
 
-onoremap al :<c-u>call <SID>NextTextObject('a', 'F')<cr>
-xnoremap al :<c-u>call <SID>NextTextObject('a', 'F')<cr>
-onoremap il :<c-u>call <SID>NextTextObject('i', 'F')<cr>
-xnoremap il :<c-u>call <SID>NextTextObject('i', 'F')<cr>
+onoremap al :<c-u>call <SID>NextTextObject("a", "F")<cr>
+xnoremap al :<c-u>call <SID>NextTextObject("a", "F")<cr>
+onoremap il :<c-u>call <SID>NextTextObject("i", "F")<cr>
+xnoremap il :<c-u>call <SID>NextTextObject("i", "F")<cr>
 
 function! s:NextTextObject(motion, dir)
-  let c = nr2char(getchar())
+  let c=nr2char(getchar())
 
   if c ==# "b"
-      let c = "("
+      let c="("
   elseif c ==# "B"
-      let c = "{"
+      let c="{"
   elseif c ==# "r"
-      let c = "["
+      let c="["
   endif
 
   exe "normal! ".a:dir.c."v".a:motion.c
@@ -580,8 +627,27 @@ endfunction
 " }}}
 " custom mappings {{{
 
-" stop command line from showing accidentaly
-map q: :q
+" learn proper movement
+nnoremap <Left>  :echoe "Use h"<cr>
+nnoremap <Right> :echoe "Use l"<cr>
+nnoremap <Up>    :echoe "Use k"<cr>
+nnoremap <Down>  :echoe "Use j"<cr>
+
+" move between windows
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+nnoremap <C-h> <C-w>h
+
+" move by screen lines using arrow
+nnoremap k gk
+nnoremap j gj
+
+" move by screen lines using arrow
+" nnoremap <Up> gk
+" nnoremap <Down> gj
+" inoremap <expr> <Down> pumvisible() ? "<Down>" : "<C-o>gj"
+" inoremap <expr> <Up> pumvisible() ? "<Up>" : "<C-o>gk"
 
 " dont loose selection on indenting
 vnoremap > >gv
@@ -590,32 +656,8 @@ vnoremap < <gv
 " dot works in visual selection mode!
 vnoremap . :norm.<cr>
 
-" move by screen lines using arrow
-nnoremap <Up> gk
-nnoremap <Down> gj
-inoremap <expr> <Down> pumvisible() ? "<Down>" : "<C-O>gj"
-inoremap <expr> <Up> pumvisible() ? "<Up>" : "<C-O>gk"
-
 " select whole buffer
 nnoremap <silent> <leader>va ggVG
-
-" move between windows
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
-nnoremap <C-h> <C-w>h
-
-" tabs mappings
-nnoremap <leader>tn :tabnext<cr>
-nnoremap <leader>tp :tabprev<cr>
-nnoremap <leader>tc :tabclose<cr>
-nnoremap <leader>tN :tabnew<cr>
-
-" buffer mappings
-nnoremap <leader>bn :bnext<cr>
-nnoremap <leader>bp :brevious<cr>
-nnoremap <leader>bd :bdelete<cr>
-nnoremap <leader>bN :new<cr>
 
 " D deletes to the end of the line
 nnoremap D d$
@@ -625,8 +667,8 @@ noremap H ^
 noremap L $
 vnoremap L g_
 
-" don't move on *
-nnoremap <silent> * :let stay_star_view = winsaveview()<cr>*:call winrestview(stay_star_view)<cr>
+" don"t move on *
+nnoremap <silent> * :let stay_star_view=winsaveview()<cr>*:call winrestview(stay_star_view)<cr>
 
 " keep search matches in the middle of the window
 nnoremap n nzzzv
@@ -639,6 +681,12 @@ nnoremap <c-o> <c-o>zz
 
 " disable EX mode
 nnoremap Q <nop>
+
+" stop command line from showing accidentaly
+map q: :q
+
+" tabs mappings
+nnoremap <leader>T :tabnew<cr>
 
 " kill whitespace
 nnoremap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
@@ -657,5 +705,13 @@ nnoremap <silent> <leader>d :cd %:p:h<cr>
 
 " center on cursor using scrollof
 nnoremap <silent> <leader>z :let &scrolloff=999-&scrolloff<cr>
+
+" error jumping
+nnoremap <silent> <leader>en :lnext<cr>
+nnoremap <silent> <leader>ep :lprev<cr>
+
+" source current line / selection of vimscript
+vnoremap <leader>S y:execute @@<cr>:echo "Sourced selection."<cr>
+nnoremap <leader>S ^vg_y:execute @@<cr>:echo "Sourced line."<cr>
 
 " }}}

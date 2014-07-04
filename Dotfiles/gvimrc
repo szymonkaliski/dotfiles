@@ -27,10 +27,6 @@ if has("gui_macvim")
 	" disable printing from menu
 	macmenu &File.Print key=<nop>
 
-	" comment lines with cmd-/
-	map <D-/> :TComment<cr>
-	vmap <D-/> :TComment<cr>gv
-
 	" change tabs with ctrl-tab
 	noremap <C-Tab> :tabnext<cr>
 	noremap <C-S-Tab> :tabprev<cr>

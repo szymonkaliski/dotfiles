@@ -503,40 +503,35 @@ if hash fzf 2> /dev/null; then
 	# default options
 	export FZF_DEFAULT_OPTS="+2"
 
-	# edit file in editor
+	# edit files in editor
 	function fze() {
-		local file
-		file=$(fzf --query="$1")
-		[ -n "$file" ] && ${EDITOR:-vim} "$file"
-	}
-
-	# open file using mac open
-	function fzo() {
-		local file
-		file=$(fzf --query="$1")
-		[ -n "$file" ] && open "$file"
+		local files
+		files=$(fzf --query="$1" -m)
+		[ -n "$files" ] && echo "$files" | xargs -o $EDITOR
 	}
 
 	# cd to directory
 	function fzd() {
 		local dir
-		dir=$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --query="$1") && cd "$dir"
+		dir=$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --query="$1")
+		[ -n "$dir" ] && cd "$dir"
 	}
 
 	# jump in fzf
 	function fzj() {
 		local dir
-		dir=$(j -l | sed "s/[0-9.]* *//" | fzf +s --query="$1") && cd "$dir"
+		dir=$(j -l | sed "s/[0-9.]* *//" | fzf +s --query="$1")
+		[ -n "$dir" ] && cd "$dir"
 	}
 
 	# search through history
 	function fzh() {
-		eval $(fc -l 1 | sed 's/ *[0-9]* *//' | fzf +s )
+		eval $(fc -l 1 | sed 's/ *[0-9]* *//' | fzf +s --query="$1")
 	}
 
 	# kill process
 	function fzkill() {
-		ps -ef | sed 1d | fzf +2 -m | awk '{print $2}' | xargs kill -${1:-9}
+		ps -ef | sed 1d | fzf -m --query="$1" | awk '{print $2}' | xargs kill -${1:-9}
 	}
 fi
 
