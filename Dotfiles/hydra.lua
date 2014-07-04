@@ -175,12 +175,12 @@ end)
 
 -- set window sizes
 fnutils.each({
- { key = 1, w = 1400, h = 940 },
- { key = 2, w = 980, h = 920 },
- { key = 3, w = 800, h = 880 },
- { key = 4, w = 800, h = 740 },
- { key = 5, w = 760, h = 620 },
- { key = 6, w = 770, h = 470 }
+	{ key = 1, w = 1400, h = 940 },
+	{ key = 2, w = 980, h = 920 },
+	{ key = 3, w = 800, h = 880 },
+	{ key = 4, w = 800, h = 740 },
+	{ key = 5, w = 760, h = 620 },
+	{ key = 6, w = 770, h = 470 }
 }, function(object)
 	hotkey.bind(mod1, object.key, function()
 		centerwithsize(window.focusedwindow(), object.w, object.h)
