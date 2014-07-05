@@ -167,7 +167,7 @@ end
 local mod1 = { "cmd", "ctrl" }
 local mod2 = { "cmd", "ctrl", "alt" }
 
--- window mod1ifiers
+-- window modifiers
 hotkey.bind(mod1, "c", function() centerwindow(window.focusedwindow()) end)
 hotkey.bind(mod1, "z", function() fullscreen(window.focusedwindow()) end)
 hotkey.bind(mod1, "tab", function() nextscreen(window.focusedwindow()) end)
@@ -177,6 +177,13 @@ fnutils.each({ "up", "down", "left", "right" }, function(direction)
 	hotkey.bind(mod1, direction, function() push(window:focusedwindow(), direction) end)
 	hotkey.bind(mod2, direction, function() nudge(window:focusedwindow(), direction) end)
 end)
+
+-- save and restore window positions
+hotkey.bind(mod1, "s", function() winposition(window.focusedwindow(), "save") end)
+hotkey.bind(mod1, "r", function() winposition(window.focusedwindow(), "load") end)
+
+-- reload hydra settings
+hotkey.bind(mod1, "h", function() hydra:reload() end)
 
 -- set window sizes
 fnutils.each({
@@ -191,13 +198,6 @@ fnutils.each({
 		centerwithsize(window.focusedwindow(), object.w, object.h)
 	end)
 end)
-
--- save and restore window positions
-hotkey.bind(mod1, "s", function() winposition(window.focusedwindow(), "save") end)
-hotkey.bind(mod1, "r", function() winposition(window.focusedwindow(), "load") end)
-
--- reload hydra settings
-hotkey.bind(mod1, "h", function() hydra:reload() end)
 
 -- launch and focus applications
 fnutils.each({
