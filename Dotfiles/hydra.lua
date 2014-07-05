@@ -1,15 +1,19 @@
 -- autostart hydra
 autolaunch.set(true)
 
+-- watch for changes
+pathwatcher.new(os.getenv("HOME") .. "/.hydra/", hydra.reload):start()
+
 -- notify on start
 notify.show("Hydra", "Started!", "", "")
 
--- window functions
+-- window margin
 local margin = 10
 
 -- push to screen edge
 function push(win, direction)
 	local screen = win:screen():frame_without_dock_or_menu()
+
 	local frames = {
 		[ "up" ] = function()
 			return {
@@ -51,28 +55,34 @@ function push(win, direction)
 	win:setframe(frames[direction]())
 end
 
--- move by "margin"
+-- move by margin
 function nudge(win, direction)
 	local screen = win:screen():frame_without_dock_or_menu()
 	local frame = win:frame()
 
-	if (direction == "up") then
-		frame.y = math.max(screen.y + margin, frame.y - margin);
-	end
+	local modifyframe = {
+		[ "up" ] = function(frame)
+			frame.y = math.max(screen.y + margin, frame.y - margin)
+			return frame
+		end,
 
-	if (direction == "down") then
-		frame.y = math.min(screen.y + screen.h - margin * 1 / 4, frame.y + margin);
-	end
+		[ "down" ] = function(frame)
+			frame.y = math.min(screen.y + screen.h - margin * 1 / 4, frame.y + margin)
+			return frame
+		end,
 
-	if (direction == "left") then
-		frame.x = math.max(screen.x + margin, frame.x - margin);
-	end
+		[ "left" ] = function(frame)
+			frame.x = math.max(screen.x + margin, frame.x - margin)
+			return frame
+		end,
 
-	if (direction == "right") then
-		frame.x = math.min(screen.x + screen.w - margin - frame.w, frame.x + margin);
-	end
+		[ "right" ] = function(frame)
+			frame.x = math.min(screen.x + screen.w - margin - frame.w, frame.x + margin)
+			return frame
+		end
+	}
 
-	win:setframe(frame)
+	win:setframe(modifyframe[direction](frame))
 end
 
 -- fit inside screen
@@ -129,8 +139,8 @@ function centerwithsize(win, w, h)
 	local screen = win:screen():frame_without_dock_or_menu()
 	local frame = win:frame()
 
-	frame.w = w;
-	frame.h = h;
+	frame.w = w
+	frame.h = h
 
 	win:setframe(centerframe(screen, fitframe(screen, frame)))
 end
@@ -164,13 +174,8 @@ hotkey.bind(mod1, "tab", function() nextscreen(window.focusedwindow()) end)
 
 -- push to edges and nudge
 fnutils.each({ "up", "down", "left", "right" }, function(direction)
-	hotkey.bind(mod1, direction, function()
-		push(window:focusedwindow(), direction)
-	end)
-
-	hotkey.bind(mod2, direction, function()
-		nudge(window:focusedwindow(), direction)
-	end)
+	hotkey.bind(mod1, direction, function() push(window:focusedwindow(), direction) end)
+	hotkey.bind(mod2, direction, function() nudge(window:focusedwindow(), direction) end)
 end)
 
 -- set window sizes
@@ -203,7 +208,5 @@ fnutils.each({
 	{ key = "p", app = "TaskPaper" },
 	{ key = "m", app = "MacVim" }
 }, function(object)
-	hotkey.bind(mod2, object.key, function()
-		application.launchorfocus(object.app)
-	end)
+	hotkey.bind(mod2, object.key, function() application.launchorfocus(object.app) end)
 end)
