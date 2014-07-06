@@ -22,7 +22,7 @@ if has("gui_macvim")
 	set gcr=n:blinkon0
 
 	" default window size
-	set lines=74 columns=162
+	set lines=72 columns=160
 
 	" disable printing from menu
 	macmenu &File.Print key=<nop>

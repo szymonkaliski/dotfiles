@@ -112,7 +112,15 @@ end
 -- fullscreen window with margin
 function fullscreen(win)
 	local screen = win:screen():frame_without_dock_or_menu()
-	local frame = {
+
+	-- fix for problem where window is as big as screen
+	local frame = win:frame()
+	if (frame.h > (screen.h - margin * (2 - 1 / 4))) then
+		frame.h = screen.h - margin * 10
+		win:setframe(frame)
+	end
+
+	frame = {
 		x = margin + screen.x,
 		y = margin + screen.y,
 		w = screen.w - margin * 2,
@@ -194,9 +202,7 @@ fnutils.each({
 	{ key = 5, w = 760, h = 620 },
 	{ key = 6, w = 770, h = 470 }
 }, function(object)
-	hotkey.bind(mod1, object.key, function()
-		centerwithsize(window.focusedwindow(), object.w, object.h)
-	end)
+	hotkey.bind(mod1, object.key, function() centerwithsize(window.focusedwindow(), object.w, object.h) end)
 end)
 
 -- launch and focus applications

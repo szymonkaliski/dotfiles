@@ -80,7 +80,7 @@ set lazyredraw
 set ttyfast
 set ttyscroll=3
 
-" don"t beep
+" don't beep
 set noeb vb t_vb=
 
 " disable startup message
@@ -89,7 +89,7 @@ set shortmess+=I
 " syntax coloring
 syntax enable
 
-" don"t try to highlight longer lines
+" don't try to highlight longer lines
 set synmaxcol=1024
 
 " encoding
@@ -147,7 +147,7 @@ set laststatus=2
 " show tabline only when needed
 set showtabline=1
 
-" don"t show current mode/cmd
+" don't show current mode/cmd
 set noshowmode
 set noshowcmd
 
@@ -198,9 +198,9 @@ augroup line_return
 	au!
 
 	au BufReadPost *
-		\ if line("\"\\\"") > 0 && line("\"\\\"") <= line("$") |
-		\		execute "normal! g`"zvzz" |
-		\ endif
+				\ if line("'\"") > 0 && line("'\"") <= line("$") |
+				\     execute 'normal! g`"zvzz' |
+				\ endif
 augroup END
 
 " automatically resize splits when resizing window
@@ -217,8 +217,15 @@ augroup checktime_update
 	au BufEnter * checktime
 augroup END
 
+" extend syntax highlight
+augroup extend_syntax
+	au!
+
+	au Syntax * call matchadd("Todo", "\W\zs\(ASSUMPTION\)")
+augroup END
+
 " set proper syntaxes
-augroup syntaxes
+augroup detect_syntax
 	au!
 
 	" proper filetypes based on name
@@ -232,9 +239,6 @@ augroup syntaxes
 	au BufNewFile,BufRead *.glsl            set filetype=glsl
 	au BufNewFile,BufRead *.taskpaper       set filetype=taskpaper
 	au BufNewFile,BufRead ~/Dropbox/Notes/* set filetype=markdown
-
-	" extend highlights
-	au Syntax * call matchadd("Todo", "\W\zs\(ASSUMPTION\)")
 augroup END
 
 " custom settings based on filetype
@@ -245,13 +249,11 @@ augroup ft_settings
 	au FileType coffee     setlocal shiftwidth=2 expandtab
 	au FileType vim        setlocal foldmethod=marker foldlevel=0
 	au FileType clojure    let b:delimitMate_quotes = "\""
-
-	" no numbers / special chars based on file types
+	au FileType javascript call JavaScriptFold() | set foldlevelstart=99
+	au FileType taskpaper  setlocal nonumber | setlocal nolist | call taskpaper#fold_projects()
 	au FileType vimfiler   setlocal nonumber | setlocal nolist | setlocal cursorline
 	au FileType text       setlocal nonumber | setlocal nolist
 	au FileType markdown   setlocal nonumber | setlocal nolist
-	au FileType taskpaper  setlocal nonumber | setlocal nolist
-
 augroup END
 
 " }}}
@@ -304,24 +306,6 @@ if &term == "screen-256color"
 	set t_ts=]2;
 	set t_fs=\
 endif
-
-" }}}
-" plugin: taskpaper {{{
-
-augroup taskpaper_plugin
-	au!
-
-	au FileType taskpaper call taskpaper#fold_projects()
-augroup END
-
-" }}}
-" plugin: javascript {{{
-
-augroup javascript_plugin
-	au!
-
-	au FileType javascript call JavaScriptFold() | set foldlevelstart=99
-augroup END
 
 " }}}
 " plugin: airline {{{
@@ -611,17 +595,17 @@ onoremap il :<c-u>call <SID>NextTextObject("i", "F")<cr>
 xnoremap il :<c-u>call <SID>NextTextObject("i", "F")<cr>
 
 function! s:NextTextObject(motion, dir)
-  let c=nr2char(getchar())
+	let c=nr2char(getchar())
 
-  if c ==# "b"
-      let c="("
-  elseif c ==# "B"
-      let c="{"
-  elseif c ==# "r"
-      let c="["
-  endif
+	if c ==# "b"
+		let c="("
+	elseif c ==# "B"
+		let c="{"
+	elseif c ==# "r"
+		let c="["
+	endif
 
-  exe "normal! ".a:dir.c."v".a:motion.c
+	exe "normal! ".a:dir.c."v".a:motion.c
 endfunction
 
 " }}}
@@ -667,7 +651,7 @@ noremap H ^
 noremap L $
 vnoremap L g_
 
-" don"t move on *
+" don't move on *
 nnoremap <silent> * :let stay_star_view=winsaveview()<cr>*:call winrestview(stay_star_view)<cr>
 
 " keep search matches in the middle of the window
