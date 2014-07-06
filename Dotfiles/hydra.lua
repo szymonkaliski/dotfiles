@@ -171,6 +171,26 @@ function winposition(win, option)
 	end
 end
 
+-- cycle application windows
+-- simplified and stolen from: https://github.com/nifoc/dotfiles/blob/master/hydra/cycle.lua
+function cyclewindows(win)
+	local windows = win:application():visiblewindows()
+
+	if #windows < 2 then
+		return nil
+	end
+
+	table.sort(windows, function(a, b) return a:id() < b:id() end)
+	local activewindowindex = fnutils.indexof(windows, win)
+
+	if activewindowindex then
+		activewindowindex = activewindowindex + 1
+		if activewindowindex > #windows then activewindowindex = 1 end
+
+		windows[activewindowindex]:focus()
+	end
+end
+
 -- keyboard modifier for bindings
 local mod1 = { "cmd", "ctrl" }
 local mod2 = { "cmd", "ctrl", "alt" }
@@ -189,6 +209,9 @@ end)
 -- save and restore window positions
 hotkey.bind(mod1, "s", function() winposition(window.focusedwindow(), "save") end)
 hotkey.bind(mod1, "r", function() winposition(window.focusedwindow(), "load") end)
+
+-- cycle application windows
+hotkey.bind(mod1, "w", function() cyclewindows(window.focusedwindow()) end)
 
 -- reload hydra settings
 hotkey.bind(mod1, "h", function() hydra:reload() end)
