@@ -65,7 +65,7 @@ function ext.frame.nudge(frame, screen, direction)
 		end,
 
 		[ "down" ] = function(frame)
-			frame.y = math.min(screen.y + screen.h - margin * 1 / 4, frame.y + margin)
+			frame.y = math.min(screen.y + screen.h - frame.h - margin * 3 / 4, frame.y + margin)
 			return frame
 		end,
 
@@ -75,7 +75,7 @@ function ext.frame.nudge(frame, screen, direction)
 		end,
 
 		[ "right" ] = function(frame)
-			frame.x = math.min(screen.x + screen.w - margin - frame.w, frame.x + margin)
+			frame.x = math.min(screen.x + screen.w - frame.w - margin, frame.x + margin)
 			return frame
 		end
 	}
