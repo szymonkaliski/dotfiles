@@ -407,6 +407,10 @@ let g:syntastic_stl_format="%E{Error: %fe}%B{ }%W{Warning: %fw}"
 let g:SuperTabDefaultCompletionType="context"
 let g:SuperTabContextDefaultCompletionType="<c-n>"
 
+" silent input maps
+inoremap <script> <silent> <Plug>SuperTabForward <c-r>=SuperTab('n')<cr>
+inoremap <script> <silent> <Plug>SuperTabBackward <c-r>=SuperTab('p')<cr>
+
 " }}}
 " plugin: unite {{{
 
@@ -415,9 +419,11 @@ let g:unite_data_directory=expand("~/.vim/unite")
 let g:unite_source_history_yank_enable=1
 let g:unite_cursor_line_time=0
 let g:unite_cursor_line_highlight="CursorLine"
+" let g:unite_source_file_rec_max_cache_files=0
 
 call unite#filters#matcher_default#use(["matcher_fuzzy"])
-call unite#filters#sorter_default#use(["sorter_rank"])
+" call unite#filters#sorter_default#use(["sorter_rank"])
+" call unite#custom#source("file_mru,file_rec,file_rec/async,file_rec/git", "max_candidates", 0)
 
 " mappings
 nnoremap <silent> <C-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
@@ -428,10 +434,11 @@ nnoremap <silent> <C-y> :Unite -buffer-name=yank -start-insert history/yank<cr>
 if executable("ag")
 	let g:unite_source_grep_command="ag"
 	let g:unite_source_grep_recursive_opt=""
-	let g:unite_source_grep_max_candidates=200
 	let g:unite_source_grep_default_opts=
 				\ "--line-numbers --nocolor --nogroup --smart-case --hidden " .
-				\ "--ignore \".hg\" --ignore \".svn\" --ignore \".git\" --ignore \".bzr\""
+				\ "--ignore \".hg\" --ignore \".svn\" --ignore \".git\" --ignore \".bzr\"" .
+				\ "--ignore \"*node_modules/*\""
+
 	nnoremap <silent> <C-g> :Unite -buffer-name=grep -no-quit -keep-focus -no-start-insert grep:.<cr>
 endif
 
@@ -667,11 +674,11 @@ nnoremap g; g;zz
 nnoremap g, g,zz
 nnoremap <c-o> <c-o>zz
 
-" disable EX mode
-nnoremap Q <nop>
-
-" stop command line from showing accidentaly
-map q: :q
+" disable EX mode and other accidental q* commands
+nnoremap Q  <nop>
+nnoremap q/ <nop>
+nnoremap q: <nop>
+nnoremap q? <nop>
 
 " tabs mappings
 nnoremap <leader>T :tabnew<cr>

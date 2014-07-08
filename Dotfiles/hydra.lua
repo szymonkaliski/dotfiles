@@ -2,53 +2,55 @@
 autolaunch.set(true)
 
 -- watch for changes
--- pathwatcher.new(os.getenv("HOME") .. "/.hydra/", hydra.reload):start()
+pathwatcher.new(os.getenv("HOME") .. "/.hydra/", hydra.reload):start()
 
 -- notify on start
 notify.show("Hydra", "Started!", "", "")
 
--- extension for frame
+-- extensions
 ext.frame = {}
+ext.win = {}
 
--- window margin
-local margin = 10
+-- window margins and positions
+ext.win.margin = 10
+ext.win.positions = {}
 
 -- returns frame pushed to screen edge
 function ext.frame.push(screen, direction)
 	local frames = {
 		[ "up" ] = function()
 			return {
-				x = margin + screen.x,
-				y = margin + screen.y,
-				w = screen.w - margin * 2,
-				h = screen.h / 2 - margin
+				x = ext.win.margin + screen.x,
+				y = ext.win.margin + screen.y,
+				w = screen.w - ext.win.margin * 2,
+				h = screen.h / 2 - ext.win.margin
 			}
 		end,
 
 		[ "down" ] = function()
 			return {
-				x = margin + screen.x,
-				y = margin * 3 / 4 + screen.h / 2 + screen.y,
-				w = screen.w - margin * 2,
-				h = screen.h / 2 - margin * (2 - 1 / 4)
+				x = ext.win.margin + screen.x,
+				y = ext.win.margin * 3 / 4 + screen.h / 2 + screen.y,
+				w = screen.w - ext.win.margin * 2,
+				h = screen.h / 2 - ext.win.margin * (2 - 1 / 4)
 			}
 		end,
 
 		[ "left" ] = function()
 			return {
-				x = margin + screen.x,
-				y = margin + screen.y,
-				w = screen.w / 2 - margin * (2 - 1 / 4),
-				h = screen.h - margin * (2 - 1 / 4)
+				x = ext.win.margin + screen.x,
+				y = ext.win.margin + screen.y,
+				w = screen.w / 2 - ext.win.margin * (2 - 1 / 4),
+				h = screen.h - ext.win.margin * (2 - 1 / 4)
 			}
 		end,
 
 		[ "right" ] = function()
 			return {
-				x = margin / 2 + screen.w / 2 + screen.x,
-				y = margin + screen.y,
-				w = screen.w / 2 - margin * (2 - 1 / 4),
-				h = screen.h - margin * (2 - 1 / 4)
+				x = ext.win.margin / 2 + screen.w / 2 + screen.x,
+				y = ext.win.margin + screen.y,
+				w = screen.w / 2 - ext.win.margin * (2 - 1 / 4),
+				h = screen.h - ext.win.margin * (2 - 1 / 4)
 			}
 		end
 	}
@@ -56,26 +58,26 @@ function ext.frame.push(screen, direction)
 	return frames[direction]()
 end
 
--- returns frame moved by margin
+-- returns frame moved by ext.win.margin
 function ext.frame.nudge(frame, screen, direction)
 	local modifyframe = {
 		[ "up" ] = function(frame)
-			frame.y = math.max(screen.y + margin, frame.y - margin)
+			frame.y = math.max(screen.y + ext.win.margin, frame.y - ext.win.margin)
 			return frame
 		end,
 
 		[ "down" ] = function(frame)
-			frame.y = math.min(screen.y + screen.h - frame.h - margin * 3 / 4, frame.y + margin)
+			frame.y = math.min(screen.y + screen.h - frame.h - ext.win.margin * 3 / 4, frame.y + ext.win.margin)
 			return frame
 		end,
 
 		[ "left" ] = function(frame)
-			frame.x = math.max(screen.x + margin, frame.x - margin)
+			frame.x = math.max(screen.x + ext.win.margin, frame.x - ext.win.margin)
 			return frame
 		end,
 
 		[ "right" ] = function(frame)
-			frame.x = math.min(screen.x + screen.w - frame.w - margin, frame.x + margin)
+			frame.x = math.min(screen.x + screen.w - frame.w - ext.win.margin, frame.x + ext.win.margin)
 			return frame
 		end
 	}
@@ -83,16 +85,29 @@ function ext.frame.nudge(frame, screen, direction)
 	return modifyframe[direction](frame)
 end
 
--- window extension
-ext.win = {}
+-- returns frame fited inside screen
+function ext.frame.fit(screen, frame)
+	frame.w = math.min(frame.w, screen.w - ext.win.margin * 2)
+	frame.h = math.min(frame.h, screen.h - ext.win.margin * (2 - 1 / 4))
+
+	return frame
+end
+
+-- returns frame centered inside screen
+function ext.frame.center(screen, frame)
+	frame.x = screen.w / 2 - frame.w / 2 + screen.x
+	frame.y = screen.h / 2 - frame.h / 2 + screen.y
+
+	return frame
+end
 
 -- ugly fix for problem with window height when it's as big as screen
 function ext.win.fix(win)
-	local frame = win:frame()
 	local screen = win:screen():frame_without_dock_or_menu()
+	local frame = win:frame()
 
-	if (frame.h > (screen.h - margin * (2 - 1 / 4))) then
-		frame.h = screen.h - margin * 10
+	if (frame.h > (screen.h - ext.win.margin * (2 - 1 / 4))) then
+		frame.h = screen.h - ext.win.margin * 10
 		win:setframe(frame)
 	end
 end
@@ -100,13 +115,12 @@ end
 -- pushes window in direction and nudges to edge, fixes terminal positioning
 function ext.win.push(win, direction)
 	local screen = win:screen():frame_without_dock_or_menu()
-	local frame = win:frame()
-
-	ext.win.fix(win)
+	local frame
 
 	frame = ext.frame.push(screen, direction)
 	frame = ext.frame.nudge(frame, screen, direction)
 
+	ext.win.fix(win)
 	win:setframe(frame)
 end
 
@@ -120,22 +134,6 @@ function ext.win.nudge(win, direction)
 	win:setframe(frame)
 end
 
--- returns frame fited inside screen
-function ext.frame.fit(screen, frame)
-	frame.w = math.min(frame.w, screen.w - margin * 2)
-	frame.h = math.min(frame.h, screen.h - margin * (2 - 1 / 4))
-
-	return frame
-end
-
--- returns frame centered inside screen
-function ext.frame.center(screen, frame)
-	frame.x = screen.w / 2 - frame.w / 2 + screen.x
-	frame.y = screen.h / 2 - frame.h / 2 + screen.y
-
-	return frame
-end
-
 -- centers window
 function ext.win.center(win)
 	local screen = win:screen():frame_without_dock_or_menu()
@@ -146,15 +144,14 @@ function ext.win.center(win)
 	win:setframe(frame)
 end
 
--- fullscreen window with margin
+-- fullscreen window with ext.win.margin
 function ext.win.full(win)
 	local screen = win:screen():frame_without_dock_or_menu()
-
-	frame = {
-		x = margin + screen.x,
-		y = margin + screen.y,
-		w = screen.w - margin * 2,
-		h = screen.h - margin * (2 - 1 / 4)
+	local frame = {
+		x = ext.win.margin + screen.x,
+		y = ext.win.margin + screen.y,
+		w = screen.w - ext.win.margin * 2,
+		h = screen.h - ext.win.margin * (2 - 1 / 4)
 	}
 
 	ext.win.fix(win)
@@ -169,11 +166,10 @@ function ext.win.throw(win)
 	frame.x = screen.x
 	frame.y = screen.y
 
-	ext.win.fix(win)
-
 	frame = ext.frame.fit(screen, frame)
 	frame = ext.frame.center(screen, frame)
 
+	ext.win.fix(win)
 	win:setframe(frame)
 	win:focus()
 end
@@ -193,20 +189,23 @@ function ext.win.size(win, size)
 end
 
 -- save and restore window positions
-local positions = {}
-
 function ext.win.pos(win, option)
 	local id = win:application():bundleid()
 	local frame = win:frame()
 
-	if option == "save" then
-		notify.show("Hydra", "position for " .. id .. " saved", "", "")
-		positions[id] = frame
+	-- saves window position if not saved before
+	if option == "save" and not ext.win.positions[id] then
+		ext.win.positions[id] = frame
 	end
 
-	if option == "load" and positions[id] then
-		notify.show("Hydra", "position for " .. id .. " restored", "", "")
-		win:setframe(positions[id])
+	-- force update saved window position
+	if option == "update" then
+		ext.win.positions[id] = frame
+	end
+
+	-- restores window position
+	if option == "load" and ext.win.positions[id] then
+		win:setframe(ext.win.positions[id])
 	end
 end
 
@@ -229,10 +228,13 @@ function ext.win.cycle(win)
 	end
 end
 
--- apply function to a window with optional params
+-- apply function to a window with optional params, saving it's position for restore
 function dowin(fn, param)
 	return function()
-		fn(window.focusedwindow(), param)
+		local win = window.focusedwindow()
+
+		ext.win.pos(win, "save")
+		fn(win, param)
 	end
 end
 
@@ -240,20 +242,13 @@ end
 local mod1 = { "cmd", "ctrl" }
 local mod2 = { "cmd", "ctrl", "alt" }
 
--- window modifiers
-hotkey.bind(mod1, "c", dowin(ext.win.center))
-hotkey.bind(mod1, "z", dowin(ext.win.full))
+-- basic bindings
+hotkey.bind(mod1, "c",   dowin(ext.win.center))
+hotkey.bind(mod1, "z",   dowin(ext.win.full))
+hotkey.bind(mod1, "s",   dowin(ext.win.pos, "update"))
+hotkey.bind(mod1, "r",   dowin(ext.win.pos, "load"))
+hotkey.bind(mod1, "w",   dowin(ext.win.cycle))
 hotkey.bind(mod1, "tab", dowin(ext.win.throw))
-
--- save and restore window positions
-hotkey.bind(mod1, "s", dowin(ext.win.pos, "save"))
-hotkey.bind(mod1, "r", dowin(ext.win.pos, "load"))
-
--- cycle application windows
-hotkey.bind(mod1, "w", dowin(ext.win.cycle))
-
--- reload hydra settings
-hotkey.bind(mod1, "h", function() hydra:reload() end)
 
 -- push to edges and nudge
 fnutils.each({ "up", "down", "left", "right" }, function(direction)
