@@ -210,9 +210,9 @@ function ext.win.pos(win, option)
 end
 
 -- cycle application windows
--- simplified and stolen from: https://github.com/nifoc/dotfiles/blob/master/hydra/cycle.lua
+-- originally stolen: https://github.com/nifoc/dotfiles/blob/master/hydra/cycle.lua
 function ext.win.cycle(win)
-	local windows = win:application():visiblewindows()
+	local windows = win:application():allwindows()
 	windows = fnutils.filter(windows, function(win) return win:isstandard() end)
 
 	if #windows >= 2 then
@@ -233,8 +233,11 @@ function dowin(fn, param)
 	return function()
 		local win = window.focusedwindow()
 
-		ext.win.pos(win, "save")
-		fn(win, param)
+		-- run function only if there's focused window
+		if win then
+			ext.win.pos(win, "save")
+			fn(win, param)
+		end
 	end
 end
 

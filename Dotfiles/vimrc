@@ -17,6 +17,7 @@ NeoBundle "Raimondi/delimitMate"
 " probably unnecessary, but nice to have
 NeoBundle "bling/vim-airline"
 NeoBundleLazy "junegunn/goyo.vim", { "autoload": { "commands": "Goyo" } }
+NeoBundleLazy "junegunn/limelight.vim", { "autoload": { "commands": "Limelight" } }
 
 " load this only on OSX
 if system("uname -s") == "Darwin\n"
@@ -340,6 +341,7 @@ if !has("gui_running")
 	let g:airline#extensions#tabline#left_alt_sep=""
 	let g:airline#extensions#tabline#right_sep=""
 	let g:airline#extensions#tabline#right_alt_sep=""
+	let g:airline#extensions#tabline#close_symbol="✕"
 endif
 
 " remove bold fonts from airline tomorrow theme
@@ -401,6 +403,16 @@ let g:syntastic_warning_symbol="?"
 let g:syntastic_style_warning_symbol="?"
 let g:syntastic_stl_format="%E{Error: %fe}%B{ }%W{Warning: %fw}"
 
+function! ToggleErrors()
+	if empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") is# "quickfix"'))
+		Errors
+	else
+		lclose
+	endif
+endfunction
+
+command! ToggleErrors :call ToggleErrors()
+
 " }}}
 " plugin: supertab {{{
 
@@ -417,30 +429,30 @@ inoremap <script> <silent> <Plug>SuperTabBackward <c-r>=SuperTab('p')<cr>
 " settings
 let g:unite_data_directory=expand("~/.vim/unite")
 let g:unite_source_history_yank_enable=1
+let g:unite_source_file_mru_limit=200
 let g:unite_cursor_line_time=0
 let g:unite_cursor_line_highlight="CursorLine"
-" let g:unite_source_file_rec_max_cache_files=0
 
+" unite-ag customizations
+if executable("ag")
+	let g:unite_source_grep_command="ag"
+	let g:unite_source_grep_recursive_opt=""
+	let g:unite_source_grep_default_opts=
+				\ '--line-numbers --nocolor --nogroup --smart-case --hidden ' .
+				\ '--ignore ".hg" --ignore ".svn" --ignore ".git" --ignore ".bzr" ' .
+				\ '--ignore "node_modules"'
+	let g:unite_source_rec_async_command='ag --nogroup --nocolor --column --hidden --ignore ".git" --ignore "node_modules" -g ""'
+endif
+
+" sort and match
 call unite#filters#matcher_default#use(["matcher_fuzzy"])
-" call unite#filters#sorter_default#use(["sorter_rank"])
-" call unite#custom#source("file_mru,file_rec,file_rec/async,file_rec/git", "max_candidates", 0)
+call unite#filters#sorter_default#use(["sorter_rank"])
 
 " mappings
 nnoremap <silent> <C-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
 nnoremap <silent> <C-b> :Unite -buffer-name=buffer -start-insert buffer<cr>
 nnoremap <silent> <C-y> :Unite -buffer-name=yank -start-insert history/yank<cr>
-
-" grep
-if executable("ag")
-	let g:unite_source_grep_command="ag"
-	let g:unite_source_grep_recursive_opt=""
-	let g:unite_source_grep_default_opts=
-				\ "--line-numbers --nocolor --nogroup --smart-case --hidden " .
-				\ "--ignore \".hg\" --ignore \".svn\" --ignore \".git\" --ignore \".bzr\"" .
-				\ "--ignore \"*node_modules/*\""
-
-	nnoremap <silent> <C-g> :Unite -buffer-name=grep -no-quit -keep-focus -no-start-insert grep:.<cr>
-endif
+nnoremap <silent> <C-g> :Unite -buffer-name=grep -no-quit -keep-focus -no-start-insert grep:.<cr>
 
 " NV notes
 if isdirectory($HOME . "/Dropbox/Notes")
@@ -495,9 +507,39 @@ command! Node :VimProcBang node %
 let g:tslime_ensure_trailing_newlines=1
 
 " }}}
+" plugin: limelight {{{
+
+let g:limelight_conceal_ctermfg = 10
+let g:limelight_conceal_guifg = "#586e75"
+
+" }}}
 " plugin: goyo {{{
 
+function! GoyoBefore()
+	if !has("gui_running")
+		silent !tmux set status off > /dev/null
+	endif
+
+	set scrolloff=999
+	Limelight
+endfunction
+
+function! GoyoAfter()
+	if !has("gui_running")
+		set showtabline=1
+		silent !tmux set status on > /dev/null
+	endif
+
+	set scrolloff=3
+	Limelight!
+endfunction
+
+let g:goyo_callbacks = [ function('GoyoBefore'), function('GoyoAfter') ]
+let g:goyo_width = 120
+
 command! Zen :Goyo
+
+nnoremap <silent> <leader>Z :Zen<cr>
 
 " }}}
 " custom commands {{{
@@ -543,11 +585,11 @@ endfun
 if system("uname -s") == "Darwin\n"
 	function! s:OpenURL(url)
 		echo a:url
-		exe "!open \"" . a:url . "\""
+		exe "!open \"" . a:url . "\" > /dev/null"
 		redraw!
 	endfunction
 
-	command! -nargs=1 OpenURL :call s:OpenURL(<q-args>)
+	command! -nargs=1 OpenURL :silent call s:OpenURL(<q-args>)
 
 	nnoremap gb :OpenURL <cfile><cr>
 endif
@@ -651,9 +693,6 @@ vnoremap < <gv
 " dot works in visual selection mode!
 vnoremap . :norm.<cr>
 
-" select whole buffer
-nnoremap <silent> <leader>va ggVG
-
 " D deletes to the end of the line
 nnoremap D d$
 
@@ -661,9 +700,6 @@ nnoremap D d$
 noremap H ^
 noremap L $
 vnoremap L g_
-
-" don't move on *
-nnoremap <silent> * :let stay_star_view=winsaveview()<cr>*:call winrestview(stay_star_view)<cr>
 
 " keep search matches in the middle of the window
 nnoremap n nzzzv
@@ -675,35 +711,53 @@ nnoremap g, g,zz
 nnoremap <c-o> <c-o>zz
 
 " disable EX mode and other accidental q* commands
-nnoremap Q  <nop>
 nnoremap q/ <nop>
 nnoremap q: <nop>
 nnoremap q? <nop>
 
-" tabs mappings
+" disable man pages
+nnoremap K <nop>
+
+" apply macros with Q
+nnoremap Q @q
+vnoremap Q :norm @q<cr>
+
+" don't move on *
+nnoremap <silent>* :let star_view=winsaveview()<cr>*:call winrestview(star_view)<cr>
+
+" new tab
 nnoremap <leader>T :tabnew<cr>
 
+" select whole buffer
+nnoremap <leader>va ggVG
+
+" select last paste in visual mode
+nnoremap <leader>vp '`[' . strpart(getregtype(), 0, 1) . '`]'
+
 " kill whitespace
-nnoremap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
+nnoremap <leader>k :KillWhitespace<cr>:nohlsearch<cr>
 
 " clean current search
-nnoremap <silent> <leader>c :nohlsearch<cr>
+nnoremap <leader>c :nohlsearch<cr>
 
 " toggle list chars
-nnoremap <silent> <leader>l :set list!<cr>
+nnoremap <leader>l :set list!<cr>
 
 " toggle numbers
-nnoremap <silent> <leader>n :set number!<cr>
-
-" switch cwd to the directory of the open buffer
-nnoremap <silent> <leader>d :cd %:p:h<cr>
+nnoremap <leader>n :set number!<cr>
 
 " center on cursor using scrollof
-nnoremap <silent> <leader>z :let &scrolloff=999-&scrolloff<cr>
+nnoremap <leader>z :let &scrolloff=999-&scrolloff<cr>
 
-" error jumping
-nnoremap <silent> <leader>en :lnext<cr>
-nnoremap <silent> <leader>ep :lprev<cr>
+" paste from system clipboard
+nnoremap <leader>p "+p<cr>
+
+" align block of code
+nnoremap <leader>a :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
+
+" jump to errors
+nnoremap <leader>e :lnext<cr>
+nnoremap <leader>E :lprevious<cr>
 
 " source current line / selection of vimscript
 vnoremap <leader>S y:execute @@<cr>:echo "Sourced selection."<cr>
