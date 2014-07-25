@@ -3,7 +3,7 @@
 # set ffmpeg options
 case $1 in
 	ipad|iPad)
-		OPTIONS="-acodec libfaac -ac 2 -ab 160k -s 1024x768 -vcodec libx264 -vpre iPod640 -b 1200k"
+		OPTIONS="-acodec libfaac -ac 2 -ab 160k -s 1024x768 -vcodec libx264 -b 1200k"
 		EXT=".iPad.mp4"
 		;;
 	mjpeg)

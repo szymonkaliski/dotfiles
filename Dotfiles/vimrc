@@ -66,9 +66,9 @@ NeoBundleLazy "othree/html5.vim", { "autoload": { "filetypes": [ "html" ] } }
 " make vim more useful
 set nocompatible
 
-" automaticaly cd into dir
-" set autochdir
-" autocmd BufEnter * silent! lcd %:p:h
+" encoding
+set encoding=utf-8
+set fileencodings=utf-8
 
 " yank and paste with system clipboard
 set clipboard=unnamed
@@ -81,6 +81,11 @@ set lazyredraw
 set ttyfast
 set ttyscroll=3
 
+" fast timeouts
+set notimeout
+set ttimeout
+set ttimeoutlen=10
+
 " don't beep
 set noeb vb t_vb=
 
@@ -90,12 +95,20 @@ set shortmess+=I
 " syntax coloring
 syntax enable
 
+" color theme
+set t_Co=256
+set background=dark
+
+let g:solarized_bold=0
+let g:solarized_italic=0
+let g:solarized_underline=0
+let g:solarized_menu=0
+let g:solarized_contrast="high"
+let g:solarized_visibility="normal"
+colorscheme solarized
+
 " don't try to highlight longer lines
 set synmaxcol=1024
-
-" encoding
-set encoding=utf-8
-set fileencodings=utf-8
 
 " indentation
 filetype plugin indent on
@@ -155,10 +168,6 @@ set noshowcmd
 " completion in command line
 set wildmenu
 
-" fast timeouts
-set timeoutlen=1000
-set ttimeoutlen=0
-
 " insert completion height
 set pumheight=10
 
@@ -166,15 +175,6 @@ set pumheight=10
 set foldmethod=syntax
 set foldlevelstart=99
 set foldcolumn=0
-
-" color theme
-set t_Co=256
-set background=dark
-
-let g:solarized_bold=0
-let g:solarized_italic=0
-let g:solarized_underline=0
-colorscheme solarized
 
 " open splits to the right and bottom
 set splitright
@@ -215,7 +215,7 @@ augroup END
 augroup checktime_update
 	au!
 
-	au BufEnter * checktime
+	au FocusGained,BufEnter,CursorHold * checktime
 augroup END
 
 " extend syntax highlight
@@ -429,9 +429,16 @@ inoremap <script> <silent> <Plug>SuperTabBackward <c-r>=SuperTab('p')<cr>
 " settings
 let g:unite_data_directory=expand("~/.vim/unite")
 let g:unite_source_history_yank_enable=1
-let g:unite_source_file_mru_limit=200
-let g:unite_cursor_line_time=0
-let g:unite_cursor_line_highlight="CursorLine"
+
+call unite#filters#matcher_default#use(["matcher_fuzzy"])
+call unite#filters#sorter_default#use(["sorter_rank"])
+
+call unite#custom#profile("default", "context", {
+			\		"direction": "botright",
+			\		"start_insert": 1,
+			\		"cursor_line_time": 0,
+			\		"cursor_line_highlight": "CursorLine"
+			\ })
 
 " unite-ag customizations
 if executable("ag")
@@ -444,24 +451,21 @@ if executable("ag")
 	let g:unite_source_rec_async_command='ag --nogroup --nocolor --column --hidden --ignore ".git" --ignore "node_modules" -g ""'
 endif
 
-" sort and match
-call unite#filters#matcher_default#use(["matcher_fuzzy"])
-call unite#filters#sorter_default#use(["sorter_rank"])
-
 " mappings
-nnoremap <silent> <C-p> :Unite -buffer-name=files -start-insert file_rec/async<cr>
-nnoremap <silent> <C-b> :Unite -buffer-name=buffer -start-insert buffer<cr>
-nnoremap <silent> <C-y> :Unite -buffer-name=yank -start-insert history/yank<cr>
+nnoremap <silent> <C-p> :Unite -buffer-name=files  file_rec/async<cr>
+nnoremap <silent> <C-b> :Unite -buffer-name=buffer buffer<cr>
+nnoremap <silent> <C-y> :Unite -buffer-name=yank   history/yank<cr>
+
 nnoremap <silent> <C-g> :Unite -buffer-name=grep -no-quit -keep-focus -no-start-insert grep:.<cr>
 
 " NV notes
 if isdirectory($HOME . "/Dropbox/Notes")
-	command! -nargs=* Notes :silent Unite -buffer-name=notes -start-insert file_rec/async:~/Dropbox/Notes -input=<args>
+	command! -nargs=* Notes :silent Unite -buffer-name=notes file_rec/async:~/Dropbox/Notes -input=<args>
 endif
 
 " TaskPaper tasks
 if isdirectory($HOME . "/Dropbox/Tasks")
-	command! -nargs=* Tasks :silent Unite -buffer-name=tasks -start-insert file_rec/async:~/Dropbox/Tasks -input=<args>
+	command! -nargs=* Tasks :silent Unite -buffer-name=tasks file_rec/async:~/Dropbox/Tasks -input=<args>
 endif
 
 " }}}
@@ -542,6 +546,12 @@ command! Zen :Goyo
 nnoremap <silent> <leader>Z :Zen<cr>
 
 " }}}
+" custom abbrs {{{
+
+iabbrev _date <C-r>=strftime("%Y-%m-%d")<cr>
+iabbrev _time <C-r>=strftime("%H:%M")<cr>
+
+" }}}
 " custom commands {{{
 
 " kills trailing whitespaces
@@ -593,17 +603,6 @@ if system("uname -s") == "Darwin\n"
 
 	nnoremap gb :OpenURL <cfile><cr>
 endif
-
-" toggle background
-function! ToggleBackground()
-	if &background == "dark"
-		set background=light
-	else
-		set background=dark
-	endif
-endfunction
-
-command! ToggleBackground :call ToggleBackground()
 
 " visual selection function
 function! VisualSelection(direction) range
@@ -731,23 +730,29 @@ nnoremap <leader>T :tabnew<cr>
 " select whole buffer
 nnoremap <leader>va ggVG
 
+" yank whole buffer
+nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>
+
 " select last paste in visual mode
 nnoremap <leader>vp '`[' . strpart(getregtype(), 0, 1) . '`]'
 
 " kill whitespace
-nnoremap <leader>k :KillWhitespace<cr>:nohlsearch<cr>
+nnoremap <silent> <leader>k :let kill_view=winsaveview()<cr>:KillWhitespace<cr>:nohlsearch<cr>:call winrestview(kill_view)<cr>
+
+" replace tabs with two-space and back
+nnoremap <silent> <leader>st :let tab_view=winsaveview()<cr>:%s/\t/\ \ /g<cr>:call winrestview(tab_view)<cr>
 
 " clean current search
-nnoremap <leader>c :nohlsearch<cr>
+nnoremap <silent> <leader>c :nohlsearch<cr>
 
 " toggle list chars
-nnoremap <leader>l :set list!<cr>
+nnoremap <silent> <leader>l :set list!<cr>
 
 " toggle numbers
-nnoremap <leader>n :set number!<cr>
+nnoremap <silent> <leader>n :set number!<cr>
 
 " center on cursor using scrollof
-nnoremap <leader>z :let &scrolloff=999-&scrolloff<cr>
+nnoremap <silent> <leader>z :let &scrolloff=999-&scrolloff<cr>
 
 " paste from system clipboard
 nnoremap <leader>p "+p<cr>

@@ -147,25 +147,11 @@ if [ "$(whoami)" = "root" ]; then
 	PROMPTCOLOR=red
 fi
 
-# prompt for screen & tmux
-# if [ -n "$TMUX" ]; then
-# 	WINDOW="$(tmux display-message -p '#I')"
-# fi
-#
-# if [ $WINDOW ]; then
-# 	local WINNUM="%{$fg[$PROMPTCOLOR]%}$WINDOW%{$reset_color%}: "
-# else
-# 	local WINNUM=""
-# fi
-
 # main prompt
-# PROMPT="$WINNUM%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS%(?,→,%{$fg[red]%}✕%{$reset_color%}) %{$reset_color%}"
-# PROMPT="%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS%(?,→,%{$fg[red]%}✕%{$reset_color%}) %{$reset_color%}"
 PROMPT="%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS→ %{$reset_color%}"
 
 # right prompt
 RPROMPT="%(?,,%{$fg[red]%}✕%{$reset_color%})"
-# RPROMPT=""
 
 # unfinished loops prompt
 PROMPT2="%{$fg[yellow]%}%_%{$reset_color%} → "
@@ -176,15 +162,6 @@ SPROMPT="correct '%R' to '%r' ? ([Y]es/[N]o/[E]dit/[A]bort) "
 # zsh vim mode
 bindkey -v
 export KEYTIMEOUT=1
-
-# right prompt with mode
-# function zle-line-init zle-keymap-select {
-# 	RPS1="${${KEYMAP/vicmd/NORMAL}/(main|viins)/INSERT}"
-# 	RPS2=$RPS1
-# 	zle reset-prompt
-# }
-# zle -N zle-line-init
-# zle -N zle-keymap-select
 
 # colors
 export GREP_COLOR=34

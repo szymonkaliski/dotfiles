@@ -1,5 +1,5 @@
 -- autostart hydra
-autolaunch.set(true)
+hydra.autolaunch.set(true)
 
 -- watch for changes
 pathwatcher.new(os.getenv("HOME") .. "/.hydra/", hydra.reload):start()
@@ -9,10 +9,11 @@ notify.show("Hydra", "Started!", "", "")
 
 -- extensions
 ext.frame = {}
-ext.win = {}
+ext.win   = {}
+ext.app   = {}
 
 -- window margins and positions
-ext.win.margin = 10
+ext.win.margin    = 10
 ext.win.positions = {}
 
 -- returns frame pushed to screen edge
@@ -112,13 +113,12 @@ function ext.win.fix(win)
 	end
 end
 
--- pushes window in direction and nudges to edge, fixes terminal positioning
+-- pushes window in direction
 function ext.win.push(win, direction)
 	local screen = win:screen():frame_without_dock_or_menu()
 	local frame
 
 	frame = ext.frame.push(screen, direction)
-	frame = ext.frame.nudge(frame, screen, direction)
 
 	ext.win.fix(win)
 	win:setframe(frame)
@@ -132,6 +132,12 @@ function ext.win.nudge(win, direction)
 	frame = ext.frame.nudge(frame, screen, direction)
 
 	win:setframe(frame)
+end
+
+-- push and nudge window in direction
+function ext.win.pushandnudge(win, direction)
+	ext.win.push(win, direction)
+	ext.win.nudge(win, direction)
 end
 
 -- centers window
@@ -228,17 +234,46 @@ function ext.win.cycle(win)
 	end
 end
 
+-- smart browser launch or focus
+ext.app.browser = function()
+	local browsers = { "Safari", "Google Chrome" }
+	local runningapps = application.runningapplications()
+
+	local runningbrowsers = fnutils.map(browsers, function(browser)
+		return fnutils.find(runningapps, function(app)
+			return app:title() == browser
+		end)
+	end)
+
+	if #runningbrowsers > 0 then
+		local activated = runningbrowsers[1]:activate()
+	else
+		application.launchorfocus(browsers[1])
+	end
+end
+
 -- apply function to a window with optional params, saving it's position for restore
 function dowin(fn, param)
 	return function()
 		local win = window.focusedwindow()
 
-		-- run function only if there's focused window
 		if win then
 			ext.win.pos(win, "save")
 			fn(win, param)
 		end
 	end
+end
+
+-- apply function to a window with a timer
+function timewin(fn, param)
+	return timer.new(0.1, function()
+		local win = window.focusedwindow()
+
+		if win then
+			ext.win.pos(win, "save")
+			fn(win, param)
+		end
+	end)
 end
 
 -- keyboard modifier for bindings
@@ -255,18 +290,20 @@ hotkey.bind(mod1, "tab", dowin(ext.win.throw))
 
 -- push to edges and nudge
 fnutils.each({ "up", "down", "left", "right" }, function(direction)
-	hotkey.bind(mod1, direction, dowin(ext.win.push, direction))
-	hotkey.bind(mod2, direction, dowin(ext.win.nudge, direction))
+	local nudge = timewin(ext.win.nudge, direction)
+
+	hotkey.bind(mod1, direction, dowin(ext.win.pushandnudge, direction))
+	hotkey.bind(mod2, direction, function() nudge:start() end, function() nudge:stop() end)
 end)
 
 -- set window sizes
 fnutils.each({
 	{ key = 1, w = 1400, h = 940 },
-	{ key = 2, w = 980, h = 920 },
-	{ key = 3, w = 800, h = 880 },
-	{ key = 4, w = 800, h = 740 },
-	{ key = 5, w = 760, h = 620 },
-	{ key = 6, w = 770, h = 470 }
+	{ key = 2, w = 980,  h = 920 },
+	{ key = 3, w = 800,  h = 880 },
+	{ key = 4, w = 800,  h = 740 },
+	{ key = 5, w = 760,  h = 620 },
+	{ key = 6, w = 770,  h = 470 }
 }, function(object)
 	hotkey.bind(mod1, object.key, dowin(ext.win.size, { w = object.w, h = object.h }))
 end)
@@ -274,7 +311,6 @@ end)
 -- launch and focus applications
 fnutils.each({
 	{ key = "t", app = "Terminal" },
-	{ key = "s", app = "Safari" },
 	{ key = "f", app = "Finder" },
 	{ key = "n", app = "Notational Velocity" },
 	{ key = "p", app = "TaskPaper" },
@@ -282,3 +318,6 @@ fnutils.each({
 }, function(object)
 	hotkey.bind(mod2, object.key, function() application.launchorfocus(object.app) end)
 end)
+
+-- launch or focus browser in a smart way
+hotkey.bind(mod2, "b", function() ext.app.browser() end)
