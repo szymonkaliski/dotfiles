@@ -254,25 +254,25 @@ end
 
 -- apply function to a window with optional params, saving it's position for restore
 function dowin(fn, param)
-	return function()
-		local win = window.focusedwindow()
+	local win = window.focusedwindow()
 
-		if win then
-			ext.win.pos(win, "save")
-			fn(win, param)
-		end
+	if win and not win:isfullscreen() then
+		ext.win.pos(win, "save")
+		fn(win, param)
+	end
+end
+
+-- for simple hotkey binding
+function bindwin(fn, param)
+	return function()
+		dowin(fn, param)
 	end
 end
 
 -- apply function to a window with a timer
 function timewin(fn, param)
 	return timer.new(0.1, function()
-		local win = window.focusedwindow()
-
-		if win then
-			ext.win.pos(win, "save")
-			fn(win, param)
-		end
+		dowin(fn, param)
 	end)
 end
 
@@ -281,18 +281,18 @@ local mod1 = { "cmd", "ctrl" }
 local mod2 = { "cmd", "ctrl", "alt" }
 
 -- basic bindings
-hotkey.bind(mod1, "c",   dowin(ext.win.center))
-hotkey.bind(mod1, "z",   dowin(ext.win.full))
-hotkey.bind(mod1, "s",   dowin(ext.win.pos, "update"))
-hotkey.bind(mod1, "r",   dowin(ext.win.pos, "load"))
-hotkey.bind(mod1, "w",   dowin(ext.win.cycle))
-hotkey.bind(mod1, "tab", dowin(ext.win.throw))
+hotkey.bind(mod1, "c",   bindwin(ext.win.center))
+hotkey.bind(mod1, "z",   bindwin(ext.win.full))
+hotkey.bind(mod1, "s",   bindwin(ext.win.pos, "update"))
+hotkey.bind(mod1, "r",   bindwin(ext.win.pos, "load"))
+hotkey.bind(mod1, "w",   bindwin(ext.win.cycle))
+hotkey.bind(mod1, "tab", bindwin(ext.win.throw))
 
 -- push to edges and nudge
 fnutils.each({ "up", "down", "left", "right" }, function(direction)
 	local nudge = timewin(ext.win.nudge, direction)
 
-	hotkey.bind(mod1, direction, dowin(ext.win.pushandnudge, direction))
+	hotkey.bind(mod1, direction, bindwin(ext.win.pushandnudge, direction))
 	hotkey.bind(mod2, direction, function() nudge:start() end, function() nudge:stop() end)
 end)
 
@@ -305,7 +305,7 @@ fnutils.each({
 	{ key = 5, w = 760,  h = 620 },
 	{ key = 6, w = 770,  h = 470 }
 }, function(object)
-	hotkey.bind(mod1, object.key, dowin(ext.win.size, { w = object.w, h = object.h }))
+	hotkey.bind(mod1, object.key, bindwin(ext.win.size, { w = object.w, h = object.h }))
 end)
 
 -- launch and focus applications
