@@ -59,6 +59,7 @@ NeoBundleLazy "groenewege/vim-less", { "autoload": { "filename_patterns": "\.les
 NeoBundleLazy "davidoc/taskpaper.vim", { "autoload": { "filename_patterns": "\.taskpaper$" } }
 NeoBundleLazy "briancollins/vim-jst", { "autoload": { "filename_patterns": [ "\.tpl$", "\.ejs$" ] } }
 NeoBundleLazy "othree/html5.vim", { "autoload": { "filetypes": [ "html" ] } }
+NeoBundleLazy "vim-scripts/ck.vim", { "autoload": { "filename_patterns": [ "\.ck$" ] } }
 
 " }}}
 " vim settings {{{
@@ -238,6 +239,7 @@ augroup detect_syntax
 	au BufNewFile,BufRead *.frag            set filetype=glsl
 	au BufNewFile,BufRead *.vert            set filetype=glsl
 	au BufNewFile,BufRead *.glsl            set filetype=glsl
+	au BufNewFile,BufRead *.ck              set filetype=ck
 	au BufNewFile,BufRead *.taskpaper       set filetype=taskpaper
 	au BufNewFile,BufRead ~/Dropbox/Notes/* set filetype=markdown
 augroup END
@@ -520,8 +522,9 @@ let g:limelight_conceal_guifg = "#586e75"
 " plugin: goyo {{{
 
 function! GoyoBefore()
-	if !has("gui_running")
+	if $TMUX != ""
 		silent !tmux set status off > /dev/null
+		silent !tmux resize-pane -Z > /dev/null
 	endif
 
 	set scrolloff=999
@@ -531,7 +534,11 @@ endfunction
 function! GoyoAfter()
 	if !has("gui_running")
 		set showtabline=1
+	endif
+
+	if $TMUX != ""
 		silent !tmux set status on > /dev/null
+		silent !tmux resize-pane -Z > /dev/null
 	endif
 
 	set scrolloff=3
@@ -546,10 +553,22 @@ command! Zen :Goyo
 nnoremap <silent> <leader>Z :Zen<cr>
 
 " }}}
-" custom abbrs {{{
+" custom abbrevs {{{
 
 iabbrev _date <C-r>=strftime("%Y-%m-%d")<cr>
 iabbrev _time <C-r>=strftime("%H:%M")<cr>
+
+" based on filetype
+augroup ft_abbrev
+	au!
+
+	au FileType taskpaper :iabbrev <buffer> @tomorrow @due(<C-r>=strftime("%Y-%m-%d", localtime() + 86400)<cr>)
+
+	au FileType javascript
+				\ :iabbrev <buffer> log console.log()<esc>ha |
+				\ :iabbrev <buffer> fn function()<esc>ha |
+				\ :iabbrev <buffer> fun function
+augroup END
 
 " }}}
 " custom commands {{{

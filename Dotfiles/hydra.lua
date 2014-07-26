@@ -1,6 +1,3 @@
--- autostart hydra
-hydra.autolaunch.set(true)
-
 -- watch for changes
 pathwatcher.new(os.getenv("HOME") .. "/.hydra/", hydra.reload):start()
 
@@ -246,7 +243,7 @@ ext.app.browser = function()
 	end)
 
 	if #runningbrowsers > 0 then
-		local activated = runningbrowsers[1]:activate()
+		runningbrowsers[1]:activate()
 	else
 		application.launchorfocus(browsers[1])
 	end
