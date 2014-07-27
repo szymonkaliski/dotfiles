@@ -555,8 +555,8 @@ nnoremap <silent> <leader>Z :Zen<cr>
 " }}}
 " custom abbrevs {{{
 
-iabbrev _date <C-r>=strftime("%Y-%m-%d")<cr>
-iabbrev _time <C-r>=strftime("%H:%M")<cr>
+iabbrev <silent> _date <C-r>=strftime("%Y-%m-%d")<cr>
+iabbrev <silent> _time <C-r>=strftime("%H:%M")<cr>
 
 " based on filetype
 augroup ft_abbrev
@@ -565,9 +565,8 @@ augroup ft_abbrev
 	au FileType taskpaper :iabbrev <buffer> @tomorrow @due(<C-r>=strftime("%Y-%m-%d", localtime() + 86400)<cr>)
 
 	au FileType javascript
-				\ :iabbrev <buffer> log console.log()<esc>ha |
-				\ :iabbrev <buffer> fn function()<esc>ha |
-				\ :iabbrev <buffer> fun function
+				\ :iabbrev <buffer> clog console.log |
+				\ :iabbrev <buffer> fn function
 augroup END
 
 " }}}
