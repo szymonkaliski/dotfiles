@@ -214,7 +214,7 @@ alias mkdir="mkdir -p"
 
 alias df="df -h"
 alias du="du -sh"
-alias ag="ag -i"
+alias ag="ag --smart-case"
 
 alias grep="egrep --color=auto"
 alias less="less -i --tabs=2"

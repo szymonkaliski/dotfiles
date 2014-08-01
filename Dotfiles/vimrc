@@ -22,8 +22,8 @@ NeoBundleLazy "junegunn/limelight.vim", { "autoload": { "commands": "Limelight" 
 " load this only on OSX
 if system("uname -s") == "Darwin\n"
 	NeoBundle "sjl/tslime.vim"
-	NeoBundle "scrooloose/syntastic"
 	NeoBundle "airblade/vim-gitgutter"
+	NeoBundle "scrooloose/syntastic"
 endif
 
 " shugo bundles
@@ -396,7 +396,7 @@ let g:gitgutter_eager=0
 
 let g:syntastic_enable_signs=0 " enable/disable sign column
 let g:syntastic_enable_highlighting=0 " enable/disable highlighting errors with syntax
-let g:syntastic_check_on_open=1
+let g:syntastic_check_on_open=0
 let g:syntastic_check_on_wq=0
 let g:syntastic_always_populate_loc_list=1
 let g:syntastic_error_symbol="!"
@@ -558,6 +558,15 @@ nnoremap <silent> <leader>Z :Zen<cr>
 iabbrev <silent> _date <C-r>=strftime("%Y-%m-%d")<cr>
 iabbrev <silent> _time <C-r>=strftime("%H:%M")<cr>
 
+function! EatChar(pat)
+	let c = nr2char(getchar(0))
+	return (c =~ a:pat) ? '' : c
+endfunction
+
+function! SpacelessIabbrev(from, to)
+	execute "iabbrev <silent> <buffer> " . a:from . " " . a:to . "<C-R>=EatChar('\\s')<CR>"
+endfunction
+
 " based on filetype
 augroup ft_abbrev
 	au!
@@ -565,8 +574,8 @@ augroup ft_abbrev
 	au FileType taskpaper :iabbrev <buffer> @tomorrow @due(<C-r>=strftime("%Y-%m-%d", localtime() + 86400)<cr>)
 
 	au FileType javascript
-				\ :iabbrev <buffer> clog console.log |
-				\ :iabbrev <buffer> fn function
+				\ :call SpacelessIabbrev("clog", "console.log") |
+				\ :call SpacelessIabbrev("fn", "function")
 augroup END
 
 " }}}
@@ -712,6 +721,9 @@ vnoremap . :norm.<cr>
 
 " D deletes to the end of the line
 nnoremap D d$
+
+" Y yanks to the end of the line
+nnoremap Y y$
 
 " better line begin (H) and end (L)
 noremap H ^

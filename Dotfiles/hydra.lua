@@ -268,7 +268,7 @@ end
 
 -- apply function to a window with a timer
 function timewin(fn, param)
-	return timer.new(0.1, function()
+	return timer.new(0.05, function()
 		dowin(fn, param)
 	end)
 end
