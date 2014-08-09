@@ -81,7 +81,7 @@ colors
 # npm completions
 if [ -f /usr/lib/node_modules/npm/lib/utils/completion.sh ]; then
 	source /usr/lib/node_modules/npm/lib/utils/completion.sh
-elif [ -f /usr/local/opt/node/lib/node_modules/npm/lib/utils/completion.sh ]; then
+elif [ -f /usr/local/lib/node_modules/npm/lib/utils/completion.sh ]; then
 	source /usr/local/lib/node_modules/npm/lib/utils/completion.sh
 fi
 
@@ -194,6 +194,10 @@ export LESS="-R --RAW-CONTROL-CHARS"
 
 # editor export
 export EDITOR="vim"
+if [ -d /Applications/MacVim.app/ ]; then
+	alias vim="/Applications/MacVim.app/Contents/MacOS/Vim"
+	export EDITOR="/Applications/MacVim.app/Contents/MacOS/Vim"
+fi
 
 # aliases
 alias edit=$EDITOR
@@ -280,7 +284,7 @@ function v() {
 		ARG="."
 	fi
 
-	vim $ARG
+	$EDITOR $ARG
 }
 
 # mac only
@@ -494,21 +498,25 @@ if hash fzf 2> /dev/null; then
 		[ -n "$dir" ] && cd "$dir"
 	}
 
-	# jump in fzf
-	function fzj() {
-		local dir
-		dir=$(j -l | sed "s/[0-9.]* *//" | fzf +s --query="$1")
-		[ -n "$dir" ] && cd "$dir"
-	}
-
 	# search through history
 	function fzh() {
-		eval $(fc -l 1 | sed 's/ *[0-9]* *//' | fzf +s --query="$1")
+		# eval $(fc -l 1 | sed 's/ *[0-9]* *//' | fzf +s --query="$1")
+		print -z $(fc -l 1 | fzf +s --query="$1" | sed 's/ *[0-9]* *//')
 	}
 
 	# kill process
 	function fzkill() {
 		ps -ef | sed 1d | fzf -m --query="$1" | awk '{print $2}' | xargs kill -${1:-9}
+	}
+
+	# jump in fzf
+	unalias j
+	function j() {
+		if [[ -z "$*" ]]; then
+			cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf +s)"
+		else
+			_z "$@"
+		fi
 	}
 fi
 

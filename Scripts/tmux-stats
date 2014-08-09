@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+LOAD=$(uptime | sed 's/.*load average: //' | awk -F\, '{print $2}')
+MSG="$LOAD"
+
+if [ "$(uname)" = "Darwin" ]; then
+	# BATTERY_PERCENT=$(pmset -g ps | sed -n 's/.*[[:blank:]]+*\(.*%\).*/\1/p')
+	BATTERY_TIME=$(pmset -g ps | awk 'NR==2' | sed -n 's/.*[[:blank:]]+*\(.*\:.*\)\ .*/\1/p')"h"
+
+	if pmset -g ps | grep -q "discharging"; then
+		MSG="$MSG : $BATTERY_TIME"
+	fi
+fi
+
+echo $MSG

@@ -6,7 +6,7 @@ endif
 call neobundle#rc(expand("~/.vim/bundle/"))
 NeoBundleFetch "Shougo/neobundle.vim"
 
-" nicer editing bundles
+" editing bundles
 NeoBundle "tpope/vim-surround"
 NeoBundle "tpope/vim-repeat"
 NeoBundle "tpope/vim-commentary"
@@ -15,6 +15,7 @@ NeoBundle "ervandew/supertab"
 NeoBundle "Raimondi/delimitMate"
 
 " probably unnecessary, but nice to have
+NeoBundle "christoomey/vim-tmux-navigator"
 NeoBundle "bling/vim-airline"
 NeoBundleLazy "junegunn/goyo.vim", { "autoload": { "commands": "Goyo" } }
 NeoBundleLazy "junegunn/limelight.vim", { "autoload": { "commands": "Limelight" } }
@@ -697,10 +698,10 @@ inoremap <Up>    <nop>
 inoremap <Down>  <nop>
 
 " move between windows
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
-nnoremap <C-h> <C-w>h
+" nnoremap <C-j> <C-w>j
+" nnoremap <C-k> <C-w>k
+" nnoremap <C-l> <C-w>l
+" nnoremap <C-h> <C-w>h
 
 " move by screen lines using arrow
 nnoremap k gk
