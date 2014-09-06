@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PLASK="/Users/Szymon/Documents/Utils/Plask/build/Release/Plask.app/Contents/MacOS/Plask"
+PLASK="/Users/Szymon/Documents/Frameworks/Plask/build/Release/Plask.app/Contents/MacOS/Plask"
 MULTI=false
 
 while [ $# -gt 0 ]; do

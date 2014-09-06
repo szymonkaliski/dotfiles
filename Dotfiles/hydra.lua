@@ -83,8 +83,35 @@ function ext.frame.nudge(frame, screen, direction)
 	return modifyframe[direction](frame)
 end
 
+-- returns frame sent to screen edge
+function ext.frame.send(frame, screen, direction)
+	local modifyframe = {
+		[ "up" ] = function(frame)
+			frame.y = screen.y + ext.win.margin
+			return frame
+		end,
+
+		[ "down" ] = function(frame)
+			frame.y = screen.y + screen.h - frame.h - ext.win.margin * 3 / 4
+			return frame
+		end,
+
+		[ "left" ] = function(frame)
+			frame.x = screen.x + ext.win.margin
+			return frame
+		end,
+
+		[ "right" ] = function(frame)
+			frame.x = screen.x + screen.w - frame.w - ext.win.margin
+			return frame
+		end
+	}
+
+	return modifyframe[direction](frame)
+end
+
 -- returns frame fited inside screen
-function ext.frame.fit(screen, frame)
+function ext.frame.fit(frame, screen)
 	frame.w = math.min(frame.w, screen.w - ext.win.margin * 2)
 	frame.h = math.min(frame.h, screen.h - ext.win.margin * (2 - 1 / 4))
 
@@ -92,7 +119,7 @@ function ext.frame.fit(screen, frame)
 end
 
 -- returns frame centered inside screen
-function ext.frame.center(screen, frame)
+function ext.frame.center(frame, screen)
 	frame.x = screen.w / 2 - frame.w / 2 + screen.x
 	frame.y = screen.h / 2 - frame.h / 2 + screen.y
 
@@ -137,12 +164,23 @@ function ext.win.pushandnudge(win, direction)
 	ext.win.nudge(win, direction)
 end
 
+-- sends window in direction
+function ext.win.send(win, direction)
+	local screen = win:screen():frame_without_dock_or_menu()
+	local frame = win:frame()
+
+	frame = ext.frame.send(frame, screen, direction)
+
+	ext.win.fix(win)
+	win:setframe(frame)
+end
+
 -- centers window
 function ext.win.center(win)
 	local screen = win:screen():frame_without_dock_or_menu()
 	local frame = win:frame()
 
-	frame = ext.frame.center(screen, frame)
+	frame = ext.frame.center(frame, screen)
 
 	win:setframe(frame)
 end
@@ -169,8 +207,8 @@ function ext.win.throw(win)
 	frame.x = screen.x
 	frame.y = screen.y
 
-	frame = ext.frame.fit(screen, frame)
-	frame = ext.frame.center(screen, frame)
+	frame = ext.frame.fit(frame, screen)
+	frame = ext.frame.center(frame, screen)
 
 	ext.win.fix(win)
 	win:setframe(frame)
@@ -185,8 +223,8 @@ function ext.win.size(win, size)
 	frame.w = size.w
 	frame.h = size.h
 
-	frame = ext.frame.fit(screen, frame)
-	frame = ext.frame.center(screen, frame)
+	frame = ext.frame.fit(frame, screen)
+	frame = ext.frame.center(frame, screen)
 
 	win:setframe(frame)
 end
@@ -276,6 +314,7 @@ end
 -- keyboard modifier for bindings
 local mod1 = { "cmd", "ctrl" }
 local mod2 = { "cmd", "ctrl", "alt" }
+local mod3 = { "cmd", "alt", "shift" }
 
 -- basic bindings
 hotkey.bind(mod1, "c",   bindwin(ext.win.center))
@@ -291,6 +330,7 @@ fnutils.each({ "up", "down", "left", "right" }, function(direction)
 
 	hotkey.bind(mod1, direction, bindwin(ext.win.pushandnudge, direction))
 	hotkey.bind(mod2, direction, function() nudge:start() end, function() nudge:stop() end)
+	hotkey.bind(mod3, direction, bindwin(ext.win.send, direction))
 end)
 
 -- set window sizes

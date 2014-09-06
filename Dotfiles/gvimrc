@@ -46,7 +46,7 @@ if has("gui_macvim")
 
 	" open terminal in current directory
 	function! Terminal()
-		execute "silent !" . "open -a Terminal " . getcwd()
+		execute "silent !" . "open -a Terminal '" . getcwd() . "'"
 	endfun
 
 	command! Terminal :call Terminal()

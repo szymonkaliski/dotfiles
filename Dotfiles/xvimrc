@@ -52,14 +52,5 @@ vnoremap L g_
 " don't move on *
 nnoremap <silent> * :let stay_star_view = winsaveview()<cr>*:call winrestview(stay_star_view)<cr>
 
-" keep search matches in the middle of the window
-nnoremap n nzzzv
-nnoremap N Nzzzv
-
-" same when jumping around
-nnoremap g; g;zz
-nnoremap g, g,zz
-nnoremap <c-o> <c-o>zz
-
 " select whole buffer
 nnoremap <silent> <leader>va ggVG

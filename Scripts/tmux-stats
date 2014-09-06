@@ -4,10 +4,13 @@ LOAD=$(uptime | sed 's/.*load average: //' | awk -F\, '{print $2}')
 MSG="$LOAD"
 
 if [ "$(uname)" = "Darwin" ]; then
-	# BATTERY_PERCENT=$(pmset -g ps | sed -n 's/.*[[:blank:]]+*\(.*%\).*/\1/p')
-	BATTERY_TIME=$(pmset -g ps | awk 'NR==2' | sed -n 's/.*[[:blank:]]+*\(.*\:.*\)\ .*/\1/p')"h"
+	PMSET=$(pmset -g ps | awk 'NR==2')
 
-	if pmset -g ps | grep -q "discharging"; then
+	if echo $PMSET | grep -q "\ charging\|no\ estimate"; then
+		BATTERY_PERCENT=$(echo $PMSET | sed -n 's/.*[[:blank:]]+*\(.*%\).*/\1/p')
+		MSG="$MSG : $BATTERY_PERCENT"
+	elif echo $PMSET | grep -q "discharging"; then
+		BATTERY_TIME=$(echo $PMSET | sed -n 's/.*[[:blank:]]+*\(.*\:.*\)\ .*/\1/p')"h"
 		MSG="$MSG : $BATTERY_TIME"
 	fi
 fi

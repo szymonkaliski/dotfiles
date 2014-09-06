@@ -130,8 +130,8 @@ zstyle ":vcs_info:*" check-for-changes true
 zstyle ":vcs_info:*" stagedstr "%{$fg[red]%}"
 zstyle ":vcs_info:*" unstagedstr "%{$fg[red]%}"
 zstyle ":vcs_info:*" branchformat "%r"
-zstyle ":vcs_info:*" actionformats "%{$fg[yellow]%}%u%c"
-zstyle ":vcs_info:*" formats "%{$fg[yellow]%}%u%c"
+zstyle ":vcs_info:*" actionformats "%{$fg[green]%}%b %{$fg[yellow]%}%u%c"
+zstyle ":vcs_info:*" formats "%{$fg[green]%}%b %{$fg[yellow]%}%u%c"
 local VCS='$vcs_info_msg_0_'
 
 # prompt colors
@@ -194,6 +194,7 @@ export LESS="-R --RAW-CONTROL-CHARS"
 
 # editor export
 export EDITOR="vim"
+
 if [ -d /Applications/MacVim.app/ ]; then
 	alias vim="/Applications/MacVim.app/Contents/MacOS/Vim"
 	export EDITOR="/Applications/MacVim.app/Contents/MacOS/Vim"
@@ -201,6 +202,7 @@ fi
 
 # aliases
 alias edit=$EDITOR
+alias v="vim"
 alias sudo="sudo "
 
 alias ls="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable"
@@ -235,6 +237,9 @@ alias c="clear"
 alias reboot="sudo reboot"
 alias shutdown="sudo shutdown -h now"
 
+alias t="tree -a"
+alias td="tree -ad"
+
 alias zmv="zmv -w"
 alias zcp="zmv -Cw"
 
@@ -247,7 +252,7 @@ alias -g M="| more -i"
 alias -g S="| sort"
 alias -g B="> /dev/null 2>&1 &"
 
-alias -g N="&& tput bel"
+alias -g N="&& notify-terminal"
 alias -g P="&& pushover-terminal"
 
 # screen
@@ -267,7 +272,11 @@ alias sx="screen -x"
 # tmux
 function tn() {
 	if [ "$#" -eq 0 ]; then
-		tmux
+		if [[ $PWD != $HOME ]]; then
+			tmux new -s "$(echo ${PWD##*/} | tr "[:upper:]" "[:lower:]")"
+		else
+			tmux
+		fi
 	else
 		tmux new -s "${1:+"$@"}"
 	fi
@@ -275,17 +284,6 @@ function tn() {
 
 alias tl="tmux ls"
 alias ta="tmux attach -t"
-
-# shorter vim
-function v() {
-	if [ $# -ne 0 ]; then
-		ARG="${1:+"$@"}"
-	else
-		ARG="."
-	fi
-
-	$EDITOR $ARG
-}
 
 # mac only
 if [ "$(uname)" = "Darwin" ]; then
@@ -341,16 +339,9 @@ if [ "$(uname)" = "Darwin" ]; then
 		open $ARG
 	}
 
-	# shorter mvim
-	function m() {
-		if [ $# -ne 0 ]; then
-			ARG="${1:+"$@"}"
-		else
-			ARG="."
-		fi
-
-		mvim $ARG
-	}
+	# macvim
+	alias mvim="$EDITOR -g"
+	alias m="$EDITOR -g"
 fi
 
 # linux only
@@ -419,19 +410,23 @@ compdef _gnu_generic codecat=cat
 
 # simple httpserver
 function httpserver() {
-	local command=""
-	if [ "$(uname)" = "Darwin" ]; then
-		command="SimpleHTTPServer"
-	else
-		command="http.server"
-	fi
-
 	local port="3000"
 	if [ $# -ne 0 ]; then
 		port="$@"
 	fi
 
-	python -m $command $port
+	if hash http-server 2> /dev/null; then
+		http-server -p $port -c-1
+	else
+		local command=""
+		if [ "$(uname)" = "Darwin" ]; then
+			command="SimpleHTTPServer"
+		else
+			command="http.server"
+		fi
+
+		python -m $command $port
+	fi
 }
 
 # dropbox notes

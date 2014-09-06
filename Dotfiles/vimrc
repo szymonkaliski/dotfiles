@@ -7,24 +7,27 @@ call neobundle#rc(expand("~/.vim/bundle/"))
 NeoBundleFetch "Shougo/neobundle.vim"
 
 " editing bundles
-NeoBundle "tpope/vim-surround"
-NeoBundle "tpope/vim-repeat"
-NeoBundle "tpope/vim-commentary"
 NeoBundle "thinca/vim-visualstar"
-NeoBundle "ervandew/supertab"
+NeoBundle "tpope/vim-commentary"
+NeoBundle "tpope/vim-repeat"
+NeoBundle "tpope/vim-surround"
 NeoBundle "Raimondi/delimitMate"
+NeoBundle "ervandew/supertab"
+NeoBundle "wellle/targets.vim"
 
 " probably unnecessary, but nice to have
-NeoBundle "christoomey/vim-tmux-navigator"
 NeoBundle "bling/vim-airline"
+NeoBundle "christoomey/vim-tmux-navigator"
 NeoBundleLazy "junegunn/goyo.vim", { "autoload": { "commands": "Goyo" } }
 NeoBundleLazy "junegunn/limelight.vim", { "autoload": { "commands": "Limelight" } }
+NeoBundleLazy "tpope/vim-sleuth", { "autoload": { "filetypes": [ "javascript", "css" ] } }
+NeoBundleLazy "vasconcelloslf/vim-foldfocus", { "autoload": { "functions": "FoldFocus" } }
 
-" load this only on OSX
+" OSX only
 if system("uname -s") == "Darwin\n"
-	NeoBundle "sjl/tslime.vim"
 	NeoBundle "airblade/vim-gitgutter"
 	NeoBundle "scrooloose/syntastic"
+	NeoBundle "sjl/tslime.vim"
 endif
 
 " shugo bundles
@@ -36,7 +39,7 @@ NeoBundleLazy "Shougo/unite.vim", {
 			\ }
 NeoBundleLazy "Shougo/vimfiler.vim", {
 			\		"autoload": {
-			\			"commands": [ "VimFiler", "VimFilerExplorer" ],
+			\			"commands": [ "VimFiler", "VimFilerCreate", "VimFilerExplorer", "VimFilerBufferDir" ],
 			\			"explorer": 1
 			\		}
 			\ }
@@ -48,18 +51,18 @@ NeoBundleLazy "Shougo/vimproc", {
 			\ }
 
 " custom syntax bundles
-NeoBundleLazy "tikhomirov/vim-glsl", { "autoload": { "filename_patterns": [ "\.frag$", "\.vert$", "\.glsl$" ] } }
-NeoBundleLazy "sudar/vim-arduino-syntax", { "autoload": { "filename_patterns": "\.ino$" } }
-NeoBundleLazy "sophacles/vim-processing", { "autoload": { "filename_patterns": "\.pde$" } }
-NeoBundleLazy "plasticboy/vim-markdown", { "autoload": { "filetypes": [ "markdown" ] } }
-NeoBundleLazy "pangloss/vim-javascript", { "autoload": { "filetypes": [ "javascript" ] } }
-NeoBundleLazy "moll/vim-node", { "autoload": { "filetypes": [ "javascript" ] } }
-NeoBundleLazy "kchmck/vim-coffee-script", { "autoload": { "filename_patterns": "\.coffee$" } }
-NeoBundleLazy "jelera/vim-javascript-syntax", { "autoload": { "filetypes": [ "javascript" ] } }
-NeoBundleLazy "groenewege/vim-less", { "autoload": { "filename_patterns": "\.less$" } }
-NeoBundleLazy "davidoc/taskpaper.vim", { "autoload": { "filename_patterns": "\.taskpaper$" } }
 NeoBundleLazy "briancollins/vim-jst", { "autoload": { "filename_patterns": [ "\.tpl$", "\.ejs$" ] } }
+NeoBundleLazy "davidoc/taskpaper.vim", { "autoload": { "filename_patterns": "\.taskpaper$" } }
+NeoBundleLazy "groenewege/vim-less", { "autoload": { "filename_patterns": "\.less$" } }
+NeoBundleLazy "jelera/vim-javascript-syntax", { "autoload": { "filetypes": [ "javascript" ] } }
+NeoBundleLazy "kchmck/vim-coffee-script", { "autoload": { "filename_patterns": "\.coffee$" } }
+NeoBundleLazy "moll/vim-node", { "autoload": { "filetypes": [ "javascript" ] } }
 NeoBundleLazy "othree/html5.vim", { "autoload": { "filetypes": [ "html" ] } }
+NeoBundleLazy "pangloss/vim-javascript", { "autoload": { "filetypes": [ "javascript" ] } }
+NeoBundleLazy "plasticboy/vim-markdown", { "autoload": { "filetypes": [ "markdown" ] } }
+NeoBundleLazy "sophacles/vim-processing", { "autoload": { "filename_patterns": "\.pde$" } }
+NeoBundleLazy "sudar/vim-arduino-syntax", { "autoload": { "filename_patterns": "\.ino$" } }
+NeoBundleLazy "tikhomirov/vim-glsl", { "autoload": { "filename_patterns": [ "\.frag$", "\.vert$", "\.glsl$" ] } }
 NeoBundleLazy "vim-scripts/ck.vim", { "autoload": { "filename_patterns": [ "\.ck$" ] } }
 
 " }}}
@@ -127,6 +130,7 @@ set nonumber
 set linebreak
 set ruler
 set scrolloff=3
+set sidescrolloff=6
 
 " hidden chars liketextmate, disabled by default
 set list
@@ -173,11 +177,6 @@ set wildmenu
 " insert completion height
 set pumheight=10
 
-" code folding
-set foldmethod=syntax
-set foldlevelstart=99
-set foldcolumn=0
-
 " open splits to the right and bottom
 set splitright
 set splitbelow
@@ -192,6 +191,45 @@ runtime macros/matchit.vim
 if system("uname")=="Darwin\n"
 	let $PATH="/usr/local/bin:" . $PATH . ":/Users/Szymon/Dropbox/Code/Scripts"
 endif
+
+" code folding
+set foldmethod=syntax
+set foldlevelstart=99
+set foldcolumn=0
+
+" nice fold text modified from: https://coderwall.com/p/usd_cw
+set foldtext=FoldText()
+function! FoldText()
+	let l:lpadding = &fdc
+	redir => l:signs
+		execute "silent sign place buffer=" . bufnr("%")
+	redir End
+	let l:lpadding += l:signs =~ "id=" ? 2 : 0
+
+	if exists("+relativenumber")
+		if (&number)
+			let l:lpadding += max([&numberwidth, strlen(line("$"))]) + 1
+		elseif (&relativenumber)
+			let l:lpadding += max([&numberwidth, strlen(v:foldstart - line("w0")), strlen(line("w$") - v:foldstart), strlen(v:foldstart)]) + 1
+		endif
+	else
+		if (&number)
+			let l:lpadding += max([&numberwidth, strlen(line("$"))]) + 1
+		endif
+	endif
+
+	let l:start = substitute(getline(v:foldstart), "\t", repeat(" ", &tabstop), "g")
+	let l:end = substitute(substitute(getline(v:foldend), "\t", repeat(" ", &tabstop), "g"), '^\s*', "", "g")
+
+	let l:width = winwidth(0) - l:lpadding
+
+	let l:separator = " ... "
+	let l:separatorlen = strlen(substitute(l:separator, ".", "x", "g"))
+	let l:start = strpart(l:start , 0, l:width - strlen(substitute(l:end, ".", "x", "g")) - l:separatorlen)
+	let l:text = l:start . l:separator . l:end
+
+	return l:text
+endfunction
 
 " }}}
 " autocommands {{{
@@ -429,6 +467,17 @@ inoremap <script> <silent> <Plug>SuperTabBackward <c-r>=SuperTab('p')<cr>
 " }}}
 " plugin: unite {{{
 
+augroup unite_plugin
+	au!
+
+	" open files with e
+	au FileType unite nnoremap <silent><buffer><expr> e unite#do_action("open")
+
+	" remap redraws to ctrl-r
+	au FileType unite nunmap <buffer> <c-l>
+	au FileType unite nmap   <buffer> <c-r> <Plug>(unite_redraw)
+augroup END
+
 " settings
 let g:unite_data_directory=expand("~/.vim/unite")
 let g:unite_source_history_yank_enable=1
@@ -437,7 +486,6 @@ call unite#filters#matcher_default#use(["matcher_fuzzy"])
 call unite#filters#sorter_default#use(["sorter_rank"])
 
 call unite#custom#profile("default", "context", {
-			\		"direction": "botright",
 			\		"start_insert": 1,
 			\		"cursor_line_time": 0,
 			\		"cursor_line_highlight": "CursorLine"
@@ -449,26 +497,27 @@ if executable("ag")
 	let g:unite_source_grep_recursive_opt=""
 	let g:unite_source_grep_default_opts=
 				\ '--line-numbers --nocolor --nogroup --smart-case --hidden ' .
-				\ '--ignore ".hg" --ignore ".svn" --ignore ".git" --ignore ".bzr" ' .
-				\ '--ignore "node_modules"'
-	let g:unite_source_rec_async_command='ag --nogroup --nocolor --column --hidden --ignore ".git" --ignore "node_modules" -g ""'
+				\ '--ignore ".hg" --ignore ".svn" --ignore ".git" --ignore ".bzr" '
+				" \ '--ignore "node_modules"'
+
+	" let g:unite_source_rec_async_command='ag --nogroup --nocolor --column --hidden --ignore ".git" --ignore "node_modules" -g ""'
+	let g:unite_source_rec_async_command='ag --nogroup --nocolor --column --hidden --ignore ".git" -g ""'
 endif
 
 " mappings
-nnoremap <silent> <C-p> :Unite -buffer-name=files  file_rec/async<cr>
-nnoremap <silent> <C-b> :Unite -buffer-name=buffer buffer<cr>
-nnoremap <silent> <C-y> :Unite -buffer-name=yank   history/yank<cr>
-
-nnoremap <silent> <C-g> :Unite -buffer-name=grep -no-quit -keep-focus -no-start-insert grep:.<cr>
+nnoremap <silent> <c-p> :Unite -buffer-name=files  file_rec/async:!<cr>
+nnoremap <silent> <c-b> :Unite -buffer-name=buffer buffer<cr>
+nnoremap <silent> <c-y> :Unite -buffer-name=yank   history/yank<cr>
+nnoremap <silent> <c-g> :Unite -buffer-name=grep -create -no-quit -keep-focus -no-start-insert grep:.<cr>
 
 " NV notes
 if isdirectory($HOME . "/Dropbox/Notes")
-	command! -nargs=* Notes :silent Unite -buffer-name=notes file_rec/async:~/Dropbox/Notes -input=<args>
+	command! -nargs=* Notes :silent Unite -buffer-name=notes file_rec/async:~/Dropbox/Notes:! -input=<args>
 endif
 
 " TaskPaper tasks
 if isdirectory($HOME . "/Dropbox/Tasks")
-	command! -nargs=* Tasks :silent Unite -buffer-name=tasks file_rec/async:~/Dropbox/Tasks -input=<args>
+	command! -nargs=* Tasks :silent Unite -buffer-name=tasks file_rec/async:~/Dropbox/Tasks:! -input=<args>
 endif
 
 " }}}
@@ -477,14 +526,17 @@ endif
 augroup vimfiler_plugin
 	au!
 
-	" smart open / edit with enter
-	au FileType vimfiler nmap <buffer><silent> <Enter>
-				\ :<C-u>execute "normal " .
-				\ vimfiler#mappings#smart_cursor_map("\<Plug>(vimfiler_cd_file)", "\<Plug>(vimfiler_edit_file)")<cr>
+	" smart open / cd with e
+	au FileType vimfiler nmap   <buffer><expr> e vimfiler#smart_cursor_map("\<Plug>(vimfiler_cd_file)", "\<Plug>(vimfiler_edit_file)")
 
-	" smart open / edit with e
-	au FileType vimfiler nmap <buffer><expr> e
-				\ vimfiler#smart_cursor_map("\<Plug>(vimfiler_cd_file)", "\<Plug>(vimfiler_edit_file)")
+	" remap redraws to ctrl-r
+	au FileType vimfiler nunmap <buffer> <c-l>
+	au FileType vimfiler nmap   <buffer> <c-r> <Plug>(vimfiler_redraw_screen)
+
+	" open file explrer if no files are selected on start
+	if !argc()
+		au VimEnter * VimFiler
+	endif
 augroup END
 
 let g:vimfiler_enable_auto_cd=1
@@ -495,23 +547,32 @@ let g:vimfiler_tree_opened_icon="▾"
 let g:vimfiler_tree_closed_icon="▸"
 let g:vimfiler_file_icon=" "
 let g:vimfiler_marked_file_icon="*"
+let g:vimfiler_force_overwrite_statusline=0
 let g:vimfiler_data_directory=expand("~/.vim/vimfiler")
 
-" open vimfilerexplorer
-nnoremap <silent> <C-n> :VimFilerExplorer<cr>
-nnoremap <silent> <C-f> :VimFiler<cr>
+nnoremap <silent> <c-n> :VimFilerExplorer<cr>
+nnoremap <silent> <c-f> :VimFilerBufferDir<cr>
 
 " }}}
 " plugin: vimproc {{{
 
 " simple app running functions
-command! Plask :VimProcBang plask %
-command! Node :VimProcBang node %
+augroup vimproc_plugin
+	au!
+
+	au BufNewFile,BufRead *.ino nnoremap <buffer> <leader>r :VimProcBang killall picocom; ino build && ino upload<cr>
+	au BufNewFile,BufRead *.js  nnoremap <buffer> <leader>r :VimProcBang node %<cr>
+augroup END
 
 " }}}
 " plugin: tslime {{{
 
 let g:tslime_ensure_trailing_newlines=1
+
+" }}}
+" plugin: foldfocus {{{
+
+nnoremap <leader>ff :call FoldFocus("vnew")<cr>
 
 " }}}
 " plugin: limelight {{{
@@ -556,8 +617,8 @@ nnoremap <silent> <leader>Z :Zen<cr>
 " }}}
 " custom abbrevs {{{
 
-iabbrev <silent> _date <C-r>=strftime("%Y-%m-%d")<cr>
-iabbrev <silent> _time <C-r>=strftime("%H:%M")<cr>
+iabbrev <silent> _date <c-r>=strftime("%Y-%m-%d")<cr>
+iabbrev <silent> _time <c-r>=strftime("%H:%M")<cr>
 
 function! EatChar(pat)
 	let c = nr2char(getchar(0))
@@ -565,14 +626,14 @@ function! EatChar(pat)
 endfunction
 
 function! SpacelessIabbrev(from, to)
-	execute "iabbrev <silent> <buffer> " . a:from . " " . a:to . "<C-R>=EatChar('\\s')<CR>"
+	execute "iabbrev <silent> <buffer> " . a:from . " " . a:to . "<c-r>=EatChar('\\s')<cr>"
 endfunction
 
 " based on filetype
 augroup ft_abbrev
 	au!
 
-	au FileType taskpaper :iabbrev <buffer> @tomorrow @due(<C-r>=strftime("%Y-%m-%d", localtime() + 86400)<cr>)
+	au FileType taskpaper :iabbrev <buffer> @tomorrow @due(<c-r>=strftime("%Y-%m-%d", localtime() + 86400)<cr>)
 
 	au FileType javascript
 				\ :call SpacelessIabbrev("clog", "console.log") |
@@ -595,7 +656,6 @@ command! ShowSyntax
 
 " destroy all buffers that are not open in any tabs or windows
 " https://github.com/artnez/vim-wipeout/blob/master/plugin/wipeout.vim
-command! -bang Wipeout :call Wipeout(<bang>0)
 function! Wipeout(bang)
 	" figure out which buffers are visible in any tab
 	let visible={}
@@ -619,6 +679,8 @@ function! Wipeout(bang)
 	echon "Deleted " . l:tally . " buffer" . (l:tally == 1 ? "" : "s")
 endfun
 
+command! -bang Wipeout :call Wipeout(<bang>0)
+
 " open URL in browser
 if system("uname -s") == "Darwin\n"
 	function! s:OpenURL(url)
@@ -632,86 +694,33 @@ if system("uname -s") == "Darwin\n"
 	nnoremap gb :OpenURL <cfile><cr>
 endif
 
-" visual selection function
-function! VisualSelection(direction) range
-	let l:saved_reg=@"
-	execute "normal! vgvy"
-
-	let l:pattern=escape(@", "\\/.*$^~[]")
-	let l:pattern=substitute(l:pattern, "\n$", "", "")
-
-	if a:direction == "b"
-		execute "normal ?" . l:pattern . "^M"
-	elseif a:direction == "gv"
-		call CmdLine("vimgrep " . "/". l:pattern . "/" . " **/*.")
-	elseif a:direction == "replace"
-		call CmdLine("%s" . "/". l:pattern . "/")
-	elseif a:direction == "f"
-		execute "normal /" . l:pattern . "^M"
+" proper indentation on i
+function! InsertIndent()
+	if len(getline('.')) == 0
+		return "\"_ddO"
+	else
+		return "i"
 	endif
-
-	let @/=l:pattern
-	let @"=l:saved_reg
 endfunction
 
-" visual mode pressing * or # searches for the current selection
-vnoremap <silent> * :call VisualSelection("f")<cr>
-vnoremap <silent> # :call VisualSelection("b")<cr>
-
-" motion for "next" and "last" text object
-" from: https://gist.github.com/sjl/3762227
-onoremap an :<c-u>call <SID>NextTextObject("a", "f")<cr>
-xnoremap an :<c-u>call <SID>NextTextObject("a", "f")<cr>
-onoremap in :<c-u>call <SID>NextTextObject("i", "f")<cr>
-xnoremap in :<c-u>call <SID>NextTextObject("i", "f")<cr>
-
-onoremap al :<c-u>call <SID>NextTextObject("a", "F")<cr>
-xnoremap al :<c-u>call <SID>NextTextObject("a", "F")<cr>
-onoremap il :<c-u>call <SID>NextTextObject("i", "F")<cr>
-xnoremap il :<c-u>call <SID>NextTextObject("i", "F")<cr>
-
-function! s:NextTextObject(motion, dir)
-	let c=nr2char(getchar())
-
-	if c ==# "b"
-		let c="("
-	elseif c ==# "B"
-		let c="{"
-	elseif c ==# "r"
-		let c="["
-	endif
-
-	exe "normal! ".a:dir.c."v".a:motion.c
-endfunction
+nnoremap <expr> i InsertIndent()
 
 " }}}
 " custom mappings {{{
 
-" learn proper movement
-nnoremap <Left>  :echoe "Use h"<cr>
-nnoremap <Right> :echoe "Use l"<cr>
-nnoremap <Up>    :echoe "Use k"<cr>
-nnoremap <Down>  :echoe "Use j"<cr>
+" proper movement
+nnoremap <Left>  <nop>
+nnoremap <Right> <nop>
+nnoremap <Up>    <nop>
+nnoremap <Down>  <nop>
 inoremap <Left>  <nop>
 inoremap <Right> <nop>
 inoremap <Up>    <nop>
 inoremap <Down>  <nop>
 
-" move between windows
-" nnoremap <C-j> <C-w>j
-" nnoremap <C-k> <C-w>k
-" nnoremap <C-l> <C-w>l
-" nnoremap <C-h> <C-w>h
-
 " move by screen lines using arrow
 nnoremap k gk
 nnoremap j gj
-
-" move by screen lines using arrow
-" nnoremap <Up> gk
-" nnoremap <Down> gj
-" inoremap <expr> <Down> pumvisible() ? "<Down>" : "<C-o>gj"
-" inoremap <expr> <Up> pumvisible() ? "<Up>" : "<C-o>gk"
 
 " dont loose selection on indenting
 vnoremap > >gv
@@ -747,13 +756,26 @@ nnoremap q? <nop>
 
 " disable man pages
 nnoremap K <nop>
+vnoremap K <nop>
 
 " apply macros with Q
 nnoremap Q @q
 vnoremap Q :norm @q<cr>
 
-" don't move on *
-nnoremap <silent>* :let star_view=winsaveview()<cr>*:call winrestview(star_view)<cr>
+" no side-effects
+nnoremap <leader>d "_dd
+nnoremap <leader>D "_D
+vnoremap <leader>d "_d
+vnoremap <leader>x "_x
+
+" open common files
+nnoremap <leader>ov :e ~/.vimrc<cr>
+nnoremap <leader>oz :e ~/.zshrc<cr>
+
+if system("uname -s") == "Darwin\n"
+	nnoremap <leader>od :e ~/Dropbox/Notes/drafts.txt<cr>
+	nnoremap <leader>ot :e ~/Dropbox/Tasks/Current.taskpaper<cr>
+endif
 
 " new tab
 nnoremap <leader>T :tabnew<cr>
@@ -761,17 +783,17 @@ nnoremap <leader>T :tabnew<cr>
 " select whole buffer
 nnoremap <leader>va ggVG
 
-" yank whole buffer
-nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>
-
 " select last paste in visual mode
 nnoremap <leader>vp '`[' . strpart(getregtype(), 0, 1) . '`]'
 
+" yank whole buffer
+nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>
+
+" close everything but current fold
+nnoremap <leader>fc :setlocal foldlevel=0<cr>zA<cr>
+
 " kill whitespace
 nnoremap <silent> <leader>k :let kill_view=winsaveview()<cr>:KillWhitespace<cr>:nohlsearch<cr>:call winrestview(kill_view)<cr>
-
-" replace tabs with two-space and back
-nnoremap <silent> <leader>st :let tab_view=winsaveview()<cr>:%s/\t/\ \ /g<cr>:call winrestview(tab_view)<cr>
 
 " clean current search
 nnoremap <silent> <leader>c :nohlsearch<cr>
