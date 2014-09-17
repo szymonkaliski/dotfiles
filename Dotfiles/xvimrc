@@ -1,5 +1,5 @@
-" no toolbar
-" set guioptions-=T
+" leader
+let mapleader=";"
 
 " proper search
 set incsearch
@@ -13,10 +13,6 @@ set noerrorbells
 
 " use system pasteboard
 set pasteboard
-
-" remove whitespace
-command! KillWhitespace :normal :%s/\s\+$//g<cr>
-nnoremap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
 
 " move between assistant editors
 nnoremap <C-j> <C-w>j
@@ -49,8 +45,12 @@ noremap H ^
 noremap L $
 vnoremap L g_
 
-" don't move on *
-nnoremap <silent> * :let stay_star_view = winsaveview()<cr>*:call winrestview(stay_star_view)<cr>
+" remove whitespace
+command! KillWhitespace :normal :%s/\s\+$//g<cr>
+nnoremap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
 
 " select whole buffer
 nnoremap <silent> <leader>va ggVG
+
+" yank whole buffer
+nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>

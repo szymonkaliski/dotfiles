@@ -1,13 +1,15 @@
--- watch for changes
-pathwatcher.new(os.getenv("HOME") .. "/.hydra/", hydra.reload):start()
-
--- notify on start
-notify.show("Hydra", "Started!", "", "")
+local application = require "mjolnir.application"
+local hotkey = require "mjolnir.hotkey"
+local window = require "mjolnir.window"
+local fnutils = require "mjolnir.fnutils"
+local timer = require "mjolnir._asm.timer"
 
 -- extensions
-ext.frame = {}
-ext.win   = {}
-ext.app   = {}
+local ext = {
+	frame = {},
+	win = {},
+	app = {}
+}
 
 -- window margins and positions
 ext.win.margin    = 10
@@ -128,7 +130,7 @@ end
 
 -- ugly fix for problem with window height when it's as big as screen
 function ext.win.fix(win)
-	local screen = win:screen():frame_without_dock_or_menu()
+	local screen = win:screen():frame()
 	local frame = win:frame()
 
 	if (frame.h > (screen.h - ext.win.margin * (2 - 1 / 4))) then
@@ -139,7 +141,7 @@ end
 
 -- pushes window in direction
 function ext.win.push(win, direction)
-	local screen = win:screen():frame_without_dock_or_menu()
+	local screen = win:screen():frame()
 	local frame
 
 	frame = ext.frame.push(screen, direction)
@@ -150,7 +152,7 @@ end
 
 -- nudges window in direction
 function ext.win.nudge(win, direction)
-	local screen = win:screen():frame_without_dock_or_menu()
+	local screen = win:screen():frame()
 	local frame = win:frame()
 
 	frame = ext.frame.nudge(frame, screen, direction)
@@ -166,7 +168,7 @@ end
 
 -- sends window in direction
 function ext.win.send(win, direction)
-	local screen = win:screen():frame_without_dock_or_menu()
+	local screen = win:screen():frame()
 	local frame = win:frame()
 
 	frame = ext.frame.send(frame, screen, direction)
@@ -177,7 +179,7 @@ end
 
 -- centers window
 function ext.win.center(win)
-	local screen = win:screen():frame_without_dock_or_menu()
+	local screen = win:screen():frame()
 	local frame = win:frame()
 
 	frame = ext.frame.center(frame, screen)
@@ -187,7 +189,7 @@ end
 
 -- fullscreen window with ext.win.margin
 function ext.win.full(win)
-	local screen = win:screen():frame_without_dock_or_menu()
+	local screen = win:screen():frame()
 	local frame = {
 		x = ext.win.margin + screen.x,
 		y = ext.win.margin + screen.y,
@@ -201,7 +203,7 @@ end
 
 -- throw to next screen, center and fit
 function ext.win.throw(win)
-	local screen = win:screen():next():frame_without_dock_or_menu()
+	local screen = win:screen():next():frame()
 	local frame = win:frame()
 
 	frame.x = screen.x
@@ -217,7 +219,7 @@ end
 
 -- set window size and center
 function ext.win.size(win, size)
-	local screen = win:screen():frame_without_dock_or_menu()
+	local screen = win:screen():frame()
 	local frame = win:frame()
 
 	frame.w = size.w
@@ -335,12 +337,12 @@ end)
 
 -- set window sizes
 fnutils.each({
-	{ key = 1, w = 1400, h = 940 },
-	{ key = 2, w = 980,  h = 920 },
-	{ key = 3, w = 800,  h = 880 },
-	{ key = 4, w = 800,  h = 740 },
-	{ key = 5, w = 760,  h = 620 },
-	{ key = 6, w = 770,  h = 470 }
+	{ key = "1", w = 1400, h = 940 },
+	{ key = "2", w = 980,  h = 920 },
+	{ key = "3", w = 800,  h = 880 },
+	{ key = "4", w = 800,  h = 740 },
+	{ key = "5", w = 760,  h = 620 },
+	{ key = "6", w = 770,  h = 470 }
 }, function(object)
 	hotkey.bind(mod1, object.key, bindwin(ext.win.size, { w = object.w, h = object.h }))
 end)

@@ -14,13 +14,13 @@ NeoBundle "tpope/vim-surround"
 NeoBundle "Raimondi/delimitMate"
 NeoBundle "ervandew/supertab"
 NeoBundle "wellle/targets.vim"
+NeoBundleLazy "tpope/vim-sleuth", { "autoload": { "filetypes": [ "javascript", "css" ] } }
 
 " probably unnecessary, but nice to have
 NeoBundle "bling/vim-airline"
 NeoBundle "christoomey/vim-tmux-navigator"
 NeoBundleLazy "junegunn/goyo.vim", { "autoload": { "commands": "Goyo" } }
 NeoBundleLazy "junegunn/limelight.vim", { "autoload": { "commands": "Limelight" } }
-NeoBundleLazy "tpope/vim-sleuth", { "autoload": { "filetypes": [ "javascript", "css" ] } }
 NeoBundleLazy "vasconcelloslf/vim-foldfocus", { "autoload": { "functions": "FoldFocus" } }
 
 " OSX only
@@ -122,6 +122,9 @@ set tabstop=2
 set shiftwidth=2
 set softtabstop=2
 set shiftround
+
+" leader
+let mapleader=";"
 
 " additional settings
 set backspace=indent,eol,start
@@ -481,6 +484,7 @@ augroup END
 " settings
 let g:unite_data_directory=expand("~/.vim/unite")
 let g:unite_source_history_yank_enable=1
+let g:unite_prompt='➜ '
 
 call unite#filters#matcher_default#use(["matcher_fuzzy"])
 call unite#filters#sorter_default#use(["sorter_rank"])
@@ -505,9 +509,10 @@ if executable("ag")
 endif
 
 " mappings
-nnoremap <silent> <c-p> :Unite -buffer-name=files  file_rec/async:!<cr>
-nnoremap <silent> <c-b> :Unite -buffer-name=buffer buffer<cr>
-nnoremap <silent> <c-y> :Unite -buffer-name=yank   history/yank<cr>
+nnoremap <silent> <c-p> :Unite -buffer-name=files   file_rec/async:!<cr>
+nnoremap <silent> <c-b> :Unite -buffer-name=buffer  buffer<cr>
+nnoremap <silent> <c-h> :Unite -buffer-name=history history/yank<cr>
+nnoremap <silent> <c-m> :Unite -buffer-name=lines   line<cr>
 nnoremap <silent> <c-g> :Unite -buffer-name=grep -create -no-quit -keep-focus -no-start-insert grep:.<cr>
 
 " NV notes
@@ -532,6 +537,9 @@ augroup vimfiler_plugin
 	" remap redraws to ctrl-r
 	au FileType vimfiler nunmap <buffer> <c-l>
 	au FileType vimfiler nmap   <buffer> <c-r> <Plug>(vimfiler_redraw_screen)
+
+	" close vimfiler with ctrl-n (usefull in explorer)
+	au FileType vimfiler nmap   <buffer> <c-n> <Plug>(vimfiler_exit)
 
 	" open file explrer if no files are selected on start
 	if !argc()
@@ -761,12 +769,6 @@ vnoremap K <nop>
 " apply macros with Q
 nnoremap Q @q
 vnoremap Q :norm @q<cr>
-
-" no side-effects
-nnoremap <leader>d "_dd
-nnoremap <leader>D "_D
-vnoremap <leader>d "_d
-vnoremap <leader>x "_x
 
 " open common files
 nnoremap <leader>ov :e ~/.vimrc<cr>

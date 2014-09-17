@@ -314,6 +314,11 @@ if [ "$(uname)" = "Darwin" ]; then
 			--css-path ~/Dropbox/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
 	fi
 
+	# network utility port scan
+	if [ -d /System/Library/CoreServices/Applications/Network\ Utility.app ]; then
+		alias stroke="/System/Library/CoreServices/Applications/Network\ Utility.app/Contents/Resources/stroke"
+	fi
+
 	# man in preview
 	function pman() {
 		man -t $1 | open -f -a Preview;
