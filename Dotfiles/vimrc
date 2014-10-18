@@ -3,7 +3,8 @@ if has("vim_starting")
 	set runtimepath+=~/.vim/bundle/neobundle.vim/
 endif
 
-call neobundle#rc(expand("~/.vim/bundle/"))
+call neobundle#begin(expand("~/.vim/bundle/"))
+
 NeoBundleFetch "Shougo/neobundle.vim"
 
 " editing bundles
@@ -14,6 +15,7 @@ NeoBundle "tpope/vim-surround"
 NeoBundle "Raimondi/delimitMate"
 NeoBundle "ervandew/supertab"
 NeoBundle "wellle/targets.vim"
+NeoBundle "pbrisbin/vim-mkdir"
 NeoBundleLazy "tpope/vim-sleuth", { "autoload": { "filetypes": [ "javascript", "css" ] } }
 
 " probably unnecessary, but nice to have
@@ -65,6 +67,9 @@ NeoBundleLazy "sudar/vim-arduino-syntax", { "autoload": { "filename_patterns": "
 NeoBundleLazy "tikhomirov/vim-glsl", { "autoload": { "filename_patterns": [ "\.frag$", "\.vert$", "\.glsl$" ] } }
 NeoBundleLazy "vim-scripts/ck.vim", { "autoload": { "filename_patterns": [ "\.ck$" ] } }
 
+" end of NeoBundle
+call neobundle#end()
+
 " }}}
 " vim settings {{{
 
@@ -80,6 +85,9 @@ set clipboard=unnamed
 
 " watch for file changes
 set autoread
+
+" show long lines
+set display+=lastline
 
 " redraw only when needed and fast tty
 set lazyredraw
@@ -110,7 +118,11 @@ let g:solarized_underline=0
 let g:solarized_menu=0
 let g:solarized_contrast="high"
 let g:solarized_visibility="normal"
+
 colorscheme solarized
+
+" disable background color erase so that color scheme work properly in tmux
+set t_ut=
 
 " don't try to highlight longer lines
 set synmaxcol=1024
@@ -484,12 +496,12 @@ augroup END
 " settings
 let g:unite_data_directory=expand("~/.vim/unite")
 let g:unite_source_history_yank_enable=1
-let g:unite_prompt='➜ '
 
 call unite#filters#matcher_default#use(["matcher_fuzzy"])
 call unite#filters#sorter_default#use(["sorter_rank"])
 
 call unite#custom#profile("default", "context", {
+			\		"prompt": "➜ ",
 			\		"start_insert": 1,
 			\		"cursor_line_time": 0,
 			\		"cursor_line_highlight": "CursorLine"
@@ -509,21 +521,29 @@ if executable("ag")
 endif
 
 " mappings
-nnoremap <silent> <c-p> :Unite -buffer-name=files   file_rec/async:!<cr>
-nnoremap <silent> <c-b> :Unite -buffer-name=buffer  buffer<cr>
-nnoremap <silent> <c-h> :Unite -buffer-name=history history/yank<cr>
-nnoremap <silent> <c-m> :Unite -buffer-name=lines   line<cr>
-nnoremap <silent> <c-g> :Unite -buffer-name=grep -create -no-quit -keep-focus -no-start-insert grep:.<cr>
+nnoremap <silent> <c-p> :Unite file_rec/async:!   -buffer-name=files<cr>
+nnoremap <silent> <c-b> :Unite buffer             -buffer-name=buffer<cr>
+nnoremap <silent> <c-t> :Unite tab                -buffer-name=tab<cr>
+nnoremap <silent> <leader>uh :Unite history/yank  -buffer-name=history<cr>
+nnoremap <silent> <leader>ul :Unite line          -buffer-name=lines<cr>
+nnoremap <silent> <leader>uj :Unite jump          -buffer-name=jump -tab -winheight=40 -auto-preview<cr>
+nnoremap <silent> <leader>ug :Unite grep:.        -buffer-name=grep -create -no-quit -keep-focus -no-start-insert<cr>
 
 " NV notes
 if isdirectory($HOME . "/Dropbox/Notes")
 	command! -nargs=* Notes :silent Unite -buffer-name=notes file_rec/async:~/Dropbox/Notes:! -input=<args>
+	nnoremap <silent> <leader>un :Notes<cr>
 endif
 
 " TaskPaper tasks
 if isdirectory($HOME . "/Dropbox/Tasks")
 	command! -nargs=* Tasks :silent Unite -buffer-name=tasks file_rec/async:~/Dropbox/Tasks:! -input=<args>
+	nnoremap <silent> <leader>ut :Tasks<cr>
 endif
+
+" Neobundle update
+command! UpdateBundles :Unite -buffer-name=update neobundle/update -tab -no-start-insert -no-prompt-visible -no-split
+nnoremap <silent> <leader>ub :UpdateBundles<cr>
 
 " }}}
 " plugin: vimfiler {{{
@@ -535,11 +555,14 @@ augroup vimfiler_plugin
 	au FileType vimfiler nmap   <buffer><expr> e vimfiler#smart_cursor_map("\<Plug>(vimfiler_cd_file)", "\<Plug>(vimfiler_edit_file)")
 
 	" remap redraws to ctrl-r
-	au FileType vimfiler nunmap <buffer> <c-l>
-	au FileType vimfiler nmap   <buffer> <c-r> <Plug>(vimfiler_redraw_screen)
+	au FileType vimfiler silent! nunmap <buffer> <c-l>
+	au FileType vimfiler         nmap   <buffer> <c-r> <Plug>(vimfiler_redraw_screen)
 
 	" close vimfiler with ctrl-n (usefull in explorer)
 	au FileType vimfiler nmap   <buffer> <c-n> <Plug>(vimfiler_exit)
+
+	" disable history view
+	au FileType vimfiler silent! nunmap <buffer> <c-j>
 
 	" open file explrer if no files are selected on start
 	if !argc()
@@ -713,6 +736,19 @@ endfunction
 
 nnoremap <expr> i InsertIndent()
 
+" rename current file
+function! Rename()
+	let old_name = expand('%')
+	let new_name = input('New file name: ', expand('%'), 'file')
+	if new_name != '' && new_name != old_name
+		exec ':saveas ' . new_name
+		exec ':silent !rm ' . old_name
+		redraw!
+	endif
+endfunction
+
+command! Rename :call Rename()
+
 " }}}
 " custom mappings {{{
 
@@ -729,6 +765,10 @@ inoremap <Down>  <nop>
 " move by screen lines using arrow
 nnoremap k gk
 nnoremap j gj
+
+" quicker indentation
+nnoremap > >>
+nnoremap < <<
 
 " dont loose selection on indenting
 vnoremap > >gv
@@ -777,6 +817,7 @@ nnoremap <leader>oz :e ~/.zshrc<cr>
 if system("uname -s") == "Darwin\n"
 	nnoremap <leader>od :e ~/Dropbox/Notes/drafts.txt<cr>
 	nnoremap <leader>ot :e ~/Dropbox/Tasks/Current.taskpaper<cr>
+	nnoremap <leader>oc :e ~/Dropbox/Tasks/Current.taskpaper<cr>
 endif
 
 " new tab

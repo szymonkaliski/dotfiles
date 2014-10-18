@@ -10,7 +10,7 @@ if has("gui_macvim")
 	set go-=L
 
 	" enable native tabs
-	set guioptions+=e
+	set guioptions-=e
 
 	" always show tabs
 	set showtabline=2

@@ -8,7 +8,8 @@ local timer = require "mjolnir._asm.timer"
 local ext = {
 	frame = {},
 	win = {},
-	app = {}
+	app = {},
+	utils = {}
 }
 
 -- window margins and positions
@@ -199,6 +200,9 @@ function ext.win.full(win)
 
 	ext.win.fix(win)
 	win:setframe(frame)
+
+	-- center after setting frame, fixes terminal and macvim
+	ext.win.center(win)
 end
 
 -- throw to next screen, center and fit
@@ -214,7 +218,11 @@ function ext.win.throw(win)
 
 	ext.win.fix(win)
 	win:setframe(frame)
+
 	win:focus()
+
+	-- center after setting frame, fixes terminal and macvim
+	ext.win.center(win)
 end
 
 -- set window size and center
@@ -289,6 +297,38 @@ ext.app.browser = function()
 	end
 end
 
+-- exec command
+ext.utils.exec = function(command)
+	local handle = io.popen(os.getenv("SHELL") .. " -l -i -c \"" .. command .. "\"", "r")
+	local output = handle:read("*all")
+	handle:close()
+
+	return output
+end
+
+-- show notifications
+ext.utils.notify = function(text)
+	mjolnir._notify(text)
+end
+
+-- toggle bluetooth
+ext.utils.togglebluetooth = function()
+	local status = string.len(ext.utils.exec("blueutil | grep 'Power: 1'")) > 0
+	local command = "blueutil power " .. (status and "0" or "1")
+
+	ext.utils.notify("Bluetooth " .. (status and "off" or "on"))
+	ext.utils.exec(command)
+end
+
+-- toggle wifi
+ext.utils.togglewifi = function()
+	local status = string.len(ext.utils.exec("networksetup -getairportpower en1 | grep On")) > 0
+	local command = "networksetup -setairportpower en1 " .. (status and "off" or "on")
+
+	ext.utils.notify("Network " .. (status and "off" or "on"))
+	ext.utils.exec(command)
+end
+
 -- apply function to a window with optional params, saving it's position for restore
 function dowin(fn, param)
 	local win = window.focusedwindow()
@@ -341,7 +381,7 @@ fnutils.each({
 	{ key = "2", w = 980,  h = 920 },
 	{ key = "3", w = 800,  h = 880 },
 	{ key = "4", w = 800,  h = 740 },
-	{ key = "5", w = 760,  h = 620 },
+	{ key = "5", w = 850,  h = 620 },
 	{ key = "6", w = 770,  h = 470 }
 }, function(object)
 	hotkey.bind(mod1, object.key, bindwin(ext.win.size, { w = object.w, h = object.h }))
@@ -349,14 +389,19 @@ end)
 
 -- launch and focus applications
 fnutils.each({
-	{ key = "t", app = "Terminal" },
+	{ key = "c", app = "Calendar" },
+	{ key = "d", app = "Due" },
 	{ key = "f", app = "Finder" },
 	{ key = "n", app = "Notational Velocity" },
 	{ key = "p", app = "TaskPaper" },
-	{ key = "m", app = "MacVim" }
+	{ key = "t", app = "Terminal" }
 }, function(object)
 	hotkey.bind(mod2, object.key, function() application.launchorfocus(object.app) end)
 end)
 
 -- launch or focus browser in a smart way
 hotkey.bind(mod2, "b", function() ext.app.browser() end)
+
+-- toggle bluetooth and wifi
+hotkey.bind(mod3, "b", function() ext.utils.togglebluetooth() end)
+hotkey.bind(mod3, "w", function() ext.utils.togglewifi() end)

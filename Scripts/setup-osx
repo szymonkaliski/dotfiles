@@ -45,20 +45,20 @@ defaults write com.apple.dock size-immutable -bool yes
 # defaults write com.apple.dock showhidden -bool true
 
 # completely disable Dashboard
-defaults write com.apple.dashboard mcx-disabled -boolean YES
+# defaults write com.apple.dashboard mcx-disabled -boolean YES
 
 # disable Safari thumbnail cache for History and Top Sites
-defaults write com.apple.Safari DebugSnapshotsUpdatePolicy -int 2
+# defaults write com.apple.Safari DebugSnapshotsUpdatePolicy -int 2
 
 # make Safari search banners default to Contains instead of Starts With
-defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool false
+# defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool false
 
 # disable send and reply animations in Mail.app
 # defaults write com.apple.mail DisableReplyAnimations -bool true
 # defaults write com.apple.mail DisableSendAnimations -bool true
 
 # disable inline attachement viewing in Mail.app
-defaults write com.apple.mail DisableInlineAttachmentViewing -bool yes
+# defaults write com.apple.mail DisableInlineAttachmentViewing -bool yes
 
 # check for software updates daily, not just once per week
 # defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
