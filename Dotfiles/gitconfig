@@ -4,6 +4,7 @@
 [core]
 	quotepath = false
 	pager = less -x2
+	safecrlf = false
 [diff]
 	color = auto
 	algorithm = patience

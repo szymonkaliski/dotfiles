@@ -14,6 +14,12 @@ case $1 in
 		OPTIONS="-qscale 1 -vcodec libx264"
 		EXT=".H264.mp4"
 		;;
+	gif)
+		BEFORE="mkdir output"
+		OPTIONS="-vf scale=640:-1 -r 10 output/gif%05d.png"
+		AFTER="convert -loop 0 output/*.png animation.gif"
+		CLEANUP="rm -rf output"
+		;;
 	mp3)
 		OPTIONS="-f mp3 -acodec libmp3lame -ab 320000 -ar 44100"
 		EXT=".mp3"
@@ -30,8 +36,27 @@ esac
 # remove first attribute given from command line
 shift
 
+# run BEFORE if set
+if [[ -n $BEFORE ]]; then
+	$($BEFORE)
+fi
+
 # convert files
 for f in "$@"
 do
-	ffmpeg -threads 0 -i "${f}" $OPTIONS "${f%.*}$EXT"
+	if [[ -n $EXT ]]; then
+		ffmpeg -threads 0 -i "${f}" $OPTIONS "${f%.*}$EXT"
+	else
+		ffmpeg -threads 0 -i "${f}" $OPTIONS
+	fi
 done
+
+# run AFTER if set
+if [[ -n $AFTER ]]; then
+	$($AFTER)
+fi
+
+# run CLEANUP if set
+if [[ -n $CLEANUP ]]; then
+	$($CLEANUP)
+fi

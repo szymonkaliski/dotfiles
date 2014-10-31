@@ -30,6 +30,10 @@ nnoremap <C-n> :xccmd toggleNavigatorsVisibility<CR>
 nnoremap gc :xccmd commentAndUncommentCurrentLines<CR>
 vnoremap gc :xccmd commentAndUncommentCurrentLines<CR>
 
+" quicker indentation
+nnoremap > >>
+nnoremap < <<
+
 " dont loose selection on indenting
 vnoremap > >gv
 vnoremap < <gv
@@ -40,10 +44,26 @@ vnoremap . :norm.<cr>
 " D deletes to the end of the line
 nnoremap D d$
 
+" Y yanks to the end of the line
+nnoremap Y y$
+
 " better line begin (H) and end (L)
 noremap H ^
 noremap L $
 vnoremap L g_
+
+" apply macros with Q
+nnoremap Q @q
+vnoremap Q :norm @q<cr>
+
+" new tab
+nnoremap <leader>T :xccmd newTab<cr>
+nnoremap gT :tabprevious<cr>
+nnoremap gt :tabnext<cr>
+
+" fold
+nnoremap zc :xccmd fold<cr>
+nnoremap zo :xccmd unfold<cr>
 
 " remove whitespace
 command! KillWhitespace :normal :%s/\s\+$//g<cr>

@@ -301,11 +301,13 @@ if [ "$(uname)" = "Darwin" ]; then
 	alias clearlogs="sudo rm -rfv /private/var/log/asl/*.asl"
 	alias cleartmp="sudo rm -rfv /private/var/tmp/Xcode/ /private/var/tmp/Processing/"
 	alias purge="sudo purge"
+	alias ino="PATH=/bin/:$PATH ino" # proper stty for ino
 
 	# output of last command to clipboard
 	alias clout="fc -e - | pbcopy"
 	# current pwd to clipboard
 	alias cpwd='echo \"$(pwd | tr -d "\n")\" | pbcopy'
+
 
 	# nice markdown files in cli using markdown-pdf from npm
 	if [ -d /usr/local/share/npm/lib/node_modules/markdown-pdf/bin ]; then
@@ -343,10 +345,6 @@ if [ "$(uname)" = "Darwin" ]; then
 
 		open $ARG
 	}
-
-	# macvim
-	alias mvim="$EDITOR -g"
-	alias m="$EDITOR -g"
 fi
 
 # linux only
@@ -488,7 +486,7 @@ if hash fzf 2> /dev/null; then
 	function fze() {
 		local files
 		files=$(fzf --query="$1" -m)
-		[ -n "$files" ] && echo "$files" | xargs -o $EDITOR
+		[ -n "$files" ] && $EDITOR $(echo $files)
 	}
 
 	# cd to directory

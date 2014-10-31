@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+/usr/bin/osascript -e "display notification \"$*\" with title \"Terminal\""
+

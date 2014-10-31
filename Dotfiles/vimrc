@@ -66,6 +66,9 @@ NeoBundleLazy "sophacles/vim-processing", { "autoload": { "filename_patterns": "
 NeoBundleLazy "sudar/vim-arduino-syntax", { "autoload": { "filename_patterns": "\.ino$" } }
 NeoBundleLazy "tikhomirov/vim-glsl", { "autoload": { "filename_patterns": [ "\.frag$", "\.vert$", "\.glsl$" ] } }
 NeoBundleLazy "vim-scripts/ck.vim", { "autoload": { "filename_patterns": [ "\.ck$" ] } }
+NeoBundleLazy "elzr/vim-json", { "autoload": { "filetypes": [ "json" ] } }
+NeoBundleLazy "Keithbsmiley/swift.vim", { "autoload": { "filename_patterns": [ "\.k$" ] } }
+NeoBundleLazy "b4winckler/vim-objc", { "autoload": { "filename_patterns": [ "\.m$" ] } }
 
 " end of NeoBundle
 call neobundle#end()
@@ -125,7 +128,7 @@ colorscheme solarized
 set t_ut=
 
 " don't try to highlight longer lines
-set synmaxcol=1024
+" set synmaxcol=1024
 
 " indentation
 filetype plugin indent on
@@ -134,6 +137,7 @@ set tabstop=2
 set shiftwidth=2
 set softtabstop=2
 set shiftround
+set breakindent
 
 " leader
 let mapleader=";"
@@ -389,7 +393,7 @@ let g:airline_section_y=""
 " show tabline themed with airline only when needed
 if !has("gui_running")
 	let g:airline#extensions#tabline#enabled=1
-	let g:airline#extensions#tabline#show_buffers=0
+	let g:airline#extensions#tabline#show_buffers=1
 	let g:airline#extensions#tabline#show_tab_type=0
 	let g:airline#extensions#tabline#tab_min_count=2
 	let g:airline#extensions#tabline#show_tab_nr=0
@@ -542,7 +546,7 @@ if isdirectory($HOME . "/Dropbox/Tasks")
 endif
 
 " Neobundle update
-command! UpdateBundles :Unite -buffer-name=update neobundle/update -tab -no-start-insert -no-prompt-visible -no-split
+command! UpdateBundles :Unite -buffer-name=update neobundle/update -no-start-insert -no-prompt-visible -no-split
 nnoremap <silent> <leader>ub :UpdateBundles<cr>
 
 " }}}
@@ -565,9 +569,9 @@ augroup vimfiler_plugin
 	au FileType vimfiler silent! nunmap <buffer> <c-j>
 
 	" open file explrer if no files are selected on start
-	if !argc()
-		au VimEnter * VimFiler
-	endif
+	" if !argc()
+	" 	au VimEnter * VimFiler
+	" endif
 augroup END
 
 let g:vimfiler_enable_auto_cd=1
@@ -646,6 +650,11 @@ command! Zen :Goyo
 nnoremap <silent> <leader>Z :Zen<cr>
 
 " }}}
+" plugin: json {{{
+
+let g:vim_json_syntax_conceal=0
+
+" }}}
 " custom abbrevs {{{
 
 iabbrev <silent> _date <c-r>=strftime("%Y-%m-%d")<cr>
@@ -722,7 +731,7 @@ if system("uname -s") == "Darwin\n"
 
 	command! -nargs=1 OpenURL :silent call s:OpenURL(<q-args>)
 
-	nnoremap gb :OpenURL <cfile><cr>
+	nnoremap gx :OpenURL <cfile><cr>
 endif
 
 " proper indentation on i
@@ -819,6 +828,12 @@ if system("uname -s") == "Darwin\n"
 	nnoremap <leader>ot :e ~/Dropbox/Tasks/Current.taskpaper<cr>
 	nnoremap <leader>oc :e ~/Dropbox/Tasks/Current.taskpaper<cr>
 endif
+
+" buffers
+nnoremap gb :bnext<cr>
+nnoremap gB :bprev<cr>
+nnoremap <leader>bd :bdelete!<cr>
+nnoremap <leader>B :enew<cr>
 
 " new tab
 nnoremap <leader>T :tabnew<cr>

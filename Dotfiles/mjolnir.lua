@@ -3,6 +3,8 @@ local hotkey = require "mjolnir.hotkey"
 local window = require "mjolnir.window"
 local fnutils = require "mjolnir.fnutils"
 local timer = require "mjolnir._asm.timer"
+local notification = require "mjolnir._asm.ui.notification"
+local transform = require "mjolnir.sk.transform"
 
 -- extensions
 local ext = {
@@ -12,9 +14,11 @@ local ext = {
 	utils = {}
 }
 
--- window margins and positions
-ext.win.margin    = 10
-ext.win.positions = {}
+-- window extension settings
+ext.win.margin     = 10
+ext.win.positions  = {}
+ext.win.animate    = true
+ext.win.fixenabled = false
 
 -- returns frame pushed to screen edge
 function ext.frame.push(screen, direction)
@@ -129,14 +133,27 @@ function ext.frame.center(frame, screen)
 	return frame
 end
 
+-- set frame
+function ext.win.set(win, frame, time)
+	time = time or 0.15
+
+	if ext.win.animate then
+		transform:setframe(win, frame, time)
+	else
+		win:setframe(frame)
+	end
+end
+
 -- ugly fix for problem with window height when it's as big as screen
 function ext.win.fix(win)
-	local screen = win:screen():frame()
-	local frame = win:frame()
+	if ext.win.fixenabled then
+		local screen = win:screen():frame()
+		local frame = win:frame()
 
-	if (frame.h > (screen.h - ext.win.margin * (2 - 1 / 4))) then
-		frame.h = screen.h - ext.win.margin * 10
-		win:setframe(frame)
+		if (frame.h > (screen.h - ext.win.margin * (2 - 1 / 4))) then
+			frame.h = screen.h - ext.win.margin * 10
+			ext.win.set(win, frame)
+		end
 	end
 end
 
@@ -148,7 +165,7 @@ function ext.win.push(win, direction)
 	frame = ext.frame.push(screen, direction)
 
 	ext.win.fix(win)
-	win:setframe(frame)
+	ext.win.set(win, frame)
 end
 
 -- nudges window in direction
@@ -157,8 +174,7 @@ function ext.win.nudge(win, direction)
 	local frame = win:frame()
 
 	frame = ext.frame.nudge(frame, screen, direction)
-
-	win:setframe(frame)
+	ext.win.set(win, frame, 0.05)
 end
 
 -- push and nudge window in direction
@@ -175,7 +191,7 @@ function ext.win.send(win, direction)
 	frame = ext.frame.send(frame, screen, direction)
 
 	ext.win.fix(win)
-	win:setframe(frame)
+	ext.win.set(win, frame)
 end
 
 -- centers window
@@ -184,8 +200,7 @@ function ext.win.center(win)
 	local frame = win:frame()
 
 	frame = ext.frame.center(frame, screen)
-
-	win:setframe(frame)
+	ext.win.set(win, frame)
 end
 
 -- fullscreen window with ext.win.margin
@@ -198,10 +213,10 @@ function ext.win.full(win)
 		h = screen.h - ext.win.margin * (2 - 1 / 4)
 	}
 
-	ext.win.fix(win)
-	win:setframe(frame)
+	-- ext.win.fix(win)
+	ext.win.set(win, frame)
 
-	-- center after setting frame, fixes terminal and macvim
+	-- center after setting frame, fixes terminal
 	ext.win.center(win)
 end
 
@@ -217,7 +232,7 @@ function ext.win.throw(win)
 	frame = ext.frame.center(frame, screen)
 
 	ext.win.fix(win)
-	win:setframe(frame)
+	ext.win.set(win, frame)
 
 	win:focus()
 
@@ -236,7 +251,7 @@ function ext.win.size(win, size)
 	frame = ext.frame.fit(frame, screen)
 	frame = ext.frame.center(frame, screen)
 
-	win:setframe(frame)
+	ext.win.set(win, frame)
 end
 
 -- save and restore window positions
@@ -256,7 +271,7 @@ function ext.win.pos(win, option)
 
 	-- restores window position
 	if option == "load" and ext.win.positions[id] then
-		win:setframe(ext.win.positions[id])
+		ext.win.set(win, ext.win.positions[id])
 	end
 end
 
@@ -306,17 +321,12 @@ ext.utils.exec = function(command)
 	return output
 end
 
--- show notifications
-ext.utils.notify = function(text)
-	mjolnir._notify(text)
-end
-
 -- toggle bluetooth
 ext.utils.togglebluetooth = function()
 	local status = string.len(ext.utils.exec("blueutil | grep 'Power: 1'")) > 0
 	local command = "blueutil power " .. (status and "0" or "1")
 
-	ext.utils.notify("Bluetooth " .. (status and "off" or "on"))
+	notification.show("Bluetooth", "Turned " .. (status and "off" or "on"))
 	ext.utils.exec(command)
 end
 
@@ -325,7 +335,7 @@ ext.utils.togglewifi = function()
 	local status = string.len(ext.utils.exec("networksetup -getairportpower en1 | grep On")) > 0
 	local command = "networksetup -setairportpower en1 " .. (status and "off" or "on")
 
-	ext.utils.notify("Network " .. (status and "off" or "on"))
+	notification.show("Network", "Turned " .. (status and "off" or "on"))
 	ext.utils.exec(command)
 end
 
@@ -381,8 +391,9 @@ fnutils.each({
 	{ key = "2", w = 980,  h = 920 },
 	{ key = "3", w = 800,  h = 880 },
 	{ key = "4", w = 800,  h = 740 },
-	{ key = "5", w = 850,  h = 620 },
-	{ key = "6", w = 770,  h = 470 }
+	{ key = "5", w = 700,  h = 740 },
+	{ key = "6", w = 850,  h = 620 },
+	{ key = "7", w = 770,  h = 470 }
 }, function(object)
 	hotkey.bind(mod1, object.key, bindwin(ext.win.size, { w = object.w, h = object.h }))
 end)
@@ -390,10 +401,10 @@ end)
 -- launch and focus applications
 fnutils.each({
 	{ key = "c", app = "Calendar" },
-	{ key = "d", app = "Due" },
 	{ key = "f", app = "Finder" },
 	{ key = "n", app = "Notational Velocity" },
 	{ key = "p", app = "TaskPaper" },
+	{ key = "r", app = "Reminders" },
 	{ key = "t", app = "Terminal" }
 }, function(object)
 	hotkey.bind(mod2, object.key, function() application.launchorfocus(object.app) end)
