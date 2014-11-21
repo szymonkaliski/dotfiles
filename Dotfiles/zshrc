@@ -18,46 +18,46 @@ setopt no_beep                # no beep on zle errors
 
 # custom completion paths
 if [ -d ~/.zsh/completion ]; then
-	export FPATH="~/.zsh/completion:$FPATH"
+  export FPATH="~/.zsh/completion:$FPATH"
 fi
 
 if [ -d /usr/local/share/zsh/site-functions ]; then
-	export FPATH="/usr/local/share/zsh/site-functions:$FPATH"
+  export FPATH="/usr/local/share/zsh/site-functions:$FPATH"
 fi
 
 if [ -d /usr/local/share/zsh-completions ]; then
-	export FPATH="/usr/local/share/zsh-completions:$FPATH"
+  export FPATH="/usr/local/share/zsh-completions:$FPATH"
 fi
 
 # path modifications
 if [ -d $HOME/Dropbox/Code/Scripts ]; then
-	export PATH="$HOME/Dropbox/Code/Scripts:$PATH"
+  export PATH="$HOME/Dropbox/Code/Scripts:$PATH"
 elif [ -d $HOME/Documents/Scripts ]; then
-	export PATH="$HOME/Documents/Scripts:$PATH"
+  export PATH="$HOME/Documents/Scripts:$PATH"
 fi
 
 if [ -d /usr/local/bin ]; then
-	export PATH="/usr/local/bin:$PATH"
+  export PATH="/usr/local/bin:$PATH"
 fi
 
 if [ -d /usr/local/sbin ]; then
-	export PATH="/usr/local/sbin:$PATH"
+  export PATH="/usr/local/sbin:$PATH"
 fi
 
 if [ -d /sbin ]; then
-	export PATH="/sbin:$PATH"
+  export PATH="/sbin:$PATH"
 fi
 
 if [ -d /usr/sbin ]; then
-	export PATH="/usr/sbin:$PATH"
+  export PATH="/usr/sbin:$PATH"
 fi
 
 if [ -d /usr/local/opt/coreutils/libexec/gnubin ]; then
-	export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+  export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 fi
 
 if [ -d /usr/local/share/npm/bin ]; then
-	export PATH="$PATH:/usr/local/share/npm/bin"
+  export PATH="$PATH:/usr/local/share/npm/bin"
 fi
 
 # clean paths
@@ -80,48 +80,48 @@ colors
 
 # npm completions
 if [ -f /usr/lib/node_modules/npm/lib/utils/completion.sh ]; then
-	source /usr/lib/node_modules/npm/lib/utils/completion.sh
+  source /usr/lib/node_modules/npm/lib/utils/completion.sh
 elif [ -f /usr/local/lib/node_modules/npm/lib/utils/completion.sh ]; then
-	source /usr/local/lib/node_modules/npm/lib/utils/completion.sh
+  source /usr/local/lib/node_modules/npm/lib/utils/completion.sh
 fi
 
 # live command coloring
 if [ -f ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-	source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-	ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor pattern)
+  source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor pattern)
 
-	ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=white,bg=red')
-	ZSH_HIGHLIGHT_PATTERNS+=('ssh *' 'fg=white,bg=blue')
+  ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=white,bg=red')
+  ZSH_HIGHLIGHT_PATTERNS+=('ssh *' 'fg=white,bg=blue')
 
-	ZSH_HIGHLIGHT_STYLES[precommand]='fg=magenta'
-	ZSH_HIGHLIGHT_STYLES[commandseparator]='fg=yellow'
-	ZSH_HIGHLIGHT_STYLES[path]='none'
-	ZSH_HIGHLIGHT_STYLES[path_prefix]='none'
-	ZSH_HIGHLIGHT_STYLES[path_approx]='none'
-	ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=yellow'
-	ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=yellow'
-	ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=magenta'
-	ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=red'
-	ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=red'
+  ZSH_HIGHLIGHT_STYLES[precommand]='fg=magenta'
+  ZSH_HIGHLIGHT_STYLES[commandseparator]='fg=yellow'
+  ZSH_HIGHLIGHT_STYLES[path]='none'
+  ZSH_HIGHLIGHT_STYLES[path_prefix]='none'
+  ZSH_HIGHLIGHT_STYLES[path_approx]='none'
+  ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=yellow'
+  ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=yellow'
+  ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=magenta'
+  ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=red'
+  ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=red'
 fi
 
 # grc for more colors
 if hash grc 2> /dev/null; then
-	alias colourify="grc -es --colour=auto"
-	alias diff="colourify diff"
-	alias make="colourify make"
-	alias gcc="colourify gcc"
-	alias g++="colourify g++"
-	alias ld="colourify ld"
-	alias netstat="colourify netstat"
-	alias ping="colourify ping"
-	alias traceroute="colourify traceroute"
+  alias colourify="grc -es --colour=auto"
+  alias diff="colourify diff"
+  alias make="colourify make"
+  alias gcc="colourify gcc"
+  alias g++="colourify g++"
+  alias ld="colourify ld"
+  alias netstat="colourify netstat"
+  alias ping="colourify ping"
+  alias traceroute="colourify traceroute"
 fi
 
 # z for better jumps
 if [ -f ~/.zsh/plugins/z/z.sh ]; then
-	_Z_CMD="j"
-	source ~/.zsh/plugins/z/z.sh
+  _Z_CMD="j"
+  source ~/.zsh/plugins/z/z.sh
 fi
 
 # vcs info
@@ -136,19 +136,19 @@ local VCS='$vcs_info_msg_0_'
 
 # prompt colors
 if [ "$(uname)" = "Darwin" ]; then
-	PROMPTCOLOR=blue
+  PROMPTCOLOR=blue
 elif [ "$(hostname)" = "Disa" ]; then
-	PROMPTCOLOR=yellow
+  PROMPTCOLOR=yellow
 else
-	PROMPTCOLOR=magenta
+  PROMPTCOLOR=magenta
 fi
 
 if [ "$(whoami)" = "root" ]; then
-	PROMPTCOLOR=red
+  PROMPTCOLOR=red
 fi
 
 # main prompt
-PROMPT="%{$fg[$PROMPTCOLOR]%}%3~%{$reset_color%} $VCS→ %{$reset_color%}"
+PROMPT="%{$fg[$PROMPTCOLOR]%}%50<...<%3~%{$reset_color%} $VCS→ %{$reset_color%}"
 
 # right prompt
 RPROMPT="%(?,,%{$fg[red]%}✕%{$reset_color%})"
@@ -196,8 +196,8 @@ export LESS="-R --RAW-CONTROL-CHARS"
 export EDITOR="vim"
 
 if [ -d /Applications/MacVim.app/ ]; then
-	alias vim="/Applications/MacVim.app/Contents/MacOS/Vim"
-	export EDITOR="/Applications/MacVim.app/Contents/MacOS/Vim"
+  alias vim="/Applications/MacVim.app/Contents/MacOS/Vim"
+  export EDITOR="/Applications/MacVim.app/Contents/MacOS/Vim"
 fi
 
 # aliases
@@ -255,329 +255,341 @@ alias -g B="> /dev/null 2>&1 &"
 alias -g N="&& notify-terminal"
 alias -g P="&& pushover-terminal"
 
-# screen
-function sn() {
-	if [ "$#" -eq 0 ]; then
-		screen
-	else
-		screen -S "${1:+"$@"}"
-	fi
-}
-
-alias sl="screen -ls"
-alias sr="screen -R"
-alias sf="screen -dRR"
-alias sx="screen -x"
-
 # tmux
-function tn() {
-	if [ "$#" -eq 0 ]; then
-		if [[ $PWD != $HOME ]]; then
-			tmux new -s "$(echo ${PWD##*/} | tr "[:upper:]" "[:lower:]")"
-		else
-			tmux
-		fi
-	else
-		tmux new -s "${1:+"$@"}"
-	fi
+function tm() {
+  local attach=""
+  local title=""
+
+  if [ "$#" -ne 0 ]; then
+    title=$1
+  else
+    if [[ $PWD != $HOME ]]; then
+      title="$(echo ${PWD##*/} | tr "[:upper:]" "[:lower:]")"
+    else
+      title="home"
+    fi
+  fi
+
+  tmux has-session -t $title > /dev/null 2>&1
+
+  if [ $? -eq 0 ]; then
+    attach=$title
+  else
+    for session in $(tmux ls 2>/dev/null | cut -d: -f1); do
+      if [[ $session =~ $title  ]]; then
+        attach=$session
+        break
+      fi
+    done
+  fi
+
+  if [[ $attach != "" ]]; then
+    tmux attach -t $attach
+  else
+    tmux new -s $title
+  fi
 }
+compctl -s "$(tmux ls 2> /dev/null | cut -d: -f1)" tm
 
 alias tl="tmux ls"
-alias ta="tmux attach -t"
 
 # mac only
 if [ "$(uname)" = "Darwin" ]; then
-	# make completion /Applications aware
-	compctl -f \
-		-x 'p[2]' \
-		-s "$(/bin/ls -d1 /Applications/*/*.app /Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g')" \
-		-- open
-	alias run="open -a"
+  # make completion /Applications aware
+  compctl -f \
+    -x 'p[2]' \
+    -s "$(/bin/ls -d1 /Applications/*/*.app /Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g')" \
+    -- open
+  alias run="open -a"
 
-	alias localip="ipconfig getifaddr en1"
+  alias localip="ipconfig getifaddr en1"
 
-	alias qopen="qlmanage -p "$@" >& /dev/null"
-	alias flush="dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
-	alias clearlogs="sudo rm -rfv /private/var/log/asl/*.asl"
-	alias cleartmp="sudo rm -rfv /private/var/tmp/Xcode/ /private/var/tmp/Processing/"
-	alias purge="sudo purge"
-	alias ino="PATH=/bin/:$PATH ino" # proper stty for ino
+  alias qopen="qlmanage -p "$@" >& /dev/null"
+  alias flush="dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
+  alias clearlogs="sudo rm -rfv /private/var/log/asl/*.asl"
+  alias cleartmp="sudo rm -rfv /private/var/tmp/Xcode/ /private/var/tmp/Processing/"
+  alias purge="sudo purge"
+  alias ino="PATH=/bin/:$PATH ino" # proper stty for ino
 
-	# output of last command to clipboard
-	alias clout="fc -e - | pbcopy"
-	# current pwd to clipboard
-	alias cpwd='echo \"$(pwd | tr -d "\n")\" | pbcopy'
+  # output of last command to clipboard
+  alias clout="fc -e - | pbcopy"
 
+  # current pwd to clipboard
+  alias cpwd='echo -n \"$(pwd | tr -d "\n")\" | pbcopy'
 
-	# nice markdown files in cli using markdown-pdf from npm
-	if [ -d /usr/local/share/npm/lib/node_modules/markdown-pdf/bin ]; then
-		alias markdown-pdf="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf"
-		alias markdown-pdf-nice="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf \
-			--css-path ~/Dropbox/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
-	fi
+  # nice markdown files in cli using markdown-pdf from npm
+  if [ -d /usr/local/share/npm/lib/node_modules/markdown-pdf/bin ]; then
+    alias markdown-pdf="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf"
+    alias markdown-pdf-nice="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf \
+      --css-path ~/Dropbox/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
+  fi
 
-	# network utility port scan
-	if [ -d /System/Library/CoreServices/Applications/Network\ Utility.app ]; then
-		alias stroke="/System/Library/CoreServices/Applications/Network\ Utility.app/Contents/Resources/stroke"
-	fi
+  # network utility port scan
+  if [ -d /System/Library/CoreServices/Applications/Network\ Utility.app ]; then
+    alias stroke="/System/Library/CoreServices/Applications/Network\ Utility.app/Contents/Resources/stroke"
+  fi
 
-	# man in preview
-	function pman() {
-		man -t $1 | open -f -a Preview;
-	}
-	compdef _man pman=man
+  # man in preview
+  function pman() {
+    man -t $1 | open -f -a Preview;
+  }
+  compdef _man pman=man
 
-	# cd to currently open dir in finder
-	function cdf() {
-		finder_dir=$(osascript -e 'try' \
-			-e 'tell application "Finder" to get POSIX path of (target of front Finder window as text)' \
-			-e 'end try')
-		cd "$finder_dir"
-	}
+  # cd to currently open dir in finder
+  function cdf() {
+    finder_dir=$(osascript -e 'try' \
+      -e 'tell application "Finder" to get POSIX path of (target of front Finder window as text)' \
+      -e 'end try')
+    cd "$finder_dir"
+  }
 
-	# shorter open
-	function o() {
-		if [ $# -ne 0 ]; then
-			ARG="${1:+"$@"}"
-		else
-			ARG="."
-		fi
+  # shorter open
+  function o() {
+    if [ "$#" -ne 0 ]; then
+      ARG="${1:+"$@"}"
+    else
+      ARG="."
+    fi
 
-		open $ARG
-	}
+    open $ARG
+  }
 fi
 
 # linux only
 if [ "$(uname)" = "Linux" ]; then
-	alias localip="ifconfig eth0 | grep inet | awk '{ print \$2 }'"
+  alias localip="ifconfig eth0 | grep inet | awk '{ print \$2 }'"
 fi
 
 # sudo previous command
 function sudothat() {
-	echo -e "$(tput setaf 1)sudo$(tput sgr0) → $(fc -ln -1)"
-	eval "sudo $(fc -ln -1)"
+  echo -e "$(tput setaf 1)sudo$(tput sgr0) → $(fc -ln -1)"
+  eval "sudo $(fc -ln -1)"
 }
 
 # history
 function h() {
-	if [ "$#" -eq 0 ]; then
-		history
-	else
-		history 0 | egrep -i --color=auto $@
-	fi
+  if [ "$#" -eq 0 ]; then
+    history
+  else
+    history 0 | egrep -i --color=auto $@
+  fi
 }
 
 # go up n directories
 function up() {
-	for updirs in $(seq ${1:-1}); do
-		cd ..
-	done
+  for updirs in $(seq ${1:-1}); do
+    cd ..
+  done
 }
 
 # mkdir & cd
 function cdir() {
-	if [ ! -d "$@" ]; then
-		mkdir -p "$@"
-	fi
-	cd "$@"
+  if [ ! -d "$@" ]; then
+    mkdir -p "$@"
+  fi
+  cd "$@"
 }
 
 # cd & ls
 function cdl() {
-	cd "$@" && LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable
+  cd "$@" && LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable
 }
 compdef _cd cdl=cd
 
 # rename files
 function name() {
-	newname=$1
-	vared -c -p "rename to: " newname
-	command mv $1 $newname
+  newname=$1
+  vared -c -p "rename to: " newname
+  command mv $1 $newname
 }
 
 # code pager with highlight
 function codecat() {
-	local syntax=""
-	if [ -t 0 ]; then
-		case $@ in
-			*.m|*.mm)          syntax="--syntax=objc" ;;
-			*rc|*config|*.*sh) syntax="--syntax=sh"   ;;
-			*.*json)           syntax="--syntax=js"   ;;
-		esac
-		highlight $syntax --out-format=ansi --replace-tabs=2 "$@" | less
-	else
-		cat - | highlight --out-format=ansi --replace-tabs=2 "$@" | less
-	fi
+  local syntax=""
+  if [ -t 0 ]; then
+    case $@ in
+      *.m|*.mm)          syntax="--syntax=objc" ;;
+      *rc|*config|*.*sh) syntax="--syntax=sh"   ;;
+      *.*json)           syntax="--syntax=js"   ;;
+    esac
+    highlight $syntax --out-format=ansi --replace-tabs=2 "$@" | less
+  else
+    cat - | highlight --out-format=ansi --replace-tabs=2 "$@" | less
+  fi
 }
 compdef _gnu_generic codecat=cat
 
 # simple httpserver
 function httpserver() {
-	local port="3000"
-	if [ $# -ne 0 ]; then
-		port="$@"
-	fi
+  local port="3000"
+  if [ "$#" -ne 0 ]; then
+    port="$@"
+  fi
 
-	if hash http-server 2> /dev/null; then
-		http-server -p $port -c-1
-	else
-		local command=""
-		if [ "$(uname)" = "Darwin" ]; then
-			command="SimpleHTTPServer"
-		else
-			command="http.server"
-		fi
+  if hash http-server 2> /dev/null; then
+    http-server -p $port -c-1
+  else
+    local command=""
+    if [ "$(uname)" = "Darwin" ]; then
+      command="SimpleHTTPServer"
+    else
+      command="http.server"
+    fi
 
-		python -m $command $port
-	fi
+    python -m $command $port
+  fi
 }
 
 # dropbox notes
 if [ -d ~/Dropbox/Notes ]; then
-	function ns() {
-		if [ "$#" -eq 0 ]; then
-			for f in ~/Dropbox/Notes/*.txt; do
-				basename $f .txt
-			done
-		else
-			if [ -n "$(find ~/Dropbox/Notes -iname "*$@*")" ]; then
-				if [ -t 1 ]; then
-					find ~/Dropbox/Notes -iname "*$@*" \
-						-exec echo -e "$(tput setaf 5)\n$(basename {} .txt)\n$(tput sgr0)" \; \
-						-exec cat {} \; \
-						-exec echo \;
-				else
-					find ~/Dropbox/Notes -iname "*$@*" -exec cat {} \;
-				fi
-			else
-				echo "No note matches your search!"
-			fi
-		fi
-	}
+  function ns() {
+    if [ "$#" -eq 0 ]; then
+      for f in ~/Dropbox/Notes/*.txt; do
+        basename $f .txt
+      done
+    else
+      if [ -n "$(find ~/Dropbox/Notes -iname "*$@*")" ]; then
+        if [ -t 1 ]; then
+          find ~/Dropbox/Notes -iname "*$@*" \
+            -exec echo -e "$(tput setaf 5)\n$(basename {} .txt)\n$(tput sgr0)" \; \
+            -exec cat {} \; \
+            -exec echo \;
+        else
+          find ~/Dropbox/Notes -iname "*$@*" -exec cat {} \;
+        fi
+      else
+        echo "No note matches your search!"
+      fi
+    fi
+  }
 
-	function ne() {
-		if [ "$#" -eq 0 ]; then
-			echo "You must give note name!"
-		else
-			find ~/Dropbox/Notes -iname "*$@*" -exec $EDITOR "{}" +
-		fi
-	}
+  function ne() {
+    if [ "$#" -eq 0 ]; then
+      echo "You must give note name!"
+    else
+      find ~/Dropbox/Notes -iname "*$@*" -exec $EDITOR "{}" +
+    fi
+  }
+
+  # compctl -s "$(ls ~/Dropbox/Notes/)" ne
+  compctl -g "~/Dropbox/Notes/*.txt(:t)" ne
 fi
 
 # simple find functions
 function fn() {
-	find . -iname "*$@*" 2>/dev/null
+  find . -iname "*$@*" 2>/dev/null
 }
 
 function fd() {
-	find . -iname "*$@*" -type d 2>/dev/null
+  find . -iname "*$@*" -type d 2>/dev/null
 }
 
 function ff() {
-	find . -iname "*$@*" -type f 2>/dev/null
+  find . -iname "*$@*" -type f 2>/dev/null
 }
 
 # fzf functions
 if hash fzf 2> /dev/null; then
-	# default options
-	export FZF_DEFAULT_OPTS="+2"
+  # default options
+  export FZF_DEFAULT_OPTS="+2"
 
-	# edit files in editor
-	function fze() {
-		local files
-		files=$(fzf --query="$1" -m)
-		[ -n "$files" ] && $EDITOR $(echo $files)
-	}
+  # edit files in editor
+  function fze() {
+    local files
+    files=$(fzf --query="$1" -m -1)
+    [ -n "$files" ] && $EDITOR $(echo $files)
+  }
 
-	# cd to directory
-	function fzd() {
-		local dir
-		dir=$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --query="$1")
-		[ -n "$dir" ] && cd "$dir"
-	}
+  # cd to directory
+  function fzd() {
+    local dir
+    dir=$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --query="$1" -1)
+    [ -n "$dir" ] && cd "$dir"
+  }
 
-	# search through history
-	function fzh() {
-		# eval $(fc -l 1 | sed 's/ *[0-9]* *//' | fzf +s --query="$1")
-		print -z $(fc -l 1 | fzf +s --query="$1" | sed 's/ *[0-9]* *//')
-	}
+  # search through history
+  function fzh() {
+    # eval $(fc -l 1 | sed 's/ *[0-9]* *//' | fzf +s --query="$1")
+    print -z $(fc -l 1 | fzf +s --query="$1" | sed 's/ *[0-9]* *//')
+  }
 
-	# kill process
-	function fzkill() {
-		ps -ef | sed 1d | fzf -m --query="$1" | awk '{print $2}' | xargs kill -${1:-9}
-	}
+  # kill process
+  function fzkill() {
+    ps -ef | sed 1d | fzf -m --query="$1" | awk '{print $2}' | xargs kill -${1:-9}
+  }
 
-	# jump in fzf
-	unalias j
-	function j() {
-		if [[ -z "$*" ]]; then
-			cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf +s)"
-		else
-			_z "$@"
-		fi
-	}
+  # jump in fzf
+  unalias j
+  function j() {
+    if [[ -z "$*" ]]; then
+      cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf +s)"
+    else
+      _z "$@"
+    fi
+  }
 fi
 
 # archive extractor
 function extract() {
-	if [ "$(uname)" = "Linux" ]; then
-		if [[ -z "$1" ]]; then
-			echo "extracts files based on extensions"
-		elif [[ -f $1 ]]; then
-			case ${(L)1} in
-				*.tar.bz2) tar -jxvf $1  ;;
-				*.tar.gz)  tar -zxvf $1  ;;
-				*.bz2)     bunzip2 $1    ;;
-				*.gz)      gunzip $1     ;;
-				*.jar)     unzip $1      ;;
-				*.rar)     unrar x $1    ;;
-				*.tar)     tar -xvf $1   ;;
-				*.tbz2)    tar -jxvf $1  ;;
-				*.tgz)     tar -zxvf $1  ;;
-				*.zip)     unzip $1      ;;
-				*.Z)       uncompress $1 ;;
-				*)         echo "unable to extract '$1'"
-			esac
-	 else
-			echo "file '$1' does not exist!"
-	 fi
-	else
-		open "$@" # The Unarchiver.app can deal with archives on Mac
-	fi
+  if [ "$(uname)" = "Linux" ]; then
+    if [[ -z "$1" ]]; then
+      echo "extracts files based on extensions"
+    elif [[ -f $1 ]]; then
+      case ${(L)1} in
+        *.tar.bz2) tar -jxvf $1  ;;
+        *.tar.gz)  tar -zxvf $1  ;;
+        *.bz2)     bunzip2 $1    ;;
+        *.gz)      gunzip $1     ;;
+        *.jar)     unzip $1      ;;
+        *.rar)     unrar x $1    ;;
+        *.tar)     tar -xvf $1   ;;
+        *.tbz2)    tar -jxvf $1  ;;
+        *.tgz)     tar -zxvf $1  ;;
+        *.zip)     unzip $1      ;;
+        *.Z)       uncompress $1 ;;
+        *)         echo "unable to extract '$1'"
+      esac
+   else
+      echo "file '$1' does not exist!"
+   fi
+  else
+    open "$@" # The Unarchiver.app can deal with archives on Mac
+  fi
 }
+
 compctl -g '*.tar.bz2 *.tar.gz *.bz2 *.gz *.jar *.rar *.tar *.tbz2 *.tgz *.zip *.Z' + -g '*(-/)' extract
 
 # calculator
 function calc() {
-	local result=""
-	result="$(printf "scale=10;$*\n" | bc --mathlib | tr -d '\\\n')"
+  local result=""
+  result="$(printf "scale=10;$*\n" | bc --mathlib | tr -d '\\\n')"
 
-	if [ "$result" == *.* ]; then
-		printf "$result" | sed -e 's/^\./0./' -e 's/^-\./-0./' -e 's/0*$//;s/\.$//'
-	else
-		printf "$result"
-	fi
+  if [ "$result" == *.* ]; then
+    printf "$result" | sed -e 's/^\./0./' -e 's/^-\./-0./' -e 's/0*$//;s/\.$//'
+  else
+    printf "$result"
+  fi
 
-	printf "\n"
+  printf "\n"
 }
 
 # clock
 function clock() {
-	while sleep 1; do
-		printf "\r%s " "$(date +%T)"
-	done
+  while sleep 1; do
+    printf "\r%s " "$(date +%T)"
+  done
 }
 
 # sanitize permissions
 function sanitize() {
-	if [ "$#" -eq 0 ]; then
-		local DIR="."
-	else
-		local DIR="$@"
-	fi
+  if [ "$#" -eq 0 ]; then
+    local DIR="."
+  else
+    local DIR="$@"
+  fi
 
-	find "$DIR" -type d -print0 | xargs -0 chmod 755
-	find "$DIR" -type f -print0 | xargs -0 chmod 644
+  find "$DIR" -type d -print0 | xargs -0 chmod 755
+  find "$DIR" -type f -print0 | xargs -0 chmod 644
 }
 
 # history
@@ -597,49 +609,49 @@ bindkey "^[[A"  history-beginning-search-backward
 bindkey "^[[B"  history-beginning-search-forward
 
 case $TERM in
-	*xterm*|urxvt|(u|dt|k|E)term)
-		bindkey "^[[H" beginning-of-line
-		bindkey "^[[F" end-of-line
-	;;
-	*screen*)
-		bindkey "^[[1~" beginning-of-line
-		bindkey "^[[4~" end-of-line
-	;;
+  *xterm*|urxvt|(u|dt|k|E)term)
+    bindkey "^[[H" beginning-of-line
+    bindkey "^[[F" end-of-line
+  ;;
+  *screen*)
+    bindkey "^[[1~" beginning-of-line
+    bindkey "^[[4~" end-of-line
+  ;;
 esac
 
 # terminal titles & vcs refresh
 case $TERM in
-	xterm*|urxvt|(u|dt|k|E)term)
-		precmd () {
-			vcs_info
-			print -nP "\033]0;%m: %3~\007"
-		}
-		preexec () {
-			print -nP "\033]0;%m: $1\007"
-		}
-	;;
-	screen*)
-		precmd () {
-			vcs_info
-			print -nP "\ek%3~\e\\"
-			print -nP "\e]0;%3~\a"
-			# print -nP "\033]0;%m $WINDOW: %3~\007"
-			print -nP "\033]0;%m: %3~\007"
-		}
-		preexec () {
-			print -nP "\ek%3~ $1\e\\"
-			print -nP "\e]0;%3~ $1\a"
-			# print -nP "\033]0;%m $WINDOW: $1\007"
-			print -nP "\033]0;%m: $1\007"
-		}
-	;;
+  xterm*|urxvt|(u|dt|k|E)term)
+    precmd () {
+      vcs_info
+      print -nP "\033]0;%m: %3~\007"
+    }
+    preexec () {
+      print -nP "\033]0;%m: $1\007"
+    }
+  ;;
+  screen*)
+    precmd () {
+      vcs_info
+      print -nP "\ek%3~\e\\"
+      print -nP "\e]0;%3~\a"
+      # print -nP "\033]0;%m $WINDOW: %3~\007"
+      print -nP "\033]0;%m: %3~\007"
+    }
+    preexec () {
+      print -nP "\ek%3~ $1\e\\"
+      print -nP "\e]0;%3~ $1\a"
+      # print -nP "\033]0;%m $WINDOW: $1\007"
+      print -nP "\033]0;%m: $1\007"
+    }
+  ;;
 esac
 
 # complete with dots on slow systems
 expand-or-complete-with-dots() {
-	echo -n "$(tput setaf 6)...$(tput sgr0)"
-	zle expand-or-complete
-	zle redisplay
+  echo -n "$(tput setaf 6)...$(tput sgr0)"
+  zle expand-or-complete
+  zle redisplay
 }
 zle -N expand-or-complete-with-dots
 bindkey "^I" expand-or-complete-with-dots
@@ -692,9 +704,9 @@ zstyle ':completion:*:(ssh|scp):*:users' ignored-patterns adm bin daemon halt lp
 
 # complete custom hosts
 zstyle -e ':completion:*:(ssh|scp):*' hosts 'reply=(
-	${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ }
-	${=${(f)"$(cat /etc/hosts(|)(N) <<(ypcat hosts 2>/dev/null))"}%%\#*}
-	${=${${${${(@M)${(f)"$(<~/.ssh/config)"}:#Host *}#Host }:#*\**}:#*\?*}}
+  ${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ }
+  ${=${(f)"$(cat /etc/hosts(|)(N) <<(ypcat hosts 2>/dev/null))"}%%\#*}
+  ${=${${${${(@M)${(f)"$(<~/.ssh/config)"}:#Host *}#Host }:#*\**}:#*\?*}}
 )'
 
 # ignore completions for commands that we dont have

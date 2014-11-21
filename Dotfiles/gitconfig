@@ -1,26 +1,26 @@
 [user]
-	name = Szymon Kaliski
-	email = kaliskiszymon@gmail.com
+  name = Szymon Kaliski
+  email = kaliskiszymon@gmail.com
 [core]
-	quotepath = false
-	pager = less -x2
-	safecrlf = false
+  quotepath = false
+  pager = less -x2
+  safecrlf = false
 [diff]
-	color = auto
-	algorithm = patience
+  color = auto
+  algorithm = patience
 [pager]
-	color = true
+  color = true
 [status]
-	color = true
+  color = true
 [alias]
-	this = !git init && git add . && git commit -m \"initial commit\"
-	amend = !git log -n 1 --pretty=tformat:%s%n%n%b | git commit -F - --amend
+  this = !git init && git add . && git commit -m \"initial commit\"
+  amend = !git log -n 1 --pretty=tformat:%s%n%n%b | git commit -F - --amend
 
-	ci = commit -am
-	st = status -sb
-	di = diff --minimal
-	ds = diff --minimal --staged
-	ls = log --pretty=format:"%C(yellow)%h%x09%C(green)%cr%x09%C(reset)%s\\%C(magenta)%d\\ %C(blue)[%cn]" --decorate
-	ll = log --pretty=format:"%C(yellow)%h%x09%C(green)%cd%x09%C(reset)%s\\%C(magenta)%d\\ %C(blue)[%cn]" --decorate --numstat
+  ci = commit -am
+  st = status -sb
+  di = diff --minimal
+  ds = diff --minimal --staged
+  ls = log --pretty=format:"%C(yellow)%h%x09%C(green)%cr%x09%C(reset)%s\\%C(magenta)%d\\ %C(blue)[%cn]" --decorate
+  ll = log --pretty=format:"%C(yellow)%h%x09%C(green)%cd%x09%C(reset)%s\\%C(magenta)%d\\ %C(blue)[%cn]" --decorate --numstat
 [push]
-	default = tracking
+  default = tracking

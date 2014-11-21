@@ -1,61 +1,60 @@
 if has("gui_macvim")
-	" gui vim has light background by default
-	" set background=light
+  " gui vim has light background by default
+  " set background=light
 
-	" no bells
-	set vb t_vb=
+  " no bells
+  set vb t_vb=
 
-	" disable scrollbar
-	set guioptions-=r
-	set go-=L
+  " disable scrollbar
+  set guioptions-=r
+  set go-=L
 
-	" enable native tabs
-	set guioptions-=e
+  " enable native tabs
+  set guioptions-=e
 
-	" always show tabs
-	set showtabline=2
+  " always show tabs
+  set showtabline=2
 
-	" font
-	set guifont=Menlo:h11
+  " font
+  set guifont=Menlo:h11
 
-	" turn off blinking cursor
-	set gcr=n:blinkon0
+  " turn off blinking cursor
+  set gcr=n:blinkon0
 
-	" default window size
-	set lines=72 columns=160
+  " default window size
+  set lines=72 columns=160
 
-	" disable printing from menu
-	macmenu &File.Print key=<nop>
+  " disable printing from menu
+  macmenu &File.Print key=<nop>
 
-	" change tabs with ctrl-tab
-	noremap <C-Tab> :tabnext<cr>
-	noremap <C-S-Tab> :tabprev<cr>
+  " change tabs with ctrl-tab
+  noremap <C-Tab> :tabnext<cr>
+  noremap <C-S-Tab> :tabprev<cr>
 
-	" fullscreen switching command
-	function! FullScreen()
-		set fullscreen!
+  " fullscreen switching command
+  function! FullScreen()
+    set fullscreen!
 
-		if &fullscreen
-			set guioptions-=e
-		else
-			set guioptions+=e
-		endif
-	endfun
+    if &fullscreen
+      set guioptions-=e
+    else
+      set guioptions+=e
+    endif
+  endfun
 
-	command! FullScreen :call FullScreen()
+  command! FullScreen :call FullScreen()
 
-	" open terminal in current directory
-	function! Terminal()
-		execute "silent !" . "open -a Terminal '" . getcwd() . "'"
-	endfun
+  " open terminal in current directory
+  function! Terminal()
+    execute "silent !" . "open -a Terminal '" . getcwd() . "'"
+  endfun
 
-	command! Terminal :call Terminal()
+  command! Terminal :call Terminal()
 
-	" set big window for external display
-	function! BigWindow()
-		set lines=76 columns=190
-	endfun
+  " set big window for external display
+  function! BigWindow()
+    set lines=76 columns=190
+  endfun
 
-	command! BigWindow :call BigWindow()
-
+  command! BigWindow :call BigWindow()
 endif

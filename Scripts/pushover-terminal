@@ -4,23 +4,23 @@
 source ~/.pushover
 
 case $1 in
-	-h|--high)
-		PRIORITY="1"
-		shift
-		;;
-	*)
-		PRIORITY="0"
-		;;
+  -h|--high)
+    PRIORITY="1"
+    shift
+    ;;
+  *)
+    PRIORITY="0"
+    ;;
 esac
 
 MESSAGE="notification!"
 if [ "$#" -ne 0 ]; then
-	MESSAGE="$@"
+  MESSAGE="$@"
 fi
 
 curl -s \
-	-F "priority=$PRIORITY" \
-	-F "token=$TOKEN" \
-	-F "user=$USER" \
-	-F "message=$MESSAGE" \
-	https://api.pushover.net/1/messages > /dev/null
+  -F "priority=$PRIORITY" \
+  -F "token=$TOKEN" \
+  -F "user=$USER" \
+  -F "message=$MESSAGE" \
+  https://api.pushover.net/1/messages > /dev/null
