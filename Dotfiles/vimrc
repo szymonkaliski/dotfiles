@@ -158,8 +158,12 @@ set backspace=indent,eol,start
 set nonumber
 set linebreak
 set ruler
-set scrolloff=3
 set sidescrolloff=6
+set gdefault
+set virtualedit=block
+
+let g:default_scrollof=3
+exe "set scrolloff=" . g:default_scrollof
 
 " don't complete 'included files', speeds things up
 set complete-=i
@@ -326,10 +330,17 @@ augroup ft_settings
   au FileType vim        setlocal foldmethod=marker foldlevel=0
   au FileType clojure    let b:delimitMate_quotes = "\""
   au FileType javascript call JavaScriptFold() | set foldlevelstart=99
-  au FileType taskpaper  setlocal nonumber | setlocal nolist | call taskpaper#fold_projects()
-  au FileType vimfiler   setlocal nonumber | setlocal nolist | setlocal cursorline
-  au FileType text       setlocal nonumber | setlocal nolist
-  au FileType markdown   setlocal nonumber | setlocal nolist
+  au FileType taskpaper  setlocal nolist | call taskpaper#fold_projects()
+  au FileType vimfiler   setlocal nolist | setlocal cursorline
+  au FileType text       setlocal nolist
+  au FileType markdown   setlocal nolist
+
+  " auto source vimrc
+  au BufWritePost .vimrc,vimrc,.gvimrc,gvimrc
+        \ so $MYVIMRC |
+        \ if has('gui_running') | so $MYGVIMRC | endif |
+        \ setlocal foldmethod=marker |
+        \ AirlineRefresh
 augroup END
 
 " custom mappings based on filetype
@@ -622,6 +633,10 @@ let g:limelight_conceal_guifg = "#586e75"
 " plugin: goyo {{{
 
 function! GoyoBefore()
+  if !has("gui_running")
+    set showtabline=0
+  endif
+
   if $TMUX != ""
     silent !tmux set status off > /dev/null
     silent !tmux resize-pane -Z > /dev/null
@@ -641,12 +656,12 @@ function! GoyoAfter()
     silent !tmux resize-pane -Z > /dev/null
   endif
 
-  set scrolloff=3
+  exe "set scrolloff=" . g:default_scrollof
   Limelight!
 endfunction
 
-let g:goyo_callbacks = [ function('GoyoBefore'), function('GoyoAfter') ]
-let g:goyo_width = 120
+let g:goyo_callbacks=[ function('GoyoBefore'), function('GoyoAfter') ]
+let g:goyo_width=120
 
 command! Zen :Goyo
 
@@ -787,6 +802,10 @@ command! SpaceToTab :setlocal noexpandtab | %retab!
 
 " }}}
 " custom mappings {{{
+
+" input mode mappings
+inoremap <c-a> <c-o>0
+inoremap <c-e> <c-o>$
 
 " proper movement
 nnoremap <Left>  <nop>
