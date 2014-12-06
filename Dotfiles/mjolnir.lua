@@ -14,9 +14,11 @@ local ext = {
   utils = {}
 }
 
+-- saved window positions
+ext.win.positions = {}
+
 -- window extension settings
 ext.win.margin     = 10
-ext.win.positions  = {}
 ext.win.animate    = true
 ext.win.fixenabled = false
 
@@ -58,7 +60,7 @@ function ext.frame.push(screen, direction)
         h = screen.h - ext.win.margin * (2 - 1 / 4)
       }
     end
-	}
+  }
 
   return frames[direction]()
 end
@@ -283,7 +285,7 @@ function ext.win.pos(win, option)
 end
 
 -- cycle application windows
--- originally stolen: https://github.com/nifoc/dotfiles/blob/master/hydra/cycle.lua
+-- https://github.com/nifoc/dotfiles/blob/master/mjolnir/cycle.lua
 function ext.win.cycle(win)
   local windows = win:application():allwindows()
   windows = fnutils.filter(windows, function(win) return win:isstandard() end)
@@ -301,40 +303,8 @@ function ext.win.cycle(win)
   end
 end
 
--- smart browser launch or focus or cycle
-ext.app.browser = function()
-  local browsers = { "Safari", "Google Chrome" }
-
-  local runningapps = application.runningapplications()
-  local currentapp = window.focusedwindow()
-
-  if currentapp then currentapp = currentapp:application():title() end
-
-  local runningbrowsers = fnutils.map(browsers, function(browser)
-    return fnutils.find(runningapps, function(app)
-      return app:title() == browser
-    end)
-  end)
-
-  local currentindex = fnutils.indexof(fnutils.map(runningbrowsers, function(app)
-    return app:title()
-  end), currentapp)
-
-  if #runningbrowsers == 0 then
-    -- no browsers, start first one
-    application.launchorfocus(browsers[1])
-  elseif #runningbrowsers > 0 and not currentindex then
-    -- no browser is selected, activate one
-    runningbrowsers[1]:activate()
-  elseif #runningbrowsers > 0 and currentindex then
-    -- more than one browser and one of them selected, cycle them
-    local browserindex = (currentindex % #runningbrowsers) + 1
-    runningbrowsers[browserindex]:activate()
-  end
-end
-
 -- launch or focus or cycle app
-ext.app.launchorfocus = function(app)
+function ext.app.launchorfocus(app)
   local focusedwindow = window.focusedwindow()
   local currentapp = nil
 
@@ -344,6 +314,36 @@ ext.app.launchorfocus = function(app)
     ext.win.cycle(focusedwindow)
   else
     application.launchorfocus(app)
+  end
+end
+
+-- smart browser launch or focus or cycle
+function ext.app.browser()
+  local browsers = { "Safari", "Google Chrome" }
+
+  local runningapps = application.runningapplications()
+  local currentapp = window.focusedwindow()
+
+  if currentapp then currentapp = currentapp:application():title() end
+
+  local runningbrowsers = fnutils.map(browsers, function(browser)
+    return fnutils.find(runningapps, function(app) return app:title() == browser end)
+  end)
+
+  local currentindex = fnutils.indexof(fnutils.map(runningbrowsers, function(app)
+    return app:title()
+  end), currentapp)
+
+  if #runningbrowsers == 0 then
+    -- no browsers, start first one
+    ext.app.launchorfocus(browsers[1])
+  elseif #runningbrowsers > 0 and not currentindex then
+    -- no browser is selected, activate one
+    runningbrowsers[1]:activate()
+  elseif #runningbrowsers > 0 and currentindex then
+    -- more than one browser and one of them selected, cycle them
+    local browserindex = (currentindex % #runningbrowsers) + 1
+    runningbrowsers[browserindex]:activate()
   end
 end
 
@@ -359,16 +359,12 @@ end
 
 -- for simple hotkey binding
 function bindwin(fn, param)
-  return function()
-    dowin(fn, param)
-  end
+  return function() dowin(fn, param) end
 end
 
 -- apply function to a window with a timer
 function timewin(fn, param)
-  return timer.new(0.05, function()
-    dowin(fn, param)
-  end)
+  return timer.new(0.05, function() dowin(fn, param) end)
 end
 
 -- keyboard modifier for bindings
@@ -378,13 +374,13 @@ local mod3 = { "cmd", "alt", "ctrl" }
 local mod4 = { "cmd", "alt", "shift" }
 
 -- basic bindings
-hotkey.bind(mod1, "c",   bindwin(ext.win.center))
-hotkey.bind(mod1, "z",   bindwin(ext.win.full))
-hotkey.bind(mod1, "s",   bindwin(ext.win.pos, "update"))
-hotkey.bind(mod1, "r",   bindwin(ext.win.pos, "load"))
+hotkey.bind(mod1, "c", bindwin(ext.win.center))
+hotkey.bind(mod1, "z", bindwin(ext.win.full))
+hotkey.bind(mod1, "s", bindwin(ext.win.pos, "update"))
+hotkey.bind(mod1, "r", bindwin(ext.win.pos, "load"))
 
 -- cycle throught windows of the same app
-hotkey.bind(mod1, "tab",   function() ext.win.cycle(window.focusedwindow()) end)
+hotkey.bind(mod1, "tab", function() ext.win.cycle(window.focusedwindow()) end)
 
 -- move window to different screen
 hotkey.bind(mod4, "right", bindwin(ext.win.throw, "prev"))
