@@ -20,49 +20,24 @@ ext.win.positions  = {}
 ext.win.animate    = true
 ext.win.fixenabled = false
 
--- returns frame resized to half of screen
-function ext.frame.resize(frame, screen, direction)
-  local frames = {
-    [ "horizontal" ] = function()
-      return {
-        x = frame.x,
-        y = frame.y,
-        h = screen.h / 2 - ext.win.margin * (2 - 1 / 4),
-        w = frame.w
-      }
-    end,
-
-    [ "vertical" ] = function()
-      return {
-        x = frame.x,
-        y = frame.y,
-        h = screen.h - ext.win.margin * (2 - 1 / 4),
-        w = screen.w / 2 - ext.win.margin * (2 - 1 / 4)
-      }
-    end
-  }
-
-  return frames[direction]()
-end
-
 -- returns frame pushed to screen edge
-function ext.frame.push(frame, screen, direction)
+function ext.frame.push(screen, direction)
   local frames = {
     [ "up" ] = function()
       return {
-        x = frame.x,
+        x = ext.win.margin + screen.x,
         y = ext.win.margin + screen.y,
-        w = frame.w,
-        h = frame.h
+        w = screen.w - ext.win.margin * 2,
+        h = screen.h / 2 - ext.win.margin
       }
     end,
 
     [ "down" ] = function()
       return {
-        x = frame.x,
-        y = ext.win.margin / 2 + screen.h / 2 + screen.y,
-        w = frame.w,
-        h = frame.h
+        x = ext.win.margin + screen.x,
+        y = ext.win.margin * 3 / 4 + screen.h / 2 + screen.y,
+        w = screen.w - ext.win.margin * 2,
+        h = screen.h / 2 - ext.win.margin * (2 - 1 / 4)
       }
     end,
 
@@ -70,8 +45,8 @@ function ext.frame.push(frame, screen, direction)
       return {
         x = ext.win.margin + screen.x,
         y = ext.win.margin + screen.y,
-        w = frame.w,
-        h = frame.h
+        w = screen.w / 2 - ext.win.margin * (2 - 1 / 4),
+        h = screen.h - ext.win.margin * (2 - 1 / 4)
       }
     end,
 
@@ -79,11 +54,11 @@ function ext.frame.push(frame, screen, direction)
       return {
         x = ext.win.margin / 2 + screen.w / 2 + screen.x,
         y = ext.win.margin + screen.y,
-        w = frame.w,
-        h = frame.h
+        w = screen.w / 2 - ext.win.margin * (2 - 1 / 4),
+        h = screen.h - ext.win.margin * (2 - 1 / 4)
       }
     end
-  }
+	}
 
   return frames[direction]()
 end
@@ -185,22 +160,11 @@ end
 -- pushes window in direction
 function ext.win.push(win, direction)
   local screen = win:screen():frame()
-  local frame = win:frame()
+  local frame
 
-  local directions = {
-    [ "up" ] = "horizontal",
-    [ "down" ] = "horizontal",
-    [ "left" ] = "vertical",
-    [ "right" ] = "vertical"
-  }
-
-  frame = ext.frame.resize(frame, screen, directions[direction])
+  frame = ext.frame.push(screen, direction)
 
   ext.win.fix(win)
-  ext.win.set(win, frame)
-
-  frame = ext.frame.push(frame, screen, direction)
-
   ext.win.set(win, frame)
 end
 
@@ -337,10 +301,14 @@ function ext.win.cycle(win)
   end
 end
 
--- smart browser launch or focus
+-- smart browser launch or focus or cycle
 ext.app.browser = function()
   local browsers = { "Safari", "Google Chrome" }
+
   local runningapps = application.runningapplications()
+  local currentapp = window.focusedwindow()
+
+  if currentapp then currentapp = currentapp:application():title() end
 
   local runningbrowsers = fnutils.map(browsers, function(browser)
     return fnutils.find(runningapps, function(app)
@@ -348,10 +316,34 @@ ext.app.browser = function()
     end)
   end)
 
-  if #runningbrowsers > 0 then
-    runningbrowsers[1]:activate()
-  else
+  local currentindex = fnutils.indexof(fnutils.map(runningbrowsers, function(app)
+    return app:title()
+  end), currentapp)
+
+  if #runningbrowsers == 0 then
+    -- no browsers, start first one
     application.launchorfocus(browsers[1])
+  elseif #runningbrowsers > 0 and not currentindex then
+    -- no browser is selected, activate one
+    runningbrowsers[1]:activate()
+  elseif #runningbrowsers > 0 and currentindex then
+    -- more than one browser and one of them selected, cycle them
+    local browserindex = (currentindex % #runningbrowsers) + 1
+    runningbrowsers[browserindex]:activate()
+  end
+end
+
+-- launch or focus or cycle app
+ext.app.launchorfocus = function(app)
+  local focusedwindow = window.focusedwindow()
+  local currentapp = nil
+
+  if window then currentapp = focusedwindow:application():title() end
+
+  if currentapp == app then
+    ext.win.cycle(focusedwindow)
+  else
+    application.launchorfocus(app)
   end
 end
 
@@ -381,19 +373,22 @@ end
 
 -- keyboard modifier for bindings
 local mod1 = { "cmd", "ctrl" }
-local mod2 = { "cmd", "ctrl", "alt" }
-local mod3 = { "cmd", "alt", "shift" }
-local mod4 = { "cmd", "alt" }
+local mod2 = { "cmd", "alt" }
+local mod3 = { "cmd", "alt", "ctrl" }
+local mod4 = { "cmd", "alt", "shift" }
 
 -- basic bindings
 hotkey.bind(mod1, "c",   bindwin(ext.win.center))
 hotkey.bind(mod1, "z",   bindwin(ext.win.full))
 hotkey.bind(mod1, "s",   bindwin(ext.win.pos, "update"))
 hotkey.bind(mod1, "r",   bindwin(ext.win.pos, "load"))
-hotkey.bind(mod1, "w",   bindwin(ext.win.cycle))
 
-hotkey.bind(mod1, "tab", bindwin(ext.win.throw, "next"))
-hotkey.bind(mod4, "tab", bindwin(ext.win.throw, "prev"))
+-- cycle throught windows of the same app
+hotkey.bind(mod1, "tab",   function() ext.win.cycle(window.focusedwindow()) end)
+
+-- move window to different screen
+hotkey.bind(mod4, "right", bindwin(ext.win.throw, "prev"))
+hotkey.bind(mod4, "left",  bindwin(ext.win.throw, "next"))
 
 -- push to edges and nudge
 fnutils.each({ "up", "down", "left", "right" }, function(direction)
@@ -426,8 +421,11 @@ fnutils.each({
   { key = "r", app = "Reminders" },
   { key = "t", app = "Terminal" }
 }, function(object)
-  hotkey.bind(mod2, object.key, function() application.launchorfocus(object.app) end)
+  hotkey.bind(mod3, object.key, function() ext.app.launchorfocus(object.app) end)
 end)
 
 -- launch or focus browser in a smart way
-hotkey.bind(mod2, "b", function() ext.app.browser() end)
+hotkey.bind(mod3, "b", function() ext.app.browser() end)
+
+-- reload mjolnir
+hotkey.bind(mod3, "m", function() mjolnir.reload() end)

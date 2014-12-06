@@ -8,7 +8,7 @@ fi
 
 read -p "$(tput setaf 3)Clean .DS_Store files?$(tput sgr0) (y/n) " RESP
 if [ "$RESP" = "y" ]; then
-  sudo find / -name ".DS_Store" -depth -exec rm {} \;
+  sudo find / -name ".DS_Store" -exec rm {} \;
 fi
 
 read -p "$(tput setaf 3)Clean caches?$(tput sgr0) (y/n) " RESP

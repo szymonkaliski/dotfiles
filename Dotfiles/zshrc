@@ -124,6 +124,11 @@ if [ -f ~/.zsh/plugins/z/z.sh ]; then
   source ~/.zsh/plugins/z/z.sh
 fi
 
+# bd for better up
+if [ -f ~/.zsh/plugins/zsh-bd/bd.zsh ]; then
+  source ~/.zsh/plugins/zsh-bd/bd.zsh
+fi
+
 # vcs info
 zstyle ":vcs_info:*" enable git #svn
 zstyle ":vcs_info:*" check-for-changes true
@@ -234,8 +239,6 @@ alias codetodo="ag '(TODO:|FIXME:)' -C0 --nobreak --group --noheading"
 
 alias x="exit"
 alias c="clear"
-alias reboot="sudo reboot"
-alias shutdown="sudo shutdown -h now"
 
 alias t="tree -a"
 alias td="tree -ad"
@@ -358,6 +361,9 @@ fi
 # linux only
 if [ "$(uname)" = "Linux" ]; then
   alias localip="ifconfig eth0 | grep inet | awk '{ print \$2 }'"
+
+  alias reboot="sudo systemctl reboot"
+  alias shutdown="sudo systemctl poweroff"
 fi
 
 # sudo previous command
