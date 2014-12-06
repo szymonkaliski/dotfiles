@@ -1,10 +1,11 @@
-local application = require "mjolnir.application"
-local hotkey = require "mjolnir.hotkey"
-local window = require "mjolnir.window"
-local fnutils = require "mjolnir.fnutils"
-local timer = require "mjolnir._asm.timer"
+local application  = require "mjolnir.application"
+local eventtap     = require "mjolnir._asm.eventtap"
+local fnutils      = require "mjolnir.fnutils"
+local hotkey       = require "mjolnir.hotkey"
 local notification = require "mjolnir._asm.ui.notification"
-local transform = require "mjolnir.sk.transform"
+local timer        = require "mjolnir._asm.timer"
+local transform    = require "mjolnir.sk.transform"
+local window       = require "mjolnir.window"
 
 -- extensions
 local ext = {
@@ -306,14 +307,28 @@ end
 -- launch or focus or cycle app
 function ext.app.launchorfocus(app)
   local focusedwindow = window.focusedwindow()
-  local currentapp = nil
+  local currentapp = focusedwindow and focusedwindow:application():title() or nil
 
-  if window then currentapp = focusedwindow:application():title() end
-
+  -- cycle windows if this app is already selected
+  -- otherwise launch or focus
   if currentapp == app then
     ext.win.cycle(focusedwindow)
   else
     application.launchorfocus(app)
+  end
+
+  -- try opening new window if there are none
+  local appwindow = window.focusedwindow()
+
+  if appwindow then
+    local appwindows = appwindow:application():allwindows()
+    local visiblewindows = fnutils.filter(appwindows, function(win) return win:isstandard() end)
+
+    -- try sending cmd-n for new window if no windows are visible
+    if #visiblewindows == 0 then
+      eventtap.event.newkeyevent({ "cmd" }, "n", true):post()
+      eventtap.event.newkeyevent({ "cmd" }, "n", false):post()
+    end
   end
 end
 
@@ -322,28 +337,27 @@ function ext.app.browser()
   local browsers = { "Safari", "Google Chrome" }
 
   local runningapps = application.runningapplications()
-  local currentapp = window.focusedwindow()
+  local focusedwindow = window.focusedwindow()
+  local currentapp = focusedwindow and focusedwindow:application():title() or nil
 
-  if currentapp then currentapp = currentapp:application():title() end
-
+  -- filter running applications by browsers array
   local runningbrowsers = fnutils.map(browsers, function(browser)
     return fnutils.find(runningapps, function(app) return app:title() == browser end)
   end)
 
+  -- try to get index of current app in running browsers
+  -- this means - is one of the browsers currently selected
   local currentindex = fnutils.indexof(fnutils.map(runningbrowsers, function(app)
     return app:title()
   end), currentapp)
 
+  -- if there are no browsers launch the first (default) one
+  -- otherwise cycle between browser windows or between browsers depending on situation
   if #runningbrowsers == 0 then
-    -- no browsers, start first one
     ext.app.launchorfocus(browsers[1])
-  elseif #runningbrowsers > 0 and not currentindex then
-    -- no browser is selected, activate one
-    runningbrowsers[1]:activate()
-  elseif #runningbrowsers > 0 and currentindex then
-    -- more than one browser and one of them selected, cycle them
-    local browserindex = (currentindex % #runningbrowsers) + 1
-    runningbrowsers[browserindex]:activate()
+  else
+    local browserindex = currentindex and (currentindex % #runningbrowsers) + 1 or 1
+    ext.app.launchorfocus(runningbrowsers[browserindex]:title())
   end
 end
 
