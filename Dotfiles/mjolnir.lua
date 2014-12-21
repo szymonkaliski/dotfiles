@@ -2,6 +2,7 @@ local application  = require "mjolnir.application"
 local eventtap     = require "mjolnir._asm.eventtap"
 local fnutils      = require "mjolnir.fnutils"
 local hotkey       = require "mjolnir.hotkey"
+local keycodes     = require "mjolnir.keycodes"
 local notification = require "mjolnir._asm.ui.notification"
 local timer        = require "mjolnir._asm.timer"
 local transform    = require "mjolnir.sk.transform"
@@ -22,6 +23,7 @@ ext.win.positions = {}
 ext.win.margin     = 10
 ext.win.animate    = true
 ext.win.fixenabled = false
+ext.win.fullframe  = true
 
 -- returns frame pushed to screen edge
 function ext.frame.push(screen, direction)
@@ -136,6 +138,15 @@ function ext.frame.center(frame, screen)
   return frame
 end
 
+-- get screen frame
+function ext.win.screenframe(win)
+  if ext.win.fullframe then
+    return win:screen():fullframe()
+  else
+    return win:screen():frame()
+  end
+end
+
 -- set frame
 function ext.win.set(win, frame, time)
   time = time or 0.15
@@ -150,7 +161,7 @@ end
 -- ugly fix for problem with window height when it's as big as screen
 function ext.win.fix(win)
   if ext.win.fixenabled then
-    local screen = win:screen():frame()
+    local screen = ext.win.screenframe(win)
     local frame = win:frame()
 
     if (frame.h > (screen.h - ext.win.margin * (2 - 1 / 4))) then
@@ -162,7 +173,7 @@ end
 
 -- pushes window in direction
 function ext.win.push(win, direction)
-  local screen = win:screen():frame()
+  local screen = ext.win.screenframe(win)
   local frame
 
   frame = ext.frame.push(screen, direction)
@@ -173,7 +184,7 @@ end
 
 -- nudges window in direction
 function ext.win.nudge(win, direction)
-  local screen = win:screen():frame()
+  local screen = ext.win.screenframe(win)
   local frame = win:frame()
 
   frame = ext.frame.nudge(frame, screen, direction)
@@ -188,7 +199,22 @@ end
 
 -- sends window in direction
 function ext.win.send(win, direction)
-  local screen = win:screen():frame()
+  local screen = ext.win.screenframe(win)
+  local frame = win:frame()
+
+  frame = ext.frame.nudge(frame, screen, direction)
+  ext.win.set(win, frame, 0.05)
+end
+
+-- push and nudge window in direction
+function ext.win.pushandnudge(win, direction)
+  ext.win.push(win, direction)
+  ext.win.nudge(win, direction)
+end
+
+-- sends window in direction
+function ext.win.send(win, direction)
+  local screen = ext.win.screenframe(win)
   local frame = win:frame()
 
   frame = ext.frame.send(frame, screen, direction)
@@ -199,7 +225,7 @@ end
 
 -- centers window
 function ext.win.center(win)
-  local screen = win:screen():frame()
+  local screen = ext.win.screenframe(win)
   local frame = win:frame()
 
   frame = ext.frame.center(frame, screen)
@@ -208,7 +234,7 @@ end
 
 -- fullscreen window with ext.win.margin
 function ext.win.full(win)
-  local screen = win:screen():frame()
+  local screen = ext.win.screenframe(win)
   local frame = {
     x = ext.win.margin + screen.x,
     y = ext.win.margin + screen.y,
@@ -227,10 +253,18 @@ end
 function ext.win.throw(win, direction)
   local screen
 
-  if (direction == "next") then
-    screen = win:screen():next():frame()
+  if ext.win.fullframe then
+    if (direction == "next") then
+      screen = win:screen():next():fullframe()
+    else
+      screen = win:screen():previous():fullframe()
+    end
   else
-    screen = win:screen():previous():frame()
+    if (direction == "next") then
+      screen = win:screen():next():frame()
+    else
+      screen = win:screen():previous():frame()
+    end
   end
 
   local frame = win:frame()
@@ -252,7 +286,7 @@ end
 
 -- set window size and center
 function ext.win.size(win, size)
-  local screen = win:screen():frame()
+  local screen = ext.win.screenframe(win)
   local frame = win:frame()
 
   frame.w = size.w
@@ -326,8 +360,8 @@ function ext.app.launchorfocus(app)
 
     -- try sending cmd-n for new window if no windows are visible
     if #visiblewindows == 0 then
-      eventtap.event.newkeyevent({ "cmd" }, "n", true):post()
-      eventtap.event.newkeyevent({ "cmd" }, "n", false):post()
+      ext.utils.newkeyevent({ cmd = true }, "n", true):post()
+      ext.utils.newkeyevent({ cmd = true }, "n", false):post()
     end
   end
 end
@@ -359,6 +393,18 @@ function ext.app.browser()
     local browserindex = currentindex and (currentindex % #runningbrowsers) + 1 or 1
     ext.app.launchorfocus(runningbrowsers[browserindex]:title())
   end
+end
+
+-- working newkeyevent
+-- https://github.com/nathyong/mjolnir.ny.tiling/blob/8c7283e0b04ef7f0ab9578f699e3ae5df8213aa9/spaces.lua
+function ext.utils.newkeyevent(modifiers, key, pressed)
+  local keyevent;
+
+  keyevent = eventtap.event.newkeyevent({}, "", pressed)
+  keyevent:setkeycode(keycodes.map[key])
+  keyevent:setflags(modifiers)
+
+  return keyevent
 end
 
 -- apply function to a window with optional params, saving it's position for restore
@@ -405,8 +451,8 @@ fnutils.each({ "up", "down", "left", "right" }, function(direction)
   local nudge = timewin(ext.win.nudge, direction)
 
   hotkey.bind(mod1, direction, bindwin(ext.win.pushandnudge, direction))
-  hotkey.bind(mod2, direction, function() nudge:start() end, function() nudge:stop() end)
-  hotkey.bind(mod3, direction, bindwin(ext.win.send, direction))
+  hotkey.bind(mod2, direction, bindwin(ext.win.send, direction))
+  hotkey.bind(mod3, direction, function() nudge:start() end, function() nudge:stop() end)
 end)
 
 -- set window sizes

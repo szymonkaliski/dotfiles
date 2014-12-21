@@ -356,6 +356,11 @@ augroup ft_mappings
   au FileType clojure nnoremap <buffer> <leader>a :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
 augroup END
 
+" quickfix/loclist
+augroup quickfix
+  au BufWinEnter quickfix setlocal cursorline
+augroup END
+
 " }}}
 " window titles {{{
 
@@ -742,7 +747,7 @@ map ? <Plug>(incsearch-backward)
 " plugin: rooter {{{
 
 let g:rooter_use_lcd = 1
-let g:rooter_patterns = [ ".git/", "node_modules/" ]
+let g:rooter_patterns = [ ".git/", "node_modules/", "package.json" ]
 
 " }}}
 " plugin: taskpaper {{{
