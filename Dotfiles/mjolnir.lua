@@ -343,26 +343,22 @@ function ext.app.launchorfocus(app)
   local focusedwindow = window.focusedwindow()
   local currentapp = focusedwindow and focusedwindow:application():title() or nil
 
-  -- cycle windows if this app is already selected
-  -- otherwise launch or focus
   if currentapp == app then
-    ext.win.cycle(focusedwindow)
+    if focusedwindow then
+      local appwindows = focusedwindow:application():allwindows()
+      local visiblewindows = fnutils.filter(appwindows, function(win) return win:isstandard() end)
+
+      if #visiblewindows == 0 then
+        -- try sending cmd-n for new window if no windows are visible
+        ext.utils.newkeyevent({ cmd = true }, "n", true):post()
+        ext.utils.newkeyevent({ cmd = true }, "n", false):post()
+      else
+        -- cycle windows if there are any
+        ext.win.cycle(focusedwindow)
+      end
+    end
   else
     application.launchorfocus(app)
-  end
-
-  -- try opening new window if there are none
-  local appwindow = window.focusedwindow()
-
-  if appwindow then
-    local appwindows = appwindow:application():allwindows()
-    local visiblewindows = fnutils.filter(appwindows, function(win) return win:isstandard() end)
-
-    -- try sending cmd-n for new window if no windows are visible
-    if #visiblewindows == 0 then
-      ext.utils.newkeyevent({ cmd = true }, "n", true):post()
-      ext.utils.newkeyevent({ cmd = true }, "n", false):post()
-    end
   end
 end
 
