@@ -28,7 +28,7 @@ ext.win.fullframe  = true
 -- returns frame pushed to screen edge
 function ext.frame.push(screen, direction)
   local frames = {
-    [ "up" ] = function()
+    up = function()
       return {
         x = ext.win.margin + screen.x,
         y = ext.win.margin + screen.y,
@@ -37,7 +37,7 @@ function ext.frame.push(screen, direction)
       }
     end,
 
-    [ "down" ] = function()
+    down = function()
       return {
         x = ext.win.margin + screen.x,
         y = ext.win.margin * 3 / 4 + screen.h / 2 + screen.y,
@@ -46,7 +46,7 @@ function ext.frame.push(screen, direction)
       }
     end,
 
-    [ "left" ] = function()
+    left = function()
       return {
         x = ext.win.margin + screen.x,
         y = ext.win.margin + screen.y,
@@ -55,7 +55,7 @@ function ext.frame.push(screen, direction)
       }
     end,
 
-    [ "right" ] = function()
+    right = function()
       return {
         x = ext.win.margin / 2 + screen.w / 2 + screen.x,
         y = ext.win.margin + screen.y,
@@ -71,22 +71,22 @@ end
 -- returns frame moved by ext.win.margin
 function ext.frame.nudge(frame, screen, direction)
   local modifyframe = {
-    [ "up" ] = function(frame)
+    up = function(frame)
       frame.y = math.max(screen.y + ext.win.margin, frame.y - ext.win.margin)
       return frame
     end,
 
-    [ "down" ] = function(frame)
+    down = function(frame)
       frame.y = math.min(screen.y + screen.h - frame.h - ext.win.margin * 3 / 4, frame.y + ext.win.margin)
       return frame
     end,
 
-    [ "left" ] = function(frame)
+    left = function(frame)
       frame.x = math.max(screen.x + ext.win.margin, frame.x - ext.win.margin)
       return frame
     end,
 
-    [ "right" ] = function(frame)
+    right = function(frame)
       frame.x = math.min(screen.x + screen.w - frame.w - ext.win.margin, frame.x + ext.win.margin)
       return frame
     end
@@ -98,28 +98,25 @@ end
 -- returns frame sent to screen edge
 function ext.frame.send(frame, screen, direction)
   local modifyframe = {
-    [ "up" ] = function(frame)
+    up = function(frame)
       frame.y = screen.y + ext.win.margin
-      return frame
     end,
 
-    [ "down" ] = function(frame)
+    down = function(frame)
       frame.y = screen.y + screen.h - frame.h - ext.win.margin * 3 / 4
-      return frame
     end,
 
-    [ "left" ] = function(frame)
+    left = function(frame)
       frame.x = screen.x + ext.win.margin
-      return frame
     end,
 
-    [ "right" ] = function(frame)
+    right = function(frame)
       frame.x = screen.x + screen.w - frame.w - ext.win.margin
-      return frame
     end
   }
 
-  return modifyframe[direction](frame)
+  modifyframe[direction](frame)
+  return frame
 end
 
 -- returns frame fited inside screen
@@ -140,11 +137,9 @@ end
 
 -- get screen frame
 function ext.win.screenframe(win)
-  if ext.win.fullframe then
-    return win:screen():fullframe()
-  else
-    return win:screen():frame()
-  end
+  local funcname = ext.win.fullframe and "fullframe" or "frame"
+  local winscreen = win:screen()
+  return winscreen[funcname](winscreen)
 end
 
 -- set frame
@@ -202,21 +197,6 @@ function ext.win.send(win, direction)
   local screen = ext.win.screenframe(win)
   local frame = win:frame()
 
-  frame = ext.frame.nudge(frame, screen, direction)
-  ext.win.set(win, frame, 0.05)
-end
-
--- push and nudge window in direction
-function ext.win.pushandnudge(win, direction)
-  ext.win.push(win, direction)
-  ext.win.nudge(win, direction)
-end
-
--- sends window in direction
-function ext.win.send(win, direction)
-  local screen = ext.win.screenframe(win)
-  local frame = win:frame()
-
   frame = ext.frame.send(frame, screen, direction)
 
   ext.win.fix(win)
@@ -232,7 +212,7 @@ function ext.win.center(win)
   ext.win.set(win, frame)
 end
 
--- fullscreen window with ext.win.margin
+-- fullscreen window with margin
 function ext.win.full(win)
   local screen = ext.win.screenframe(win)
   local frame = {
@@ -242,7 +222,7 @@ function ext.win.full(win)
     h = screen.h - ext.win.margin * (2 - 1 / 4)
   }
 
-  -- ext.win.fix(win)
+  ext.win.fix(win)
   ext.win.set(win, frame)
 
   -- center after setting frame, fixes terminal
@@ -251,21 +231,12 @@ end
 
 -- throw to next screen, center and fit
 function ext.win.throw(win, direction)
-  local screen
+  local framefunc = ext.win.fullframe and "fullframe" or "frame"
+  local screenfunc = direction == "next" and "next" or "previous"
 
-  if ext.win.fullframe then
-    if (direction == "next") then
-      screen = win:screen():next():fullframe()
-    else
-      screen = win:screen():previous():fullframe()
-    end
-  else
-    if (direction == "next") then
-      screen = win:screen():next():frame()
-    else
-      screen = win:screen():previous():frame()
-    end
-  end
+  local winscreen = win:screen()
+  local throwscreen = winscreen[screenfunc](winscreen)
+  local screen = throwscreen[framefunc](throwscreen)
 
   local frame = win:frame()
 
@@ -391,10 +362,10 @@ function ext.app.browser()
   end
 end
 
--- working newkeyevent
--- https://github.com/nathyong/mjolnir.ny.tiling/blob/8c7283e0b04ef7f0ab9578f699e3ae5df8213aa9/spaces.lua
+-- properly working newkeyevent
+-- https://github.com/nathyong/mjolnir.ny.tiling/blob/master/spaces.lua
 function ext.utils.newkeyevent(modifiers, key, pressed)
-  local keyevent;
+  local keyevent
 
   keyevent = eventtap.event.newkeyevent({}, "", pressed)
   keyevent:setkeycode(keycodes.map[key])

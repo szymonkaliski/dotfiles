@@ -339,6 +339,9 @@ augroup ft_settings
   au FileType text       setlocal nolist
   au FileType markdown   setlocal nolist
   au FileType css        setlocal iskeyword+=-
+  au FileType lua        syn region luaFunctionBlock transparent fold matchgroup=luaFunction
+        \ start="\<function\>" end ="\<end\>"
+        \ contains=ALLBUT,luaTodo,luaSpecial,luaCond,luaCondElseif,luaCondEnd,luaRepeat
 
   " auto source vimrc
   au BufWritePost .vimrc,vimrc,.gvimrc,gvimrc
