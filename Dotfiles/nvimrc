@@ -1,90 +1,66 @@
 " bundles {{{
-if has("vim_starting")
-  set runtimepath+=~/.vim/bundle/neobundle.vim/
-endif
 
-call neobundle#begin(expand("~/.vim/bundle/"))
+call plug#begin('~/.nvim/plugged')
 
-NeoBundleFetch "Shougo/neobundle.vim"
+Plug 'Konfekt/FastFold'
+Plug 'Raimondi/delimitMate'
+Plug 'airblade/vim-rooter'
+Plug 'bling/vim-airline'
+Plug 'ervandew/supertab'
+Plug 'pbrisbin/vim-mkdir'
+Plug 'scrooloose/nerdtree'
+Plug 'thinca/vim-visualstar'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-sleuth'
+Plug 'tpope/vim-surround'
 
-" main bundles
-NeoBundle "Konfekt/FastFold"
-NeoBundle "Raimondi/delimitMate"
-NeoBundle "airblade/vim-rooter"
-NeoBundle "bling/vim-airline"
-NeoBundle "ervandew/supertab"
-NeoBundle "pbrisbin/vim-mkdir"
-NeoBundle "tpope/vim-sleuth"
-NeoBundle "tpope/vim-surround"
-
-" lazy bundles
-NeoBundleLazy "AndrewRadev/splitjoin.vim", { "autoload": { "commands": [ "SplitjoinSplit", "SplitjoinJoin" ] } }
-NeoBundleLazy "haya14busa/incsearch.vim",  { "autoload": { "mappings": [ "<Plug>(incsearch-" ] } }
-NeoBundleLazy "junegunn/goyo.vim",         { "autoload": { "commands": "Goyo" } }
-NeoBundleLazy "junegunn/limelight.vim",    { "autoload": { "commands": "Limelight" } }
-NeoBundleLazy "rhysd/clever-f.vim",        { "autoload": { "mappings": [ "f", "F", "t", "T" ] } }
-NeoBundleLazy "thinca/vim-visualstar",     { "autoload": { "mappings": [ "*" ] } }
-NeoBundleLazy "tpope/vim-commentary",      { "autoload": { "mappings": [ "gc" ] } }
-NeoBundleLazy "tpope/vim-repeat",          { "autoload": { "mappings": [ "." ] } }
+Plug 'haya14busa/incsearch.vim',  { 'on': '<Plug>(incsearch-' }
+Plug 'junegunn/goyo.vim',         { 'on': 'Goyo' }
+Plug 'junegunn/limelight.vim',    { 'on': 'Limelight' }
+Plug 'rhysd/clever-f.vim',        { 'on': '<Plug>(clever-f-' }
+Plug 'tpope/vim-commentary',      { 'on': '<Plug>Commentary' }
 
 " OSX only
 if system("uname -s") == "Darwin\n"
-  NeoBundle "airblade/vim-gitgutter"
-  NeoBundle "scrooloose/syntastic"
+  Plug 'airblade/vim-gitgutter'
+  Plug 'benekastah/neomake'
 endif
 
 " TMUX only
 if $TMUX != ""
-  NeoBundle "christoomey/vim-tmux-navigator"
-  NeoBundle "sjl/tslime.vim"
+  Plug 'christoomey/vim-tmux-navigator'
+  Plug 'sjl/tslime.vim'
 endif
 
-" shugo bundles
-NeoBundleLazy "Shougo/unite.vim", {
-      \    "autoload": {
-      \      "commands": "Unite"
-      \    },
-      \    "depends": "Shougo/vimproc"
-      \ }
-NeoBundleLazy "Shougo/vimfiler.vim", {
-      \    "autoload": {
-      \      "commands": [ "VimFiler", "VimFilerCreate", "VimFilerExplorer", "VimFilerBufferDir" ],
-      \      "explorer": 1
-      \    }
-      \ }
-NeoBundleLazy "Shougo/vimproc", {
-      \    "build": {
-      \      "mac": "make -f make_mac.mak",
-      \      "unix": "make -f make_unix.mak"
-      \    },
-      \ }
+" external FZF
+if isdirectory('/usr/local/Cellar/fzf/0.9.0/')
+  Plug '/usr/local/Cellar/fzf/0.9.0/'
+endif
 
 " custom syntax bundles
-NeoBundleLazy "Keithbsmiley/swift.vim",       { "autoload": { "filename_patterns": [ "\.swift$" ] } }
-NeoBundleLazy "b4winckler/vim-objc",          { "autoload": { "filename_patterns": [ "\.m$" ] } }
-NeoBundleLazy "briancollins/vim-jst",         { "autoload": { "filename_patterns": [ "\.tpl$", "\.ejs$" ] } }
-NeoBundleLazy "davidoc/taskpaper.vim",        { "autoload": { "filename_patterns": "\.taskpaper$" } }
-NeoBundleLazy "elzr/vim-json",                { "autoload": { "filetypes": [ "json" ] } }
-NeoBundleLazy "groenewege/vim-less",          { "autoload": { "filename_patterns": "\.less$" } }
-NeoBundleLazy "jelera/vim-javascript-syntax", { "autoload": { "filetypes": [ "javascript" ] } }
-NeoBundleLazy "kchmck/vim-coffee-script",     { "autoload": { "filename_patterns": "\.coffee$" } }
-NeoBundleLazy "moll/vim-node",                { "autoload": { "filetypes": [ "javascript" ] } }
-NeoBundleLazy "othree/html5.vim",             { "autoload": { "filetypes": [ "html" ] } }
-NeoBundleLazy "pangloss/vim-javascript",      { "autoload": { "filetypes": [ "javascript" ] } }
-NeoBundleLazy "plasticboy/vim-markdown",      { "autoload": { "filetypes": [ "markdown" ] } }
-NeoBundleLazy "sophacles/vim-processing",     { "autoload": { "filename_patterns": "\.pde$" } }
-NeoBundleLazy "sudar/vim-arduino-syntax",     { "autoload": { "filename_patterns": "\.ino$" } }
-NeoBundleLazy "tikhomirov/vim-glsl",          { "autoload": { "filename_patterns": [ "\.frag$", "\.vert$", "\.glsl$" ] } }
-NeoBundleLazy "darfink/vim-plist",            { "autoload": { "filename_patterns": [ "\.plist$" ] } }
-NeoBundleLazy "vim-scripts/ck.vim",           { "autoload": { "filename_patterns": [ "\.ck$" ] } }
+Plug 'Keithbsmiley/swift.vim',       { 'for': 'swift' }
+Plug 'b4winckler/vim-objc',          { 'for': 'objc' }
+Plug 'briancollins/vim-jst',         { 'for': 'jst' }
+Plug 'davidoc/taskpaper.vim',        { 'for': 'taskpaper' }
+Plug 'elzr/vim-json',                { 'for': 'json' }
+Plug 'groenewege/vim-less',          { 'for': 'less' }
+Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
+Plug 'kchmck/vim-coffee-script',     { 'for': 'coffeescript' }
+Plug 'moll/vim-node',                { 'for': 'javascript' }
+Plug 'othree/html5.vim',             { 'for': 'html' }
+Plug 'pangloss/vim-javascript',      { 'for': 'javascript' }
+Plug 'plasticboy/vim-markdown',      { 'for': 'markdown' }
+Plug 'sophacles/vim-processing',     { 'for': 'processing' }
+Plug 'sudar/vim-arduino-syntax',     { 'for': 'arduino' }
+Plug 'tikhomirov/vim-glsl',          { 'for': 'glsl' }
+Plug 'vim-scripts/ck.vim',           { 'for': 'chuck' }
 
-" end of NeoBundle
-call neobundle#end()
+call plug#end()
 
 " }}}
-" vim settings {{{
+" nvim settings {{{
 
-" make vim more useful
+" make nvim more useful
 set nocompatible
 
 " encoding
@@ -186,7 +162,7 @@ set hidden
 set nobackup
 set noswapfile
 set undofile
-set undodir=~/.vim/undo//
+set undodir=~/.nvim/undo//
 
 " fix for node fs.watch
 set backupcopy=yes
@@ -313,17 +289,16 @@ augroup detect_syntax
   au!
 
   " proper filetypes based on name
-  au BufNewFile,BufRead *.mm              set filetype=objc
-  au BufNewFile,BufRead *.tpl,*.ejs       let b:jst_subtype="html" | set filetype=jst
-  au BufNewFile,BufRead *.md              set filetype=markdown
-  au BufNewFile,BufRead *.ino             set filetype=arduino
-  au BufNewFile,BufRead *.pde             set filetype=processing
-  au BufNewFile,BufRead *.frag            set filetype=glsl
-  au BufNewFile,BufRead *.vert            set filetype=glsl
-  au BufNewFile,BufRead *.glsl            set filetype=glsl
-  au BufNewFile,BufRead *.ck              set filetype=ck
-  au BufNewFile,BufRead *.taskpaper       set filetype=taskpaper
-  au BufNewFile,BufRead ~/Dropbox/Notes/* set filetype=markdown
+  au BufNewFile,BufRead *.ck                  set filetype=chuck
+  au BufNewFile,BufRead *.frag,*.vert,*.glsl  set filetype=glsl
+  au BufNewFile,BufRead *.ino                 set filetype=arduino
+  au BufNewFile,BufRead *.m,*.mm              set filetype=objc
+  au BufNewFile,BufRead *.md                  set filetype=markdown
+  au BufNewFile,BufRead *.pde                 set filetype=processing
+  au BufNewFile,BufRead *.swift               set filetype=swift
+  au BufNewFile,BufRead *.taskpaper           set filetype=taskpaper
+  au BufNewFile,BufRead *.tpl,*.ejs           let b:jst_subtype="html" | set filetype=jst
+  au BufNewFile,BufRead ~/Dropbox/Notes/*     set filetype=markdown
 augroup END
 
 " custom settings based on filetype
@@ -336,7 +311,6 @@ augroup ft_settings
   au FileType clojure    let b:delimitMate_quotes = "\""
   au FileType javascript call JavaScriptFold() | set foldlevelstart=99
   au FileType taskpaper  setlocal nolist | call taskpaper#fold_projects()
-  au FileType vimfiler   setlocal nolist | setlocal cursorline
   au FileType text       setlocal nolist
   au FileType markdown   setlocal nolist
   au FileType css        setlocal iskeyword+=-
@@ -393,12 +367,12 @@ function! DirPath()
 endfunction
 
 function! WindowTitle()
-  return "vim: " . DirPath()
+  return "nvim: " . DirPath()
 endfunction
 
-" set title on start as simple "vim"
+" set title on start as simple "nvim"
 set title
-set titlestring=vim
+set titlestring=nvim
 
 " update titlestring with proper title
 augroup title_titlestring
@@ -432,18 +406,41 @@ augroup airline_plugin
   au BufEnter * let g:airline_section_y=airline#section#create(["hunks", "branch"])
 augroup END
 
+function! AirlineNeomakeStatus()
+  let l:counts = neomake#statusline#LoclistCounts()
+  let w = get(l:counts, 'W', 0)
+  let e = get(l:counts, 'E', 0)
+
+  if w || e
+    let result = ''
+    if e
+      let result .= 'Error: ' . e
+      if w
+        let result .= ' '
+      endif
+    endif
+    if w
+      let result .= 'Warning: ' . w
+    endif
+    return result
+  else
+    return ''
+  endif
+endfunction
+
 " settings
 let g:airline_left_sep=""
 let g:airline_right_sep=""
 let g:airline_inactive_collapse=0
 let g:airline#extensions#whitespace#enabled=0
-let g:airline#extensions#syntastic#enabled=1
+let g:airline#extensions#syntastic#enabled=0
 let g:airline#extensions#hunks#enabled=1
 let g:airline#extensions#hunks#non_zero_only=1
 let g:airline_section_b="%{DirPath()}"
 let g:airline_section_c=""
 let g:airline_section_x=""
 let g:airline_section_y=""
+let g:airline_section_warning="%{AirlineNeomakeStatus()}"
 
 " show tabline themed with airline only when needed
 if !has("gui_running")
@@ -498,6 +495,16 @@ function! AirlineThemePatch(palette)
 endfunction
 
 " }}}
+" plugin: nerdtree {{{
+
+let NERDTreeMinimalUI=1
+let NERDTreeDirArrows=1
+let NERDTreeMapActivateNode='e'
+
+nnoremap <silent> <c-n> :NERDTree<cr>
+nnoremap <silent> <c-f> :e .<cr>
+
+" }}}
 " plugin: gitgutter {{{
 
 let g:gitgutter_signs=0
@@ -506,28 +513,15 @@ let g:gitgutter_eager=0
 let g:gitgutter_max_signs=1000
 
 " }}}
-" plugin: syntastic {{{
+" plugin: neomake {{{
 
-let g:syntastic_enable_signs=0 " enable/disable sign column
-let g:syntastic_enable_highlighting=0 " enable/disable highlighting errors with syntax
-let g:syntastic_check_on_open=0
-let g:syntastic_check_on_wq=0
-let g:syntastic_always_populate_loc_list=1
-let g:syntastic_error_symbol="!"
-let g:syntastic_style_error_symbol="!"
-let g:syntastic_warning_symbol="?"
-let g:syntastic_style_warning_symbol="?"
-let g:syntastic_stl_format="%E{Error: %fe}%B{ }%W{Warning: %fw}"
+augroup neomake_plugin
+  au!
 
-function! ToggleErrors()
-  if empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") is# "quickfix"'))
-    Errors
-  else
-    lclose
-  endif
-endfunction
+  au BufReadPost,BufWritePost *.js Neomake
+augroup END
 
-command! ToggleErrors :call ToggleErrors()
+let g:neomake_place_signs=0
 
 " }}}
 " plugin: delimitmate {{{
@@ -547,123 +541,82 @@ inoremap <script> <silent> <Plug>SuperTabForward <c-r>=SuperTab('n')<cr>
 inoremap <script> <silent> <Plug>SuperTabBackward <c-r>=SuperTab('p')<cr>
 
 " }}}
-" plugin: unite {{{
+" plugin: fzf {{{
 
-augroup unite_plugin
-  au!
+function! BuffersList()
+  let l:all = range(0, bufnr('$'))
+  let l:list = []
 
-  " open files with e
-  au FileType unite nnoremap <silent><buffer><expr> e unite#do_action("open")
+  for l:buffer in l:all
+    if buflisted(l:buffer) && index(l:list, bufname(l:buffer)) == -1
+      call add(l:list, bufname(l:buffer))
+    endif
+  endfor
 
-  " remap redraws to ctrl-r
-  au FileType unite nunmap <buffer> <c-l>
-  au FileType unite nmap   <buffer> <c-r> <Plug>(unite_redraw)
-augroup END
+  return list
+endfunction
 
-" settings
-let g:unite_data_directory=expand("~/.vim/unite")
-let g:unite_source_history_yank_enable=1
-let g:unite_source_line_enable_highlight=1
+function! AgHandler(l)
+  let keys = split(a:l, ':')
+  execute 'tabe +' . keys[-2] . ' ' . escape(keys[-1], ' ')
+endfunction
 
-call unite#filters#matcher_default#use([ "matcher_fuzzy" ])
-" call unite#filters#sorter_default#use([ "sorter_rank" ])
-call unite#filters#sorter_default#use([ "sorter_selecta" ])
+function! AgSearchHandler()
+  let a:search = input("Grep for: ")
+  return "ag -i " . a:search . " | sed 's@\\(.[^:]*\\):\\(.[^:]*\\):\\(.*\\)@\\3:\\2:\\1@' "
+endfunction
 
-call unite#custom#profile("default", "context", {
-      \    "prompt": "➜ ",
-      \    "start_insert": 1,
-      \    "cursor_line_time": 0,
-      \    "cursor_line_highlight": "CursorLine"
+function! OpenNote(l)
+  execute 'e ~/Dropbox/Notes/' . escape(a:l, ' ') . '.txt'
+endfunction
+
+function! OpenTask(l)
+  execute 'e ~/Dropbox/Tasks/' . escape(a:l, ' ') . '.taskpaper'
+endfunction
+
+command! FZFAg call fzf#run({
+      \ 'source': AgSearchHandler(),
+      \ 'sink': function('AgHandler'),
+      \ 'options': '-m',
+      \ 'tmux_height': '40%'
       \ })
 
-" unite-ag customizations
-if executable("ag")
-  let s:ag_options=
-        \ " --line-numbers" .
-        \ " --nocolor" .
-        \ " --nogroup" .
-        \ " --smart-case" .
-        \ " --hidden" .
-        \ " --ignore '/node_modules/'" .
-        \ " --ignore '.hg'" .
-        \ " --ignore '.svn'" .
-        \ " --ignore '.git'" .
-        \ " --ignore '.bzr'" .
-        \ " --ignore '*.png'" .
-        \ " --ignore '*.jpg'" .
-        \ " --ignore '*.ttf'" .
-        \ " --ignore '*.otf'" .
-        \ " --ignore '*.eot'" .
-        \ " --ignore '*.woff'" .
-        \ " --ignore '*.gif'" .
-        \ " --ignore '*.kmz'"
+command! FZFBuffers call fzf#run({
+      \ 'source': reverse(BuffersList()),
+      \ 'sink': 'e ',
+      \ 'tmux_height': '40%'
+      \ })
 
-  let g:unite_source_grep_command="ag"
-  let g:unite_source_grep_recursive_opt=""
+command! FZFMru call fzf#run({
+      \ 'source': v:oldfiles,
+      \ 'sink': 'e ',
+      \ 'tmux_height': '40%'
+      \ })
 
-  let g:unite_source_grep_default_opts=s:ag_options
-  let g:unite_source_rec_async_command="ag ". s:ag_options . " -g ''"
-endif
+command! FZFNotes call fzf#run({
+      \ 'source': 'find ~/Dropbox/Notes -iname "*.txt" | cut -d "/" -f6 | sed "s/\.txt$//"',
+      \ 'sink': function('OpenNote'),
+      \ 'tmux_height': '40%'
+      \ })
 
-" mappings
-nnoremap <silent> <c-p> :Unite file_rec/async:!   -buffer-name=files<cr>
-nnoremap <silent> <c-b> :Unite buffer             -buffer-name=buffer<cr>
+command! FZFTasks call fzf#run({
+      \ 'source': 'find ~/Dropbox/Tasks -iname "*.taskpaper" | cut -d "/" -f6 | sed "s/\.taskpaper$//"',
+      \ 'sink': function('OpenTask'),
+      \ 'tmux_height': '40%'
+      \ })
 
-nnoremap <silent> <leader>uh :Unite history/yank  -buffer-name=history<cr>
-nnoremap <silent> <leader>uy :Unite history/yank  -buffer-name=history<cr>
-nnoremap <silent> <leader>ul :Unite line          -buffer-name=lines<cr>
-nnoremap <silent> <leader>uj :Unite jump          -buffer-name=jump -tab -no-split<cr>
-nnoremap <silent> <leader>ug :Unite grep:.        -buffer-name=grep -create -no-quit -keep-focus -no-start-insert -winheight=30<cr>
+nnoremap <silent> <c-p>      :FZF<cr>
+nnoremap <silent> <c-b>      :FZFBuffers<cr>
+nnoremap <silent> <leader>fg :FZFAg<cr>
+nnoremap <silent> <leader>fm :FZFMru<cr>
 
-" NV notes
 if isdirectory($HOME . "/Dropbox/Notes")
-  command! -nargs=* Notes :silent Unite -buffer-name=notes file_rec/async:~/Dropbox/Notes -input=<args>
-  nnoremap <silent> <leader>un :Notes<cr>
+  nnoremap <silent> <leader>fn :FZFNotes<cr>
 endif
 
-" TaskPaper tasks
 if isdirectory($HOME . "/Dropbox/Tasks")
-  command! -nargs=* Tasks :silent Unite -buffer-name=tasks file_rec/async:~/Dropbox/Tasks -input=<args>
-  nnoremap <silent> <leader>ut :Tasks<cr>
+  nnoremap <silent> <leader>ft :FZFTasks<cr>
 endif
-
-" Neobundle update
-command! UpdateBundles :Unite -buffer-name=update neobundle/update -no-start-insert -no-prompt-visible -no-split
-nnoremap <silent> <leader>ub :UpdateBundles<cr>
-
-" }}}
-" plugin: vimfiler {{{
-
-augroup vimfiler_plugin
-  au!
-
-  " smart open / cd with e
-  au FileType vimfiler nmap   <buffer><expr> e vimfiler#smart_cursor_map("\<Plug>(vimfiler_cd_file)", "\<Plug>(vimfiler_edit_file)")
-
-  " remap redraws to ctrl-r
-  au FileType vimfiler silent! nunmap <buffer> <c-l>
-  au FileType vimfiler         nmap   <buffer> <c-r> <Plug>(vimfiler_redraw_screen)
-
-  " close vimfiler with ctrl-n (usefull in explorer)
-  au FileType vimfiler nmap   <buffer> <c-n> <Plug>(vimfiler_exit)
-
-  " disable history view
-  au FileType vimfiler silent! nunmap <buffer> <c-j>
-augroup END
-
-let g:vimfiler_enable_auto_cd=1
-let g:vimfiler_as_default_explorer=1
-let g:vimfiler_directory_display_top=1
-let g:vimfiler_tree_leaf_icon=" "
-let g:vimfiler_tree_opened_icon="▾"
-let g:vimfiler_tree_closed_icon="▸"
-let g:vimfiler_file_icon=" "
-let g:vimfiler_marked_file_icon="*"
-let g:vimfiler_force_overwrite_statusline=0
-let g:vimfiler_data_directory=expand("~/.vim/vimfiler")
-
-nnoremap <silent> <c-n> :VimFilerExplorer<cr>
-nnoremap <silent> <c-f> :VimFilerBufferDir<cr>
 
 " }}}
 " plugin: tslime {{{
@@ -727,27 +680,18 @@ let g:clever_f_chars_match_any_signs=""
 let g:clever_f_fix_key_direction=1
 let g:clever_f_smart_case=1
 
-" }}}
-" plugin: splitjon {{{
-
-function! s:try(cmd, default)
-  if exists(':' . a:cmd) && !v:count
-    let tick = b:changedtick
-    execute a:cmd
-    if tick == b:changedtick
-      execute 'normal! ' . a:default
-    endif
-  else
-    execute 'normal! '. v:count . a:default
-  endif
-endfunction
-
-" disable default mappings
-let g:splitjoin_split_mapping=""
-let g:splitjoin_join_mapping=""
-
-nmap <silent> J :<c-u>call <SID>try("SplitjoinJoin",  "J")<cr>
-nmap <silent> S :<c-u>call <SID>try("SplitjoinSplit", "r\015")<cr>
+nmap f <Plug>(clever-f-f)
+xmap f <Plug>(clever-f-f)
+omap f <Plug>(clever-f-f)
+nmap F <Plug>(clever-f-F)
+xmap F <Plug>(clever-f-F)
+omap F <Plug>(clever-f-F)
+nmap t <Plug>(clever-f-t)
+xmap t <Plug>(clever-f-t)
+omap t <Plug>(clever-f-t)
+nmap T <Plug>(clever-f-T)
+xmap T <Plug>(clever-f-T)
+omap T <Plug>(clever-f-T)
 
 " }}}
 " plugin: incsearch {{{
@@ -766,6 +710,12 @@ let g:rooter_patterns = [ ".git/", "node_modules/", "package.json" ]
 
 let g:task_paper_date_format = "%Y-%m-%d"
 let g:task_paper_styles={ "today": "ctermfg=DarkGreen" }
+
+" }}}
+" plugin: commentary {{{
+
+map  gc  <Plug>Commentary
+nmap gcc <Plug>CommentaryLine
 
 " }}}
 " custom abbrevs {{{
@@ -960,7 +910,7 @@ nnoremap Q @q
 vnoremap Q :norm @q<cr>
 
 " open common files
-nnoremap <leader>ov :e ~/.vimrc<cr>
+nnoremap <leader>ov :e ~/.nvimrc<cr>
 nnoremap <leader>oz :e ~/.zshrc<cr>
 
 if system("uname -s") == "Darwin\n"

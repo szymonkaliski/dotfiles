@@ -198,16 +198,15 @@ export LESS_TERMCAP_ZW=$(tput rsupm)
 export LESS="-R --RAW-CONTROL-CHARS"
 
 # editor export
-export EDITOR="vim"
-
-if [ -d /Applications/MacVim.app/ ]; then
-  alias vim="/Applications/MacVim.app/Contents/MacOS/Vim"
-  export EDITOR="/Applications/MacVim.app/Contents/MacOS/Vim"
+if hash nvim 2> /dev/null; then
+  export EDITOR="nvim"
+else
+  export EDITOR="vim"
 fi
 
 # aliases
-alias edit=$EDITOR
-alias v="vim"
+alias e=$EDITOR
+alias v=$EDITOR
 alias sudo="sudo "
 
 alias ls="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable"

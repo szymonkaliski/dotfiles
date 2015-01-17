@@ -1,5 +1,5 @@
-" leader
-let mapleader=";"
+" no status bar
+set laststatus=0
 
 " proper search
 set incsearch
@@ -7,6 +7,7 @@ set ignorecase
 set smartcase
 set wrap
 set wrapscan
+set gdefault
 
 " no bells
 set noerrorbells
@@ -21,14 +22,14 @@ nnoremap <C-l> <C-w>l
 nnoremap <C-h> <C-w>h
 
 " quick open
-nnoremap <C-p> :xccmd openQuickly<CR>
+nnoremap <C-p> :xccmd openQuickly<cr>
 
 " navigator
-nnoremap <C-n> :xccmd toggleNavigatorsVisibility<CR>
+nnoremap <C-n> :xccmd toggleNavigatorsVisibility<cr>
 
 " comments
-nnoremap gc :xccmd commentAndUncommentCurrentLines<CR>
-vnoremap gc :xccmd commentAndUncommentCurrentLines<CR>
+nnoremap gc :xccmd commentAndUncommentCurrentLines<cr>
+vnoremap gc :xccmd commentAndUncommentCurrentLines<cr>
 
 " quicker indentation
 nnoremap > >>
@@ -56,10 +57,13 @@ vnoremap L g_
 nnoremap Q @q
 vnoremap Q :norm @q<cr>
 
+" better %
+map <tab> %
+
 " new tab
-nnoremap <leader>T :xccmd newTab<cr>
-nnoremap gT :tabprevious<cr>
-nnoremap gt :tabnext<cr>
+nnoremap ;T :xccmd newTab<cr>
+nnoremap gT :xccmd selectPreviousTab<cr>
+nnoremap gt :xccmd selectNextTab<cr>
 
 " fold
 nnoremap zc :xccmd fold<cr>
@@ -67,10 +71,13 @@ nnoremap zo :xccmd unfold<cr>
 
 " remove whitespace
 command! KillWhitespace :normal :%s/\s\+$//g<cr>
-nnoremap <silent> <leader>k :KillWhitespace<cr>:nohlsearch<cr>
+nnoremap <silent> ;k :KillWhitespace<cr>:nohlsearch<cr>
 
 " select whole buffer
-nnoremap <silent> <leader>va ggVG
+nnoremap ;va ggVG
 
 " yank whole buffer
-nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>
+nnoremap ;ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>
+
+" align block
+nnoremap ;a :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>

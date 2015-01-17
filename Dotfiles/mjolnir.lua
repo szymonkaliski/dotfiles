@@ -23,7 +23,7 @@ ext.win.positions = {}
 ext.win.margin     = 10
 ext.win.animate    = true
 ext.win.fixenabled = false
-ext.win.fullframe  = true
+ext.win.fullframe  = false
 
 -- returns frame pushed to screen edge
 function ext.frame.push(screen, direction)
