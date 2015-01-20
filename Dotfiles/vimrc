@@ -508,6 +508,12 @@ endfunction
 " }}}
 " plugin: nerdtree {{{
 
+augroup nerdtree_plugin
+  au!
+
+  au FileType nerdtree nnoremap <buffer> <C-n> :NERDTreeClose<cr>
+augroup END
+
 let NERDTreeMinimalUI=1
 let NERDTreeDirArrows=1
 let NERDTreeMapActivateNode="e"
@@ -835,15 +841,20 @@ command! -bang Wipeout :call Wipeout(<bang>0)
 
 " open URL in browser
 if has("mac")
-  function! s:OpenURL(url)
-    echo a:url
-    exe "!open \"" . a:url . "\" > /dev/null"
-    redraw!
+  function! HandleURL()
+    let l:uri = matchstr(getline("."), "[a-z]*:\/\/[^ >,;]*")
+
+    if l:uri != ""
+      silent exec "!open '" . l:uri . "'"
+      redraw!
+
+      echo "Opening: " . l:uri
+    else
+      echo "No URI found in line."
+    endif
   endfunction
 
-  command! -nargs=1 OpenURL :silent call s:OpenURL(<q-args>)
-
-  nnoremap gx :OpenURL <cfile><cr>
+  nnoremap gx :call HandleURL()<cr>
 endif
 
 " proper indentation on i

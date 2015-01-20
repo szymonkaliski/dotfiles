@@ -25,6 +25,13 @@ ext.win.animate    = true
 ext.win.fixenabled = false
 ext.win.fullframe  = false
 
+-- check if simbl is running
+-- if so, then it's for menubarhider,
+-- and fullframe should be anabled
+if os.execute("ps xc | grep -q SIMBL") then
+  ext.win.fullframe = true
+end
+
 -- returns frame pushed to screen edge
 function ext.frame.push(screen, direction)
   local frames = {
