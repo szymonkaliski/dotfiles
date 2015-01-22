@@ -5,20 +5,19 @@ call plug#begin('~/.vim/plugged')
 Plug 'Konfekt/FastFold'
 Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
+Plug 'ajh17/VimCompletesMe'
 Plug 'bling/vim-airline'
-Plug 'ervandew/supertab'
 Plug 'pbrisbin/vim-mkdir'
 Plug 'scrooloose/nerdtree'
-Plug 'thinca/vim-visualstar'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
 
-Plug 'haya14busa/incsearch.vim',  { 'on': '<Plug>(incsearch-' }
-Plug 'junegunn/goyo.vim',         { 'on': 'Goyo' }
-Plug 'junegunn/limelight.vim',    { 'on': 'Limelight' }
-Plug 'rhysd/clever-f.vim',        { 'on': '<Plug>(clever-f-' }
-Plug 'tpope/vim-commentary',      { 'on': '<Plug>Commentary' }
+Plug 'junegunn/goyo.vim',       { 'on': 'Goyo' }
+Plug 'junegunn/limelight.vim',  { 'on': 'Limelight' }
+Plug 'junegunn/vim-easy-align', { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
+Plug 'rhysd/clever-f.vim',      { 'on': '<Plug>(clever-f-' }
+Plug 'tpope/vim-commentary',    { 'on': '<Plug>Commentary' }
 
 " TMUX only
 if $TMUX != ""
@@ -29,7 +28,7 @@ endif
 " OSX only
 if has("mac")
   Plug 'airblade/vim-gitgutter'
-  Plug 'benekastah/neomake'
+  Plug 'benekastah/neomake', { 'on': 'Neomake' }
 endif
 
 " Homebrew FZF
@@ -242,7 +241,7 @@ function! FoldText()
   endif
 
   let l:start=substitute(getline(v:foldstart), "\t", repeat(" ", &tabstop), "g")
-  let l:end=substitute(substitute(getline(v:foldend), "\t", repeat(" ", &tabstop), "g"), "^\s*", "", "g")
+  let l:end=substitute(substitute(getline(v:foldend), "\t", repeat(" ", &tabstop), "g"), '^\s*', "", "g")
 
   let l:width=winwidth(0) - l:lpadding
 
@@ -292,7 +291,6 @@ augroup END
 augroup detect_syntax
   au!
 
-  " proper filetypes based on name
   au BufNewFile,BufRead *.ck                  set filetype=chuck
   au BufNewFile,BufRead *.frag,*.vert,*.glsl  set filetype=glsl
   au BufNewFile,BufRead *.ino                 set filetype=arduino
@@ -309,16 +307,21 @@ augroup END
 augroup ft_settings
   au!
 
-  " indents, folds, etc
-  au FileType coffee     setlocal shiftwidth=2 expandtab
-  au FileType vim        setlocal foldmethod=marker foldlevel=0
   au FileType clojure    let b:delimitMate_quotes="\""
-  au FileType javascript call JavaScriptFold() | set foldlevelstart=99
+  au FileType css        setlocal iskeyword+=-
+  au FileType markdown   setlocal nolist
   au FileType taskpaper  setlocal nolist | call taskpaper#fold_projects()
   au FileType text       setlocal nolist
-  au FileType markdown   setlocal nolist
-  au FileType css        setlocal iskeyword+=-
-  au FileType lua        syn region luaFunctionBlock transparent fold matchgroup=luaFunction
+  au FileType vim        setlocal foldmethod=marker foldlevel=0
+
+  au FileType javascript
+        \ call JavaScriptFold() |
+        \ setlocal suffixesadd=.js |
+        \ set foldlevelstart=99 |
+        \ set makeprg=run-javascript\ %
+
+  au FileType lua
+        \ syn region luaFunctionBlock transparent fold matchgroup=luaFunction
         \ start="\<function\>" end ="\<end\>"
         \ contains=ALLBUT,luaTodo,luaSpecial,luaCond,luaCondElseif,luaCondEnd,luaRepeat
 augroup END
@@ -347,6 +350,8 @@ augroup END
 
 " quickfix/loclist
 augroup quickfix
+  au!
+
   au BufWinEnter quickfix setlocal cursorline
 augroup END
 
@@ -413,7 +418,7 @@ augroup airline_plugin
 augroup END
 
 function! AirlineNeomakeStatus()
-  if exists(":Neomake")
+  if stridx(&rtp, g:plugs.neomake.dir) >= 0
     let l:counts=neomake#statusline#LoclistCounts()
     let l:w=get(l:counts, "W", 0)
     let l:e=get(l:counts, "E", 0)
@@ -580,7 +585,7 @@ function! AgHandler(l)
   let l:col =a:keys[2]
   let l:file=escape(a:keys[0], " ")
 
-  execute "tabe +normal\ " . l:line . "G" . l:col . "|zz " . l:file
+  execute "tabe +normal\\ " . l:line . "G" . l:col . "|zz " . l:file
 endfunction
 
 function! AgSearchHandler()
@@ -742,10 +747,10 @@ xmap T <Plug>(clever-f-T)
 omap T <Plug>(clever-f-T)
 
 " }}}
-" plugin: incsearch {{{
+" plugin: easy-align {{{
 
-map / <Plug>(incsearch-forward)
-map ? <Plug>(incsearch-backward)
+vmap <leader>a <Plug>(EasyAlign)
+nmap ga        <Plug>(EasyAlign)
 
 " }}}
 " plugin: rooter {{{
@@ -907,6 +912,18 @@ endfunction
 nnoremap <leader>e :call LocationNext()<cr>
 nnoremap <leader>E :call LocationPrevious()<cr>
 
+" makes * and # work on visual mode
+function! VisualSearch(cmdtype)
+  let l:temp=@s
+  normal! gv"sy
+  let @/='\V' . substitute(escape(@s, a:cmdtype.'\'), '\n', '\\n', 'g')
+  let @s=l:temp
+endfunction
+
+" select in visual mode, star, and don't move unles n/N/...
+xnoremap * :<c-u>let star_view=winsaveview()<cr>:<c-u>call VisualSearch('/')<cr>/<c-r>=@/<cr><cr>:call winrestview(star_view)<cr>
+xnoremap # :<c-u>let hash_view=winsaveview()<cr>:<c-u>call VisualSearch('?')<cr>?<c-r>=@/<cr><cr>:call winrestview(hash_view)<cr>
+
 " }}}
 " custom mappings {{{
 
@@ -915,6 +932,9 @@ cnoremap %% <c-r>=fnameescape(expand("%:~:h"))<cr>/
 
 " tab as %
 map <tab> %
+
+" m-make
+nnoremap <c-m> :make<cr>
 
 " input mode mappings
 inoremap <c-a> <c-o>0
@@ -953,6 +973,9 @@ nnoremap < <<
 vnoremap > >gv
 vnoremap < <gv
 
+" sorting in visual mode
+vnoremap <leader>s :sort<cr>
+
 " dot works in visual selection mode!
 vnoremap . :norm.<cr>
 
@@ -967,14 +990,9 @@ noremap H ^
 noremap L $
 vnoremap L g_
 
-" keep search matches in the middle of the window
-nnoremap n nzzzv
-nnoremap N Nzzzv
-
-" same when jumping around
-nnoremap g; g;zz
-nnoremap g, g,zz
-nnoremap <c-o> <c-o>zz
+" don't move on * and #
+nnoremap <silent> * :let star_view=winsaveview()<cr>*:call winrestview(star_view)<cr>
+nnoremap <silent> # :let hash_view=winsaveview()<cr>*:call winrestview(hash_view)<cr>
 
 " disable EX mode and other accidental q* commands
 nnoremap q/ <nop>
@@ -1010,8 +1028,8 @@ nnoremap <leader>w :w !diff % -<cr>
 " buffers
 nnoremap gb :bnext<cr>
 nnoremap gB :bprev<cr>
-nnoremap <leader>bd :bdelete!<cr>
-nnoremap <leader>B :enew<cr>
+nnoremap <leader>bd: bdelete!<cr>
+nnoremap <leader>B:  enew<cr>
 
 " new tab
 nnoremap <leader>T :tabnew<cr>

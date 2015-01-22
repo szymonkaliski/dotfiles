@@ -1,12 +1,11 @@
-local application  = require "mjolnir.application"
-local eventtap     = require "mjolnir._asm.eventtap"
-local fnutils      = require "mjolnir.fnutils"
-local hotkey       = require "mjolnir.hotkey"
-local keycodes     = require "mjolnir.keycodes"
-local notification = require "mjolnir._asm.ui.notification"
-local timer        = require "mjolnir._asm.timer"
-local transform    = require "mjolnir.sk.transform"
-local window       = require "mjolnir.window"
+local application = require "mjolnir.application"
+local eventtap    = require "mjolnir._asm.eventtap"
+local fnutils     = require "mjolnir.fnutils"
+local hotkey      = require "mjolnir.hotkey"
+local keycodes    = require "mjolnir.keycodes"
+local timer       = require "mjolnir._asm.timer"
+local transform   = require "mjolnir.sk.transform"
+local window      = require "mjolnir.window"
 
 -- extensions
 local ext = {
