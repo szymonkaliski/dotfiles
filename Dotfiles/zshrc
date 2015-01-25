@@ -170,15 +170,9 @@ export KEYTIMEOUT=1
 
 # colors
 export GREP_COLOR=34
-[ -f ~/.dircolors ] && eval $(dircolors -b ~/.dircolors)
-
-# homebrew exports
-export HOMEBREW_NO_EMOJI=1
-
-# locale exports
-export LANG="en_US.UTF-8"
-export LC_COLLATE="en_US.UTF-8"
-export LC_CTYPE="en_US.UTF-8"
+if [ -f ~/.dircolors ]; then
+  eval $(dircolors -b ~/.dircolors)
+fi
 
 # less modifications (including man colors)
 export LESSCHARSET="utf-8"
@@ -196,6 +190,14 @@ export LESS_TERMCAP_ZV=$(tput rsubm)
 export LESS_TERMCAP_ZO=$(tput ssupm)
 export LESS_TERMCAP_ZW=$(tput rsupm)
 export LESS="-R --RAW-CONTROL-CHARS"
+
+# homebrew exports
+export HOMEBREW_NO_EMOJI=1
+
+# locale exports
+export LANG="en_US.UTF-8"
+export LC_COLLATE="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
 
 # editor export
 if hash nvim 2> /dev/null; then
@@ -476,7 +478,6 @@ if [ -d ~/Dropbox/Notes ]; then
     fi
   }
 
-  # compctl -s "$(ls ~/Dropbox/Notes/)" ne
   compctl -g "~/Dropbox/Notes/*.txt(:t)" ne
 fi
 
@@ -514,7 +515,6 @@ if hash fzf 2> /dev/null; then
 
   # search through history
   function fzh() {
-    # eval $(fc -l 1 | sed 's/ *[0-9]* *//' | fzf +s --query="$1")
     print -z $(fc -l 1 | fzf +s --query="$1" | sed 's/ *[0-9]* *//')
   }
 
@@ -561,7 +561,6 @@ function extract() {
     open "$@" # The Unarchiver.app can deal with archives on Mac
   fi
 }
-
 compctl -g '*.tar.bz2 *.tar.gz *.bz2 *.gz *.jar *.rar *.tar *.tbz2 *.tgz *.zip *.Z' + -g '*(-/)' extract
 
 # calculator
@@ -673,10 +672,6 @@ zstyle ":completion:*" list-colors ${(s.:.)LS_COLORS}
 
 # separate directories from files.
 zstyle ':completion:*' list-dirs-first true
-
-# separate matches into groups.
-# zstyle ':completion:*:matches' group yes
-# zstyle ':completion:*' group-name ''
 
 # process names from ps
 zstyle ":completion:*:processes" command "ps cx -o pid,user,%cpu,%mem,comm"

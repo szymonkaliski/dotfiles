@@ -28,12 +28,16 @@ endif
 " OSX only
 if has("mac")
   Plug 'airblade/vim-gitgutter'
+endif
+
+" NeoVim only
+if has("nvim")
   Plug 'benekastah/neomake', { 'on': 'Neomake' }
 endif
 
 " Homebrew FZF
-if isdirectory('/usr/local/Cellar/fzf/0.9.1/')
-  Plug '/usr/local/Cellar/fzf/0.9.1/'
+if isdirectory('/usr/local/Cellar/fzf/0.9.2/')
+  Plug '/usr/local/Cellar/fzf/0.9.2/'
 endif
 
 " AUR FZF
@@ -67,6 +71,9 @@ call plug#end()
 " make vim more useful
 set nocompatible
 
+" viminfo - more v:oldfiles, register lines
+set viminfo='1000,<100,s10,
+
 " encoding
 set encoding=utf-8
 set fileencodings=utf-8
@@ -85,7 +92,7 @@ set lazyredraw
 set ttyfast
 set ttyscroll=3
 
-" fast timeouts
+" fast timeoute
 set notimeout
 set ttimeout
 set ttimeoutlen=100
@@ -310,6 +317,7 @@ augroup ft_settings
   au FileType clojure    let b:delimitMate_quotes="\""
   au FileType css        setlocal iskeyword+=-
   au FileType markdown   setlocal nolist
+  au FileType processing set makeprg=processing
   au FileType taskpaper  setlocal nolist | call taskpaper#fold_projects()
   au FileType text       setlocal nolist
   au FileType vim        setlocal foldmethod=marker foldlevel=0
@@ -318,7 +326,7 @@ augroup ft_settings
         \ call JavaScriptFold() |
         \ setlocal suffixesadd=.js |
         \ set foldlevelstart=99 |
-        \ set makeprg=run-javascript\ %
+        \ set makeprg=javascript\ %
 
   au FileType lua
         \ syn region luaFunctionBlock transparent fold matchgroup=luaFunction
@@ -328,12 +336,14 @@ augroup END
 
 " auto source files
 augroup ft_autosource
+  au!
+
   " auto source vimrc
-  au BufWritePost .vimrc,vimrc,.gvimrc,gvimrc
-        \ so $MYVIMRC |
-        \ if has("gui_running") | so $MYGVIMRC | endif |
-        \ setlocal foldmethod=marker |
-        \ AirlineRefresh
+  " au BufWritePost .vimrc,vimrc,.gvimrc,gvimrc
+  "       \ so $MYVIMRC |
+  "       \ if has("gui_running") | so $MYGVIMRC | endif |
+  "       \ setlocal foldmethod=marker |
+  "       \ AirlineRefresh
 
   " auto source tmux
   au BufWritePost .tmux.conf,tmux.conf
@@ -400,6 +410,7 @@ if &term == "screen-256color"
 
   augroup title_iconstring
     au!
+
     au BufEnter * let &iconstring=WindowTitle()
   augroup END
 
@@ -418,7 +429,7 @@ augroup airline_plugin
 augroup END
 
 function! AirlineNeomakeStatus()
-  if stridx(&rtp, g:plugs.neomake.dir) >= 0
+  if has_key(g:plugs, "neomake") && stridx(&rtp, g:plugs.neomake.dir) >= 0
     let l:counts=neomake#statusline#LoclistCounts()
     let l:w=get(l:counts, "W", 0)
     let l:e=get(l:counts, "E", 0)
@@ -537,13 +548,15 @@ let g:gitgutter_max_signs=1000
 " }}}
 " plugin: neomake {{{
 
-augroup neomake_plugin
-  au!
+if has("nvim")
+  augroup neomake_plugin
+    au!
 
-  au BufReadPost,BufWritePost *.js Neomake
-augroup END
+    au BufReadPost,BufWritePost *.js Neomake
+  augroup END
 
-let g:neomake_place_signs=0
+  let g:neomake_place_signs=0
+endif
 
 " }}}
 " plugin: delimitmate {{{
@@ -579,11 +592,11 @@ function! BuffersList()
   return list
 endfunction
 
-function! AgHandler(l)
-  let a:keys=split(a:l, ":")
-  let l:line=a:keys[1]
-  let l:col =a:keys[2]
-  let l:file=escape(a:keys[0], " ")
+function! AgHandler(e)
+  let l:keys=split(a:e, ":")
+  let l:line=l:keys[1]
+  let l:col =l:keys[2]
+  let l:file=escape(l:keys[0], " ")
 
   execute "tabe +normal\\ " . l:line . "G" . l:col . "|zz " . l:file
 endfunction
@@ -598,20 +611,31 @@ function! BufferLines()
 endfunction
 
 function! BufferLineOpen(e)
-  execute "normal! ". matchstr(a:e, "[0-9]\+"). "G"
+  execute "normal! " . matchstr(a:e, "[0-9]\+") . "G"
+endfunction
+
+function! Registers()
+  let l:regnum =  range(char2nr('a'), char2nr('z'))
+  let l:regnum += range(char2nr('0'), char2nr('9'))
+  let l:regstr =  [ '"','-','*','%','/','.','#',':' ]
+  let l:regnum += map(l:regstr, 'char2nr(v:val)')
+
+  let l:regnum = filter(l:regnum, 'getreg(nr2char(v:val)) !~ "^$"')
+  let l:regnum = filter(l:regnum, 'getreg(nr2char(v:val)) !~ "^\s\+$"')
+
+  let l:registers = map(l:regnum, 'getreg(nr2char(v:val))')
+
+  return l:registers
+endfunction
+
+function! LineAppend(e)
+  execute "normal! o " . a:e
 endfunction
 
 let g:fzf_tmux_height="20%"
 
 command! FZFFiles call fzf#run({
       \ "sink": "e ",
-      \ "options": "-m",
-      \ "tmux_height": g:fzf_tmux_height
-      \ })
-
-command! FZFAg call fzf#run({
-      \ "source": AgSearchHandler(),
-      \ "sink": function("AgHandler"),
       \ "options": "-m",
       \ "tmux_height": g:fzf_tmux_height
       \ })
@@ -629,17 +653,32 @@ command! FZFMru call fzf#run({
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
+command! FZFAg call fzf#run({
+      \ "source": AgSearchHandler(),
+      \ "sink": function("AgHandler"),
+      \ "options": "-m",
+      \ "tmux_height": g:fzf_tmux_height
+      \ })
+
 command! FZFLines call fzf#run({
       \ "source": BufferLines(),
       \ "sink": function("BufferLineOpen"),
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
+command! FZFRegisters call fzf#run({
+      \ "source": Registers(),
+      \ "sink": function("LineAppend"),
+      \ "tmux_height": g:fzf_tmux_height
+      \ })
+
 nnoremap <silent> <c-p>      :FZFFiles<cr>
 nnoremap <silent> <c-b>      :FZFBuffers<cr>
 nnoremap <silent> <leader>fg :FZFAg<cr>
-nnoremap <silent> <leader>fm :FZFMru<cr>
 nnoremap <silent> <leader>fl :FZFLines<cr>
+nnoremap <silent> <leader>fm :FZFMru<cr>
+nnoremap <silent> <leader>fh :FZFRegisters<cr>
+nnoremap <silent> <leader>fr :FZFRegisters<cr>
 
 if isdirectory($HOME . "/Dropbox/Notes")
   command! FZFNotes call fzf#run({
@@ -815,7 +854,7 @@ command! ShowSyntax :call ShowSyntax()
 " destroy all buffers that are not open in any tabs or windows
 " https://github.com/artnez/vim-wipeout/blob/master/plugin/wipeout.vim
 function! Wipeout(bang)
-  " figure out which buffers are visible in any tab
+  " figure out which buffers are visible in tabs
   let l:visible={}
 
   for t in range(1, tabpagenr("$"))
@@ -824,7 +863,7 @@ function! Wipeout(bang)
     endfor
   endfor
 
-  " close any buffer that are loaded and not visible
+  " close buffers that are loaded and not visible
   let l:tally=0
   let l:cmd="bw"
 
@@ -912,7 +951,7 @@ endfunction
 nnoremap <leader>e :call LocationNext()<cr>
 nnoremap <leader>E :call LocationPrevious()<cr>
 
-" makes * and # work on visual mode
+" makes * and # work in visual mode
 function! VisualSearch(cmdtype)
   let l:temp=@s
   normal! gv"sy
@@ -1019,6 +1058,9 @@ endif
 " open file in current directory
 nnoremap <leader>of :e <c-r>=expand("%:p:h") . "/"<cr>
 
+" reload vimrc
+nnoremap <leader>sv :source $MYVIMRC<cr>:AirlineRefresh<cr>
+
 " run current line in shell
 nnoremap <leader>rs yyp!!sh<cr>
 
@@ -1028,8 +1070,8 @@ nnoremap <leader>w :w !diff % -<cr>
 " buffers
 nnoremap gb :bnext<cr>
 nnoremap gB :bprev<cr>
-nnoremap <leader>bd: bdelete!<cr>
-nnoremap <leader>B:  enew<cr>
+nnoremap <leader>bd :bdelete!<cr>
+nnoremap <leader>B  :enew<cr>
 
 " new tab
 nnoremap <leader>T :tabnew<cr>
@@ -1047,7 +1089,7 @@ nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(ya
 nnoremap <leader>ff :setlocal foldlevel=0<cr>zA<cr>
 
 " kill whitespace
-nnoremap <silent> <leader>k :let kill_view=winsaveview()<cr>:KillWhitespace<cr>:nohlsearch<cr>:call winrestview(kill_view)<cr>
+nnoremap <silent> <leader>k :let kill_view=winsaveview()<cr>:silent KillWhitespace<cr>:nohlsearch<cr>:call winrestview(kill_view)<cr>
 
 " clean current search
 nnoremap <silent> <leader>c :nohlsearch<cr>
