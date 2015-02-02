@@ -19,7 +19,7 @@ local ext = {
 ext.win.positions = {}
 
 -- window extension settings
-ext.win.margin     = 10
+ext.win.margin     = 8
 ext.win.animate    = true
 ext.win.fixenabled = false
 ext.win.fullframe  = false
@@ -33,41 +33,27 @@ end
 
 -- returns frame pushed to screen edge
 function ext.frame.push(screen, direction)
+  local m = ext.win.margin
+  local h = screen.h - m
+  local w = screen.w - m
+  local x = screen.x + m
+  local y = screen.y + m
+
   local frames = {
     up = function()
-      return {
-        x = ext.win.margin + screen.x,
-        y = ext.win.margin + screen.y,
-        w = screen.w - ext.win.margin * 2,
-        h = screen.h / 2 - ext.win.margin
-      }
+      return { x = x, y = y, w = w - m, h = h / 2 - m }
     end,
 
     down = function()
-      return {
-        x = ext.win.margin + screen.x,
-        y = ext.win.margin * 3 / 4 + screen.h / 2 + screen.y,
-        w = screen.w - ext.win.margin * 2,
-        h = screen.h / 2 - ext.win.margin * (2 - 1 / 4)
-      }
+      return { x = x, y = y + h / 2 - m, w = w - m, h = h / 2 - m }
     end,
 
     left = function()
-      return {
-        x = ext.win.margin + screen.x,
-        y = ext.win.margin + screen.y,
-        w = screen.w / 2 - ext.win.margin * (2 - 1 / 4),
-        h = screen.h - ext.win.margin * (2 - 1 / 4)
-      }
+      return { x = x, y = y, w = w / 2 - m, h = h - m }
     end,
 
     right = function()
-      return {
-        x = ext.win.margin / 2 + screen.w / 2 + screen.x,
-        y = ext.win.margin + screen.y,
-        w = screen.w / 2 - ext.win.margin * (2 - 1 / 4),
-        h = screen.h - ext.win.margin * (2 - 1 / 4)
-      }
+      return { x = x + w / 2 - m, y = y, w = w / 2 - m, h = h - m }
     end
   }
 
@@ -76,24 +62,30 @@ end
 
 -- returns frame moved by ext.win.margin
 function ext.frame.nudge(frame, screen, direction)
+  local m = ext.win.margin
+  local h = screen.h - m
+  local w = screen.w - m
+  local x = screen.x + m
+  local y = screen.y + m
+
   local modifyframe = {
     up = function(frame)
-      frame.y = math.max(screen.y + ext.win.margin, frame.y - ext.win.margin)
+      frame.y = math.max(y, frame.y - m)
       return frame
     end,
 
     down = function(frame)
-      frame.y = math.min(screen.y + screen.h - frame.h - ext.win.margin * 3 / 4, frame.y + ext.win.margin)
+      frame.y = math.min(y + h - frame.h - m, frame.y + m)
       return frame
     end,
 
     left = function(frame)
-      frame.x = math.max(screen.x + ext.win.margin, frame.x - ext.win.margin)
+      frame.x = math.max(x, frame.x - m)
       return frame
     end,
 
     right = function(frame)
-      frame.x = math.min(screen.x + screen.w - frame.w - ext.win.margin, frame.x + ext.win.margin)
+      frame.x = math.min(x + w - frame.w - m, frame.x + m)
       return frame
     end
   }
@@ -103,22 +95,17 @@ end
 
 -- returns frame sent to screen edge
 function ext.frame.send(frame, screen, direction)
+  local m = ext.win.margin
+  local h = screen.h - m
+  local w = screen.w - m
+  local x = screen.x + m
+  local y = screen.y + m
+
   local modifyframe = {
-    up = function(frame)
-      frame.y = screen.y + ext.win.margin
-    end,
-
-    down = function(frame)
-      frame.y = screen.y + screen.h - frame.h - ext.win.margin * 3 / 4
-    end,
-
-    left = function(frame)
-      frame.x = screen.x + ext.win.margin
-    end,
-
-    right = function(frame)
-      frame.x = screen.x + screen.w - frame.w - ext.win.margin
-    end
+    up    = function(frame) frame.y = y end,
+    down  = function(frame) frame.y = y + h - frame.h - m end,
+    left  = function(frame) frame.x = x end,
+    right = function(frame) frame.x = x + w - frame.w - m end
   }
 
   modifyframe[direction](frame)
@@ -128,7 +115,7 @@ end
 -- returns frame fited inside screen
 function ext.frame.fit(frame, screen)
   frame.w = math.min(frame.w, screen.w - ext.win.margin * 2)
-  frame.h = math.min(frame.h, screen.h - ext.win.margin * (2 - 1 / 4))
+  frame.h = math.min(frame.h, screen.h - ext.win.margin * 2)
 
   return frame
 end
@@ -165,7 +152,7 @@ function ext.win.fix(win)
     local screen = ext.win.screenframe(win)
     local frame = win:frame()
 
-    if (frame.h > (screen.h - ext.win.margin * (2 - 1 / 4))) then
+    if (frame.h > (screen.h - ext.win.margin * 2)) then
       frame.h = screen.h - ext.win.margin * 10
       ext.win.set(win, frame)
     end
@@ -225,7 +212,7 @@ function ext.win.full(win)
     x = ext.win.margin + screen.x,
     y = ext.win.margin + screen.y,
     w = screen.w - ext.win.margin * 2,
-    h = screen.h - ext.win.margin * (2 - 1 / 4)
+    h = screen.h - ext.win.margin * 2
   }
 
   ext.win.fix(win)
@@ -455,6 +442,9 @@ end)
 
 -- launch or focus browser in a smart way
 hotkey.bind(mod3, "b", function() ext.app.browser() end)
+
+-- run terminal vim
+hotkey.bind(mod3, "v", function() os.execute("osascript ~/Dropbox/Code/Apple/TerminalVim.scpt") end)
 
 -- reload mjolnir
 hotkey.bind(mod3, "m", function() mjolnir.reload() end)

@@ -28,8 +28,15 @@ nnoremap <C-p> :xccmd openQuickly<cr>
 nnoremap <C-n> :xccmd toggleNavigatorsVisibility<cr>
 
 " comments
-nnoremap gc :xccmd commentAndUncommentCurrentLines<cr>
-vnoremap gc :xccmd commentAndUncommentCurrentLines<cr>
+nnoremap gcc :xccmd commentAndUncommentCurrentLines<cr>
+vnoremap gc  :xccmd commentAndUncommentCurrentLines<cr>
+
+" jump to issues
+nmap ;e :xcmenucmd Jump to Next Issue<cr>
+nmap ;E :xcmenucmd Jump to Previous Issue<cr>
+
+" make
+nmap ;m :xmenucmd Run<cr>
 
 " quicker indentation
 nnoremap > >>
@@ -81,3 +88,4 @@ nnoremap ;ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view
 
 " align block
 nnoremap ;a :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
+

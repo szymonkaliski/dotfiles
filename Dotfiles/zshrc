@@ -288,9 +288,18 @@ function tm() {
   fi
 
   if [[ $attach != "" ]]; then
-    tmux attach -t $attach
+    if [ -z $TMUX ]; then
+      tmux attach -t $attach
+    else
+      tmux switch-client -t $attach
+    fi
   else
-    tmux new -s $title
+    if [ -z $TMUX ]; then
+      tmux new -s $title
+    else
+      TMUX= tmux new-session -d -s $title
+      tmux switch-client -t $title
+    fi
   fi
 }
 compctl -s "$(tmux ls 2> /dev/null | cut -d: -f1)" tm
@@ -498,18 +507,17 @@ function ff() {
 if hash fzf 2> /dev/null; then
   # default options
   export FZF_DEFAULT_OPTS="+2"
+  export FZF_DEFAULT_COMMAND="ag -l -g ''"
 
   # edit files in editor
   function fze() {
-    local files
-    files=$(fzf --query="$1" -m -1)
+    local files=$(fzf --query="$1" -m -1)
     [ -n "$files" ] && $EDITOR $(echo $files)
   }
 
   # cd to directory
   function fzd() {
-    local dir
-    dir=$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --query="$1" -1)
+    local dir=$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --query="$1" -1)
     [ -n "$dir" ] && cd "$dir"
   }
 
@@ -531,6 +539,12 @@ if hash fzf 2> /dev/null; then
     else
       _z "$@"
     fi
+  }
+
+  # tmux sessions
+  function fztm {
+    local session=$(tmux list-sessions -F "#{session_name}" | fzf --query="$1" -1 -0)
+    [ -n "$session" ] && tmux switch-client -t "$session"
   }
 fi
 

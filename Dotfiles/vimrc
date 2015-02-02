@@ -7,23 +7,20 @@ Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
 Plug 'ajh17/VimCompletesMe'
 Plug 'bling/vim-airline'
+Plug 'christoomey/vim-tmux-navigator'
 Plug 'pbrisbin/vim-mkdir'
 Plug 'scrooloose/nerdtree'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
 
-Plug 'junegunn/goyo.vim',       { 'on': 'Goyo' }
-Plug 'junegunn/limelight.vim',  { 'on': 'Limelight' }
-Plug 'junegunn/vim-easy-align', { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
-Plug 'rhysd/clever-f.vim',      { 'on': '<Plug>(clever-f-' }
-Plug 'tpope/vim-commentary',    { 'on': '<Plug>Commentary' }
-
-" TMUX only
-if $TMUX != ""
-  Plug 'christoomey/vim-tmux-navigator'
-  Plug 'sjl/tslime.vim'
-endif
+Plug 'epeli/slimux',                     { 'on': [ 'SlimuxREPLSendLine', 'SlimuxReplSendSelection' ] }
+Plug 'junegunn/goyo.vim',                { 'on': 'Goyo' }
+Plug 'junegunn/limelight.vim',           { 'on': 'Limelight' }
+Plug 'junegunn/rainbow_parentheses.vim', { 'on': [ 'RainbowParentheses', 'RainbowParenthesesToggle' ] }
+Plug 'junegunn/vim-easy-align',          { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
+Plug 'rhysd/clever-f.vim',               { 'on': '<Plug>(clever-f-' }
+Plug 'tpope/vim-commentary',             { 'on': '<Plug>Commentary' }
 
 " OSX only
 if has("mac")
@@ -314,13 +311,15 @@ augroup END
 augroup ft_settings
   au!
 
-  au FileType clojure    let b:delimitMate_quotes="\""
   au FileType css        setlocal iskeyword+=-
   au FileType markdown   setlocal nolist
-  au FileType processing set makeprg=processing
   au FileType taskpaper  setlocal nolist | call taskpaper#fold_projects()
   au FileType text       setlocal nolist
   au FileType vim        setlocal foldmethod=marker foldlevel=0
+
+  au FileType processing
+        \ setlocal makeprg=processing\ %:p:h |
+        \ setlocal errorformat=%f:%l:%c:%*\\d:%*\\d:\ %m,%-G%.%#
 
   au FileType javascript
         \ call JavaScriptFold() |
@@ -332,22 +331,10 @@ augroup ft_settings
         \ syn region luaFunctionBlock transparent fold matchgroup=luaFunction
         \ start="\<function\>" end ="\<end\>"
         \ contains=ALLBUT,luaTodo,luaSpecial,luaCond,luaCondElseif,luaCondEnd,luaRepeat
-augroup END
 
-" auto source files
-augroup ft_autosource
-  au!
-
-  " auto source vimrc
-  " au BufWritePost .vimrc,vimrc,.gvimrc,gvimrc
-  "       \ so $MYVIMRC |
-  "       \ if has("gui_running") | so $MYGVIMRC | endif |
-  "       \ setlocal foldmethod=marker |
-  "       \ AirlineRefresh
-
-  " auto source tmux
-  au BufWritePost .tmux.conf,tmux.conf
-        \ call system("tmux source-file ~/.tmux.conf; tmux display-message \"Reloaded!\"")
+  au FileType clojure
+        \ let b:delimitMate_quotes="\"" |
+        \ RainbowParentheses
 augroup END
 
 " custom mappings based on filetype
@@ -601,9 +588,26 @@ function! AgHandler(e)
   execute "tabe +normal\\ " . l:line . "G" . l:col . "|zz " . l:file
 endfunction
 
-function! AgSearchHandler()
-  let l:search=input("Grep for: ")
-  return "ag --smart-case --nogroup --nocolor --column " . l:search
+function! AgSearchVisual()
+  let [l:lnum1, l:col1] = getpos("'<")[1:2]
+  let [l:lnum2, l:col2] = getpos("'>")[1:2]
+  let l:lines = getline(l:lnum1, l:lnum2)
+  let l:lines[-1] = l:lines[-1][: l:col2 - (&selection == 'inclusive' ? 1 : 2)]
+  let l:lines[0] = l:lines[0][l:col1 - 1:]
+
+  let l:selection = join(l:lines, "\n")
+
+  return AgSearchHandler(l:selection)
+endfunction
+
+function! AgSearchInput()
+  let l:input = input("Grep for: ")
+
+  return AgSearchHandler(l:input)
+endfunction
+
+function! AgSearchHandler(search)
+  return "ag --smart-case --nogroup --nocolor --column " . a:search
 endfunction
 
 function! BufferLines()
@@ -632,6 +636,14 @@ function! LineAppend(e)
   execute "normal! o " . a:e
 endfunction
 
+function! RecentFiles()
+  let l:files = v:oldfiles
+  let l:files = filter(l:files, 'v:val !~ "NERD_tree"')
+  let l:files = filter(l:files, 'v:val !~ "COMMIT_EDITMSG"')
+
+  return l:files
+endfunction
+
 let g:fzf_tmux_height="20%"
 
 command! FZFFiles call fzf#run({
@@ -647,14 +659,21 @@ command! FZFBuffers call fzf#run({
       \ })
 
 command! FZFMru call fzf#run({
-      \ "source": v:oldfiles,
+      \ "source": reverse(RecentFiles()),
       \ "sink": "e ",
+      \ "options": "-m +s",
+      \ "tmux_height": g:fzf_tmux_height
+      \ })
+
+command! FZFAgInput call fzf#run({
+      \ "source": AgSearchInput(),
+      \ "sink": function("AgHandler"),
       \ "options": "-m",
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
-command! FZFAg call fzf#run({
-      \ "source": AgSearchHandler(),
+command! -range FZFAgVisual call fzf#run({
+      \ "source": AgSearchVisual(),
       \ "sink": function("AgHandler"),
       \ "options": "-m",
       \ "tmux_height": g:fzf_tmux_height
@@ -663,22 +682,27 @@ command! FZFAg call fzf#run({
 command! FZFLines call fzf#run({
       \ "source": BufferLines(),
       \ "sink": function("BufferLineOpen"),
+      \ "options": "+s",
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
 command! FZFRegisters call fzf#run({
       \ "source": Registers(),
       \ "sink": function("LineAppend"),
+      \ "options": "+s",
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
 nnoremap <silent> <c-p>      :FZFFiles<cr>
 nnoremap <silent> <c-b>      :FZFBuffers<cr>
-nnoremap <silent> <leader>fg :FZFAg<cr>
+
 nnoremap <silent> <leader>fl :FZFLines<cr>
 nnoremap <silent> <leader>fm :FZFMru<cr>
 nnoremap <silent> <leader>fh :FZFRegisters<cr>
 nnoremap <silent> <leader>fr :FZFRegisters<cr>
+
+nnoremap <silent> <leader>fg :FZFAgInput<cr>
+vnoremap <silent> <leader>fg :FZFAgVisual<cr>
 
 if isdirectory($HOME . "/Dropbox/Notes")
   command! FZFNotes call fzf#run({
@@ -709,11 +733,6 @@ if isdirectory($HOME . "/Dropbox/Tasks")
 
   nnoremap <silent> <leader>ft :FZFTasks<cr>
 endif
-
-" }}}
-" plugin: tslime {{{
-
-let g:tslime_ensure_trailing_newlines=1
 
 " }}}
 " plugin: limelight {{{
@@ -810,6 +829,32 @@ map  gc  <Plug>Commentary
 nmap gcc <Plug>CommentaryLine
 
 " }}}
+" plugin: slimux {{{
+
+map  <c-c><c-c> :SlimuxREPLSendLine<cr>
+vmap <c-c><c-c> :SlimuxREPLSendSelection<cr>
+
+" }}}
+" plugin: rainbow parentheses {{{
+
+let g:rainbow#pairs=[ [ '(', ')' ], [ '[', ']' ], [ '{', '}' ] ]
+let g:rainbow#colors={
+\   'dark': [
+\     [ 'darkyellow',  'orangered3'     ],
+\     [ 'darkgreen',   'orange2'        ],
+\     [ 'blue',        'yellow3'        ],
+\     [ 'darkmagenta', 'olivedrab4'     ],
+\     [ 'red',         'green4'         ],
+\     [ 'darkyellow',  'paleturquoise3' ],
+\     [ 'darkgreen',   'deepskyblue4'   ],
+\     [ 'blue',        'darkslateblue'  ],
+\     [ 'darkmagenta', 'darkviolet'     ]
+\   ]
+\ }
+
+command! RainbowParenthesesToggle RainbowParentheses!!
+
+" }}}
 " custom abbrevs {{{
 
 iabbrev <silent> _date <c-r>=strftime("%Y-%m-%d")<cr>
@@ -840,6 +885,8 @@ cnoreabbrev <expr> h ((getcmdtype() == ":" && getcmdpos() <= 2) ? "vert h" : "h"
 
 " }}}
 " custom commands {{{
+
+command! ReloadSettings :so $MYVIMRC | :setlocal foldmethod=marker | :AirlineRefresh
 
 " kills trailing whitespaces
 command! KillWhitespace :normal :%s/\s\+$//g<cr>
@@ -972,9 +1019,6 @@ cnoremap %% <c-r>=fnameescape(expand("%:~:h"))<cr>/
 " tab as %
 map <tab> %
 
-" m-make
-nnoremap <c-m> :make<cr>
-
 " input mode mappings
 inoremap <c-a> <c-o>0
 inoremap <c-e> <c-o>$
@@ -1029,6 +1073,9 @@ noremap H ^
 noremap L $
 vnoremap L g_
 
+" split line
+nnoremap S i<cr><esc>^mwgk:silent! s/\v +$//<cr>:noh<cr>
+
 " don't move on * and #
 nnoremap <silent> * :let star_view=winsaveview()<cr>*:call winrestview(star_view)<cr>
 nnoremap <silent> # :let hash_view=winsaveview()<cr>*:call winrestview(hash_view)<cr>
@@ -1058,8 +1105,11 @@ endif
 " open file in current directory
 nnoremap <leader>of :e <c-r>=expand("%:p:h") . "/"<cr>
 
-" reload vimrc
-nnoremap <leader>sv :source $MYVIMRC<cr>:AirlineRefresh<cr>
+" source vimrc
+nnoremap <leader>sv :ReloadSettings<cr>
+
+" run with make
+nnoremap <leader>m :wa<cr>:make!<cr>
 
 " run current line in shell
 nnoremap <leader>rs yyp!!sh<cr>
@@ -1086,7 +1136,7 @@ nnoremap <leader>vp "`[" . strpart(getregtype(), 0, 1) . "`]"
 nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>
 
 " close everything but current fold
-nnoremap <leader>ff :setlocal foldlevel=0<cr>zA<cr>
+nnoremap <leader>ff :setlocal foldlevel=0<cr>zf<cr>
 
 " kill whitespace
 nnoremap <silent> <leader>k :let kill_view=winsaveview()<cr>:silent KillWhitespace<cr>:nohlsearch<cr>:call winrestview(kill_view)<cr>
