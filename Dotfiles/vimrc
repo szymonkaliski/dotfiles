@@ -14,11 +14,12 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
 
-Plug 'epeli/slimux',                     { 'on': [ 'SlimuxREPLSendLine', 'SlimuxReplSendSelection' ] }
+Plug 'epeli/slimux',                     { 'on': [ 'SlimuxREPLSendLine', 'SlimuxREPLSendSelection', 'SlimuxREPLConfigure' ] }
 Plug 'junegunn/goyo.vim',                { 'on': 'Goyo' }
 Plug 'junegunn/limelight.vim',           { 'on': 'Limelight' }
 Plug 'junegunn/rainbow_parentheses.vim', { 'on': [ 'RainbowParentheses', 'RainbowParenthesesToggle' ] }
 Plug 'junegunn/vim-easy-align',          { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
+Plug 'mbbill/undotree',                  { 'on': 'UndotreeToggle' }
 Plug 'rhysd/clever-f.vim',               { 'on': '<Plug>(clever-f-' }
 Plug 'tpope/vim-commentary',             { 'on': '<Plug>Commentary' }
 
@@ -152,7 +153,7 @@ let g:default_scrolloff=3
 exe "set scrolloff=" . g:default_scrolloff
 
 " path used by gf, :find, etc..
-set path=.,**
+set path+=./**
 
 " don't complete 'included files', speeds things up
 set complete-=i
@@ -207,6 +208,10 @@ set splitbelow
 
 " fillchars with nice utf8 vert split, and no fold char
 set fillchars=fold:\ ,vert:│
+
+" grep
+let &grepprg="ag --nogroup --nocolor --column"
+set grepformat=%f:%l:%c:%m,%f:%l:%m
 
 " extended % matching, load only if no newer matchit found
 if !exists("g:loaded_matchit") && findfile("plugin/matchit.vim", &rtp) ==# ""
@@ -295,37 +300,44 @@ augroup END
 augroup detect_syntax
   au!
 
-  au BufNewFile,BufRead *.ck                  set filetype=chuck
-  au BufNewFile,BufRead *.frag,*.vert,*.glsl  set filetype=glsl
-  au BufNewFile,BufRead *.ino                 set filetype=arduino
-  au BufNewFile,BufRead *.m,*.mm              set filetype=objc
-  au BufNewFile,BufRead *.md                  set filetype=markdown
-  au BufNewFile,BufRead *.pde                 set filetype=processing
-  au BufNewFile,BufRead *.swift               set filetype=swift
-  au BufNewFile,BufRead *.taskpaper           set filetype=taskpaper
-  au BufNewFile,BufRead *.tpl,*.ejs           let b:jst_subtype="html" | set filetype=jst
-  au BufNewFile,BufRead ~/Dropbox/Notes/*     set filetype=markdown
+  au BufNewFile,BufRead *.ck                 set filetype=chuck
+  au BufNewFile,BufRead *.frag,*.vert,*.glsl set filetype=glsl
+  au BufNewFile,BufRead *.ino                set filetype=arduino
+  au BufNewFile,BufRead *.m,*.mm             set filetype=objc
+  au BufNewFile,BufRead *.md                 set filetype=markdown
+  au BufNewFile,BufRead *.pde                set filetype=processing
+  au BufNewFile,BufRead *.swift              set filetype=swift
+  au BufNewFile,BufRead *.taskpaper          set filetype=taskpaper
+  au BufNewFile,BufRead *.tpl,*.ejs          let b:jst_subtype="html" | set filetype=jst
+  au BufNewFile,BufRead ~/Dropbox/Notes/*    set filetype=markdown
 augroup END
 
 " custom settings based on filetype
 augroup ft_settings
   au!
 
-  au FileType css        setlocal iskeyword+=-
-  au FileType markdown   setlocal nolist
-  au FileType taskpaper  setlocal nolist | call taskpaper#fold_projects()
-  au FileType text       setlocal nolist
-  au FileType vim        setlocal foldmethod=marker foldlevel=0
+  au FileType css      setlocal iskeyword+=-
+  au FileType markdown setlocal nolist
+  au FileType text     setlocal nolist
+  au FileType vim      setlocal foldmethod=marker foldlevel=0
+
+  au FileType clojure
+        \ nnoremap <buffer> <leader>a :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
+
+  au FileType taskpaper
+        \ setlocal nolist |
+        \ call taskpaper#fold_projects() |
+        \ nnoremap <buffer> <leader>to :g/@today/foldopen<cr>:nohlsearch<cr>gg
 
   au FileType processing
         \ setlocal makeprg=processing\ %:p:h |
-        \ setlocal errorformat=%f:%l:%c:%*\\d:%*\\d:\ %m,%-G%.%#
+        \ setlocal errorformat=%DEntering\ directory\ \"%f\",%f:%l:%c:%*\\d:%*\\d:\ %m,%-G%.%#
 
   au FileType javascript
         \ call JavaScriptFold() |
-        \ setlocal suffixesadd=.js |
         \ set foldlevelstart=99 |
-        \ set makeprg=javascript\ %
+        \ setlocal suffixesadd=.js |
+        \ setlocal makeprg=javascript\ %
 
   au FileType lua
         \ syn region luaFunctionBlock transparent fold matchgroup=luaFunction
@@ -337,19 +349,15 @@ augroup ft_settings
         \ RainbowParentheses
 augroup END
 
-" custom mappings based on filetype
-augroup ft_mappings
-  au!
-
-  " align paragraph of code
-  au FileType clojure nnoremap <buffer> <leader>a :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
-augroup END
-
 " quickfix/loclist
 augroup quickfix
   au!
 
   au BufWinEnter quickfix setlocal cursorline
+
+  " automatically open quickfix / loclist
+  au QuickFixCmdPost grep,make,grepadd,vimgrep,vimgrepadd,cscope,cfile,cgetfile,caddfile,helpgrep cwindow
+  au QuickFixCmdPost lgrep,lmake,lgrepadd,lvimgrep,lvimgrepadd,lfile,lgetfile,laddfile            lwindow
 augroup END
 
 " }}}
@@ -600,6 +608,16 @@ function! AgSearchVisual()
   return AgSearchHandler(l:selection)
 endfunction
 
+function! AgSearchSmart()
+  let l:word = expand("<cword>")
+
+  if l:word != ""
+    return AgSearchHandler(l:word)
+  else
+    return AgSearchInput()
+  endif
+endfunction
+
 function! AgSearchInput()
   let l:input = input("Grep for: ")
 
@@ -648,7 +666,7 @@ let g:fzf_tmux_height="20%"
 
 command! FZFFiles call fzf#run({
       \ "sink": "e ",
-      \ "options": "-m",
+      \ "options": "-m -0",
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
@@ -661,35 +679,35 @@ command! FZFBuffers call fzf#run({
 command! FZFMru call fzf#run({
       \ "source": reverse(RecentFiles()),
       \ "sink": "e ",
-      \ "options": "-m +s",
+      \ "options": "-m +s -0",
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
 command! FZFAgInput call fzf#run({
-      \ "source": AgSearchInput(),
+      \ "source": AgSearchSmart(),
       \ "sink": function("AgHandler"),
-      \ "options": "-m",
+      \ "options": "-m -0",
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
 command! -range FZFAgVisual call fzf#run({
       \ "source": AgSearchVisual(),
       \ "sink": function("AgHandler"),
-      \ "options": "-m",
+      \ "options": "-m -0",
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
 command! FZFLines call fzf#run({
       \ "source": BufferLines(),
       \ "sink": function("BufferLineOpen"),
-      \ "options": "+s",
+      \ "options": "+s -0",
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
 command! FZFRegisters call fzf#run({
       \ "source": Registers(),
       \ "sink": function("LineAppend"),
-      \ "options": "+s",
+      \ "options": "+s -0",
       \ "tmux_height": g:fzf_tmux_height
       \ })
 
@@ -855,6 +873,21 @@ let g:rainbow#colors={
 command! RainbowParenthesesToggle RainbowParentheses!!
 
 " }}}
+" plugin: fastfold {{{
+
+let g:fastfold_force=1
+
+" }}}
+" plugin: undotree {{{
+
+let g:undotree_WindowLayout=3
+let g:undotree_SplitWidth=60
+let g:undotree_DiffpanelHeight=20
+let g:undotree_SetFocusWhenToggle=1
+
+nnoremap <leader>U :UndotreeToggle<cr>
+
+" }}}
 " custom abbrevs {{{
 
 iabbrev <silent> _date <c-r>=strftime("%Y-%m-%d")<cr>
@@ -886,10 +919,11 @@ cnoreabbrev <expr> h ((getcmdtype() == ":" && getcmdpos() <= 2) ? "vert h" : "h"
 " }}}
 " custom commands {{{
 
+" reload settings
 command! ReloadSettings :so $MYVIMRC | :setlocal foldmethod=marker | :AirlineRefresh
 
 " kills trailing whitespaces
-command! KillWhitespace :normal :%s/\s\+$//g<cr>
+command! KillWhitespace :normal :silent! %s/\s\+$//g<cr>
 
 " shows syntax highlight group for element
 function! ShowSyntax()
@@ -932,29 +966,40 @@ command! -bang Wipeout :call Wipeout(<bang>0)
 
 " open URL in browser
 if has("mac")
-  function! HandleURL()
-    let l:uri = matchstr(getline("."), "[a-z]*:\/\/[^ >,;]*")
+  function! HandleURL(visual)
+    let l:uri = ""
+
+    if a:visual
+      let [l:lnum1, l:col1] = getpos("'<")[1:2]
+      let [l:lnum2, l:col2] = getpos("'>")[1:2]
+      let l:lines = getline(l:lnum1, l:lnum2)
+      let l:lines[-1] = l:lines[-1][: l:col2 - (&selection == 'inclusive' ? 1 : 2)]
+      let l:lines[0] = l:lines[0][l:col1 - 1:]
+
+      let l:uri = join(l:lines, "\n")
+    else
+      let l:uri = matchstr(getline("."), "[a-z]*:\/\/[^ >,;]*")
+    endif
 
     if l:uri != ""
+      let l:uri = escape(l:uri, "#")
+
       silent exec "!open '" . l:uri . "'"
       redraw!
 
       echo "Opening: " . l:uri
     else
-      echo "No URI found in line."
+      echo "Can't find URI."
     endif
   endfunction
 
-  nnoremap gx :call HandleURL()<cr>
+  nnoremap gx :call HandleURL(0)<cr>
+  vnoremap gx :call HandleURL(1)<cr>
 endif
 
 " proper indentation on i
 function! InsertIndent()
-  if len(getline(".")) == 0
-    return "cc"
-  else
-    return "i"
-  endif
+  return len(getline(".")) == 0 ? "cc" : "i"
 endfunction
 
 nnoremap <expr> i InsertIndent()
@@ -1060,7 +1105,7 @@ vnoremap < <gv
 vnoremap <leader>s :sort<cr>
 
 " dot works in visual selection mode!
-vnoremap . :norm.<cr>
+vnoremap . :norm .<cr>
 
 " D deletes to the end of the line
 nnoremap D d$
@@ -1109,7 +1154,7 @@ nnoremap <leader>of :e <c-r>=expand("%:p:h") . "/"<cr>
 nnoremap <leader>sv :ReloadSettings<cr>
 
 " run with make
-nnoremap <leader>m :wa<cr>:make!<cr>
+nnoremap <leader>m :wa<cr>:silent make!<cr>:redraw!<cr>
 
 " run current line in shell
 nnoremap <leader>rs yyp!!sh<cr>
@@ -1135,11 +1180,14 @@ nnoremap <leader>vp "`[" . strpart(getregtype(), 0, 1) . "`]"
 " yank whole buffer
 nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>
 
+" paste from system clipboard
+nnoremap <leader>p "+p<cr>
+
 " close everything but current fold
 nnoremap <leader>ff :setlocal foldlevel=0<cr>zf<cr>
 
 " kill whitespace
-nnoremap <silent> <leader>k :let kill_view=winsaveview()<cr>:silent KillWhitespace<cr>:nohlsearch<cr>:call winrestview(kill_view)<cr>
+nnoremap <silent> <leader>k :let kill_view=winsaveview()<cr>:KillWhitespace<cr>:nohlsearch<cr>:call winrestview(kill_view)<cr>
 
 " clean current search
 nnoremap <silent> <leader>c :nohlsearch<cr>
@@ -1155,8 +1203,5 @@ nnoremap <leader>a :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(ali
 
 " center on cursor using scrollof
 nnoremap <silent> <leader>z :let &scrolloff=999-&scrolloff<cr>
-
-" paste from system clipboard
-nnoremap <leader>p "+p<cr>
 
 " }}}
