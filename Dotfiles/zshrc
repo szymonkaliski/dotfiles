@@ -511,24 +511,23 @@ if hash fzf 2> /dev/null; then
 
   # edit files in editor
   function fze() {
-    local files=$(fzf --query="$1" -m -1)
-    [ -n "$files" ] && $EDITOR $(echo $files)
+    fzf --query="$1" -m -1 | awk '{ print "\""$0"\"" }' | xargs -o $EDITOR
   }
 
   # cd to directory
   function fzd() {
-    local dir=$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --query="$1" -1)
+    local dir="$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf -1)"
     [ -n "$dir" ] && cd "$dir"
   }
 
   # search through history
   function fzh() {
-    print -z $(fc -l 1 | fzf +s --query="$1" | sed 's/ *[0-9]* *//')
+    print -z $(fc -l 1 | fzf +s --query="$1" --nth=2.. | sed 's/ *[0-9]* *//')
   }
 
   # kill process
   function fzkill() {
-    ps -ef | sed 1d | fzf -m --query="$1" | awk '{print $2}' | xargs kill -${1:-9}
+    ps -ef | sed 1d | fzf -m --query="$1" | awk '{ print $2 }' | xargs kill -${1:-9}
   }
 
   # jump in fzf
@@ -592,11 +591,15 @@ function calc() {
 }
 
 # clock
-function clock() {
-  while sleep 1; do
-    printf "\r%s " "$(date +%T)"
-  done
-}
+if hash tty-clock 2> /dev/null; then
+  alias clock="tty-clock -cDC6"
+else
+  function clock() {
+    while sleep 1; do
+      printf "\r%s " "$(date +%T)"
+    done
+  }
+fi
 
 # sanitize permissions
 function sanitize() {

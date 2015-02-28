@@ -443,8 +443,5 @@ end)
 -- launch or focus browser in a smart way
 hotkey.bind(mod3, "b", function() ext.app.browser() end)
 
--- run terminal vim
-hotkey.bind(mod3, "v", function() os.execute("osascript ~/Dropbox/Code/Apple/TerminalVim.scpt") end)
-
 -- reload mjolnir
 hotkey.bind(mod3, "m", function() mjolnir.reload() end)
