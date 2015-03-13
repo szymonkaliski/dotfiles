@@ -90,8 +90,8 @@ if [ -f ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; th
   source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
   ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor pattern)
 
-  ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=white,bg=red')
-  ZSH_HIGHLIGHT_PATTERNS+=('ssh *' 'fg=white,bg=blue')
+  ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=black,bg=red')
+  ZSH_HIGHLIGHT_PATTERNS+=('ssh *' 'fg=black,bg=blue')
 
   ZSH_HIGHLIGHT_STYLES[precommand]='fg=magenta'
   ZSH_HIGHLIGHT_STYLES[commandseparator]='fg=yellow'
@@ -342,6 +342,12 @@ if [ "$(uname)" = "Darwin" ]; then
     alias stroke="/System/Library/CoreServices/Applications/Network\ Utility.app/Contents/Resources/stroke"
   fi
 
+  # taskpaper related
+  if [ -d ~/Dropbox/Tasks/ ]; then
+    alias tasks="vim ~/Dropbox/Tasks/Current.taskpaper"
+    alias tasks-next="node ~/Dropbox/Projects/Archive/TaskPaperNext/app.js"
+  fi
+
   # man in preview
   function pman() {
     man -t $1 | open -f -a Preview;
@@ -504,74 +510,63 @@ function ff() {
 }
 
 # fzf functions
-if hash fzf 2> /dev/null; then
+if hash fzf-tmux 2> /dev/null; then
   # default options
-  export FZF_DEFAULT_OPTS="+2"
+  export FZF_DEFAULT_OPTS="-x"
   export FZF_DEFAULT_COMMAND="ag -l -g ''"
 
   # edit files in editor
-  function fze() {
-    fzf --query="$1" -m -1 | awk '{ print "\""$0"\"" }' | xargs -o $EDITOR
-  }
+  alias fe="vim +FZFFiles"
 
   # cd to directory
-  function fzd() {
-    local dir="$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf -1)"
+  function fcd() {
+    local dir="$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf-tmux -d 20% -- --select-1)"
     [ -n "$dir" ] && cd "$dir"
   }
 
   # search through history
-  function fzh() {
-    print -z $(fc -l 1 | fzf +s --query="$1" --nth=2.. | sed 's/ *[0-9]* *//')
+  function fh() {
+    print -z $(fc -l 1 | fzf-tmux -d 20% -- --tac --no-sort --nth=2.. | sed 's/ *[0-9]* *//')
   }
 
   # kill process
-  function fzkill() {
-    ps -ef | sed 1d | fzf -m --query="$1" | awk '{ print $2 }' | xargs kill -${1:-9}
+  function fkill() {
+    ps -ef | sed 1d | fzf-tmux -d 20% -- --multi | awk '{ print $2 }' | xargs kill -${1:-9}
   }
 
   # jump in fzf
   unalias j
   function j() {
     if [[ -z "$*" ]]; then
-      cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf +s)"
+      cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf-tmux -d 20% -- --no-sort --tac)"
     else
       _z "$@"
     fi
-  }
-
-  # tmux sessions
-  function fztm {
-    local session=$(tmux list-sessions -F "#{session_name}" | fzf --query="$1" -1 -0)
-    [ -n "$session" ] && tmux switch-client -t "$session"
   }
 fi
 
 # archive extractor
 function extract() {
-  if [ "$(uname)" = "Linux" ]; then
-    if [[ -z "$1" ]]; then
-      echo "extracts files based on extensions"
-    elif [[ -f $1 ]]; then
-      case ${(L)1} in
-        *.tar.bz2) tar -jxvf $1  ;;
-        *.tar.gz)  tar -zxvf $1  ;;
-        *.bz2)     bunzip2 $1    ;;
-        *.gz)      gunzip $1     ;;
-        *.jar)     unzip $1      ;;
-        *.rar)     unrar x $1    ;;
-        *.tar)     tar -xvf $1   ;;
-        *.tbz2)    tar -jxvf $1  ;;
-        *.tgz)     tar -zxvf $1  ;;
-        *.zip)     unzip $1      ;;
-        *.Z)       uncompress $1 ;;
-        *)         echo "unable to extract '$1'"
-      esac
-   else
-      echo "file '$1' does not exist!"
-   fi
+  if [[ -z "$1" ]]; then
+    echo "extracts files based on extensions"
+  elif [[ -f $1 ]]; then
+    case ${(L)1} in
+      *.tar.bz2) tar -jxvf $1  ;;
+      *.tar.gz)  tar -zxvf $1  ;;
+      *.tar.xz)  tar -xvf $1   ;;
+      *.bz2)     bunzip2 $1    ;;
+      *.gz)      gunzip $1     ;;
+      *.jar)     unzip $1      ;;
+      *.rar)     unrar x $1    ;;
+      *.tar)     tar -xvf $1   ;;
+      *.tbz2)    tar -jxvf $1  ;;
+      *.tgz)     tar -zxvf $1  ;;
+      *.zip)     unzip $1      ;;
+      *.Z)       uncompress $1 ;;
+      *)         echo "unable to extract '$1'"
+    esac
   else
-    open "$@" # The Unarchiver.app can deal with archives on Mac
+    echo "file '$1' does not exist!"
   fi
 }
 compctl -g '*.tar.bz2 *.tar.gz *.bz2 *.gz *.jar *.rar *.tar *.tbz2 *.tgz *.zip *.Z' + -g '*(-/)' extract
@@ -592,7 +587,7 @@ function calc() {
 
 # clock
 if hash tty-clock 2> /dev/null; then
-  alias clock="tty-clock -cDC6"
+  alias clock="tty-clock -cDC4"
 else
   function clock() {
     while sleep 1; do

@@ -1,3 +1,12 @@
+" globals {{{
+
+let g:fzfdir = globpath('/usr/local/Cellar/fzf/', '*', 1, 1) + globpath('/usr/share/vim/vimfiles/plugin',' fzf.vim', 1, 1)
+let g:ismac  = has('mac')
+let g:isnvim = has('nvim')
+let g:isgui  = has('gui_running')
+let g:istmux = ($TMUX != '')
+
+" }}}
 " bundles {{{
 
 call plug#begin('~/.vim/plugged')
@@ -8,6 +17,7 @@ Plug 'airblade/vim-rooter'
 Plug 'ajh17/VimCompletesMe'
 Plug 'bling/vim-airline'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'matchit.zip'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
@@ -22,19 +32,14 @@ Plug 'rhysd/clever-f.vim',               { 'on': '<Plug>(clever-f-' }
 Plug 'tpope/vim-commentary',             { 'on': '<Plug>Commentary' }
 
 " OSX only
-if has("mac")
-  Plug 'scrooloose/syntastic'
+if g:ismac
   Plug 'airblade/vim-gitgutter'
+  Plug 'scrooloose/syntastic'
 endif
 
-" Homebrew FZF
-if isdirectory('/usr/local/Cellar/fzf/0.9.3/')
-  Plug '/usr/local/Cellar/fzf/0.9.3/'
-endif
-
-" AUR FZF
-if isdirectory('/usr/share/vim/vimfiles/plugin/fzf.vim')
-  Plug '/usr/share/vim/vimfiles/plugin/fzf.vim'
+" FZF
+if len(g:fzfdir) == 1
+  Plug g:fzfdir[0]
 endif
 
 " custom syntax bundles
@@ -44,21 +49,20 @@ Plug 'briancollins/vim-jst',         { 'for': 'jst' }
 Plug 'davidoc/taskpaper.vim',        { 'for': 'taskpaper' }
 Plug 'elzr/vim-json',                { 'for': 'json' }
 Plug 'groenewege/vim-less',          { 'for': 'less' }
-Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
 Plug 'kchmck/vim-coffee-script',     { 'for': 'coffee' }
 Plug 'moll/vim-node',                { 'for': 'javascript' }
 Plug 'othree/html5.vim',             { 'for': 'html' }
-Plug 'pangloss/vim-javascript',      { 'for': 'javascript' }
-Plug 'tpope/vim-markdown',           { 'for': 'markdown' }
+Plug 'pangloss/vim-javascript',      { 'for': [ 'javascript', 'html' ] }
 Plug 'sophacles/vim-processing',     { 'for': 'processing' }
 Plug 'sudar/vim-arduino-syntax',     { 'for': 'arduino' }
 Plug 'tikhomirov/vim-glsl',          { 'for': 'glsl' }
-Plug 'vim-scripts/ck.vim',           { 'for': 'chuck' }
+Plug 'tpope/vim-markdown',           { 'for': 'markdown' }
+Plug 'vim-scripts/ck.vim',           { 'for': 'ck' }
 
 call plug#end()
 
 " }}}
-" vim settings {{{
+" main settings {{{
 
 " viminfo - more v:oldfiles, register lines
 set viminfo='1000,<100,s10,
@@ -79,7 +83,7 @@ set display+=lastline
 " redraw only when needed and fast tty
 set lazyredraw
 
-if !has("nvim")
+if !g:isnvim
   set ttyfast
   set ttyscroll=3
 endif
@@ -103,16 +107,18 @@ set t_Co=256
 set background=dark
 
 " solarized
-let g:solarized_bold=0
-let g:solarized_italic=0
-let g:solarized_underline=0
-let g:solarized_menu=0
-let g:solarized_contrast="high"
-let g:solarized_visibility="normal"
-colorscheme solarized
+" let g:solarized_bold=0
+" let g:solarized_italic=0
+" let g:solarized_underline=0
+" let g:solarized_menu=0
+" let g:solarized_contrast="high"
+" let g:solarized_visibility="normal"
+" colorscheme solarized
 
 " jellybeans
 " colorscheme jellybeans
+
+colorscheme hybrid
 
 " highlight 80 character
 " set textwidth=80
@@ -210,13 +216,8 @@ set fillchars=fold:\ ,vert:│
 set grepprg=ag\ --vimgrep\ $*
 set grepformat=%f:%l:%c:%m
 
-" extended % matching, load only if no newer matchit found
-if !exists("g:loaded_matchit") && findfile("plugin/matchit.vim", &rtp) ==# ""
-  runtime! macros/matchit.vim
-endif
-
 " set path
-if has("mac")
+if g:ismac
   let $PATH="/usr/local/bin:" . $PATH . ":/Users/Szymon/Dropbox/Code/Scripts"
 endif
 
@@ -227,6 +228,7 @@ set foldcolumn=0
 
 " nice fold text modified from: https://coderwall.com/p/usd_cw
 set foldtext=FoldText()
+
 function! FoldText()
   let l:lpadding=&fdc
   redir => l:signs
@@ -260,106 +262,7 @@ function! FoldText()
 endfunction
 
 " }}}
-" autocommands {{{
-
-" return to same line after reopenning file
-augroup line_return
-  au!
-
-  au BufReadPost *
-        \ if line("'\"") > 0 && line("'\"") <= line("$") && !&diff |
-        \     execute 'normal! g`"zvzz' |
-        \ endif
-augroup END
-
-" automatically resize splits when resizing window
-augroup split_resize
-  au!
-
-  au VimResized * wincmd =
-augroup END
-
-" aupdate checktime for file re-reads
-augroup checktime_update
-  au!
-
-  au FocusGained,BufEnter,CursorHold * checktime
-augroup END
-
-" extend syntax highlight
-augroup extend_syntax
-  au!
-
-  au Syntax * call matchadd("Todo", "\W\zs\(ASSUMPTION\)")
-augroup END
-
-" set proper syntaxes
-augroup detect_syntax
-  au!
-
-  au BufNewFile,BufRead *.ck                 set filetype=chuck
-  au BufNewFile,BufRead *.frag,*.vert,*.glsl set filetype=glsl
-  au BufNewFile,BufRead *.ino                set filetype=arduino
-  au BufNewFile,BufRead *.m,*.mm             set filetype=objc
-  au BufNewFile,BufRead *.md                 set filetype=markdown
-  au BufNewFile,BufRead *.pde                set filetype=processing
-  au BufNewFile,BufRead *.swift              set filetype=swift
-  au BufNewFile,BufRead *.taskpaper          set filetype=taskpaper
-  au BufNewFile,BufRead *.tpl,*.ejs          let b:jst_subtype="html" | set filetype=jst
-  au BufNewFile,BufRead ~/Dropbox/Notes/*    set filetype=markdown
-augroup END
-
-" custom settings based on filetype
-augroup ft_settings
-  au!
-
-  au FileType css      setlocal iskeyword+=-
-  au FileType markdown setlocal nolist
-  au FileType text     setlocal nolist
-  au FileType vim      setlocal foldmethod=marker foldlevel=0
-  au FileType arduino  setlocal commentstring=//\ %s
-
-  au FileType clojure
-        \ nnoremap <buffer> <leader>a :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
-
-  au FileType taskpaper
-        \ setlocal nolist |
-        \ call taskpaper#fold_projects() |
-        \ nnoremap <buffer> <leader>to :g/@today/foldopen<cr>:nohlsearch<cr>gg
-
-  au FileType processing
-        \ setlocal makeprg=processing\ %:p:h |
-        \ setlocal errorformat=%DEntering\ directory\ \"%f\",%f:%l:%c:%*\\d:%*\\d:\ %m,%-G%.%#
-
-  au FileType javascript
-        \ call JavaScriptFold() |
-        \ set foldlevelstart=99 |
-        \ setlocal suffixesadd=.js |
-        \ setlocal makeprg=javascript\ %
-
-  au FileType lua
-        \ syn region luaFunctionBlock transparent fold matchgroup=luaFunction
-        \ start="\<function\>" end ="\<end\>"
-        \ contains=ALLBUT,luaTodo,luaSpecial,luaCond,luaCondElseif,luaCondEnd,luaRepeat
-
-  au FileType clojure
-        \ let b:delimitMate_quotes="\"" |
-        \ RainbowParentheses
-augroup END
-
-" quickfix/loclist
-augroup quickfix
-  au!
-
-  au BufWinEnter quickfix setlocal cursorline
-
-  " automatically open quickfix / loclist
-  au QuickFixCmdPost grep,make,grepadd,vimgrep,vimgrepadd,cscope,cfile,cgetfile,caddfile,helpgrep cwindow
-  au QuickFixCmdPost lgrep,lmake,lgrepadd,lvimgrep,lvimgrepadd,lfile,lgetfile,laddfile            lwindow
-augroup END
-
-" }}}
-" window titles {{{
+" window title {{{
 
 " set nice window title
 function! DirPath()
@@ -413,30 +316,127 @@ if &term == "screen-256color"
 endif
 
 " }}}
+" autocommands {{{
+
+" return to same line after reopenning file
+augroup line_return
+  au!
+
+  au BufReadPost *
+        \ if line("'\"") > 0 && line("'\"") <= line("$") && !&diff |
+        \     execute 'normal! g`"zvzz' |
+        \ endif
+augroup END
+
+" automatically resize splits when resizing window
+augroup split_resize
+  au!
+
+  au VimResized * wincmd =
+augroup END
+
+" aupdate checktime for file re-reads
+augroup checktime_update
+  au!
+
+  au FocusGained,BufEnter,CursorHold * checktime
+augroup END
+
+" set proper syntaxes
+augroup detect_syntax
+  au!
+
+  au BufNewFile,BufRead *.ck                 set filetype=ck
+  au BufNewFile,BufRead *.frag,*.vert,*.glsl set filetype=glsl
+  au BufNewFile,BufRead *.ino                set filetype=arduino
+  au BufNewFile,BufRead *.m,*.mm             set filetype=objc
+  au BufNewFile,BufRead *.md                 set filetype=markdown
+  au BufNewFile,BufRead *.pde                set filetype=processing
+  au BufNewFile,BufRead *.swift              set filetype=swift
+  au BufNewFile,BufRead *.taskpaper          set filetype=taskpaper
+  au BufNewFile,BufRead *.tpl,*.ejs          let b:jst_subtype="html" | set filetype=jst
+  au BufNewFile,BufRead ~/Dropbox/Notes/*    set filetype=markdown
+augroup END
+
+" custom settings based on filetype
+augroup ft_settings
+  au!
+
+  au FileType css      setlocal iskeyword+=-
+  au FileType markdown setlocal nolist
+  au FileType text     setlocal nolist
+  au FileType vim      setlocal foldmethod=marker foldlevel=0
+  au FileType arduino  setlocal commentstring=//\ %s
+
+  au FileType clojure
+        \ nnoremap <buffer> <leader>a :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
+
+  au FileType taskpaper
+        \ setlocal nolist |
+        \ call taskpaper#fold_projects() |
+        \ nnoremap <buffer> <leader>to :g/@today/foldopen<cr>:nohlsearch<cr>gg
+
+  au FileType processing
+        \ setlocal makeprg=processing\ %:p:h |
+        \ setlocal errorformat=%DEntering\ directory\ \"%f\",%f:%l:%c:%*\\d:%*\\d:\ %m,%-G%.%#
+
+  au FileType javascript
+        \ set foldlevelstart=99 |
+        \ setlocal suffixesadd=.js |
+        \ setlocal makeprg=javascript\ %
+
+  au FileType lua
+        \ syn region luaFunctionBlock transparent fold matchgroup=luaFunction
+        \ start="\<function\>" end ="\<end\>"
+        \ contains=ALLBUT,luaTodo,luaSpecial,luaCond,luaCondElseif,luaCondEnd,luaRepeat
+
+  au FileType clojure
+        \ let b:delimitMate_quotes="\"" |
+        \ RainbowParentheses
+augroup END
+
+" quickfix/loclist
+augroup quickfix
+  au!
+
+  au BufWinEnter quickfix setlocal cursorline
+
+  " automatically open quickfix / loclist
+  " au QuickFixCmdPost grep,make,grepadd,vimgrep,vimgrepadd,cscope,cfile,cgetfile,caddfile,helpgrep cwindow
+  " au QuickFixCmdPost lgrep,lmake,lgrepadd,lvimgrep,lvimgrepadd,lfile,lgetfile,laddfile            lwindow
+augroup END
+
+" }}}
 " plugin: airline {{{
 
 augroup airline_plugin
   au!
 
-  au BufEnter * let g:airline_section_y=airline#section#create(["hunks", "branch"])
+  au BufEnter * let g:airline_section_y=airline#section#create(["hunks"])
 augroup END
+
+" theme
+let g:airline_theme="tomorrow"
+
+" extensions
+let g:airline_extensions=["quickfix", "tabline"]
+
+if g:ismac
+  let g:airline_extensions=g:airline_extensions + ["syntastic", "hunks"]
+  let g:airline#extensions#hunks#non_zero_only=1
+endif
 
 " settings
 let g:airline_left_sep=""
 let g:airline_right_sep=""
 let g:airline_inactive_collapse=0
-let g:airline#extensions#whitespace#enabled=0
-let g:airline#extensions#syntastic#enabled=1
-let g:airline#extensions#hunks#enabled=1
-let g:airline#extensions#hunks#non_zero_only=1
 let g:airline_section_b="%{DirPath()}"
 let g:airline_section_c=""
 let g:airline_section_x=""
 let g:airline_section_y=""
 
-" show tabline themed with airline only when needed
-if !has("gui_running")
-  let g:airline#extensions#tabline#enabled=1
+" tabline
+if !g:isgui
   let g:airline#extensions#tabline#show_buffers=1
   let g:airline#extensions#tabline#show_tab_type=0
   let g:airline#extensions#tabline#tab_min_count=2
@@ -447,6 +447,9 @@ if !has("gui_running")
   let g:airline#extensions#tabline#right_alt_sep=""
   let g:airline#extensions#tabline#close_symbol="✕"
 endif
+
+" layout
+" let g:airline#extensions#default#layout = [ [ 'a', 'b', 'c' ], [ 'warning', 'x', 'y', 'z' ] ]
 
 " patch function
 let g:airline_theme_patch_func="AirlineThemePatch"
@@ -463,10 +466,17 @@ function! AirlineThemePatch(palette)
       endfor
     endfor
 
-    if g:airline_theme == "tomorrow" && !has("gui_running")
+    if g:airline_theme == "tomorrow" && !g:isgui
       for l:colors in values(a:palette.inactive)
         let l:colors[2]="245"
         let l:colors[3]="0"
+      endfor
+    endif
+
+    if g:airline_theme == "tomorrow" && !g:isgui && g:colors_name == "hybrid"
+      for l:colors in values(a:palette.inactive)
+        let l:colors[2]="243"
+        let l:colors[3]="235"
       endfor
     endif
 
@@ -526,17 +536,18 @@ let g:gitgutter_escape_grep=1
 " plugin: syntastic {{{
 
 let g:syntastic_enable_signs=0
-let g:syntastic_enable_highlighting=0
+let g:syntastic_enable_highlighting=1
 let g:syntastic_check_on_open=0
 let g:syntastic_check_on_wq=0
 let g:syntastic_cursor_column=0
 let g:syntastic_always_populate_loc_list=1
-let g:syntastic_auto_loc_list=1
+let g:syntastic_auto_loc_list=0
 let g:syntastic_error_symbol="!"
 let g:syntastic_style_error_symbol="!"
 let g:syntastic_warning_symbol="?"
 let g:syntastic_style_warning_symbol="?"
 let g:syntastic_stl_format="%E{Error: %e}%B{ }%W{Warning: %w}"
+let g:syntastic_javascript_jslint_args="--white --nomen --regexp --plusplus --bitwise --newcap --sloppy --vars --no-filter"
 
 " }}}
 " plugin: delimitmate {{{
@@ -544,16 +555,7 @@ let g:syntastic_stl_format="%E{Error: %e}%B{ }%W{Warning: %w}"
 let g:delimitMate_balance_matchpairs=1
 let g:delimitMate_expand_cr=1
 let g:delimitMate_expand_space=1
-
-" }}}
-" plugin: supertab {{{
-
-let g:SuperTabDefaultCompletionType="context"
-let g:SuperTabContextDefaultCompletionType="<c-n>"
-
-" silent input maps
-inoremap <script> <silent> <Plug>SuperTabForward <c-r>=SuperTab("n")<cr>
-inoremap <script> <silent> <Plug>SuperTabBackward <c-r>=SuperTab("p")<cr>
+let g:delimitMate_nesting_quotes=[ '"', "'" ]
 
 " }}}
 " plugin: fzf {{{
@@ -593,16 +595,6 @@ function! AgSearchVisual()
   return AgSearchHandler(l:selection)
 endfunction
 
-function! AgSearchSmart()
-  let l:word = expand("<cword>")
-
-  if l:word != ""
-    return AgSearchHandler(l:word)
-  else
-    return AgSearchInput()
-  endif
-endfunction
-
 function! AgSearchInput()
   let l:input = input("Grep for: ")
 
@@ -624,11 +616,13 @@ endfunction
 function! Registers()
   let l:regnum =  range(char2nr('a'), char2nr('z'))
   let l:regnum += range(char2nr('0'), char2nr('9'))
-  let l:regstr =  [ '"','-','*','%','/','.','#',':' ]
+  let l:regstr =  [ '"' ]
   let l:regnum += map(l:regstr, 'char2nr(v:val)')
 
+  let l:regnum = filter(l:regnum, 'getreg(nr2char(v:val)) != ""')
   let l:regnum = filter(l:regnum, 'getreg(nr2char(v:val)) !~ "^$"')
   let l:regnum = filter(l:regnum, 'getreg(nr2char(v:val)) !~ "^\s\+$"')
+  let l:regnum = filter(l:regnum, 'getreg(nr2char(v:val)) !~ "^\W\+$"')
 
   let l:registers = map(l:regnum, 'getreg(nr2char(v:val))')
 
@@ -647,53 +641,54 @@ function! RecentFiles()
   return l:files
 endfunction
 
-let g:fzf_tmux_height="20%"
+let g:fzf_height="20%"
 
 command! FZFFiles call fzf#run({
       \ "sink": "e ",
-      \ "options": "-m -0",
-      \ "tmux_height": g:fzf_tmux_height
+      \ "options": "--multi --exit-0",
+      \ "down": g:fzf_height
       \ })
 
 command! FZFBuffers call fzf#run({
-      \ "source": reverse(BuffersList()),
+      \ "source": BuffersList(),
       \ "sink": "e ",
-      \ "tmux_height": g:fzf_tmux_height
+      \ "options": "--no-sort",
+      \ "down": g:fzf_height
       \ })
 
 command! FZFMru call fzf#run({
-      \ "source": reverse(RecentFiles()),
+      \ "source": RecentFiles(),
       \ "sink": "e ",
-      \ "options": "-m +s -0",
-      \ "tmux_height": g:fzf_tmux_height
+      \ "options": "--multi --exit-0 --no-sort",
+      \ "down": g:fzf_height
       \ })
 
 command! FZFAgInput call fzf#run({
-      \ "source": AgSearchSmart(),
+      \ "source": AgSearchInput(),
       \ "sink": function("AgHandler"),
-      \ "options": "-m -0",
-      \ "tmux_height": g:fzf_tmux_height
+      \ "options": "--multi --exit-0",
+      \ "down": g:fzf_height
       \ })
 
 command! -range FZFAgVisual call fzf#run({
       \ "source": AgSearchVisual(),
       \ "sink": function("AgHandler"),
-      \ "options": "-m -0",
-      \ "tmux_height": g:fzf_tmux_height
+      \ "options": "--multi --exit-0",
+      \ "down": g:fzf_height
       \ })
 
 command! FZFLines call fzf#run({
       \ "source": BufferLines(),
       \ "sink": function("BufferLineOpen"),
-      \ "options": "+s -0",
-      \ "tmux_height": g:fzf_tmux_height
+      \ "options": "--no-sort --exit-0",
+      \ "down": g:fzf_height
       \ })
 
 command! FZFRegisters call fzf#run({
       \ "source": Registers(),
       \ "sink": function("LineAppend"),
-      \ "options": "+s -0",
-      \ "tmux_height": g:fzf_tmux_height
+      \ "options": "--no-sort --tac --exit-0",
+      \ "down": g:fzf_height
       \ })
 
 nnoremap <silent> <c-p>      :FZFFiles<cr>
@@ -711,8 +706,8 @@ if isdirectory($HOME . "/Dropbox/Notes")
   command! FZFNotes call fzf#run({
         \ "source": "find ~/Dropbox/Notes -iname '*.txt' | cut -d '/' -f6 | sed 's/\.txt$//'",
         \ "sink": function("OpenNote"),
-        \ "options": "-m",
-        \ "tmux_height": g:fzf_tmux_height
+        \ "options": "--multi",
+        \ "down": g:fzf_height
         \ })
 
   function! OpenNote(e)
@@ -726,8 +721,8 @@ if isdirectory($HOME . "/Dropbox/Tasks")
   command! FZFTasks call fzf#run({
         \ "source": "find ~/Dropbox/Tasks -iname '*.taskpaper' | cut -d '/' -f6 | sed 's/\.taskpaper$//'",
         \ "sink": function("OpenTask"),
-        \ "options": "-m",
-        \ "tmux_height": g:fzf_tmux_height
+        \ "options": "--multi",
+        \ "down": g:fzf_height
         \ })
 
   function! OpenTask(e)
@@ -740,18 +735,24 @@ endif
 " }}}
 " plugin: limelight {{{
 
-let g:limelight_conceal_ctermfg=10
-let g:limelight_conceal_guifg="#586e75"
+if g:colors_name == "solarized"
+  let g:limelight_conceal_ctermfg=10
+  let g:limelight_conceal_guifg="#586e75"
+endif
+
+if g:colors_name == "hybrid"
+  let g:limelight_conceal_ctermfg=8
+endif
 
 " }}}
 " plugin: goyo {{{
 
 function! GoyoBefore()
-  if !has("gui_running")
+  if !g:isgui
     set showtabline=0
   endif
 
-  if $TMUX != ""
+  if g:istmux
     silent !tmux set status off > /dev/null
     silent !tmux resize-pane -Z > /dev/null
   endif
@@ -761,11 +762,11 @@ function! GoyoBefore()
 endfunction
 
 function! GoyoAfter()
-  if !has("gui_running")
+  if !g:isgui
     set showtabline=2
   endif
 
-  if $TMUX != ""
+  if g:istmux
     silent !tmux set status on > /dev/null
     silent !tmux resize-pane -Z > /dev/null
   endif
@@ -817,6 +818,7 @@ nmap ga        <Plug>(EasyAlign)
 " plugin: rooter {{{
 
 let g:rooter_use_lcd=1
+let g:rooter_disable_map=1
 let g:rooter_patterns=["package.json", "node_modules/", ".git/"]
 
 " }}}
@@ -877,12 +879,6 @@ nnoremap <leader>U :UndotreeToggle<cr>
 " plugin: markdown {{{
 
 let g:markdown_fenced_languages = [ 'css', 'html', 'javascript', 'js=javascript', 'json=javascript', 'bash=sh', 'lua' ]
-
-" }}}
-" plugin: delimitmate {{{
-
-let delimitMate_nesting_quotes=[ '"', "'" ]
-
 
 " }}}
 " custom abbrevs {{{
@@ -962,7 +958,7 @@ endfunction
 command! -bang Wipeout :call Wipeout(<bang>0)
 
 " open URL in browser
-if has("mac")
+if g:ismac
   function! HandleURL(visual)
     let l:uri = ""
 
@@ -1090,6 +1086,10 @@ nmap <sid>ws <nop>
 nnoremap <expr> k (v:count ? "k" : "gk")
 nnoremap <expr> j (v:count ? "j" : "gj")
 
+" { and } skip over closed folds instead of openning them
+nnoremap <expr> } foldclosed(search('^$', 'Wn'))  == -1 ? "}" : "}j}"
+nnoremap <expr> { foldclosed(search('^$', 'Wnb')) == -1 ? "{" : "{k{"
+
 " quicker indentation
 nnoremap > >>
 nnoremap < <<
@@ -1104,11 +1104,11 @@ vnoremap <leader>s :sort<cr>
 " dot works in visual selection mode!
 vnoremap . :norm .<cr>
 
-" D deletes to the end of the line
-nnoremap D d$
-
 " Y yanks to the end of the line
 nnoremap Y y$
+
+" U as redo
+nnoremap U <c-r>
 
 " better line begin (H) and end (L)
 noremap H ^
@@ -1139,7 +1139,7 @@ vnoremap Q :norm @q<cr>
 nnoremap <leader>ov :e ~/.vimrc<cr>
 nnoremap <leader>oz :e ~/.zshrc<cr>
 
-if has("mac")
+if g:ismac
   nnoremap <leader>od :e ~/Dropbox/Notes/drafts.txt<cr>
   nnoremap <leader>ot :e ~/Dropbox/Tasks/Current.taskpaper<cr>
 endif
