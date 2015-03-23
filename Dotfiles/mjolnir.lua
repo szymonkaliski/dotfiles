@@ -435,7 +435,9 @@ fnutils.each({
   { key = "n", app = "Notational Velocity" },
   { key = "p", app = "TaskPaper" },
   { key = "r", app = "Reminders" },
-  { key = "t", app = "Terminal" }
+  { key = "t", app = "Terminal" },
+  { key = "v", app = "MacVim" },
+  { key = "x", app = "Xcode" }
 }, function(object)
   hotkey.bind(mod3, object.key, function() ext.app.launchorfocus(object.app) end)
 end)

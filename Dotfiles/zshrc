@@ -36,6 +36,10 @@ elif [ -d $HOME/Documents/Scripts ]; then
   export PATH="$HOME/Documents/Scripts:$PATH"
 fi
 
+if [ -d $HOME/Dropbox/Code/Bin ]; then
+  export PATH="$HOME/Dropbox/Code/Bin:$PATH"
+fi
+
 if [ -d /usr/local/bin ]; then
   export PATH="/usr/local/bin:$PATH"
 fi
