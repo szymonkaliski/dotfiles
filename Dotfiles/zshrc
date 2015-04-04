@@ -308,7 +308,7 @@ function tm() {
 }
 compctl -s "$(tmux ls 2> /dev/null | cut -d: -f1)" tm
 
-alias tl="tmux ls"
+alias tl="tmux ls | sed 's/:/;/' | column -t -s ';'"
 
 # mac only
 if [ "$(uname)" = "Darwin" ]; then

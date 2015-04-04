@@ -1,10 +1,10 @@
 " globals {{{
 
-let g:fzfdir = globpath('/usr/local/Cellar/fzf/', '*', 1, 1) + globpath('/usr/share/vim/vimfiles/plugin',' fzf.vim', 1, 1)
-let g:ismac  = has('mac')
-let g:isnvim = has('nvim')
-let g:isgui  = has('gui_running')
-let g:istmux = ($TMUX != '')
+let g:fzfdir  = globpath('/usr/local/Cellar/fzf/', '*', 1, 1) + globpath('/usr/share/vim/vimfiles/plugin',' fzf.vim', 1, 1)
+let g:is_mac  = has('mac')
+let g:is_nvim = has('nvim')
+let g:is_gui  = has('gui_running')
+let g:is_tmux = ($TMUX != '')
 
 " }}}
 " bundles {{{
@@ -31,13 +31,15 @@ Plug 'mbbill/undotree',                  { 'on': 'UndotreeToggle' }
 Plug 'rhysd/clever-f.vim',               { 'on': '<Plug>(clever-f-' }
 Plug 'tpope/vim-commentary',             { 'on': '<Plug>Commentary' }
 
-" OSX only
-if g:ismac
+if g:is_tmux
+  Plug 'tmux-plugins/vim-tmux-focus-events'
+endif
+
+if g:is_mac
   Plug 'airblade/vim-gitgutter'
   Plug 'scrooloose/syntastic'
 endif
 
-" FZF
 if len(g:fzfdir) == 1
   Plug g:fzfdir[0]
 endif
@@ -83,7 +85,7 @@ set display+=lastline
 " redraw only when needed and fast tty
 set lazyredraw
 
-if !g:isnvim
+if !g:is_nvim
   set ttyfast
   set ttyscroll=3
 endif
@@ -217,7 +219,7 @@ set grepprg=ag\ --vimgrep\ $*
 set grepformat=%f:%l:%c:%m
 
 " set path
-if g:ismac
+if g:is_mac
   let $PATH="/usr/local/bin:" . $PATH . ":/Users/Szymon/Dropbox/Code/Bin:/Users/Szymon/Dropbox/Code/Scripts"
 endif
 
@@ -425,7 +427,7 @@ let g:airline_theme="tomorrow"
 let g:airline_extensions=["quickfix"]
 let g:airline_extensions=g:airline_extensions + ["tabline"]
 
-if g:ismac
+if g:is_mac
   let g:airline_extensions=g:airline_extensions + ["syntastic", "hunks"]
   let g:airline#extensions#hunks#non_zero_only=1
 endif
@@ -468,14 +470,14 @@ function! AirlineThemePatch(palette)
       endfor
     endfor
 
-    if g:airline_theme == "tomorrow" && !g:isgui
+    if g:airline_theme == "tomorrow" && !g:is_gui
       for l:colors in values(a:palette.inactive)
         let l:colors[2]="245"
         let l:colors[3]="0"
       endfor
     endif
 
-    if g:airline_theme == "tomorrow" && !g:isgui && g:colors_name == "hybrid"
+    if g:airline_theme == "tomorrow" && !g:is_gui && g:colors_name == "hybrid"
       for l:colors in values(a:palette.inactive)
         let l:colors[2]="243"
         let l:colors[3]="235"
@@ -515,13 +517,16 @@ augroup netrw_plugin
   au!
 
   au FileType netrw
-        \ map      <buffer> <silent> e <cr> |
-        \ map      <buffer> <silent> u - |
-        \ map      <buffer> <silent> N % |
-        \ nnoremap <buffer> <silent> q <esc>:bd<cr>
+        \ setlocal nolist |
+        \ map      <buffer> <silent> e     <cr>0 |
+        \ map      <buffer> <silent> u     -0    |
+        \ map      <buffer> <silent> N     %     |
+        \ map      <buffer> <silent> D     d     |
+        \ nnoremap <buffer> <silent> <c-f> :bd<cr>
 augroup END
 
 let g:netrw_banner=0
+let g:netrw_liststyle=3
 
 nnoremap <silent> <c-f> :Explore<cr>
 
@@ -638,14 +643,10 @@ function! LineAppend(e)
 endfunction
 
 function! RecentFiles()
-  let l:files = v:oldfiles
-  let l:files = filter(l:files, 'v:val !~ "NERD_tree"')
-  let l:files = filter(l:files, 'v:val !~ "COMMIT_EDITMSG"')
-
-  return l:files
+  return filter(v:oldfiles, 'filereadable(glob(v:val))')
 endfunction
 
-if !g:isgui
+if !g:is_gui
   let g:fzf_height="20%"
 
   command! FZFFiles call fzf#run({
@@ -699,6 +700,8 @@ if !g:isgui
   nnoremap <silent> <c-p>      :FZFFiles<cr>
   nnoremap <silent> <c-b>      :FZFBuffers<cr>
 
+  nnoremap <silent> <leader>fe :FZFFiles<cr>
+  nnoremap <silent> <leader>fb :FZFBuffers<cr>
   nnoremap <silent> <leader>fl :FZFLines<cr>
   nnoremap <silent> <leader>fm :FZFMru<cr>
   nnoremap <silent> <leader>fh :FZFRegisters<cr>
@@ -754,11 +757,11 @@ endif
 " plugin: goyo {{{
 
 function! GoyoBefore()
-  if !g:isgui
+  if !g:is_gui
     set showtabline=0
   endif
 
-  if g:istmux
+  if g:is_tmux
     silent !tmux set status off > /dev/null
     silent !tmux resize-pane -Z > /dev/null
   endif
@@ -768,11 +771,11 @@ function! GoyoBefore()
 endfunction
 
 function! GoyoAfter()
-  if !g:isgui
+  if !g:is_gui
     set showtabline=2
   endif
 
-  if g:istmux
+  if g:is_tmux
     silent !tmux set status on > /dev/null
     silent !tmux resize-pane -Z > /dev/null
   endif
@@ -831,7 +834,7 @@ let g:rooter_patterns=["package.json", "node_modules/", ".git/"]
 " plugin: taskpaper {{{
 
 let g:task_paper_date_format="%Y-%m-%d"
-let g:task_paper_styles={"today": "ctermfg=DarkGreen"}
+let g:task_paper_styles={"today": "ctermfg=DarkGreen guifg=#b5bd68"}
 
 " }}}
 " plugin: commentary {{{
@@ -919,7 +922,23 @@ cnoreabbrev <expr> h ((getcmdtype() == ":" && getcmdpos() <= 2) ? "vert h" : "h"
 " custom commands {{{
 
 " reload settings
-command! ReloadSettings :so $MYVIMRC | if g:isgui | so $MYGVIMRC | endif | :setlocal foldmethod=marker | :AirlineRefresh
+if !exists("*ReloadSettings")
+  function! ReloadSettings()
+    source $MYVIMRC
+
+    if g:is_gui
+      source $MYGVIMRC
+    endif
+
+    setlocal foldmethod=marker
+
+    AirlineRefresh
+
+    echo "Reloaded!"
+  endfunction
+
+  command! ReloadSettings :call ReloadSettings()
+endif
 
 " kills trailing whitespaces
 command! KillWhitespace :normal :silent! %s/\s\+$//g<cr>
@@ -964,7 +983,7 @@ endfunction
 command! -bang Wipeout :call Wipeout(<bang>0)
 
 " open URL in browser
-if g:ismac
+if g:is_mac
   function! HandleURL(visual)
     let l:uri = ""
 
@@ -1053,6 +1072,37 @@ endfunction
 " select in visual mode, star, and don't move unles n/N/...
 xnoremap * :<c-u>let star_view=winsaveview()<cr>:<c-u>call VisualSearch('/')<cr>/<c-r>=@/<cr><cr>:call winrestview(star_view)<cr>
 xnoremap # :<c-u>let hash_view=winsaveview()<cr>:<c-u>call VisualSearch('?')<cr>?<c-r>=@/<cr><cr>:call winrestview(hash_view)<cr>
+
+" grep
+function! GrepHandler(text)
+  execute "silent grep! " . a:text
+  execute "silent /" . a:text
+  redraw!
+endfunction
+
+function! Grep()
+  let l:input = input("Grep for: ")
+
+  call GrepHandler(l:input)
+endfunction
+
+function! GrepVisual()
+  let [l:lnum1, l:col1] = getpos("'<")[1:2]
+  let [l:lnum2, l:col2] = getpos("'>")[1:2]
+  let l:lines = getline(l:lnum1, l:lnum2)
+  let l:lines[-1] = l:lines[-1][: l:col2 - (&selection == 'inclusive' ? 1 : 2)]
+  let l:lines[0] = l:lines[0][l:col1 - 1:]
+
+  let l:selection = join(l:lines, "\n")
+
+  call GrepHandler(l:input)
+endfunction
+
+command!        Grep       :call Grep()
+command! -range GrepVisual :call GrepVisual()
+
+nnoremap <leader>g :Grep<cr>
+xnoremap <leader>g :GrepVisual<cr>
 
 " }}}
 " custom mappings {{{
@@ -1146,7 +1196,7 @@ nnoremap <leader>ov :e ~/.vimrc<cr>
 nnoremap <leader>og :e ~/.gvimrc<cr>
 nnoremap <leader>oz :e ~/.zshrc<cr>
 
-if g:ismac
+if g:is_mac
   nnoremap <leader>od :e ~/Dropbox/Notes/drafts.txt<cr>
   nnoremap <leader>ot :e ~/Dropbox/Tasks/Current.taskpaper<cr>
 endif
@@ -1158,8 +1208,7 @@ nnoremap <leader>of :e <c-r>=expand("%:p:h") . "/"<cr>
 nnoremap <leader>sv :ReloadSettings<cr>
 
 " run with make
-" nnoremap <leader>m :wa<cr>:silent make!<cr>:redraw!<cr>
-nnoremap <c-r> :wa<cr>:silent make!<cr>:redraw!<cr>
+nnoremap <leader>m :wa<cr>:silent make!<cr>:redraw!<cr>
 
 " run current line in shell
 nnoremap <leader>rs yyp!!sh<cr>
@@ -1171,6 +1220,7 @@ nnoremap <leader>w :w !diff % -<cr>
 nnoremap gb :bnext<cr>
 nnoremap gB :bprev<cr>
 nnoremap <leader>bd :bdelete!<cr>
+nnoremap <leader>bb :b#<cr>
 nnoremap <leader>B  :enew<cr>
 
 " new tab
