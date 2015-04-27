@@ -14,22 +14,22 @@ call plug#begin('~/.vim/plugged')
 Plug 'Konfekt/FastFold'
 Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
-Plug 'ajh17/VimCompletesMe'
 Plug 'bling/vim-airline'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'ervandew/supertab'
 Plug 'matchit.zip'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
 
-Plug 'epeli/slimux',                     { 'on': [ 'SlimuxREPLSendLine', 'SlimuxREPLSendSelection', 'SlimuxREPLConfigure' ] }
-Plug 'junegunn/goyo.vim',                { 'on': 'Goyo' }
-Plug 'junegunn/limelight.vim',           { 'on': 'Limelight' }
-Plug 'junegunn/rainbow_parentheses.vim', { 'on': [ 'RainbowParentheses', 'RainbowParenthesesToggle' ] }
-Plug 'junegunn/vim-easy-align',          { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
-Plug 'mbbill/undotree',                  { 'on': 'UndotreeToggle' }
-Plug 'rhysd/clever-f.vim',               { 'on': '<Plug>(clever-f-' }
-Plug 'tpope/vim-commentary',             { 'on': '<Plug>Commentary' }
+Plug 'epeli/slimux',             { 'on': [ 'SlimuxREPLSendLine', 'SlimuxREPLSendSelection', 'SlimuxREPLSendBuffer', 'SlimuxREPLConfigure' ] }
+Plug 'junegunn/goyo.vim',        { 'on': 'Goyo' }
+Plug 'junegunn/limelight.vim',   { 'on': 'Limelight' }
+Plug 'junegunn/vim-easy-align',  { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
+Plug 'mbbill/undotree',          { 'on': 'UndotreeToggle' }
+Plug 'rhysd/clever-f.vim',       { 'on': '<Plug>(clever-f-' }
+Plug 'tpope/vim-commentary',     { 'on': '<Plug>Commentary' }
+Plug 'vim-scripts/paredit.vim',  { 'for': 'clojure' }
 
 if g:is_tmux
   Plug 'tmux-plugins/vim-tmux-focus-events'
@@ -45,21 +45,21 @@ if len(g:fzfdir) == 1
 endif
 
 " custom syntax bundles
-Plug 'Keithbsmiley/swift.vim',       { 'for': 'swift' }
-Plug 'b4winckler/vim-objc',          { 'for': 'objc' }
-Plug 'briancollins/vim-jst',         { 'for': 'jst' }
-Plug 'davidoc/taskpaper.vim',        { 'for': 'taskpaper' }
-Plug 'elzr/vim-json',                { 'for': 'json' }
-Plug 'groenewege/vim-less',          { 'for': 'less' }
-Plug 'kchmck/vim-coffee-script',     { 'for': 'coffee' }
-Plug 'moll/vim-node',                { 'for': 'javascript' }
-Plug 'othree/html5.vim',             { 'for': 'html' }
-Plug 'pangloss/vim-javascript',      { 'for': [ 'javascript', 'html' ] }
-Plug 'sophacles/vim-processing',     { 'for': 'processing' }
-Plug 'sudar/vim-arduino-syntax',     { 'for': 'arduino' }
-Plug 'tikhomirov/vim-glsl',          { 'for': 'glsl' }
-Plug 'tpope/vim-markdown',           { 'for': 'markdown' }
-Plug 'vim-scripts/ck.vim',           { 'for': 'ck' }
+Plug 'Keithbsmiley/swift.vim',   { 'for': 'swift' }
+Plug 'b4winckler/vim-objc',      { 'for': 'objc' }
+Plug 'briancollins/vim-jst',     { 'for': 'jst' }
+Plug 'davidoc/taskpaper.vim',    { 'for': 'taskpaper' }
+Plug 'elzr/vim-json',            { 'for': 'json' }
+Plug 'groenewege/vim-less',      { 'for': 'less' }
+Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
+Plug 'moll/vim-node',            { 'for': 'javascript' }
+Plug 'othree/html5.vim',         { 'for': 'html' }
+Plug 'pangloss/vim-javascript',  { 'for': [ 'javascript', 'html' ] }
+Plug 'sophacles/vim-processing', { 'for': 'processing' }
+Plug 'sudar/vim-arduino-syntax', { 'for': 'arduino' }
+Plug 'tikhomirov/vim-glsl',      { 'for': 'glsl' }
+Plug 'tpope/vim-markdown',       { 'for': 'markdown' }
+Plug 'vim-scripts/ck.vim',       { 'for': 'ck' }
 
 call plug#end()
 
@@ -122,15 +122,8 @@ set background=dark
 
 colorscheme hybrid
 
-" highlight 80 character
-" set textwidth=80
-" set colorcolumn=+1
-
 " disable background color erase so that color scheme work properly in tmux
 set t_ut=
-
-" don't try to highlight longer lines
-" set synmaxcol=1024
 
 " indentation
 filetype plugin indent on
@@ -162,6 +155,9 @@ set path+=./**
 
 " don't complete 'included files', speeds things up
 set complete-=i
+
+" nice format options
+set formatoptions=tcqn21
 
 " hidden chars liketextmate, disabled by default
 set list
@@ -229,8 +225,6 @@ set foldlevelstart=99
 set foldcolumn=0
 
 " nice fold text modified from: https://coderwall.com/p/usd_cw
-set foldtext=FoldText()
-
 function! FoldText()
   let l:lpadding=&fdc
   redir => l:signs
@@ -263,6 +257,8 @@ function! FoldText()
   return l:text
 endfunction
 
+set foldtext=FoldText()
+
 " }}}
 " window title {{{
 
@@ -285,7 +281,8 @@ function! DirPath()
 endfunction
 
 function! WindowTitle()
-  return "vim: " . DirPath()
+  let g:app=g:is_nvim ? "nvim" : "vim"
+  return g:app . ": " . DirPath()
 endfunction
 
 " set title on start as simple "vim"
@@ -371,18 +368,20 @@ augroup ft_settings
   au FileType arduino  setlocal commentstring=//\ %s
 
   au FileType clojure
+        \ let b:delimitMate_quotes="\"" |
         \ nnoremap <buffer> <leader>a :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
 
   au FileType taskpaper
         \ setlocal nolist |
         \ call taskpaper#fold_projects() |
-        \ nnoremap <buffer> <leader>to :g/@today/foldopen<cr>:nohlsearch<cr>gg
+        \ nnoremap <buffer> <leader>to :g/\v^(.*\@today)&(.*\@done)@!/foldopen<cr>:nohlsearch<cr>gg
 
   au FileType processing
         \ setlocal makeprg=processing\ %:p:h |
         \ setlocal errorformat=%DEntering\ directory\ \"%f\",%f:%l:%c:%*\\d:%*\\d:\ %m,%-G%.%#
 
   au FileType javascript
+        \ syntax keyword jsCommentTodo ASSUMPTION ASSUMPTIONS
         \ setlocal suffixesadd=.js |
         \ setlocal makeprg=javascript\ % |
         \ setlocal errorformat=%Evm.js:%*\\d:\ Uncaught\ SyntaxError:\ %f:%l,\ %C%m,%Z%m,%AError:\ %m,%AEvalError:\ %m,%ARangeError:\ %m,%AReferenceError:\ %m,%ASyntaxError:\ %m,%ATypeError:\ %m,%Z%*[\ ]at\ %f:%l:%c,%Z%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]at\ %f:%l:%c,%Z%p^,%A%f:%l,%C%m,%-G%.%#
@@ -391,10 +390,6 @@ augroup ft_settings
         \ syn region luaFunctionBlock transparent fold matchgroup=luaFunction
         \ start="\<function\>" end ="\<end\>"
         \ contains=ALLBUT,luaTodo,luaSpecial,luaCond,luaCondElseif,luaCondEnd,luaRepeat
-
-  au FileType clojure
-        \ let b:delimitMate_quotes="\"" |
-        \ RainbowParentheses
 
   au FileType objc
         \ setlocal errorformat=%f:%l:%c:%.%#\ error:\ %m,%f:%l:%c:%.%#\ warning:\ %m,%-G%.%#
@@ -410,6 +405,15 @@ augroup quickfix
   au QuickFixCmdPost grep,make,grepadd,vimgrep,vimgrepadd,cscope,cfile,cgetfile,caddfile,helpgrep cwindow
   au QuickFixCmdPost lgrep,lmake,lgrepadd,lvimgrep,lvimgrepadd,lfile,lgetfile,laddfile            lwindow
 augroup END
+
+" highlight 80th character as error
+" augroup column_limit
+"   autocmd!
+"   let column_limit=79
+"   let pattern='\%<' . (column_limit + 1 ) . 'v.\%>' . column_limit . 'v'
+
+"   autocmd BufEnter,WinEnter * let w:m1=matchadd('ErrorMsg', pattern, -1)
+" augroup END
 
 " }}}
 " plugin: airline {{{
@@ -436,6 +440,7 @@ endif
 let g:airline_left_sep=""
 let g:airline_right_sep=""
 let g:airline_inactive_collapse=0
+let g:airline_exclude_preview=0
 let g:airline_section_b="%{DirPath()}"
 let g:airline_section_c=""
 let g:airline_section_x=""
@@ -556,7 +561,7 @@ let g:syntastic_style_error_symbol="!"
 let g:syntastic_warning_symbol="?"
 let g:syntastic_style_warning_symbol="?"
 let g:syntastic_stl_format="%E{Error: %e}%B{ }%W{Warning: %w}"
-let g:syntastic_javascript_jslint_post_args="--no-filter"
+let g:syntastic_javascript_jslint_post_args="--no-filter --todo"
 
 " }}}
 " plugin: delimitmate {{{
@@ -614,12 +619,21 @@ function! AgSearchHandler(search)
   return "ag --smart-case --nogroup --nocolor --column " . a:search
 endfunction
 
-function! BufferLines()
-  return map(getline(1, "$"), "printf('%5d  %s', v:key + 1, v:val)")
+function! BuffersLines()
+  let res = []
+
+  for b in filter(range(1, bufnr('$')), 'buflisted(v:val)')
+    call extend(res, map(getbufline(b,0,"$"), 'b . ":\t" . (v:key + 1) . ":\t" . v:val '))
+  endfor
+
+  return res
 endfunction
 
-function! BufferLineOpen(e)
-  execute "normal! " . matchstr(a:e, "[0-9]\+") . "G"
+function! BuffersLineOpen(l)
+  let keys = split(a:l, ':\t')
+  exec 'buffer ' . keys[0]
+  exec keys[1]
+  normal! ^zzzo
 endfunction
 
 function! Registers()
@@ -650,51 +664,51 @@ if !g:is_gui
   let g:fzf_height="20%"
 
   command! FZFFiles call fzf#run({
-        \ "sink": "e ",
+        \ "sink":    "e ",
         \ "options": "--multi --exit-0",
-        \ "down": g:fzf_height
+        \ "down":    g:fzf_height
         \ })
 
   command! FZFBuffers call fzf#run({
-        \ "source": BuffersList(),
-        \ "sink": "e ",
+        \ "source":  BuffersList(),
+        \ "sink":    "e ",
         \ "options": "--no-sort",
-        \ "down": g:fzf_height
+        \ "down":    g:fzf_height
         \ })
 
   command! FZFMru call fzf#run({
-        \ "source": RecentFiles(),
-        \ "sink": "e ",
+        \ "source":  RecentFiles(),
+        \ "sink":    "e ",
         \ "options": "--multi --exit-0 --no-sort",
-        \ "down": g:fzf_height
+        \ "down":    g:fzf_height
         \ })
 
   command! FZFAgInput call fzf#run({
-        \ "source": AgSearchInput(),
-        \ "sink": function("AgHandler"),
+        \ "source":  AgSearchInput(),
+        \ "sink":    function("AgHandler"),
         \ "options": "--multi --exit-0",
-        \ "down": g:fzf_height
+        \ "down":    g:fzf_height
         \ })
 
   command! -range FZFAgVisual call fzf#run({
-        \ "source": AgSearchVisual(),
-        \ "sink": function("AgHandler"),
+        \ "source":  AgSearchVisual(),
+        \ "sink":    function("AgHandler"),
         \ "options": "--multi --exit-0",
-        \ "down": g:fzf_height
+        \ "down":    g:fzf_height
         \ })
 
   command! FZFLines call fzf#run({
-        \ "source": BufferLines(),
-        \ "sink": function("BufferLineOpen"),
-        \ "options": "--no-sort --exit-0",
-        \ "down": g:fzf_height
+        \ "source":  BuffersLines(),
+        \ "sink":    function("BuffersLineOpen"),
+        \ "options": "--no-sort --exit-0 --nth=3..",
+        \ "down":    g:fzf_height
         \ })
 
   command! FZFRegisters call fzf#run({
-        \ "source": Registers(),
-        \ "sink": function("LineAppend"),
+        \ "source":  Registers(),
+        \ "sink":    function("LineAppend"),
         \ "options": "--no-sort --tac --exit-0",
-        \ "down": g:fzf_height
+        \ "down":    g:fzf_height
         \ })
 
   nnoremap <silent> <c-p>      :FZFFiles<cr>
@@ -712,10 +726,10 @@ if !g:is_gui
 
   if isdirectory($HOME . "/Dropbox/Notes")
     command! FZFNotes call fzf#run({
-          \ "source": "find ~/Dropbox/Notes -iname '*.txt' | cut -d '/' -f6 | sed 's/\.txt$//'",
-          \ "sink": function("OpenNote"),
+          \ "source":  "find ~/Dropbox/Notes -iname '*.txt' | cut -d '/' -f6 | sed 's/\.txt$//'",
+          \ "sink":    function("OpenNote"),
           \ "options": "--multi",
-          \ "down": g:fzf_height
+          \ "down":    g:fzf_height
           \ })
 
     function! OpenNote(e)
@@ -727,10 +741,10 @@ if !g:is_gui
 
   if isdirectory($HOME . "/Dropbox/Tasks")
     command! FZFTasks call fzf#run({
-          \ "source": "find ~/Dropbox/Tasks -iname '*.taskpaper' | cut -d '/' -f6 | sed 's/\.taskpaper$//'",
-          \ "sink": function("OpenTask"),
+          \ "source":  "find ~/Dropbox/Tasks -iname '*.taskpaper' | cut -d '/' -f6 | sed 's/\.taskpaper$//'",
+          \ "sink":    function("OpenTask"),
           \ "options": "--multi",
-          \ "down": g:fzf_height
+          \ "down":    g:fzf_height
           \ })
 
     function! OpenTask(e)
@@ -739,7 +753,6 @@ if !g:is_gui
 
     nnoremap <silent> <leader>ft :FZFTasks<cr>
   endif
-
 endif
 " }}}
 " plugin: limelight {{{
@@ -845,28 +858,24 @@ nmap gcc <Plug>CommentaryLine
 " }}}
 " plugin: slimux {{{
 
-map  <c-c><c-c> :SlimuxREPLSendLine<cr>
-xmap <c-c><c-c> :SlimuxREPLSendSelection<cr>
+if !g:is_gui
+  let g:slimux_select_from_current_window=1
+endif
+
+map  <leader>ss vip:SlimuxREPLSendLine<cr>
+map  <leader>sb :SlimuxREPLSendBuffer<cr>
+xmap <leader>ss :SlimuxREPLSendSelection<cr>
 
 " }}}
-" plugin: rainbow parentheses {{{
+" plugin: surround {{{
 
-let g:rainbow#pairs=[ [ '(', ')' ], [ '[', ']' ], [ '{', '}' ] ]
-let g:rainbow#colors={
-\   'dark': [
-\     [ 'darkyellow',  'orangered3'     ],
-\     [ 'darkgreen',   'orange2'        ],
-\     [ 'blue',        'yellow3'        ],
-\     [ 'darkmagenta', 'olivedrab4'     ],
-\     [ 'red',         'green4'         ],
-\     [ 'darkyellow',  'paleturquoise3' ],
-\     [ 'darkgreen',   'deepskyblue4'   ],
-\     [ 'blue',        'darkslateblue'  ],
-\     [ 'darkmagenta', 'darkviolet'     ]
-\   ]
-\ }
+nmap <leader>w  ysiw
+nmap <leader>w( ysiw)
+nmap <leader>w[ ysiw]
 
-command! RainbowParenthesesToggle RainbowParentheses!!
+xmap <leader>w  S
+xmap <leader>w( S)
+xmap <leader>w[ S]
 
 " }}}
 " plugin: fastfold {{{
@@ -887,7 +896,18 @@ nnoremap <leader>U :UndotreeToggle<cr>
 " }}}
 " plugin: markdown {{{
 
-let g:markdown_fenced_languages = [ 'css', 'html', 'javascript', 'js=javascript', 'json=javascript', 'bash=sh', 'lua' ]
+let g:markdown_fenced_languages=[ 'css', 'html', 'javascript', 'js=javascript', 'json=javascript', 'bash=sh', 'lua' ]
+
+" }}}
+" plugin: supertab {{{
+
+let g:SuperTabDefaultCompletionType="context"
+let g:SuperTabContextDefaultCompletionType="<c-n>"
+
+" }}}
+" plugin: paredit {{{
+
+let g:paredit_smartjump=1
 
 " }}}
 " custom abbrevs {{{
@@ -1015,12 +1035,14 @@ if g:is_mac
   xnoremap gx :call HandleURL(1)<cr>
 endif
 
-" proper indentation on i
-function! InsertIndent()
-  return len(getline(".")) == 0 ? "cc" : "i"
+" proper indentation on i/a/A
+function! InsertSmart(l)
+  return len(getline(".")) == 0 ? "cc" : a:l
 endfunction
 
-nnoremap <expr> i InsertIndent()
+nnoremap <expr> i InsertSmart("i")
+nnoremap <expr> a InsertSmart("a")
+nnoremap <expr> A InsertSmart("A")
 
 " rename current file
 function! Rename()
@@ -1090,7 +1112,7 @@ function! GrepVisual()
   let [l:lnum1, l:col1] = getpos("'<")[1:2]
   let [l:lnum2, l:col2] = getpos("'>")[1:2]
   let l:lines = getline(l:lnum1, l:lnum2)
-  let l:lines[-1] = l:lines[-1][: l:col2 - (&selection == 'inclusive' ? 1 : 2)]
+  let l:lines[-1] = l:lines[-1][: l:col2 - (&selection == "inclusive" ? 1 : 2)]
   let l:lines[0] = l:lines[0][l:col1 - 1:]
 
   let l:selection = join(l:lines, "\n")
@@ -1104,8 +1126,35 @@ command! -range GrepVisual :call GrepVisual()
 nnoremap <leader>g :Grep<cr>
 xnoremap <leader>g :GrepVisual<cr>
 
+" code TODO / FIXME
+function! Todo() abort
+  let entries = []
+
+  for cmd in [ "git grep -n -e TODO -e FIXME 2> /dev/null", "ag --vimgrep '(TODO|FIXME)' 2> /dev/null" ]
+    let lines = split(system(cmd), '\n')
+    if v:shell_error != 0 | continue | endif
+    for line in lines
+      let [fname, lno, text] = matchlist(line, '^\([^:]*\):\([^:]*\):\(.*\)')[1:3]
+      call add(entries, { "filename": fname, "lnum": lno, "text": text })
+    endfor
+    break
+  endfor
+
+  if !empty(entries)
+    call setqflist(entries)
+    copen
+  endif
+endfunction
+
+command! Todo :call Todo()
+
 " }}}
 " custom mappings {{{
+
+" terminal
+if g:is_nvim
+  tnoremap <Esc> <c-\><c-n>
+endif
 
 " expand %% to directory of current file in command-line mode
 cnoremap %% <c-r>=fnameescape(expand("%:~:h"))<cr>/
@@ -1195,26 +1244,21 @@ xnoremap Q :norm @q<cr>
 nnoremap <leader>ov :e ~/.vimrc<cr>
 nnoremap <leader>og :e ~/.gvimrc<cr>
 nnoremap <leader>oz :e ~/.zshrc<cr>
+nnoremap <leader>om :e ~/.tmux.conf<cr>
 
 if g:is_mac
   nnoremap <leader>od :e ~/Dropbox/Notes/drafts.txt<cr>
   nnoremap <leader>ot :e ~/Dropbox/Tasks/Current.taskpaper<cr>
 endif
 
-" open file in current directory
-nnoremap <leader>of :e <c-r>=expand("%:p:h") . "/"<cr>
-
 " source vimrc
 nnoremap <leader>sv :ReloadSettings<cr>
 
 " run with make
-nnoremap <leader>m :wa<cr>:silent make!<cr>:redraw!<cr>
+nnoremap <leader>rm :wa<cr>:silent make!<cr>:redraw!<cr>
 
 " run current line in shell
 nnoremap <leader>rs yyp!!sh<cr>
-
-" save and diff changes
-nnoremap <leader>w :w !diff % -<cr>
 
 " buffers
 nnoremap gb :bnext<cr>
@@ -1230,7 +1274,7 @@ nnoremap <leader>T :tabnew<cr>
 nnoremap <leader>va ggVG
 
 " select last paste in visual mode
-nnoremap <leader>vp "`[" . strpart(getregtype(), 0, 1) . "`]"
+" nnoremap <leader>vp "`[" . strpart(getregtype(), 0, 1) . "`]"
 
 " yank whole buffer
 nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>
@@ -1248,13 +1292,16 @@ nnoremap <silent> <leader>k :let kill_view=winsaveview()<cr>:KillWhitespace<cr>:
 nnoremap <silent> <leader>c :nohlsearch<cr>
 
 " toggle list chars
-nnoremap <silent> <leader>l :set list!<cr>
+nnoremap <silent> <leader>tl :set list!<cr>
 
 " toggle numbers
-nnoremap <silent> <leader>n :set number!<cr>
+nnoremap <silent> <leader>tn :set number!<cr>
 
 " align block
 nnoremap <leader>a :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
+
+" align buffer
+nnoremap <leader>= :let align_view=winsaveview()<cr>gg=G<cr>:call winrestview(align_view)<cr>
 
 " center on cursor using scrollof
 nnoremap <silent> <leader>z :let &scrolloff=999-&scrolloff<cr>

@@ -10,8 +10,8 @@ local window      = require "mjolnir.window"
 -- extensions
 local ext = {
   frame = {},
-  win = {},
-  app = {},
+  win   = {},
+  app   = {},
   utils = {}
 }
 
@@ -150,7 +150,7 @@ end
 function ext.win.fix(win)
   if ext.win.fixenabled then
     local screen = ext.win.screenframe(win)
-    local frame = win:frame()
+    local frame  = win:frame()
 
     if (frame.h > (screen.h - ext.win.margin * 2)) then
       frame.h = screen.h - ext.win.margin * 10
@@ -173,7 +173,7 @@ end
 -- nudges window in direction
 function ext.win.nudge(win, direction)
   local screen = ext.win.screenframe(win)
-  local frame = win:frame()
+  local frame  = win:frame()
 
   frame = ext.frame.nudge(frame, screen, direction)
   ext.win.set(win, frame, 0.05)
@@ -188,7 +188,7 @@ end
 -- sends window in direction
 function ext.win.send(win, direction)
   local screen = ext.win.screenframe(win)
-  local frame = win:frame()
+  local frame  = win:frame()
 
   frame = ext.frame.send(frame, screen, direction)
 
@@ -199,7 +199,7 @@ end
 -- centers window
 function ext.win.center(win)
   local screen = ext.win.screenframe(win)
-  local frame = win:frame()
+  local frame  = win:frame()
 
   frame = ext.frame.center(frame, screen)
   ext.win.set(win, frame)
@@ -224,14 +224,14 @@ end
 
 -- throw to next screen, center and fit
 function ext.win.throw(win, direction)
-  local framefunc = ext.win.fullframe and "fullframe" or "frame"
-  local screenfunc = direction == "next" and "next" or "previous"
+  local framefunc   = ext.win.fullframe and "fullframe" or "frame"
+  local screenfunc  = direction == "next" and "next" or "previous"
 
-  local winscreen = win:screen()
+  local winscreen   = win:screen()
   local throwscreen = winscreen[screenfunc](winscreen)
-  local screen = throwscreen[framefunc](throwscreen)
+  local screen      = throwscreen[framefunc](throwscreen)
 
-  local frame = win:frame()
+  local frame       = win:frame()
 
   frame.x = screen.x
   frame.y = screen.y
@@ -251,7 +251,7 @@ end
 -- set window size and center
 function ext.win.size(win, size)
   local screen = ext.win.screenframe(win)
-  local frame = win:frame()
+  local frame  = win:frame()
 
   frame.w = size.w
   frame.h = size.h
@@ -264,7 +264,7 @@ end
 
 -- save and restore window positions
 function ext.win.pos(win, option)
-  local id = win:application():bundleid()
+  local id    = win:application():bundleid()
   local frame = win:frame()
 
   -- saves window position if not saved before
@@ -305,11 +305,11 @@ end
 -- launch or focus or cycle app
 function ext.app.launchorfocus(app)
   local focusedwindow = window.focusedwindow()
-  local currentapp = focusedwindow and focusedwindow:application():title() or nil
+  local currentapp    = focusedwindow and focusedwindow:application():title() or nil
 
   if currentapp == app then
     if focusedwindow then
-      local appwindows = focusedwindow:application():allwindows()
+      local appwindows     = focusedwindow:application():allwindows()
       local visiblewindows = fnutils.filter(appwindows, function(win) return win:isstandard() end)
 
       if #visiblewindows == 0 then
@@ -326,32 +326,30 @@ function ext.app.launchorfocus(app)
   end
 end
 
--- smart browser launch or focus or cycle
-function ext.app.browser()
-  local browsers = { "Safari", "Google Chrome" }
-
-  local runningapps = application.runningapplications()
+-- smart app launch or focus or cycle
+function ext.app.smartlaunchorfocus(apps)
+  local runningapps   = application.runningapplications()
   local focusedwindow = window.focusedwindow()
-  local currentapp = focusedwindow and focusedwindow:application():title() or nil
+  local currentapp    = focusedwindow and focusedwindow:application():title() or nil
 
-  -- filter running applications by browsers array
-  local runningbrowsers = fnutils.map(browsers, function(browser)
-    return fnutils.find(runningapps, function(app) return app:title() == browser end)
+  -- filter running applications by apps array
+  local runningapps = fnutils.map(apps, function(app)
+    return fnutils.find(runningapps, function(runningapp) return runningapp:title() == app end)
   end)
 
-  -- try to get index of current app in running browsers
-  -- this means - is one of the browsers currently selected
-  local currentindex = fnutils.indexof(fnutils.map(runningbrowsers, function(app)
+  -- try to get index of current app in all running apps
+  -- this means - is one of the apps currently selected
+  local currentindex = fnutils.indexof(fnutils.map(runningapps, function(app)
     return app:title()
   end), currentapp)
 
-  -- if there are no browsers launch the first (default) one
-  -- otherwise cycle between browser windows or between browsers depending on situation
-  if #runningbrowsers == 0 then
-    ext.app.launchorfocus(browsers[1])
+  -- if there are no apps launch the first (default) one
+  -- otherwise cycle between app windows or between apps depending on situation
+  if #runningapps == 0 then
+    ext.app.launchorfocus(apps[1])
   else
-    local browserindex = currentindex and (currentindex % #runningbrowsers) + 1 or 1
-    ext.app.launchorfocus(runningbrowsers[browserindex]:title())
+    local appindex = currentindex and (currentindex % #runningapps) + 1 or 1
+    ext.app.launchorfocus(runningapps[appindex]:title())
   end
 end
 
@@ -388,9 +386,9 @@ function timewin(fn, param)
 end
 
 -- keyboard modifier for bindings
-local mod1 = { "cmd", "ctrl" }
-local mod2 = { "cmd", "alt" }
-local mod3 = { "cmd", "alt", "ctrl" }
+local mod1 = { "cmd", "ctrl"         }
+local mod2 = { "cmd", "alt"          }
+local mod3 = { "cmd", "alt", "ctrl"  }
 local mod4 = { "cmd", "alt", "shift" }
 
 -- basic bindings
@@ -430,20 +428,20 @@ end)
 
 -- launch and focus applications
 fnutils.each({
-  { key = "c", app = "Calendar" },
-  { key = "f", app = "Finder" },
-  { key = "n", app = "Notational Velocity" },
-  { key = "p", app = "TaskPaper" },
-  { key = "r", app = "Reminders" },
-  { key = "t", app = "Terminal" },
-  { key = "v", app = "MacVim" },
-  { key = "x", app = "Xcode" }
+  { key = "c", apps = { "Calendar"                } },
+  { key = "b", apps = { "Safari", "Google Chrome" } },
+  { key = "f", apps = { "Finder"                  } },
+  { key = "n", apps = { "Notational Velocity"     } },
+  { key = "m", apps = { "Messages", "FaceTime"    } },
+  { key = "p", apps = { "TaskPaper"               } },
+  { key = "r", apps = { "Reminders"               } },
+  { key = "s", apps = { "Slack", "Skype"          } },
+  { key = "t", apps = { "Terminal"                } },
+  { key = "v", apps = { "MacVim"                  } },
+  { key = "x", apps = { "Xcode"                   } }
 }, function(object)
-  hotkey.bind(mod3, object.key, function() ext.app.launchorfocus(object.app) end)
+  hotkey.bind(mod3, object.key, function() ext.app.smartlaunchorfocus(object.apps) end)
 end)
 
--- launch or focus browser in a smart way
-hotkey.bind(mod3, "b", function() ext.app.browser() end)
-
 -- reload mjolnir
-hotkey.bind(mod3, "m", function() mjolnir.reload() end)
+hotkey.bind(mod4, "r", function() mjolnir.reload() end)

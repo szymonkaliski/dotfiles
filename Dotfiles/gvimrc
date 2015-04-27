@@ -27,6 +27,7 @@ macmenu &File.Print key=<nop>
 
 " }}}
 " plugin: choose {{{
+
 let g:choose_options=" -s 20 -c 345EF2"
 
 function! FileChoose()
@@ -56,9 +57,11 @@ nnoremap <silent> <c-b> :BufferChoose<cr>
 
 " }}}
 " custom commands {{{
+
 function! Terminal()
   execute "silent !" . "open -a Terminal '" . getcwd() . "'"
 endfun
 
 command! Terminal :call Terminal()
+
 " }}}

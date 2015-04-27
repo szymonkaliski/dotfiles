@@ -77,10 +77,10 @@ compinit -C
 colors
 
 # zrecompile for faster zsh
-[ -f ~/.zshrc ] && zrecompile -q -p ~/.zshrc
-[ -f ~/.zcompdump ] && zrecompile -q -p ~/.zcompdump
-[ -f ~/.zshrc.zwc.old ] && rm -f ~/.zshrc.zwc.old
-[ -f ~/.zcompdump.zwc.old ] && rm -f ~/.zcompdump.zwc.old
+[ -f ~/.zshrc ]             && zrecompile -q -p ~/.zshrc     > /dev/null 2>&1
+[ -f ~/.zcompdump ]         && zrecompile -q -p ~/.zcompdump > /dev/null 2>&1
+[ -f ~/.zshrc.zwc.old ]     && rm -f ~/.zshrc.zwc.old        > /dev/null 2>&1
+[ -f ~/.zcompdump.zwc.old ] && rm -f ~/.zcompdump.zwc.old    > /dev/null 2>&1
 
 # npm completions
 if [ -f /usr/lib/node_modules/npm/lib/utils/completion.sh ]; then
@@ -236,11 +236,11 @@ alias grep="egrep --color=auto"
 alias less="less -i --tabs=2"
 alias diff="colordiff"
 alias wget="wget -c"
+alias watch="watch -n1 -c -t"
 
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
 alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
-alias codetodo="ag '(TODO:|FIXME:)' -C0 --nobreak --group --noheading"
 
 alias x="exit"
 alias c="clear"
@@ -516,7 +516,7 @@ function ff() {
 # fzf functions
 if hash fzf-tmux 2> /dev/null; then
   # default options
-  export FZF_DEFAULT_OPTS="-x"
+  export FZF_DEFAULT_OPTS="-x --inline-info"
   export FZF_DEFAULT_COMMAND="ag -l -g ''"
 
   # edit files in editor
