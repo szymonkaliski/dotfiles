@@ -1,6 +1,7 @@
 # options
 setopt histverify             # when using ! cmds, confirm first
 setopt hist_ignore_all_dups   # ignore all double commands in history
+setopt hist_ignore_space      # don't add commands to history that start with space
 setopt hist_reduce_blanks     # reduce blanks in history
 setopt share_history          # share history among zsh sessions
 setopt no_check_jobs          # don't report on bg processes when exiting
@@ -30,14 +31,14 @@ if [ -d /usr/local/share/zsh-completions ]; then
 fi
 
 # path modifications
-if [ -d $HOME/Dropbox/Code/Scripts ]; then
-  export PATH="$HOME/Dropbox/Code/Scripts:$PATH"
+if [ -d $HOME/Documents/Code/Scripts ]; then
+  export PATH="$HOME/Documents/Code/Scripts:$PATH"
 elif [ -d $HOME/Documents/Scripts ]; then
   export PATH="$HOME/Documents/Scripts:$PATH"
 fi
 
-if [ -d $HOME/Dropbox/Code/Bin ]; then
-  export PATH="$HOME/Dropbox/Code/Bin:$PATH"
+if [ -d $HOME/Documents/Code/Bin ]; then
+  export PATH="$HOME/Documents/Code/Bin:$PATH"
 fi
 
 if [ -d /usr/local/bin ]; then
@@ -92,7 +93,7 @@ fi
 # live command coloring
 if [ -f ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
   source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-  ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor pattern)
+  ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 
   ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=black,bg=red')
   ZSH_HIGHLIGHT_PATTERNS+=('ssh *' 'fg=black,bg=blue')
@@ -109,6 +110,22 @@ if [ -f ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; th
   ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=red'
 fi
 
+# z for better jumps
+if [ -f ~/.zsh/plugins/z/z.sh ]; then
+  _Z_CMD="j"
+  source ~/.zsh/plugins/z/z.sh
+fi
+
+# bd for better up
+if [ -f ~/.zsh/plugins/zsh-bd/bd.zsh ]; then
+  source ~/.zsh/plugins/zsh-bd/bd.zsh
+fi
+
+# k for better ls
+if [ -f ~/.zsh/plugins/k/k.sh ]; then
+  source ~/.zsh/plugins/k/k.sh
+fi
+
 # grc for more colors
 if hash grc 2> /dev/null; then
   alias colourify="grc -es --colour=auto"
@@ -122,15 +139,10 @@ if hash grc 2> /dev/null; then
   alias traceroute="colourify traceroute"
 fi
 
-# z for better jumps
-if [ -f ~/.zsh/plugins/z/z.sh ]; then
-  _Z_CMD="j"
-  source ~/.zsh/plugins/z/z.sh
-fi
-
-# bd for better up
-if [ -f ~/.zsh/plugins/zsh-bd/bd.zsh ]; then
-  source ~/.zsh/plugins/zsh-bd/bd.zsh
+# rbenv init
+if hash rbenv 2> /dev/null; then
+  eval "$(rbenv init --no-rehash -)"
+  (rbenv rehash &) 2> /dev/null
 fi
 
 # vcs info
@@ -157,13 +169,13 @@ if [ "$(whoami)" = "root" ]; then
 fi
 
 # main prompt
-PROMPT="%{$fg[$PROMPTCOLOR]%}%50<...<%3~%{$reset_color%} $VCS→ %{$reset_color%}"
+PROMPT="%{$fg[$PROMPTCOLOR]%}%50<...<%3~%{$reset_color%} $VCS> %{$reset_color%}"
 
 # right prompt
 RPROMPT="%(?,,%{$fg[red]%}✕%{$reset_color%})"
 
 # unfinished loops prompt
-PROMPT2="%{$fg[yellow]%}%_%{$reset_color%} → "
+PROMPT2="%{$fg[yellow]%}%_%{$reset_color%} > "
 
 # spelling prompt
 SPROMPT="correct '%R' to '%r' ? ([Y]es/[N]o/[E]dit/[A]bort) "
@@ -213,6 +225,7 @@ fi
 # aliases
 alias e=$EDITOR
 alias v=$EDITOR
+alias n="nvim"
 alias sudo="sudo "
 
 alias ls="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable"
@@ -245,8 +258,8 @@ alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET
 alias x="exit"
 alias c="clear"
 
-alias t="tree -a"
-alias td="tree -ad"
+alias t="tree -aC -I '.git|node_modules|bower_components'"
+alias td="tree -adC -I '.git|node_modules|bower_components'"
 
 alias zmv="zmv -w"
 alias zcp="zmv -Cw"
@@ -272,7 +285,15 @@ function tm() {
     title=$1
   else
     if [[ $PWD != $HOME ]]; then
-      title="$(echo ${PWD##*/} | tr "[:upper:]" "[:lower:]")"
+      local dir=""
+      if [[ ${PWD##*/} == "Code" ]]; then
+        local dirname="$(dirname "$PWD")"
+        dir=$(basename "$dirname")
+      else
+        dir=${PWD##*/}
+      fi
+
+      title="$(echo $dir | tr "[:upper:]" "[:lower:]" | sed "s/\ /\-/g")"
     else
       title="home"
     fi
@@ -301,14 +322,14 @@ function tm() {
     if [ -z $TMUX ]; then
       tmux new -s $title
     else
-      TMUX= tmux new-session -d -s $title
+      TMUX=$(tmux new-session -d -s $title)
       tmux switch-client -t $title
     fi
   fi
 }
 compctl -s "$(tmux ls 2> /dev/null | cut -d: -f1)" tm
 
-alias tl="tmux ls | sed 's/:/;/' | column -t -s ';'"
+alias tl="tmux ls | sed 's/:/;/' | sed 's/\[.*\]//g' | column -t -s ';'"
 
 # mac only
 if [ "$(uname)" = "Darwin" ]; then
@@ -326,7 +347,10 @@ if [ "$(uname)" = "Darwin" ]; then
   alias clearlogs="sudo rm -rfv /private/var/log/asl/*.asl"
   alias cleartmp="sudo rm -rfv /private/var/tmp/Xcode/ /private/var/tmp/Processing/"
   alias purge="sudo purge"
-  alias ino="PATH=/bin/:$PATH ino" # proper stty for ino
+
+  alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
+  alias openedports="sudo lsof -i -P | grep -i 'listen'"
+  alias appsonnetwork="sudo lsof -P -i -n | tail -n+2 | cut -f 1 -d ' ' | uniq | sort --ignore-case"
 
   # output of last command to clipboard
   alias clout="fc -e - | pbcopy"
@@ -338,7 +362,7 @@ if [ "$(uname)" = "Darwin" ]; then
   if [ -d /usr/local/share/npm/lib/node_modules/markdown-pdf/bin ]; then
     alias markdown-pdf="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf"
     alias markdown-pdf-nice="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf \
-      --css-path ~/Dropbox/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
+      --css-path ~/Documents/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
   fi
 
   # network utility port scan
@@ -347,9 +371,8 @@ if [ "$(uname)" = "Darwin" ]; then
   fi
 
   # taskpaper related
-  if [ -d ~/Dropbox/Tasks/ ]; then
-    alias tasks="vim ~/Dropbox/Tasks/Current.taskpaper"
-    alias tasks-next="node ~/Dropbox/Projects/Archive/TaskPaperNext/app.js"
+  if [ -d ~/Documents/Dropbox/Tasks/ ]; then
+    alias tasks-next="node ~/Documents/Projects/Archive/TaskPaperNext/app.js"
   fi
 
   # man in preview
@@ -376,6 +399,9 @@ if [ "$(uname)" = "Darwin" ]; then
 
     open $ARG
   }
+
+  # completion for mpv
+  compctl -g '*.mp3 *.avi *.mpg *.mpeg *.mkv *.mov *.wmv' mpv
 fi
 
 # linux only
@@ -422,6 +448,17 @@ function cdl() {
 }
 compdef _cd cdl=cd
 
+# make backup and back
+function bak() {
+  for file in "$@"; do
+    if [[ $file =~ "\.bak$" ]]; then
+      mv -iv "$file" "$(basename ${file} .bak)"
+    else
+      mv -iv "$file" "${file}.bak"
+    fi
+  done
+}
+
 # rename files
 function name() {
   newname=$1
@@ -467,37 +504,37 @@ function httpserver() {
 }
 
 # dropbox notes
-if [ -d ~/Dropbox/Notes ]; then
+if [ -d ~/Documents/Dropbox/Notes ]; then
   function ns() {
     if [ "$#" -eq 0 ]; then
-      for f in ~/Dropbox/Notes/*.txt; do
+      for f in ~/Documents/Dropbox/Notes/*.txt; do
         basename $f .txt
       done
     else
-      if [ -n "$(find ~/Dropbox/Notes -iname "*$@*")" ]; then
+      if [ -n "$(find ~/Documents/Dropbox/Notes -iname "*$@*")" ]; then
         if [ -t 1 ]; then
-          find ~/Dropbox/Notes -iname "*$@*" \
+          find ~/Documents/Dropbox/Notes -iname "*$@*" \
             -exec echo -e "$(tput setaf 5)\n$(basename {} .txt)\n$(tput sgr0)" \; \
             -exec cat {} \; \
             -exec echo \;
         else
-          find ~/Dropbox/Notes -iname "*$@*" -exec cat {} \;
+          find ~/Documents/Dropbox/Notes -iname "*$@*" -exec cat {} \;
         fi
       else
-        echo "No note matches your search!"
+        echo "No note matches your search"
       fi
     fi
   }
 
   function ne() {
     if [ "$#" -eq 0 ]; then
-      echo "You must give note name!"
+      echo "You must give note name"
     else
-      find ~/Dropbox/Notes -iname "*$@*" -exec $EDITOR "{}" +
+      find ~/Documents/Dropbox/Notes -iname "*$@*" -exec $EDITOR "{}" +
     fi
   }
 
-  compctl -g "~/Dropbox/Notes/*.txt(:t)" ne
+  compctl -g "~/Documents/Dropbox/Notes/*.txt(:t)" ne
 fi
 
 # simple find functions
@@ -514,37 +551,72 @@ function ff() {
 }
 
 # fzf functions
-if hash fzf-tmux 2> /dev/null; then
+if hash fzf 2> /dev/null; then
   # default options
-  export FZF_DEFAULT_OPTS="-x --inline-info"
   export FZF_DEFAULT_COMMAND="ag -l -g ''"
+  export FZF_DEFAULT_OPTS="--inline-info --ansi --extended --cycle
+                           --history=$HOME/.fzfhistory
+                           --history-size=10000
+                           --color=bg+:0,hl:110,hl+:110
+                           --color=prompt:110,marker:110,pointer:110,spinner:110,info:110"
 
   # edit files in editor
-  alias fe="vim +FZFFiles"
+  function fe() {
+    fzf --multi --select-1 --exit-0 --query="$1" --prompt="files > " --reverse | tr "\n" "\0" | xargs -0 -o vim
+  }
 
   # cd to directory
   function fcd() {
-    local dir="$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf-tmux -d 20% -- --select-1)"
+    local dir="$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --reverse)"
     [ -n "$dir" ] && cd "$dir"
   }
 
   # search through history
   function fh() {
-    print -z $(fc -l 1 | fzf-tmux -d 20% -- --tac --no-sort --nth=2.. | sed 's/ *[0-9]* *//')
+    print -z $(fc -l 1 | fzf --tac --no-sort --nth=2.. --reverse --query="$1" --prompt="history > " --reverse | sed 's/ *[0-9]* *//')
+  }
+
+  # run app with preselected multiple arguments
+  function fr() {
+    fzf --select-1 --exit-0 --multi --query="$1" --prompt="run > " --reverse | sed -e "s/^/'/g" -e "s/$/'/g" | tr '\n' ' ' | xargs $@ ;
   }
 
   # kill process
   function fkill() {
-    ps -ef | sed 1d | fzf-tmux -d 20% -- --multi | awk '{ print $2 }' | xargs kill -${1:-9}
+    ps -ef | sed 1d | fzf --multi --query="$1" --prompt="kill > " --reverse | awk '{ print $2 }' | xargs kill -${1:-9}
   }
 
   # jump in fzf
   unalias j
   function j() {
     if [[ -z "$*" ]]; then
-      cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf-tmux -d 20% -- --no-sort --tac)"
+      cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf --no-sort --tac --prompt='jump > ' --reverse)"
     else
       _z "$@"
+    fi
+  }
+
+  # tmux session
+  function ftsession() {
+    local session=$(tmux list-sessions -F "#{session_name}" | fzf --select-1 --exit-0 --query="$1" --prompt="session > ")
+    [ -n "$session" ] && tmux switch-client -t "$session"
+  }
+
+  # tmux pane
+  function ftpane() {
+    local panes target
+
+    panes=$(tmux list-panes -a -F '#S;[#I:#P];#T')
+    target=$(echo "$panes" | column -t -s ";" | fzf --select-1 --exit-0 --query="$1" --prompt="pane > ") || return
+
+    local target_session=$(echo $target | cut -d " " -f1)
+    local target_window=$(echo $target | cut -d "[" -f2 | awk 'BEGIN{FS=":|-"} {print $1}')
+    local target_pane=$(echo $target | cut -d "[" -f2 | awk 'BEGIN{FS=":|-"} {print $2}' | cut -c 1)
+
+    if [ -z "$TMUX" ]; then
+      tmux attach-session -t "$target_session" \; select-pane -t "$target_window.$target_pane"
+    else
+      tmux switch-client -t "$target_session:$target_window.$target_pane"
     fi
   }
 fi

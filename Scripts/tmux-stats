@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
+if [ "$(hostname | cut -d. -f1)" != "Orchid" ]; then
+  MSG="$(hostname) : "
+fi
+
 LOAD=$(uptime | sed 's/.*load average: //' | awk -F\, '{print $2}')
-MSG="$LOAD"
+MSG="$MSG$LOAD"
 
 if [ "$(uname)" = "Darwin" ]; then
   PMSET=$(pmset -g ps | awk 'NR==2')

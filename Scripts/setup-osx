@@ -1,36 +1,11 @@
 #!/usr/bin/env bash
 # mostly stolen from: https://github.com/mathiasbynens/dotfiles/blob/master/.osx
 
-# disable opening and closing window animations
-# defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
-
-# expand save panel by default
-# defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
-
-# expand print panel by default
-# defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
-
-# disable automatic termination of inactive apps
-# defaults write NSGlobalDomain NSDisableAutomaticTermination -bool true
-
 # disable press-and-hold for keys in favor of key repeat
-# defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
-
-# set fast keyboard repeat rate
-# defaults write NSGlobalDomain KeyRepeat -int 4
-
-# disable auto-correct
-# defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
-
-# finder: disable window animations and Get Info animations
-# defaults write com.apple.finder DisableAllAnimations -bool true
+defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
 # finder: allow text selection in Quick Look
 defaults write com.apple.finder QLEnableTextSelection -bool true
-
-# use list view in all Finder windows by default
-# four-letter codes for the other view modes: `icnv`, `clmv`, `Flwv`
-# defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 
 # set the icon size of Dock items to 48 pixels
 defaults write com.apple.dock tilesize -int 48
@@ -38,38 +13,8 @@ defaults write com.apple.dock tilesize -int 48
 # lock Dock size
 defaults write com.apple.dock size-immutable -bool yes
 
-# enable the 2D Dock
-# defaults write com.apple.dock no-glass -bool true
-
-# make Dock icons of hidden applications translucent
-# defaults write com.apple.dock showhidden -bool true
-
-# completely disable Dashboard
-# defaults write com.apple.dashboard mcx-disabled -boolean YES
-
-# disable Safari thumbnail cache for History and Top Sites
-# defaults write com.apple.Safari DebugSnapshotsUpdatePolicy -int 2
-
-# make Safari search banners default to Contains instead of Starts With
-# defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool false
-
-# disable send and reply animations in Mail.app
-# defaults write com.apple.mail DisableReplyAnimations -bool true
-# defaults write com.apple.mail DisableSendAnimations -bool true
-
-# disable inline attachement viewing in Mail.app
-# defaults write com.apple.mail DisableInlineAttachmentViewing -bool yes
-
-# check for software updates daily, not just once per week
-# defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
-
 # disable local Time Machine backups
 hash tmutil &> /dev/null && sudo tmutil disablelocal
-
-# disable the sound effects on boot
-# doesn't work for me: sudo nvram SystemAudioVolume=" "
-# this one does:
-# sudo nvram SystemAudioVolume=%80
 
 # disable Sudden Motion Sensor (default - 1)
 sudo pmset -a sms 0 &> /dev/null
@@ -77,11 +22,14 @@ sudo pmset -a sms 0 &> /dev/null
 # decrese standby delay to 20 minutes
 sudo pmset -a standbydelay 1200
 
-# show the /Users folder
-# sudo chflags nohidden /Users
+# enable trim 10.10.4+
+read -p "Enble trim? (y/n) " RESP
+if [ "$RESP" = "y" ]; then
+  sudo trimforce enable
+fi
 
 # kill affected apps
-for app in "Dashboard" "Dock" "Finder" "Mail" "Safari" "SystemUIServer"
+for app in "Dock" "Finder" "SystemUIServer"
 do
   killall "$app" > /dev/null 2>&1
 done

@@ -19,41 +19,55 @@ local ext = {
 ext.win.positions = {}
 
 -- window extension settings
-ext.win.margin     = 8
+ext.win.margin     = 12
 ext.win.animate    = true
 ext.win.fixenabled = false
-ext.win.fullframe  = false
-
--- check if simbl is running
--- if so, then it's for menubarhider,
--- and fullframe should be anabled
-if os.execute("ps xc | grep -q SIMBL") then
-  ext.win.fullframe = true
-end
+ext.win.fullframe  = os.execute("ps xc | grep -q SIMBL") -- enable fullframe if SIMBL is runnig
 
 -- returns frame pushed to screen edge
-function ext.frame.push(screen, direction)
+function ext.frame.push(screen, direction, value)
   local m = ext.win.margin
   local h = screen.h - m
   local w = screen.w - m
   local x = screen.x + m
   local y = screen.y + m
+  local v = value
 
   local frames = {
     up = function()
-      return { x = x, y = y, w = w - m, h = h / 2 - m }
+      return {
+        x = x,
+        y = y,
+        w = w - m,
+        h = h * v - m
+      }
     end,
 
     down = function()
-      return { x = x, y = y + h / 2 - m, w = w - m, h = h / 2 - m }
+      return {
+        x = x,
+        y = y + h * (1 - v) - m,
+        w = w - m,
+        h = h * v - m
+      }
     end,
 
     left = function()
-      return { x = x, y = y, w = w / 2 - m, h = h - m }
+      return {
+        x = x,
+        y = y,
+        w = w * v - m,
+        h = h - m
+      }
     end,
 
     right = function()
-      return { x = x + w / 2 - m, y = y, w = w / 2 - m, h = h - m }
+      return {
+        x = x + w * (1 - v) - m,
+        y = y,
+        w = w * v - m,
+        h = h - m
+      }
     end
   }
 
@@ -130,8 +144,9 @@ end
 
 -- get screen frame
 function ext.win.screenframe(win)
-  local funcname = ext.win.fullframe and "fullframe" or "frame"
+  local funcname  = ext.win.fullframe and "fullframe" or "frame"
   local winscreen = win:screen()
+
   return winscreen[funcname](winscreen)
 end
 
@@ -160,11 +175,11 @@ function ext.win.fix(win)
 end
 
 -- pushes window in direction
-function ext.win.push(win, direction)
+function ext.win.push(win, direction, value)
   local screen = ext.win.screenframe(win)
   local frame
 
-  frame = ext.frame.push(screen, direction)
+  frame = ext.frame.push(screen, direction, value)
 
   ext.win.fix(win)
   ext.win.set(win, frame)
@@ -180,8 +195,18 @@ function ext.win.nudge(win, direction)
 end
 
 -- push and nudge window in direction
-function ext.win.pushandnudge(win, direction)
-  ext.win.push(win, direction)
+function ext.win.pushandnudge(win, options)
+  local direction, value
+
+  if type(options) == "table" then
+    direction = options[1]
+    value     = options[2] or 1 / 2
+  else
+    direction = options
+    value    = 1 / 2
+  end
+
+  ext.win.push(win, direction, value)
   ext.win.nudge(win, direction)
 end
 
@@ -208,7 +233,7 @@ end
 -- fullscreen window with margin
 function ext.win.full(win)
   local screen = ext.win.screenframe(win)
-  local frame = {
+  local frame  = {
     x = ext.win.margin + screen.x,
     y = ext.win.margin + screen.y,
     w = screen.w - ext.win.margin * 2,
@@ -286,15 +311,18 @@ end
 -- cycle application windows
 -- https://github.com/nifoc/dotfiles/blob/master/mjolnir/cycle.lua
 function ext.win.cycle(win)
-  local windows = win:application():allwindows()
-  windows = fnutils.filter(windows, function(win) return win:isstandard() end)
+  local windows = fnutils.filter(win:application():allwindows(), function(win)
+    return win:isstandard()
+  end)
 
   if #windows >= 2 then
     table.sort(windows, function(a, b) return a:id() < b:id() end)
+
     local activewindowindex = fnutils.indexof(windows, win)
 
     if activewindowindex then
       activewindowindex = activewindowindex + 1
+
       if activewindowindex > #windows then activewindowindex = 1 end
 
       windows[activewindowindex]:focus()
@@ -314,6 +342,8 @@ function ext.app.launchorfocus(app)
 
       if #visiblewindows == 0 then
         -- try sending cmd-n for new window if no windows are visible
+        -- this is due to some strange behavior of Finder
+        -- actualy doesn't solve them, but sometimes helps
         ext.utils.newkeyevent({ cmd = true }, "n", true):post()
         ext.utils.newkeyevent({ cmd = true }, "n", false):post()
       else
@@ -326,30 +356,51 @@ function ext.app.launchorfocus(app)
   end
 end
 
--- smart app launch or focus or cycle
-function ext.app.smartlaunchorfocus(apps)
-  local runningapps   = application.runningapplications()
-  local focusedwindow = window.focusedwindow()
-  local currentapp    = focusedwindow and focusedwindow:application():title() or nil
+-- smart app launch or focus or cycle windows
+function ext.app.smartlaunchorfocus(launchapps)
+  local focusedwindow  = window.focusedwindow()
+  local currentapp     = focusedwindow and focusedwindow:application():title() or nil
+
+  local runningapps    = application.runningapplications()
+  local runningwindows = {}
 
   -- filter running applications by apps array
-  local runningapps = fnutils.map(apps, function(app)
-    return fnutils.find(runningapps, function(runningapp) return runningapp:title() == app end)
+  local runningapps = fnutils.map(launchapps, function(launchapp)
+    return fnutils.find(runningapps, function(runningapp)
+      return runningapp:title() == launchapp
+    end)
   end)
 
-  -- try to get index of current app in all running apps
-  -- this means - is one of the apps currently selected
-  local currentindex = fnutils.indexof(fnutils.map(runningapps, function(app)
-    return app:title()
-  end), currentapp)
+  -- create table of sorted windows per application
+  fnutils.each(runningapps, function(runningapp)
+    local standardwindows = fnutils.filter(runningapp:allwindows(), function(win)
+      return win:isstandard()
+    end)
 
-  -- if there are no apps launch the first (default) one
-  -- otherwise cycle between app windows or between apps depending on situation
-  if #runningapps == 0 then
-    ext.app.launchorfocus(apps[1])
+    table.sort(standardwindows, function(a, b) return a:id() < b:id() end)
+
+    fnutils.each(standardwindows, function(window)
+      table.insert(runningwindows, window)
+    end)
+  end)
+
+  -- find if one of windows is already focused
+  local currentindex = fnutils.indexof(runningwindows, focusedwindow)
+
+  if #runningwindows == 0 then
+    -- launch first application if there's no windows for any of them
+    application.launchorfocus(launchapps[1])
   else
-    local appindex = currentindex and (currentindex % #runningapps) + 1 or 1
-    ext.app.launchorfocus(runningapps[appindex]:title())
+    if not currentindex then
+      -- if none of them is selected focus the first one
+      runningwindows[1]:focus()
+    else
+      -- otherwise cycle through all the windows
+      local newindex = currentindex + 1
+      if newindex > #runningwindows then newindex = 1 end
+
+      runningwindows[newindex]:focus()
+    end
   end
 end
 
@@ -366,23 +417,34 @@ function ext.utils.newkeyevent(modifiers, key, pressed)
 end
 
 -- apply function to a window with optional params, saving it's position for restore
-function dowin(fn, param)
+function dowin(fn, ...)
   local win = window.focusedwindow()
+  local arg = ...
+
+  if #arg == 1 then arg = arg[1] end
 
   if win and not win:isfullscreen() then
     ext.win.pos(win, "save")
-    fn(win, param)
+    fn(win, arg)
   end
 end
 
 -- for simple hotkey binding
-function bindwin(fn, param)
-  return function() dowin(fn, param) end
+function bindwin(fn, ...)
+  local arg = { ... }
+  return function() dowin(fn, arg) end
 end
 
 -- apply function to a window with a timer
-function timewin(fn, param)
-  return timer.new(0.05, function() dowin(fn, param) end)
+function timewin(fn, ...)
+  local arg = { ... }
+  return timer.new(0.05, function() dowin(fn, arg) end)
+end
+
+-- cycle between different window settings
+function cyclewin(fn, options, settings)
+  local setting = fnutils.cycle(settings)
+  return function() dowin(fn, { options, setting() }) end
 end
 
 -- keyboard modifier for bindings
@@ -401,13 +463,14 @@ hotkey.bind(mod1, "r", bindwin(ext.win.pos, "load"))
 hotkey.bind(mod1, "tab", function() ext.win.cycle(window.focusedwindow()) end)
 
 -- move window to different screen
-hotkey.bind(mod4, "right", bindwin(ext.win.throw, "prev"))
-hotkey.bind(mod4, "left",  bindwin(ext.win.throw, "next"))
+hotkey.bind(mod4, "right", bindwin(ext.win.throw, "next"))
+hotkey.bind(mod4, "left",  bindwin(ext.win.throw, "prev"))
 
 -- push to edges and nudge
 fnutils.each({ "up", "down", "left", "right" }, function(direction)
   local nudge = timewin(ext.win.nudge, direction)
 
+  -- hotkey.bind(mod1, direction, cyclewin(ext.win.pushandnudge, direction,  { 1 / 2, 1 / 3, 2 / 3 }))
   hotkey.bind(mod1, direction, bindwin(ext.win.pushandnudge, direction))
   hotkey.bind(mod2, direction, bindwin(ext.win.send, direction))
   hotkey.bind(mod3, direction, function() nudge:start() end, function() nudge:stop() end)
@@ -428,11 +491,11 @@ end)
 
 -- launch and focus applications
 fnutils.each({
-  { key = "c", apps = { "Calendar"                } },
   { key = "b", apps = { "Safari", "Google Chrome" } },
+  { key = "c", apps = { "Calendar"                } },
   { key = "f", apps = { "Finder"                  } },
-  { key = "n", apps = { "Notational Velocity"     } },
   { key = "m", apps = { "Messages", "FaceTime"    } },
+  { key = "n", apps = { "Notational Velocity"     } },
   { key = "p", apps = { "TaskPaper"               } },
   { key = "r", apps = { "Reminders"               } },
   { key = "s", apps = { "Slack", "Skype"          } },
