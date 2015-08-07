@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-if [ "$(hostname | cut -d. -f1)" != "Orchid" ]; then
-  MSG="$(hostname) : "
+HOSTNAME=$(hostname | cut -d. -f1)
+
+if [ "$HOSTNAME" != "Orchid" -a "$HOSTNAME" != "localhost" ]; then
+  MSG="$HOSTNAME : "
 fi
 
 LOAD=$(uptime | sed 's/.*load average: //' | awk -F\, '{print $2}')

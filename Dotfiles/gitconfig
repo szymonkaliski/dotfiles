@@ -13,8 +13,9 @@
 [status]
   color = true
 [alias]
-  this = !git init && git add . && git commit -m \"initial commit\"
+  this  = !git init && git add . && git commit -m \"initial commit\"
   amend = !git log -n 1 --pretty=tformat:%s%n%n%b | git commit -F - --amend
+  edit  = !$EDITOR $(git ls-files -m)
 
   ci = commit -am
   st = status -sb

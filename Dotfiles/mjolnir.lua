@@ -19,7 +19,7 @@ local ext = {
 ext.win.positions = {}
 
 -- window extension settings
-ext.win.margin     = 12
+ext.win.margin     = 8
 ext.win.animate    = true
 ext.win.fixenabled = false
 ext.win.fullframe  = os.execute("ps xc | grep -q SIMBL") -- enable fullframe if SIMBL is runnig
@@ -463,8 +463,8 @@ hotkey.bind(mod1, "r", bindwin(ext.win.pos, "load"))
 hotkey.bind(mod1, "tab", function() ext.win.cycle(window.focusedwindow()) end)
 
 -- move window to different screen
-hotkey.bind(mod4, "right", bindwin(ext.win.throw, "next"))
-hotkey.bind(mod4, "left",  bindwin(ext.win.throw, "prev"))
+hotkey.bind(mod4, "right", bindwin(ext.win.throw, "prev"))
+hotkey.bind(mod4, "left",  bindwin(ext.win.throw, "next"))
 
 -- push to edges and nudge
 fnutils.each({ "up", "down", "left", "right" }, function(direction)

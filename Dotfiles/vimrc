@@ -12,6 +12,7 @@ let g:is_tmux  = ($TMUX != '')
 
 call plug#begin('~/.vim/plugged')
 
+" always load
 Plug 'Konfekt/FastFold'
 Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
@@ -24,12 +25,11 @@ Plug 'pbrisbin/vim-mkdir'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
+Plug 'coderifous/textobj-word-column.vim'
 
 " on demand loading
-Plug 'AndrewRadev/switch.vim',             { 'on': [ 'Switch' ] }
 Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>SortMotion', '<Plug>SortLines' ] }
 Plug 'epeli/slimux',                       { 'on': [ 'SlimuxREPL', 'SlimuxREPLSendSelection', 'SlimuxREPLSendBuffer', 'SlimuxREPLSendLine', 'SlimuxREPLConfigure' ] }
-Plug 'haya14busa/incsearch.vim',           { 'on': '<Plug>(incsearch-' }
 Plug 'junegunn/goyo.vim',                  { 'on': 'Goyo' }
 Plug 'junegunn/limelight.vim',             { 'on': 'Limelight' }
 Plug 'junegunn/vim-easy-align',            { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
@@ -37,6 +37,7 @@ Plug 'mbbill/undotree',                    { 'on': 'UndotreeToggle' }
 Plug 'rhysd/clever-f.vim',                 { 'on': '<Plug>(clever-f-' }
 Plug 'tpope/vim-commentary',               { 'on': '<Plug>Commentary' }
 Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterOperator', '<Plug>ReplaceWithRegisterLine', '<Plug>ReplaceWithRegisterVisual' ] }
+Plug 't9md/vim-quickhl',                   { 'on': [ '<Plug>(quickhl-manual-' ] }
 
 " loading based on system and vim version
 Plug 'airblade/vim-gitgutter',             { 'on': [] } " only on mac
@@ -58,10 +59,12 @@ Plug 'elzr/vim-json',                      { 'for': 'json' }
 Plug 'groenewege/vim-less',                { 'for': 'less' }
 Plug 'kchmck/vim-coffee-script',           { 'for': 'coffee' }
 Plug 'keith/swift.vim',                    { 'for': 'swift' }
-Plug 'moll/vim-node',                      { 'for': 'javascript' }
-Plug 'mxw/vim-jsx',                        { 'for': 'javascript' }
+Plug 'leafgarland/typescript-vim',         { 'for': 'typescript' }
+Plug 'moll/vim-node',                      { 'for': [ 'javascript', 'javascript.jsx' ] }
+Plug 'mxw/vim-jsx',                        { 'for': 'javascript.jsx' }
+Plug 'nelstrom/vim-markdown-folding',      { 'for': 'markdown' }
 Plug 'othree/html5.vim',                   { 'for': 'html' }
-Plug 'pangloss/vim-javascript',            { 'for': [ 'javascript', 'html' ] }
+Plug 'pangloss/vim-javascript',            { 'for': [ 'javascript', 'javascript.jsx', 'html' ] }
 Plug 'sophacles/vim-processing',           { 'for': 'processing' }
 Plug 'sudar/vim-arduino-syntax',           { 'for': 'arduino' }
 Plug 'tikhomirov/vim-glsl',                { 'for': 'glsl' }
@@ -175,7 +178,7 @@ let g:default_scrolloff=3
 exe 'set scrolloff=' . g:default_scrolloff
 
 " path used by gf, :find, etc..
-set path+=./**
+set path=.,,,./**
 
 " don't complete 'included files', speeds things up
 set complete-=i
@@ -350,7 +353,7 @@ augroup line_return
 
   au BufReadPost *
         \ if line("'\"") > 0 && line("'\"") <= line("$") && !&diff |
-        \     exe 'normal! g`"zvzz' |
+        \   exe 'normal! g`"zvzz' |
         \ endif
 augroup END
 
@@ -375,13 +378,14 @@ augroup detect_syntax
   au BufNewFile,BufRead *.ck                        setlocal filetype=ck
   au BufNewFile,BufRead *.frag,*.vert,*.glsl        setlocal filetype=glsl
   au BufNewFile,BufRead *.ino                       setlocal filetype=arduino
+  au BufNewFile,BufRead *.jsx                       setlocal filetype=javascript.jsx
   au BufNewFile,BufRead *.m,*.mm                    setlocal filetype=objc
   au BufNewFile,BufRead *.md                        setlocal filetype=markdown
   au BufNewFile,BufRead *.pde                       setlocal filetype=processing
   au BufNewFile,BufRead *.swift                     setlocal filetype=swift
   au BufNewFile,BufRead *.taskpaper                 setlocal filetype=taskpaper
-  au BufNewFile,BufRead *.jsx                       setlocal filetype=javascript
   au BufNewFile,BufRead *.tpl,*.ejs                 let b:jst_subtype='html' | setlocal filetype=jst
+  au BufNewFile,BufRead *.ts                        setlocal filetype=typescript
   au BufNewFile,BufRead ~/Documents/Dropbox/Notes/* setlocal filetype=markdown
 augroup END
 
@@ -398,23 +402,24 @@ augroup ft_settings
 
   au FileType clojure
         \ let b:delimitMate_quotes='"' |
-        \ nnoremap <buffer> <leader>a :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
+        \ nnoremap <buffer> <leader>= :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
 
   au FileType taskpaper
         \ setlocal nolist |
         \ call taskpaper#fold_projects() |
-        \ nnoremap <buffer> <leader>to zM:g/\v^(.*\@today)&(.*\@done)@!/foldopen!<cr>:nohlsearch<cr>gg
+        \ nnoremap <buffer> <leader>to zM:g/\v^(.*\@today)&(.*\@done)@!/foldopen!<cr>:nohlsearch<cr>gg |
+        \ nnoremap <buffer> <leader>tw :<c-u>call taskpaper#toggle_tag('waiting', '')<cr> |
+        \ nnoremap <buffer> <leader>tm :<c-u>call taskpaper#toggle_tag('due', '<c-r>=strftime('%Y-%m-%d', localtime() + 86400)<cr>')<cr>
 
   au FileType processing
         \ setlocal makeprg=processing\ %:p:h |
         \ setlocal errorformat=%DEntering\ directory\ \"%f\",%f:%l:%c:%*\\d:%*\\d:\ %m,%-G%.%#
 
   au FileType javascript
-        \ if g:is_mac | call plug#load('tern_for_vim') | endif |
         \ setlocal foldmethod=syntax |
         \ setlocal suffixesadd=.js |
         \ setlocal makeprg=javascript\ % |
-        \ setlocal errorformat=%Evm.js:%*\\d:\ Uncaught\ SyntaxError:\ %f:%l,\ %C%m,%Z%m,%AError:\ %m,%AEvalError:\ %m,%ARangeError:\ %m,%AReferenceError:\ %m,%ASyntaxError:\ %m,%ATypeError:\ %m,%Z%*[\ ]at\ %f:%l:%c,%Z%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]at\ %f:%l:%c,%Z%p^,%A%f:%l,%C%m,%-G%.%#
+        \ setlocal errorformat=%Evm.js:%*\\d:\ Uncaught\ SyntaxError:\ %f:%l,\ %C%m,%Z%m,%AError:\ %m,%AEvalError:\ %m,%ARangeError:\ %m,%AReferenceError:\ %m,%ASyntaxError:\ %m,%ATypeError:\ %m,%Z%*[\ ]at\ %f:%l:%c,%Z%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]at\ %f:%l:%c,%Z%p^,%A%f:%l,%C%m,%-G%.%# |
 
   au FileType lua
         \ syn region luaFunctionBlock transparent fold matchgroup=luaFunction
@@ -497,7 +502,6 @@ let g:airline#extensions#tabline#left_alt_sep=''
 let g:airline#extensions#tabline#right_sep=''
 let g:airline#extensions#tabline#right_alt_sep=''
 let g:airline#extensions#tabline#close_symbol='✕'
-let g:airline#extensions#tabline#excludes=['NetrwTreeListing']
 
 " extensions
 function! AirlineInit()
@@ -638,9 +642,9 @@ if g:is_nvim
   augroup neomake_plugin
     au!
 
-    au BufRead,BufWritePost *.js,*.json                     Neomake " jshint, jscs
-    au BufRead,BufWritePost *.clj,*.cljs                    Neomake " lein kibit
-    au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* Neomake " shellcheck
+    au BufRead,BufWritePost *.js,*.json                     silent Neomake " jshint, jscs
+    au BufRead,BufWritePost *.clj,*.cljs                    silent Neomake " lein kibit
+    au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* silent Neomake " shellcheck
   augroup END
 
   function! AirlineNeomakeStatus()
@@ -702,14 +706,14 @@ function! BuffersList()
   return list
 endfunction
 
-function! AgHandler(e)
-  let l:keys=split(a:e, ':')
-  let l:line=l:keys[1]
-  let l:col =l:keys[2]
-  let l:file=escape(l:keys[0], ' ')
+function! RecentFiles()
+  return filter(v:oldfiles, 'filereadable(glob(v:val))')
+endfunction
 
-  exe 'e ' . l:file
-  call cursor(l:line, l:col)
+function! AgSearchInput()
+  let l:input = input('Grep for: ')
+
+  return AgSearchHandler(l:input)
 endfunction
 
 function! AgSearchVisual()
@@ -724,14 +728,18 @@ function! AgSearchVisual()
   return AgSearchHandler(l:selection)
 endfunction
 
-function! AgSearchInput()
-  let l:input = input('Grep for: ')
-
-  return AgSearchHandler(l:input)
-endfunction
-
 function! AgSearchHandler(search)
   return 'ag --smart-case --nogroup --color --column ' . a:search
+endfunction
+
+function! AgHandler(e)
+  let l:keys=split(a:e, ':')
+  let l:line=l:keys[1]
+  let l:col =l:keys[2]
+  let l:file=escape(l:keys[0], ' ')
+
+  exe 'e ' . l:file
+  call cursor(l:line, l:col)
 endfunction
 
 function! BuffersLines()
@@ -744,7 +752,7 @@ function! BuffersLines()
   return res
 endfunction
 
-function! BuffersLineOpen(l)
+function! BuffersLinesOpen(l)
   let keys = split(a:l, ':')
   exe 'buffer ' . keys[0]
   exe keys[1]
@@ -769,10 +777,6 @@ endfunction
 
 function! LineAppend(e)
   exe 'normal! o ' . a:e
-endfunction
-
-function! RecentFiles()
-  return filter(v:oldfiles, 'filereadable(glob(v:val))')
 endfunction
 
 if !g:is_gui
@@ -814,7 +818,7 @@ if !g:is_gui
 
   command! FZFLines call fzf#run({
         \ 'source':  BuffersLines(),
-        \ 'sink':    function('BuffersLineOpen'),
+        \ 'sink':    function('BuffersLinesOpen'),
         \ 'options': '--no-sort --exit-0 --nth=3.. --prompt="lines > "',
         \ 'down':    g:fzf_height
         \ })
@@ -881,6 +885,8 @@ endif
 if g:colors_name == 'hybrid'
   let g:limelight_conceal_ctermfg=8
 endif
+
+let g:limelight_paragraph_span=1
 
 " }}}
 " plugin: goyo {{{
@@ -963,21 +969,21 @@ let g:easy_align_delimiters = {
       \   }
       \ }
 
-xmap <leader>= =gv<Plug>(EasyAlign)
-nmap g=        <Plug>(EasyAlign)
+xmap <leader>a =gv<Plug>(EasyAlign)
+nmap ga        <Plug>(EasyAlign)
 
 " }}}
 " plugin: rooter {{{
 
 let g:rooter_use_lcd=1
 let g:rooter_disable_map=1
-let g:rooter_patterns=['package.json', 'node_modules/', '.git/']
+let g:rooter_patterns=[ 'package.json', 'node_modules/', '.git/' ]
 
 " }}}
 " plugin: taskpaper {{{
 
 let g:task_paper_date_format='%Y-%m-%d'
-let g:task_paper_styles={'today': 'ctermfg=DarkGreen guifg=#b5bd68'}
+let g:task_paper_styles={ 'today': 'ctermfg=DarkGreen guifg=#b5bd68' }
 
 " }}}
 " plugin: commentary {{{
@@ -993,7 +999,8 @@ if !g:is_gui
 endif
 
 map  <leader>sb :SlimuxREPLSendBuffer<cr>
-map  <leader>ss vip:SlimuxREPLSendLine<cr>
+map  <leader>ss :let slimux_view=winsaveview()<cr>vip:SlimuxREPLSendLine<cr>:call winrestview(slimux_view)<cr>
+map  <leader>sc :SlimuxREPLConfigure<cr>
 xmap <leader>ss :SlimuxREPLSendSelection<cr>
 
 " }}}
@@ -1032,7 +1039,15 @@ let g:paredit_smartjump=1
 " }}}
 " plugin: tern {{{
 
-let g:tern_show_signature_in_pum=1
+if g:is_mac
+  augroup tern_plugin
+    au!
+
+    au FileType javascript call plug#load('tern_for_vim') | au! tern_plugin
+  augroup END
+
+  let g:tern_show_signature_in_pum=1
+endif
 
 " }}}
 " plugin: sort motion {{{
@@ -1049,36 +1064,33 @@ nmap grr <Plug>ReplaceWithRegisterLine
 xmap gr  <Plug>ReplaceWithRegisterVisual
 
 " }}}
-" plugin: switch {{{
-
-nnoremap ga :Switch<cr>
-
-" }}}
-" plugin: incsearch {{{
-
-if g:is_mac
-  let g:incsearch#auto_nohlsearch=1
-
-  map /  <Plug>(incsearch-forward)
-  map ?  <Plug>(incsearch-backward)
-  map n  <Plug>(incsearch-nohl-n)
-  map N  <Plug>(incsearch-nohl-N)
-  map *  <Plug>(incsearch-nohl-*)
-  map #  <Plug>(incsearch-nohl-#)
-  map g* <Plug>(incsearch-nohl-g*)
-  map g# <Plug>(incsearch-nohl-g#)
-endif
-
-" }}}
 " plugin: javascript {{{
 
 let g:javascript_enable_domhtmlcss=1
 
 " }}}
+" plugin: quickhl {{{
+
+let g:quickhl_manual_colors = [
+      \ "gui=bold ctermbg=167 ctermfg=0",
+      \ "gui=bold ctermbg=173 ctermfg=0",
+      \ "gui=bold ctermbg=221 ctermfg=0",
+      \ "gui=bold ctermbg=143 ctermfg=0",
+      \ "gui=bold ctermbg=109 ctermfg=0",
+      \ "gui=bold ctermbg=110 ctermfg=0",
+      \ "gui=bold ctermbg=139 ctermfg=0"
+      \ ]
+
+nmap <leader>h <Plug>(quickhl-manual-this)
+xmap <leader>h <Plug>(quickhl-manual-this)
+nmap <leader>H <Plug>(quickhl-manual-reset)
+xmap <leader>H <Plug>(quickhl-manual-reset)
+
+" }}}
 " custom abbrevs {{{
 
-iabbrev <silent> _date <c-r>=strftime('%Y-%m-%d')<cr>
-iabbrev <silent> _time <c-r>=strftime('%H:%M')<cr>
+iabbrev <silent> idate <c-r>=strftime('%Y-%m-%d')<cr>
+iabbrev <silent> itime <c-r>=strftime('%H:%M')<cr>
 
 function! EatChar(pat)
   let l:c=nr2char(getchar(0))
@@ -1092,9 +1104,6 @@ endfunction
 " based on filetype
 augroup ft_abbrev
   au!
-
-  au FileType taskpaper
-        \ iabbrev <buffer> @tomorrow @due(<c-r>=strftime('%Y-%m-%d', localtime() + 86400)<cr>)
 
   au FileType lua
         \ call SpacelessIabbrev('fn', 'function')
@@ -1303,7 +1312,7 @@ command! -range GrepVisual :call GrepVisual()
 nnoremap <leader>g :Grep<cr>
 xnoremap <leader>g :GrepVisual<cr>
 
-" code TODO / FIXME
+" code TODO / FIXME in cwindow
 function! Todo() abort
   let entries = []
 
@@ -1325,6 +1334,7 @@ endfunction
 
 command! Todo :call Todo()
 
+" save and load session from session.vim
 function! SaveSession()
   let l:dir = fnameescape(getcwd())
   exe 'mksession! ' . l:dir . '/session.vim'
@@ -1338,59 +1348,39 @@ endfunction
 command! SaveSession :call SaveSession()
 command! LoadSession :call LoadSession()
 
+" terminal shortcut for nvim
 if g:is_nvim
   command! -complete=shellcmd -nargs=+ T :terminal <q-args>
 endif
 
-" }}}
-" custom text objects {{{
+" count worked days looking like that:
+" day1: 1/2
+" day2: 3/4
+" day3: 1
+" basically pipe throught simple node script
 
-function! IndentLen(str)
-  return type(a:str) == 1 ? len(matchstr(a:str, '^\s*')) : 0
+function! CountWorkedDays() range
+  echomsg 'Worked days: ' . system('echo ' . shellescape(join(getline(a:firstline, a:lastline), '\n')) . '| count-work-days')
 endfunction
 
-function! IndentObject(op, skip_blank, b, e, bd, ed)
-  let i = min([IndentLen(getline(a:b)), IndentLen(getline(a:e))])
-  let x = line('$')
-  let d = [a:b, a:e]
+command! -range=% -nargs=0 CountWorkedDays :<line1>,<line2>call CountWorkedDays()
 
-  if i == 0 && empty(getline(a:b)) && empty(getline(a:e))
-    let [b, e] = [a:b, a:e]
-    while b > 0 && e <= line('$')
-      let b -= 1
-      let e += 1
-      let i = min(filter(map([b, e], 'IndentLen(getline(v:val))'), 'v:val != 0'))
-      if i > 0
-        break
-      endif
-    endwhile
+" zoom / restore window
+function! ZoomToggle() abort
+  if exists('t:zoomed') && t:zoomed
+    exec t:zoom_winrestcmd
+    let t:zoomed = 0
+  else
+    let t:zoom_winrestcmd = winrestcmd()
+    resize
+    vertical resize
+    let t:zoomed = 1
   endif
-
-  for triple in [[0, 'd[o] > 1', -1], [1, 'd[o] < x', +1]]
-    let [o, ev, df] = triple
-
-    while eval(ev)
-      let line = getline(d[o] + df)
-      let idt = IndentLen(line)
-
-      if eval('idt '.a:op.' i') && (a:skip_blank || !empty(line)) || (a:skip_blank && empty(line))
-        let d[o] += df
-      else | break | end
-    endwhile
-  endfor
-  execute printf('normal! %dGV%dG', max([1, d[0] + a:bd]), min([x, d[1] + a:ed]))
 endfunction
 
-xnoremap <silent> ii :<c-u>call IndentObject('>=', 1, line("'<"), line("'>"), 0, 0)<cr>
-onoremap <silent> ii :<c-u>call IndentObject('>=', 1, line('.'),  line('.'), 0, 0)<cr>
-xnoremap <silent> ai :<c-u>call IndentObject('>=', 1, line("'<"), line("'>"), -1, 1)<cr>
-onoremap <silent> ai :<c-u>call IndentObject('>=', 1, line('.'),  line('.'), -1, 1)<cr>
-xnoremap <silent> io :<c-u>call IndentObject('==', 0, line("'<"), line("'>"), 0, 0)<cr>
-onoremap <silent> io :<c-u>call IndentObject('==', 0, line('.'),  line('.'), 0, 0)<cr>
+command! ZoomToggle call ZoomToggle()
 
-" prepend/append to all adjacent lines with same indentation
-nmap <silent> <leader>I ^vio<c-v>I
-nmap <silent> <leader>A ^vio<c-v>$A
+nnoremap <silent> <c-w>z :ZoomToggle<cr>
 
 " }}}
 " custom mappings {{{
@@ -1406,8 +1396,8 @@ cnoremap %% <c-r>=fnameescape(expand('%:~:h'))<cr>/
 " tab as %
 map <tab> %
 
-" backspace to cycle between last and current file
-nnoremap <bs> <c-^>
+" so you can gf to non-existing (new) files
+map gf :e <cfile><cr>
 
 " search for currently selected text from visual mode
 vnoremap / "vy/<c-r>v
@@ -1504,8 +1494,8 @@ endif
 " source vimrc
 nnoremap <leader>sv :ReloadSettings<cr>
 
-" run current line in shell
-nnoremap <leader>rs yyp!!sh<cr>
+" replace current word
+nnoremap <leader>r /\<<c-r><c-w>\><cr>:redraw!<cr>:%s//
 
 " buffers
 nnoremap gb         :bnext<cr>
@@ -1533,10 +1523,10 @@ nnoremap <silent> <leader>c :nohlsearch<cr>
 nnoremap <silent> <leader>tl :set list!<cr>
 nnoremap <silent> <leader>tn :set number!<cr>
 nnoremap <silent> <leader>ts :setlocal spell!<cr>
+nnoremap <silent> <leader>tw :set wrap!<cr>
 
 " aligns
-nnoremap <leader>a :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
-nnoremap <leader>A :let align_view=winsaveview()<cr>gg=G<cr>:call winrestview(align_view)<cr>
+nnoremap <leader>= :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
 
 " center on cursor using scrollof
 nnoremap <silent> <leader>z :let &scrolloff=999-&scrolloff<cr>
