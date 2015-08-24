@@ -149,6 +149,9 @@ set background=dark
 " hybrid
 colorscheme hybrid
 
+" jellybeans
+" colorscheme jellybeans
+
 " disable background color erase so that color scheme work properly in tmux
 " set t_ut=
 
@@ -462,6 +465,7 @@ augroup END
 
 " theme
 let g:airline_theme='tomorrow'
+" let g:airline_theme='jellybeans'
 
 " patch function
 let g:airline_theme_patch_func='AirlineThemePatch'
@@ -1072,13 +1076,13 @@ let g:javascript_enable_domhtmlcss=1
 " plugin: quickhl {{{
 
 let g:quickhl_manual_colors = [
-      \ "gui=bold ctermbg=167 ctermfg=0",
-      \ "gui=bold ctermbg=173 ctermfg=0",
-      \ "gui=bold ctermbg=221 ctermfg=0",
-      \ "gui=bold ctermbg=143 ctermfg=0",
-      \ "gui=bold ctermbg=109 ctermfg=0",
       \ "gui=bold ctermbg=110 ctermfg=0",
-      \ "gui=bold ctermbg=139 ctermfg=0"
+      \ "gui=bold ctermbg=109 ctermfg=0",
+      \ "gui=bold ctermbg=143 ctermfg=0",
+      \ "gui=bold ctermbg=221 ctermfg=0",
+      \ "gui=bold ctermbg=173 ctermfg=0",
+      \ "gui=bold ctermbg=139 ctermfg=0",
+      \ "gui=bold ctermbg=167 ctermfg=0"
       \ ]
 
 nmap <leader>h <Plug>(quickhl-manual-this)
@@ -1108,7 +1112,7 @@ augroup ft_abbrev
   au FileType lua
         \ call SpacelessIabbrev('fn', 'function')
 
-  au FileType javascript
+  au FileType javascript,javascript.jsx
         \ call SpacelessIabbrev('clog', 'console.log') |
         \ call SpacelessIabbrev('fn', 'function')
 augroup END
@@ -1516,8 +1520,8 @@ nnoremap <leader>p "+p<cr>
 " kill whitespace
 nnoremap <silent> <leader>k :KillWhitespace<cr>
 
-" clean current search
-nnoremap <silent> <leader>c :nohlsearch<cr>
+" clean current search and quickhl
+nmap <silent> <leader>c <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
 
 " toggles
 nnoremap <silent> <leader>tl :set list!<cr>
