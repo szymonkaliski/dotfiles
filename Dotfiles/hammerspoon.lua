@@ -277,6 +277,28 @@ function ext.win.setSize(win, size)
   ext.win.setFrame(win, frame)
 end
 
+-- move window to another space
+function ext.win.moveToSpace(win, space)
+  local mouseOrigin = hs.mouse.getAbsolutePosition()
+  local clickPoint  = win:zoomButtonRect()
+  local sleepTime   = 1000
+
+  clickPoint.x = clickPoint.x + clickPoint.w + 5
+  clickPoint.y = clickPoint.y + (clickPoint.h / 2)
+
+  hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseDown, clickPoint):post()
+  hs.timer.usleep(sleepTime)
+
+  ext.utils.newKeyEvent({ ctrl = true }, space, true):post()
+  ext.utils.newKeyEvent({ ctrl = true }, space, false):post()
+  hs.timer.usleep(sleepTime)
+
+  hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseUp, clickPoint):post()
+  hs.timer.usleep(sleepTime)
+
+  hs.mouse.setAbsolutePosition(mouseOrigin)
+end
+
 -- save and restore window positions
 function ext.win.pos(win, option)
   local id    = win:application():bundleID()
@@ -395,9 +417,9 @@ end
 function ext.utils.newKeyEvent(modifiers, key, pressed)
   local keyEvent
 
-  keyEvent = eventtap.event.newKeyEvent({}, "", pressed)
-  keyEvent:setkeycode(keycodes.map[key])
-  keyEvent:setflags(modifiers)
+  keyEvent = hs.eventtap.event.newKeyEvent({}, "", pressed)
+  keyEvent:setKeyCode(hs.keycodes.map[key])
+  keyEvent:setFlags(modifiers)
 
   return keyEvent
 end
@@ -472,6 +494,11 @@ hs.fnutils.each({
   { key = "7", w = 770,  h = 470 }
 }, function(object)
   hs.hotkey.bind(mod1, object.key, bindWin(ext.win.setSize, { w = object.w, h = object.h }))
+end)
+
+-- move to space
+hs.fnutils.each({ "1", "2", "3", "4" }, function(space)
+  hs.hotkey.bind(mod3, space, bindWin(ext.win.moveToSpace, space))
 end)
 
 -- launch and focus applications
