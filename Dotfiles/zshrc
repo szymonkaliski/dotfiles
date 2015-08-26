@@ -418,6 +418,15 @@ function sudothat() {
   eval "sudo $(fc -ln -1)"
 }
 
+# man in vim
+
+function viman() {
+  $EDITOR -c "Man $1 $2" -c "silent only"
+}
+compdef _man viman=man
+
+alias man="viman"
+
 # history
 function h() {
   if [ "$#" -eq 0 ]; then

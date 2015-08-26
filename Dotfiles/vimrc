@@ -17,7 +17,9 @@ Plug 'Konfekt/FastFold'
 Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
 Plug 'bling/vim-airline'
+Plug 'bruno-/vim-man'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'coderifous/textobj-word-column.vim'
 Plug 'ervandew/supertab'
 Plug 'justinmk/vim-dirvish'
 Plug 'matchit.zip'
@@ -25,7 +27,6 @@ Plug 'pbrisbin/vim-mkdir'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
-Plug 'coderifous/textobj-word-column.vim'
 
 " on demand loading
 Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>SortMotion', '<Plug>SortLines' ] }
