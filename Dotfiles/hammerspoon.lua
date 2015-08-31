@@ -17,6 +17,8 @@ ext.win.fullFrame           = os.execute("ps xc | grep -q SIMBL") -- enable full
 
 -- hs settings
 hs.window.animationDuration = ext.win.animationDuration
+hs.hints.fontName           = "Helvetica-Bold"
+hs.hints.fontSize           = 22
 hs.hints.showTitleThresh    = 0
 
 -- returns frame pushed to screen edge
@@ -142,7 +144,7 @@ function ext.win.screenFrame(win)
   local funcName  = ext.win.fullFrame and "fullframe" or "frame"
   local winScreen = win:screen()
 
-  return winScreen[funcName](winScreen)
+  return hs.screen[funcName](winScreen)
 end
 
 -- set frame
@@ -239,9 +241,16 @@ end
 -- throw to next screen, center and fit
 function ext.win.throw(win, direction)
   local frameFunc   = ext.win.fullFrame and "fullFrame" or "frame"
-
   local winScreen   = win:screen()
-  local throwScreen = direction == "next" and winScreen:toWest() or winScreen:toEast()
+  -- local throwScreen = direction == "next" and winScreen:toWest() or winScreen:toEast()
+  local throwScreenFunc = {
+    up    = "toNorth",
+    down  = "toSouth",
+    left  = "toWest",
+    right = "toEast"
+  }
+
+  local throwScreen = hs.screen[throwScreenFunc](winScreen)
 
   if throwScreen == nil then return end
 
@@ -283,18 +292,21 @@ function ext.win.moveToSpace(win, space)
   local clickPoint  = win:zoomButtonRect()
   local sleepTime   = 1000
 
+  if clickPoint == nil then return end
+
   clickPoint.x = clickPoint.x + clickPoint.w + 5
   clickPoint.y = clickPoint.y + (clickPoint.h / 2)
 
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseDown, clickPoint):post()
+
   hs.timer.usleep(sleepTime)
 
   ext.utils.newKeyEvent({ ctrl = true }, space, true):post()
   ext.utils.newKeyEvent({ ctrl = true }, space, false):post()
+
   hs.timer.usleep(sleepTime)
 
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseUp, clickPoint):post()
-  hs.timer.usleep(sleepTime)
 
   hs.mouse.setAbsolutePosition(mouseOrigin)
 end
@@ -340,6 +352,18 @@ function ext.win.cycle(win)
       standardWindows[activeWindowIndex]:focus()
     end
   end
+end
+
+-- focus window in direction
+function ext.win.focus(win, direction)
+  local functions = {
+    up    = "focusWindowNorth",
+    down  = "focusWindowSouth",
+    left  = "focusWindowWest",
+    right = "focusWindowEast"
+  }
+
+  hs.window[functions[direction]](win)
 end
 
 -- launch or focus or cycle app
@@ -424,6 +448,16 @@ function ext.utils.newKeyEvent(modifiers, key, pressed)
   return keyEvent
 end
 
+-- reload hammerspoon config
+function ext.utils.reloadConfig()
+  hs.reload()
+
+  hs.notify.new({
+    title    = "Hammerspoon",
+    subTitle = "Reloaded!"
+  }):send()
+end
+
 -- apply function to a window with optional params, saving it's position for restore
 function doWin(fn, ...)
   local win = hs.window.focusedWindow()
@@ -470,17 +504,36 @@ hs.hotkey.bind(mod1, "r", bindWin(ext.win.pos, "load"))
 -- cycle throught windows of the same app
 hs.hotkey.bind(mod1, "tab", function() ext.win.cycle(hs.window.focusedWindow()) end)
 
--- move window to different screen
-hs.hotkey.bind(mod4, "right", bindWin(ext.win.throw, "prev"))
-hs.hotkey.bind(mod4, "left",  bindWin(ext.win.throw, "next"))
+-- show hints
+hs.hotkey.bind(mod1, "space", function() hs.hints.windowHints() end)
 
--- push to edges and nudge
+-- open console
+hs.hotkey.bind(mod1, "escape", function() hs.openConsole() end)
+
+-- arrw bindings
 hs.fnutils.each({ "up", "down", "left", "right" }, function(direction)
   local nudge = timeWin(ext.win.nudge, direction)
 
   hs.hotkey.bind(mod1, direction, bindWin(ext.win.pushAndNudge, direction))
   hs.hotkey.bind(mod2, direction, bindWin(ext.win.send, direction))
   hs.hotkey.bind(mod3, direction, function() nudge:start() end, function() nudge:stop() end)
+  hs.hotkey.bind(mod4, direction, bindWin(ext.win.throw, direction))
+end)
+
+-- arrow bindings with "fn"
+hs.fnutils.each({
+  { key="pageup",   direction="up"    },
+  { key="pagedown", direction="down"  },
+  { key="home",     direction="left"  },
+  { key="end",      direction="right" }
+}, function(object)
+  hs.hotkey.bind(mod1, object.key, bindWin(ext.win.focus, object.direction))
+  hs.hotkey.bind(mod2, object.key, bindWin(ext.win.moveToSpace, object.direction))
+end)
+
+-- move window to space directly
+hs.fnutils.each({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, function(space)
+  hs.hotkey.bind(mod3, space, bindWin(ext.win.moveToSpace, space))
 end)
 
 -- set window sizes
@@ -494,11 +547,6 @@ hs.fnutils.each({
   { key = "7", w = 770,  h = 470 }
 }, function(object)
   hs.hotkey.bind(mod1, object.key, bindWin(ext.win.setSize, { w = object.w, h = object.h }))
-end)
-
--- move to space
-hs.fnutils.each({ "1", "2", "3", "4" }, function(space)
-  hs.hotkey.bind(mod3, space, bindWin(ext.win.moveToSpace, space))
 end)
 
 -- launch and focus applications
@@ -518,8 +566,5 @@ hs.fnutils.each({
   hs.hotkey.bind(mod3, object.key, function() ext.app.smartLaunchOrFocus(object.apps) end)
 end)
 
--- show hints
-hs.hotkey.bind(mod4, "h", function() hs.hints.windowHints() end)
-
--- reload hammerspoon
-hs.hotkey.bind(mod4, "r", function() hs.reload() end)
+-- autoreload hammerspoon
+hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", ext.utils.reloadConfig):start()
