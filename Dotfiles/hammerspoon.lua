@@ -9,7 +9,7 @@ local ext = {
 -- saved window positions
 ext.win.positions = {}
 
--- window extension settings
+-- extension settings
 ext.win.animationDuration   = 0.15
 ext.win.margin              = 8
 ext.win.fixEnabled          = false
@@ -194,7 +194,7 @@ function ext.win.pushAndNudge(win, options)
     value     = options[2] or 1 / 2
   else
     direction = options
-    value    = 1 / 2
+    value     = 1 / 2
   end
 
   ext.win.push(win, direction, value)
@@ -240,9 +240,7 @@ end
 
 -- throw to next screen, center and fit
 function ext.win.throw(win, direction)
-  local frameFunc   = ext.win.fullFrame and "fullFrame" or "frame"
-  local winScreen   = win:screen()
-  -- local throwScreen = direction == "next" and winScreen:toWest() or winScreen:toEast()
+  local frameFunc       = ext.win.fullFrame and "fullFrame" or "frame"
   local throwScreenFunc = {
     up    = "toNorth",
     down  = "toSouth",
@@ -250,7 +248,7 @@ function ext.win.throw(win, direction)
     right = "toEast"
   }
 
-  local throwScreen = hs.screen[throwScreenFunc](winScreen)
+  local throwScreen = hs.screen[throwScreenFunc[direction]](win:screen())
 
   if throwScreen == nil then return end
 
@@ -295,7 +293,7 @@ function ext.win.moveToSpace(win, space)
   if clickPoint == nil then return end
 
   clickPoint.x = clickPoint.x + clickPoint.w + 5
-  clickPoint.y = clickPoint.y + (clickPoint.h / 2)
+  clickPoint.y = clickPoint.y + clickPoint.h / 2
 
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseDown, clickPoint):post()
 
@@ -489,28 +487,26 @@ function cycleWin(fn, options, settings)
   return function() doWin(fn, { options, setting() }) end
 end
 
--- keyboard modifier for bindings
+-- main keyboard modifier for bindings
 local mod1 = { "cmd", "ctrl"         }
 local mod2 = { "cmd", "alt"          }
 local mod3 = { "cmd", "alt", "ctrl"  }
 local mod4 = { "cmd", "alt", "shift" }
 
 -- basic bindings
-hs.hotkey.bind(mod1, "c", bindWin(ext.win.center))
-hs.hotkey.bind(mod1, "z", bindWin(ext.win.full))
-hs.hotkey.bind(mod1, "s", bindWin(ext.win.pos, "update"))
-hs.hotkey.bind(mod1, "r", bindWin(ext.win.pos, "load"))
+hs.fnutils.each({
+  { key = "c",      fn = bindWin(ext.win.center)        },
+  { key = "z",      fn = bindWin(ext.win.full)          },
+  { key = "s",      fn = bindWin(ext.win.pos, "update") },
+  { key = "r",      fn = bindWin(ext.win.pos, "load")   },
+  { key = "tab",    fn = bindWin(ext.win.cycle)         },
+  { key = "space",  fn = hs.hints.windowHints           },
+  { key = "escape", fn = hs.openConsole                 }
+}, function(object)
+  hs.hotkey.bind(mod1, object.key, object.fn)
+end)
 
--- cycle throught windows of the same app
-hs.hotkey.bind(mod1, "tab", function() ext.win.cycle(hs.window.focusedWindow()) end)
-
--- show hints
-hs.hotkey.bind(mod1, "space", function() hs.hints.windowHints() end)
-
--- open console
-hs.hotkey.bind(mod1, "escape", function() hs.openConsole() end)
-
--- arrw bindings
+-- arrow bindings
 hs.fnutils.each({ "up", "down", "left", "right" }, function(direction)
   local nudge = timeWin(ext.win.nudge, direction)
 
@@ -522,16 +518,16 @@ end)
 
 -- arrow bindings with "fn"
 hs.fnutils.each({
-  { key="pageup",   direction="up"    },
-  { key="pagedown", direction="down"  },
-  { key="home",     direction="left"  },
-  { key="end",      direction="right" }
+  { key = "pageup",   direction = "up"    },
+  { key = "pagedown", direction = "down"  },
+  { key = "home",     direction = "left"  },
+  { key = "end",      direction = "right" }
 }, function(object)
   hs.hotkey.bind(mod1, object.key, bindWin(ext.win.focus, object.direction))
   hs.hotkey.bind(mod2, object.key, bindWin(ext.win.moveToSpace, object.direction))
 end)
 
--- move window to space directly
+-- move window directly to space by number
 hs.fnutils.each({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, function(space)
   hs.hotkey.bind(mod3, space, bindWin(ext.win.moveToSpace, space))
 end)
