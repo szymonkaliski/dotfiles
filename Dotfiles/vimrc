@@ -6,6 +6,7 @@ let g:is_gui   = has('gui_running')
 let g:is_mac   = has('mac')
 let g:is_nvim  = has('nvim')
 let g:is_tmux  = ($TMUX != '')
+let g:is_iterm = ($TERM_PROGRAM == 'iTerm.app')
 
 " }}}
 " bundles {{{
@@ -168,7 +169,8 @@ set autoindent
 set breakindent
 
 " leader
-let mapleader=';'
+" let mapleader=';'
+let mapleader="\<Space>"
 
 " additional settings
 set backspace=indent,eol,start
@@ -293,6 +295,19 @@ function! FoldText()
 endfunction
 
 set foldtext=FoldText()
+
+" iTerm2 cursor
+if g:is_iterm
+  if g:is_nvim
+    let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
+  elseif g:is_tmux
+    let &t_SI = "\<Esc>Ptmux;\<Esc>\e[5 q\<Esc>\\"
+    let &t_EI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
+  else
+    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+    let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+  endif
+end
 
 " }}}
 " window title {{{
@@ -966,11 +981,21 @@ let g:easy_align_delimiters = {
       \     'delimiter_align': 'l',
       \     'ignore_groups':   [ '!Comment' ]
       \   },
+      \   ';': {
+      \     'pattern':         ';',
+      \     'delimiter_align': 'l',
+      \     'ignore_groups':   [ '!Comment' ]
+      \   },
+      \   '(': {
+      \     'pattern':         '(',
+      \     'delimiter_align': 'l',
+      \     'right_margin':    0
+      \   },
       \   ']': {
-      \     'pattern':       '[[\]]',
-      \     'left_margin':   0,
-      \     'right_margin':  0,
-      \     'stick_to_left': 0
+      \     'pattern':         '[[\]]',
+      \     'left_margin':     0,
+      \     'right_margin':    0,
+      \     'stick_to_left':   0
       \   }
       \ }
 
@@ -1003,10 +1028,29 @@ if !g:is_gui
   let g:slimux_select_from_current_window=1
 endif
 
-map  <leader>sb :SlimuxREPLSendBuffer<cr>
-map  <leader>ss :let slimux_view=winsaveview()<cr>vip:SlimuxREPLSendLine<cr>:call winrestview(slimux_view)<cr>
+map  <Plug>SlimuxSendBuffer :SlimuxREPLSendBuffer<cr>:call repeat#set("\<Plug>SlimuxSendBuffer")<cr>
+map  <Plug>SlimuxSendNextParagraph }jvip:SlimuxREPLSendLine<cr>:call repeat#set("\<Plug>SlimuxSendNextParagraph")<cr>
+map  <Plug>SlimuxSendPrevParagraph {jvip:SlimuxREPLSendLine<cr>:call repeat#set("\<Plug>SlimuxSendPrevParagraph")<cr>
+
+map  <Plug>SlimuxSendParagraph :let slimux_view=winsaveview()<cr>
+      \vip:SlimuxREPLSendSelection<cr>
+      \:call winrestview(slimux_view)<cr>
+      \:call repeat#set("\<Plug>SlimuxSendParagraph")<cr>
+
+map  <Plug>SlimuxSendParens :let slimux_view=winsaveview()<cr>
+      \va):SlimuxREPLSendSelection<cr>
+      \:call SlimuxSendKeys("Enter")<cr>
+      \:call winrestview(slimux_view)<cr>
+      \:call repeat#set("\<Plug>SlimuxSendParens")<cr>
+
 map  <leader>sc :SlimuxREPLConfigure<cr>
-xmap <leader>ss :SlimuxREPLSendSelection<cr>
+map  <leader>ss <Plug>SlimuxSendParagraph
+map  <leader>sp <Plug>SlimuxSendParens
+map  <leader>sb <Plug>SlimuxSendBuffer
+map  <leader>s] <Plug>SlimuxSendNextParagraph
+map  <leader>s[ <Plug>SlimuxSendPrevParagraph
+
+xmap <leader>ss :SlimuxREPLSendSelection<cr>:call SlimuxSendKeys("Enter")<cr>
 
 " }}}
 " plugin: surround {{{
@@ -1137,6 +1181,22 @@ if !exists('*ReloadSettings')
   command! ReloadSettings :call ReloadSettings()
 endif
 
+" loads multiple files
+function! E(...)
+  for f1 in a:000
+    let files = glob(f1)
+    if files == ''
+      execute 'e ' . escape(f1, '\ "')
+    else
+      for f2 in split(files, "\n")
+        execute 'e ' . escape(f2, '\ "')
+      endfor
+    endif
+  endfor
+endfunction
+
+command! -complete=file -nargs=+ E call E(<f-args>)
+
 " kills trailing whitespaces
 function! KillWhitespace()
   let l:cursor_pos = getpos('.')
@@ -1216,8 +1276,11 @@ if g:is_mac
     endif
   endfunction
 
-  nnoremap gx :call HandleURL(0)<cr>
-  xnoremap gx :call HandleURL(1)<cr>
+  map <Plug>HandleURLNormal :call HandleURL(0)<cr>:call repeat#set("\<Plug>HandleURLNormal")<cr>
+  map <Plug>HandleURLVisual :call HandleURL(1)<cr>:call repeat#set("\<Plug>HandleURLVisual")<cr>
+
+  nmap gx <Plug>HandleURLNormal
+  xmap gx <Plug>HandleURLVisual
 endif
 
 " proper indentation on i/a/A

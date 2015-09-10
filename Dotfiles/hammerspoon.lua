@@ -3,11 +3,13 @@ local ext = {
   frame = {},
   win   = {},
   app   = {},
-  utils = {}
+  utils = {},
+  cache = {}
 }
 
 -- saved window positions
-ext.win.positions = {}
+ext.cache.windowPositions = {}
+ext.cache.mousePosition   = nil
 
 -- extension settings
 ext.win.animationDuration   = 0.15
@@ -20,6 +22,7 @@ hs.window.animationDuration = ext.win.animationDuration
 hs.hints.fontName           = "Helvetica-Bold"
 hs.hints.fontSize           = 22
 hs.hints.showTitleThresh    = 0
+hs.hints.hintChars          = { "A", "S", "D", "F", "J", "K", "L", "Q", "W", "E", "R", "Z", "X", "C"  }
 
 -- returns frame pushed to screen edge
 function ext.frame.push(screen, direction, value)
@@ -141,10 +144,10 @@ end
 
 -- get screen frame
 function ext.win.screenFrame(win)
-  local funcName  = ext.win.fullFrame and "fullframe" or "frame"
+  local funcName  = ext.win.fullFrame and "fullFrame" or "frame"
   local winScreen = win:screen()
 
-  return hs.screen[funcName](winScreen)
+  return winScreen[funcName](winScreen)
 end
 
 -- set frame
@@ -240,6 +243,7 @@ end
 
 -- throw to next screen, center and fit
 function ext.win.throw(win, direction)
+  local winScreen       = win:screen()
   local frameFunc       = ext.win.fullFrame and "fullFrame" or "frame"
   local throwScreenFunc = {
     up    = "toNorth",
@@ -248,12 +252,12 @@ function ext.win.throw(win, direction)
     right = "toEast"
   }
 
-  local throwScreen = hs.screen[throwScreenFunc[direction]](win:screen())
+  local throwScreen = winScreen[throwScreenFunc[direction]](winScreen)
 
   if throwScreen == nil then return end
 
   local frame       = win:frame()
-  local screenFrame = hs.screen[frameFunc](throwScreen)
+  local screenFrame = throwScreen[frameFunc](throwScreen)
 
   frame.x = screenFrame.x
   frame.y = screenFrame.y
@@ -286,11 +290,12 @@ end
 
 -- move window to another space
 function ext.win.moveToSpace(win, space)
-  local mouseOrigin = hs.mouse.getAbsolutePosition()
-  local clickPoint  = win:zoomButtonRect()
-  local sleepTime   = 1000
+  local clickPoint = win:zoomButtonRect()
+  local sleepTime  = 1000
 
   if clickPoint == nil then return end
+
+  ext.cache.mousePosition = ext.cache.mousePosition or hs.mouse.getAbsolutePosition()
 
   clickPoint.x = clickPoint.x + clickPoint.w + 5
   clickPoint.y = clickPoint.y + clickPoint.h / 2
@@ -306,7 +311,9 @@ function ext.win.moveToSpace(win, space)
 
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseUp, clickPoint):post()
 
-  hs.mouse.setAbsolutePosition(mouseOrigin)
+  hs.mouse.setAbsolutePosition(ext.cache.mousePosition)
+
+  ext.cache.mousePosition = nil
 end
 
 -- save and restore window positions
@@ -315,18 +322,18 @@ function ext.win.pos(win, option)
   local frame = win:frame()
 
   -- saves window position if not saved before
-  if option == "save" and not ext.win.positions[id] then
-    ext.win.positions[id] = frame
+  if option == "save" and not ext.cache.windowPositions[id] then
+    ext.cache.windowPositions[id] = frame
   end
 
   -- force update saved window position
   if option == "update" then
-    ext.win.positions[id] = frame
+    ext.cache.windowPositions[id] = frame
   end
 
   -- restores window position
-  if option == "load" and ext.win.positions[id] then
-    ext.win.setFrame(win, ext.win.positions[id])
+  if option == "load" and ext.cache.windowPositions[id] then
+    ext.win.setFrame(win, ext.cache.windowPositions[id])
   end
 end
 
@@ -366,12 +373,12 @@ end
 
 -- launch or focus or cycle app
 function ext.app.launchOrFocus(app)
-  local focusedWindow = hs.window.focusedWindow()
-  local currentApp    = focusedWindow and focusedWindow:application():title() or nil
+  local frontmostWindow = hs.window.frontmostWindow()
+  local currentApp      = frontmostWindow and frontmostWindow:application():title() or nil
 
   if currentApp == app then
-    if focusedWindow then
-      local appWindows     = focusedWindow:application():allwindows()
+    if frontmostWindow then
+      local appWindows     = frontmostWindow:application():allwindows()
       local visibleWindows = hs.fnutils.filter(appWindows, function(win) return win:isstandard() end)
 
       if #visibleWindows == 0 then
@@ -382,7 +389,7 @@ function ext.app.launchOrFocus(app)
         ext.utils.newKeyEvent({ cmd = true }, "n", false):post()
       else
         -- cycle windows if there are any
-        ext.win.cycle(focusedWindow)
+        ext.win.cycle(frontmostWindow)
       end
     end
   else
@@ -392,13 +399,13 @@ end
 
 -- smart app launch or focus or cycle windows
 function ext.app.smartLaunchOrFocus(launchApps)
-  local focusedWindow  = hs.window.focusedWindow()
-  local runningApps    = hs.application.runningApplications()
-  local runningWindows = {}
+  local frontmostWindow = hs.window.frontmostWindow()
+  local runningApps     = hs.application.runningApplications()
+  local runningWindows  = {}
 
   -- filter running applications by apps array
   local runningApps = hs.fnutils.map(launchApps, function(launchApp)
-    return hs.appfinder.appFromName(launchApp)
+    return hs.application.find(launchApp)
   end)
 
   -- create table of sorted windows per application
@@ -415,7 +422,7 @@ function ext.app.smartLaunchOrFocus(launchApps)
   end)
 
   -- find if one of windows is already focused
-  local currentIndex = hs.fnutils.indexOf(runningWindows, focusedWindow)
+  local currentIndex = hs.fnutils.indexOf(runningWindows, frontmostWindow)
 
   if #runningWindows == 0 then
     -- launch first application if there's no windows for any of them
@@ -458,7 +465,7 @@ end
 
 -- apply function to a window with optional params, saving it's position for restore
 function doWin(fn, ...)
-  local win = hs.window.focusedWindow()
+  local win = hs.window.frontmostWindow()
   local arg = ...
 
   if #arg == 1 then arg = arg[1] end
@@ -487,33 +494,35 @@ function cycleWin(fn, options, settings)
   return function() doWin(fn, { options, setting() }) end
 end
 
--- main keyboard modifier for bindings
-local mod1 = { "cmd", "ctrl"         }
-local mod2 = { "cmd", "alt"          }
-local mod3 = { "cmd", "alt", "ctrl"  }
-local mod4 = { "cmd", "alt", "shift" }
+-- keyboard modifiers for bindings
+local mod = {
+  cc  = { "cmd", "ctrl"         },
+  ca  = { "cmd", "alt"          },
+  cac = { "cmd", "alt", "ctrl"  },
+  cas = { "cmd", "alt", "shift" }
+}
 
 -- basic bindings
 hs.fnutils.each({
-  { key = "c",      fn = bindWin(ext.win.center)        },
-  { key = "z",      fn = bindWin(ext.win.full)          },
-  { key = "s",      fn = bindWin(ext.win.pos, "update") },
-  { key = "r",      fn = bindWin(ext.win.pos, "load")   },
-  { key = "tab",    fn = bindWin(ext.win.cycle)         },
-  { key = "space",  fn = hs.hints.windowHints           },
-  { key = "escape", fn = hs.openConsole                 }
+  { key = "c",     mod = mod.cc,  fn = bindWin(ext.win.center)        },
+  { key = "z",     mod = mod.cc,  fn = bindWin(ext.win.full)          },
+  { key = "s",     mod = mod.cc,  fn = bindWin(ext.win.pos, "update") },
+  { key = "r",     mod = mod.cc,  fn = bindWin(ext.win.pos, "load")   },
+  { key = "tab",   mod = mod.cc,  fn = bindWin(ext.win.cycle)         },
+  { key = "space", mod = mod.cac, fn = hs.hints.windowHints           },
+  { key = "/",     mod = mod.cac, fn = hs.openConsole                 }
 }, function(object)
-  hs.hotkey.bind(mod1, object.key, object.fn)
+  hs.hotkey.bind(object.mod, object.key, object.fn)
 end)
 
 -- arrow bindings
 hs.fnutils.each({ "up", "down", "left", "right" }, function(direction)
   local nudge = timeWin(ext.win.nudge, direction)
 
-  hs.hotkey.bind(mod1, direction, bindWin(ext.win.pushAndNudge, direction))
-  hs.hotkey.bind(mod2, direction, bindWin(ext.win.send, direction))
-  hs.hotkey.bind(mod3, direction, function() nudge:start() end, function() nudge:stop() end)
-  hs.hotkey.bind(mod4, direction, bindWin(ext.win.throw, direction))
+  hs.hotkey.bind(mod.cc,  direction, bindWin(ext.win.pushAndNudge, direction))
+  hs.hotkey.bind(mod.ca,  direction, bindWin(ext.win.send, direction))
+  hs.hotkey.bind(mod.cac, direction, function() nudge:start() end, function() nudge:stop() end)
+  hs.hotkey.bind(mod.cas, direction, bindWin(ext.win.throw, direction))
 end)
 
 -- arrow bindings with "fn"
@@ -523,13 +532,13 @@ hs.fnutils.each({
   { key = "home",     direction = "left"  },
   { key = "end",      direction = "right" }
 }, function(object)
-  hs.hotkey.bind(mod1, object.key, bindWin(ext.win.focus, object.direction))
-  hs.hotkey.bind(mod2, object.key, bindWin(ext.win.moveToSpace, object.direction))
+  hs.hotkey.bind(mod.cc, object.key, bindWin(ext.win.focus, object.direction))
+  hs.hotkey.bind(mod.ca, object.key, bindWin(ext.win.moveToSpace, object.direction))
 end)
 
 -- move window directly to space by number
 hs.fnutils.each({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, function(space)
-  hs.hotkey.bind(mod3, space, bindWin(ext.win.moveToSpace, space))
+  hs.hotkey.bind(mod.cac, space, bindWin(ext.win.moveToSpace, space))
 end)
 
 -- set window sizes
@@ -542,7 +551,7 @@ hs.fnutils.each({
   { key = "6", w = 850,  h = 620 },
   { key = "7", w = 770,  h = 470 }
 }, function(object)
-  hs.hotkey.bind(mod1, object.key, bindWin(ext.win.setSize, { w = object.w, h = object.h }))
+  hs.hotkey.bind(mod.cc, object.key, bindWin(ext.win.setSize, { w = object.w, h = object.h }))
 end)
 
 -- launch and focus applications
@@ -555,11 +564,11 @@ hs.fnutils.each({
   { key = "p", apps = { "TaskPaper"               } },
   { key = "r", apps = { "Reminders"               } },
   { key = "s", apps = { "Slack", "Skype"          } },
-  { key = "t", apps = { "Terminal"                } },
+  { key = "t", apps = { "iTerm", "Terminal"       } },
   { key = "v", apps = { "MacVim"                  } },
   { key = "x", apps = { "Xcode"                   } }
 }, function(object)
-  hs.hotkey.bind(mod3, object.key, function() ext.app.smartLaunchOrFocus(object.apps) end)
+  hs.hotkey.bind(mod.cac, object.key, function() ext.app.smartLaunchOrFocus(object.apps) end)
 end)
 
 -- autoreload hammerspoon
