@@ -395,6 +395,7 @@ augroup detect_syntax
   au!
 
   au BufNewFile,BufRead *.ck                        setlocal filetype=ck
+  au BufNewFile,BufRead *.edn                       setlocal filetype=clojure
   au BufNewFile,BufRead *.frag,*.vert,*.glsl        setlocal filetype=glsl
   au BufNewFile,BufRead *.ino                       setlocal filetype=arduino
   au BufNewFile,BufRead *.jsx                       setlocal filetype=javascript.jsx
@@ -420,7 +421,7 @@ augroup ft_settings
   au FileType glsl     setlocal commentstring=//\ %s
 
   au FileType clojure
-        \ let b:delimitMate_quotes='"' |
+        \ let b:delimitMate_quotes = '"' |
         \ nnoremap <buffer> <leader>= :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
 
   au FileType taskpaper
@@ -1081,11 +1082,6 @@ let g:SuperTabDefaultCompletionType='context'
 let g:SuperTabContextDefaultCompletionType='<c-n>'
 
 " }}}
-" plugin: paredit {{{
-
-let g:paredit_smartjump=1
-
-" }}}
 " plugin: tern {{{
 
 if g:is_mac
@@ -1295,7 +1291,7 @@ nnoremap <expr> A SmartInsert('A')
 " rename current file
 function! Rename()
   let l:old_name=expand('%')
-  let l:new_name=input('New file name: ', expand('%'), 'file')
+  let l:new_name=input('New file name: ', fnameescape(expand('%')), 'file')
 
   if l:new_name != '' && l:new_name != l:old_name
     exe ':saveas ' . l:new_name
@@ -1331,11 +1327,56 @@ function! FixNext(next, first)
   endtry
 endfunction
 
-nnoremap [l :call FixNext('lprev', 'llast')<cr>
-nnoremap ]l :call FixPrevious('lnext', 'lfirst')<cr>
+nnoremap ]l :call FixNext('lprev', 'llast')<cr>
+nnoremap [l :call FixPrevious('lnext', 'lfirst')<cr>
 
-nnoremap [e :call FixNext('cprev', 'clast')<cr>
-nnoremap ]e :call FixPrevious('cnext', 'cfirst')<cr>
+nnoremap ]e :call FixNext('cprev', 'clast')<cr>
+nnoremap [e :call FixPrevious('cnext', 'cfirst')<cr>
+
+" next / previous file (stolen from unimpaired)
+function! Entries(path)
+  let path = substitute(a:path,'[\\/]$','','')
+  let files = split(glob(path."/.*"),"\n")
+  let files += split(glob(path."/*"),"\n")
+  call map(files,'substitute(v:val,"[\\/]$","","")')
+  call filter(files,'v:val !~# "[\\\\/]\\.\\.\\=$"')
+
+  let filter_suffixes = substitute(escape(&suffixes, '~.*$^'), ',', '$\\|', 'g') .'$'
+  call filter(files, 'v:val !~# filter_suffixes')
+
+  return files
+endfunction
+
+function! FileByOffset(num)
+  let file = expand('%:p')
+  let num = a:num
+  while num
+    let files = Entries(fnamemodify(file,':h'))
+    if a:num < 0
+      call reverse(sort(filter(files,'v:val <# file')))
+    else
+      call sort(filter(files,'v:val ># file'))
+    endif
+    let temp = get(files,0,'')
+    if temp == ''
+      let file = fnamemodify(file,':h')
+    else
+      let file = temp
+      while isdirectory(file)
+        let files = Entries(file)
+        if files == []
+          break
+        endif
+        let file = files[num > 0 ? 0 : -1]
+      endwhile
+      let num += num > 0 ? -1 : 1
+    endif
+  endwhile
+  return file
+endfunction
+
+nnoremap ]f :<c-u>edit <c-r>=fnamemodify(fnameescape(FileByOffset(v:count1)), ':.')<cr><cr>
+nnoremap [f :<c-u>edit <c-r>=fnamemodify(fnameescape(FileByOffset(-v:count1)), ':.')<cr><cr>
 
 " makes * and # work in visual mode
 function! VisualSearch(cmdtype)
@@ -1377,8 +1418,8 @@ endfunction
 command!        Grep       :call Grep()
 command! -range GrepVisual :call GrepVisual()
 
-nnoremap <leader>g :Grep<cr>
-xnoremap <leader>g :GrepVisual<cr>
+nnoremap <leader>G :Grep<cr>
+xnoremap <leader>G :GrepVisual<cr>
 
 " code TODO / FIXME in cwindow
 function! Todo() abort
@@ -1570,9 +1611,15 @@ nnoremap gb         :bnext<cr>
 nnoremap gB         :bprev<cr>
 nnoremap <leader>bd :bdelete!<cr>
 nnoremap <leader>bb :b#<cr>
-nnoremap <leader>B  :enew<cr>
 
-" new tab
+" easier tab / buffer switching
+nnoremap ]b :bnext<cr>
+nnoremap [b :bprev<cr>
+nnoremap ]t :tabnext<cr>
+nnoremap [t :tabprev<cr>
+
+" new buffer / tab
+nnoremap <leader>B :enew<cr>
 nnoremap <leader>T :tabnew<cr>
 
 " yank whole buffer

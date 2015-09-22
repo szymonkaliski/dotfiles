@@ -2,7 +2,7 @@
 
 HOSTNAME=$(hostname | cut -d. -f1)
 
-if [ "$HOSTNAME" != "Orchid" -a "$HOSTNAME" != "localhost" ]; then
+if [[ ! $HOSTNAME =~ [Oo]rchid ]]; then
   MSG="$HOSTNAME : "
 fi
 

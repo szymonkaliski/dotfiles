@@ -749,7 +749,7 @@ case $TERM in
 esac
 
 # use proper cursor with iTerm
-if [ $TERM_PROGRAM = "iTerm.app" ]; then
+if [ "$TERM_PROGRAM" = "iTerm.app" ]; then
   function zle-keymap-select zle-line-init {
     if [[ $TMUX != "" ]]; then
       case $KEYMAP in

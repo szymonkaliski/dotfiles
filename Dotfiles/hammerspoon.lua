@@ -1,28 +1,33 @@
 -- extensions
 local ext = {
-  frame = {},
-  win   = {},
-  app   = {},
-  utils = {},
-  cache = {}
+  frame    = {},
+  win      = {},
+  app      = {},
+  utils    = {},
+  cache    = {},
+  watchers = {}
 }
 
 -- saved window positions
-ext.cache.windowPositions = {}
-ext.cache.mousePosition   = nil
+ext.cache.windowPositions   = {}
+ext.cache.mousePosition     = nil
+
+-- saved battery status
+ext.cache.batteryPercentage = nil
+ext.cache.powerSource       = nil
 
 -- extension settings
 ext.win.animationDuration   = 0.15
-ext.win.margin              = 8
+ext.win.margin              = 6
 ext.win.fixEnabled          = false
-ext.win.fullFrame           = os.execute("ps xc | grep -q SIMBL") -- enable fullframe if SIMBL is runnig
+ext.win.fullFrame           = os.execute('ps xc | grep -q SIMBL') -- enable fullframe if SIMBL is runnig
 
 -- hs settings
 hs.window.animationDuration = ext.win.animationDuration
-hs.hints.fontName           = "Helvetica-Bold"
+hs.hints.fontName           = 'Helvetica-Bold'
 hs.hints.fontSize           = 22
 hs.hints.showTitleThresh    = 0
-hs.hints.hintChars          = { "A", "S", "D", "F", "J", "K", "L", "Q", "W", "E", "R", "Z", "X", "C"  }
+hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'Z', 'X', 'C'  }
 
 -- returns frame pushed to screen edge
 function ext.frame.push(screen, direction, value)
@@ -144,7 +149,7 @@ end
 
 -- get screen frame
 function ext.win.screenFrame(win)
-  local funcName  = ext.win.fullFrame and "fullFrame" or "frame"
+  local funcName  = ext.win.fullFrame and 'fullFrame' or 'frame'
   local winScreen = win:screen()
 
   return winScreen[funcName](winScreen)
@@ -192,7 +197,7 @@ end
 function ext.win.pushAndNudge(win, options)
   local direction, value
 
-  if type(options) == "table" then
+  if type(options) == 'table' then
     direction = options[1]
     value     = options[2] or 1 / 2
   else
@@ -244,12 +249,12 @@ end
 -- throw to next screen, center and fit
 function ext.win.throw(win, direction)
   local winScreen       = win:screen()
-  local frameFunc       = ext.win.fullFrame and "fullFrame" or "frame"
+  local frameFunc       = ext.win.fullFrame and 'fullFrame' or 'frame'
   local throwScreenFunc = {
-    up    = "toNorth",
-    down  = "toSouth",
-    left  = "toWest",
-    right = "toEast"
+    up    = 'toNorth',
+    down  = 'toSouth',
+    left  = 'toWest',
+    right = 'toEast'
   }
 
   local throwScreen = winScreen[throwScreenFunc[direction]](winScreen)
@@ -322,17 +327,17 @@ function ext.win.pos(win, option)
   local frame = win:frame()
 
   -- saves window position if not saved before
-  if option == "save" and not ext.cache.windowPositions[id] then
+  if option == 'save' and not ext.cache.windowPositions[id] then
     ext.cache.windowPositions[id] = frame
   end
 
   -- force update saved window position
-  if option == "update" then
+  if option == 'update' then
     ext.cache.windowPositions[id] = frame
   end
 
   -- restores window position
-  if option == "load" and ext.cache.windowPositions[id] then
+  if option == 'load' and ext.cache.windowPositions[id] then
     ext.win.setFrame(win, ext.cache.windowPositions[id])
   end
 end
@@ -362,10 +367,10 @@ end
 -- focus window in direction
 function ext.win.focus(win, direction)
   local functions = {
-    up    = "focusWindowNorth",
-    down  = "focusWindowSouth",
-    left  = "focusWindowWest",
-    right = "focusWindowEast"
+    up    = 'focusWindowNorth',
+    down  = 'focusWindowSouth',
+    left  = 'focusWindowWest',
+    right = 'focusWindowEast'
   }
 
   hs.window[functions[direction]](win)
@@ -385,8 +390,8 @@ function ext.app.launchOrFocus(app)
         -- try sending cmd-n for new window if no windows are visible
         -- this is due to some strange behavior of Finder
         -- actualy doesn't solve them, but sometimes helps
-        ext.utils.newKeyEvent({ cmd = true }, "n", true):post()
-        ext.utils.newKeyEvent({ cmd = true }, "n", false):post()
+        ext.utils.newKeyEvent({ cmd = true }, 'n', true):post()
+        ext.utils.newKeyEvent({ cmd = true }, 'n', false):post()
       else
         -- cycle windows if there are any
         ext.win.cycle(frontmostWindow)
@@ -446,7 +451,7 @@ end
 function ext.utils.newKeyEvent(modifiers, key, pressed)
   local keyEvent
 
-  keyEvent = hs.eventtap.event.newKeyEvent({}, "", pressed)
+  keyEvent = hs.eventtap.event.newKeyEvent({}, '', pressed)
   keyEvent:setKeyCode(hs.keycodes.map[key])
   keyEvent:setFlags(modifiers)
 
@@ -455,11 +460,14 @@ end
 
 -- reload hammerspoon config
 function ext.utils.reloadConfig()
+  -- stop watchers to avoid leaks
+  hs.fnutils.each(ext.watchers, function(watcher) watcher:stop() end)
+
   hs.reload()
 
   hs.notify.new({
-    title    = "Hammerspoon",
-    subTitle = "Reloaded!"
+    title    = 'Hammerspoon',
+    subTitle = 'Reloaded!'
   }):send()
 end
 
@@ -471,7 +479,7 @@ function doWin(fn, ...)
   if #arg == 1 then arg = arg[1] end
 
   if win and not win:isFullScreen() then
-    ext.win.pos(win, "save")
+    ext.win.pos(win, 'save')
     fn(win, arg)
   end
 end
@@ -496,27 +504,27 @@ end
 
 -- keyboard modifiers for bindings
 local mod = {
-  cc  = { "cmd", "ctrl"         },
-  ca  = { "cmd", "alt"          },
-  cac = { "cmd", "alt", "ctrl"  },
-  cas = { "cmd", "alt", "shift" }
+  cc  = { 'cmd', 'ctrl'         },
+  ca  = { 'cmd', 'alt'          },
+  cac = { 'cmd', 'alt', 'ctrl'  },
+  cas = { 'cmd', 'alt', 'shift' }
 }
 
 -- basic bindings
 hs.fnutils.each({
-  { key = "c",     mod = mod.cc,  fn = bindWin(ext.win.center)        },
-  { key = "z",     mod = mod.cc,  fn = bindWin(ext.win.full)          },
-  { key = "s",     mod = mod.cc,  fn = bindWin(ext.win.pos, "update") },
-  { key = "r",     mod = mod.cc,  fn = bindWin(ext.win.pos, "load")   },
-  { key = "tab",   mod = mod.cc,  fn = bindWin(ext.win.cycle)         },
-  { key = "space", mod = mod.cac, fn = hs.hints.windowHints           },
-  { key = "/",     mod = mod.cac, fn = hs.openConsole                 }
+  { key = 'c',     mod = mod.cc,  fn = bindWin(ext.win.center)        },
+  { key = 'z',     mod = mod.cc,  fn = bindWin(ext.win.full)          },
+  { key = 's',     mod = mod.cc,  fn = bindWin(ext.win.pos, 'update') },
+  { key = 'r',     mod = mod.cc,  fn = bindWin(ext.win.pos, 'load')   },
+  { key = 'tab',   mod = mod.cc,  fn = bindWin(ext.win.cycle)         },
+  { key = 'space', mod = mod.cac, fn = hs.hints.windowHints           },
+  { key = '/',     mod = mod.cac, fn = hs.openConsole                 }
 }, function(object)
   hs.hotkey.bind(object.mod, object.key, object.fn)
 end)
 
 -- arrow bindings
-hs.fnutils.each({ "up", "down", "left", "right" }, function(direction)
+hs.fnutils.each({ 'up', 'down', 'left', 'right' }, function(direction)
   local nudge = timeWin(ext.win.nudge, direction)
 
   hs.hotkey.bind(mod.cc,  direction, bindWin(ext.win.pushAndNudge, direction))
@@ -525,51 +533,83 @@ hs.fnutils.each({ "up", "down", "left", "right" }, function(direction)
   hs.hotkey.bind(mod.cas, direction, bindWin(ext.win.throw, direction))
 end)
 
--- arrow bindings with "fn"
+-- arrow bindings with 'fn'
 hs.fnutils.each({
-  { key = "pageup",   direction = "up"    },
-  { key = "pagedown", direction = "down"  },
-  { key = "home",     direction = "left"  },
-  { key = "end",      direction = "right" }
+  { key = 'pageup',   direction = 'up'    },
+  { key = 'pagedown', direction = 'down'  },
+  { key = 'home',     direction = 'left'  },
+  { key = 'end',      direction = 'right' }
 }, function(object)
   hs.hotkey.bind(mod.cc, object.key, bindWin(ext.win.focus, object.direction))
   hs.hotkey.bind(mod.ca, object.key, bindWin(ext.win.moveToSpace, object.direction))
 end)
 
 -- move window directly to space by number
-hs.fnutils.each({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, function(space)
+hs.fnutils.each({ '1', '2', '3', '4', '5', '6', '7', '8', '9' }, function(space)
   hs.hotkey.bind(mod.cac, space, bindWin(ext.win.moveToSpace, space))
 end)
 
 -- set window sizes
 hs.fnutils.each({
-  { key = "1", w = 1400, h = 940 },
-  { key = "2", w = 980,  h = 920 },
-  { key = "3", w = 800,  h = 880 },
-  { key = "4", w = 800,  h = 740 },
-  { key = "5", w = 700,  h = 740 },
-  { key = "6", w = 850,  h = 620 },
-  { key = "7", w = 770,  h = 470 }
+  { key = '1', w = 1400, h = 940 },
+  { key = '2', w = 980,  h = 920 },
+  { key = '3', w = 800,  h = 880 },
+  { key = '4', w = 800,  h = 740 },
+  { key = '5', w = 700,  h = 740 },
+  { key = '6', w = 850,  h = 620 },
+  { key = '7', w = 770,  h = 470 }
 }, function(object)
   hs.hotkey.bind(mod.cc, object.key, bindWin(ext.win.setSize, { w = object.w, h = object.h }))
 end)
 
 -- launch and focus applications
 hs.fnutils.each({
-  { key = "b", apps = { "Safari", "Google Chrome" } },
-  { key = "c", apps = { "Calendar"                } },
-  { key = "f", apps = { "Finder"                  } },
-  { key = "m", apps = { "Messages", "FaceTime"    } },
-  { key = "n", apps = { "Notational Velocity"     } },
-  { key = "p", apps = { "TaskPaper"               } },
-  { key = "r", apps = { "Reminders"               } },
-  { key = "s", apps = { "Slack", "Skype"          } },
-  { key = "t", apps = { "iTerm", "Terminal"       } },
-  { key = "v", apps = { "MacVim"                  } },
-  { key = "x", apps = { "Xcode"                   } }
+  { key = 'b', apps = { 'Safari', 'Google Chrome' } },
+  { key = 'c', apps = { 'Calendar'                } },
+  { key = 'f', apps = { 'Finder'                  } },
+  { key = 'm', apps = { 'Messages', 'FaceTime'    } },
+  { key = 'n', apps = { 'Notational Velocity'     } },
+  { key = 'p', apps = { 'TaskPaper'               } },
+  { key = 'r', apps = { 'Reminders'               } },
+  { key = 's', apps = { 'Slack', 'Skype'          } },
+  { key = 't', apps = { 'iTerm2', 'Terminal'      } },
+  { key = 'v', apps = { 'MacVim'                  } },
+  { key = 'x', apps = { 'Xcode'                   } }
 }, function(object)
   hs.hotkey.bind(mod.cac, object.key, function() ext.app.smartLaunchOrFocus(object.apps) end)
 end)
 
+-- automute on sleep and power off
+ext.watchers.caffeinate = hs.caffeinate.watcher.new(function()
+  if event == hs.caffeinate.watcher.systemWillSleep or event == hs.caffeinate.watcher.systemWillPowerOff then
+    hs.audiodevice.defaultOutputDevice():setMuted(true)
+  end
+end):start()
+
+-- notify on low battery, and power source changes
+ext.watchers.battery = hs.battery.watcher.new(function()
+  local batteryPercentage = hs.battery.percentage()
+  local powerSource       = hs.battery.powerSource()
+
+  if batteryPercentage ~= ext.cache.batteryPercentage and not hs.battery.isCharging() and batteryPercentage < 20 then
+    hs.notify.new({
+      title    = 'Battery Status',
+      subTitle = 'Battery remaining: ' .. batteryPercentage .. '%'
+    }):send()
+
+    ext.cache.batteryPercentage = batteryPercentage
+  end
+
+  if powerSource ~= ext.cache.powerSource then
+    hs.notify.new({
+      title    = 'Power Source Status',
+      subTitle = 'Power source changed to: ' .. powerSource
+    }):send()
+
+    ext.cache.powerSource = powerSource
+  end
+end):start()
+
 -- autoreload hammerspoon
-hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", ext.utils.reloadConfig):start()
+ext.watchers.patchwatcher = hs.pathwatcher.new(os.getenv('HOME') .. '/.hammerspoon/', ext.utils.reloadConfig):start()
+
