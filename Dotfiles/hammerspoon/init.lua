@@ -13,14 +13,15 @@ ext.cache.windowPositions   = {}
 ext.cache.mousePosition     = nil
 
 -- saved battery status
-ext.cache.batteryPercentage = nil
-ext.cache.powerSource       = nil
+ext.cache.batteryCharged    = hs.battery.isCharged()
+ext.cache.batteryPercentage = hs.battery.percentage()
+ext.cache.powerSource       = hs.battery.powerSource()
 
 -- extension settings
 ext.win.animationDuration   = 0.15
 ext.win.margin              = 6
 ext.win.fixEnabled          = false
-ext.win.fullFrame           = os.execute('ps xc | grep -q SIMBL') -- enable fullframe if SIMBL is runnig
+ext.win.fullFrame           = true
 
 -- hs settings
 hs.window.animationDuration = ext.win.animationDuration
@@ -295,8 +296,9 @@ end
 
 -- move window to another space
 function ext.win.moveToSpace(win, space)
-  local clickPoint = win:zoomButtonRect()
-  local sleepTime  = 1000
+  local clickPoint    = win:zoomButtonRect()
+  local sleepTime     = 1000
+  local longSleepTime = 300000
 
   if clickPoint == nil then return end
 
@@ -305,14 +307,18 @@ function ext.win.moveToSpace(win, space)
   clickPoint.x = clickPoint.x + clickPoint.w + 5
   clickPoint.y = clickPoint.y + clickPoint.h / 2
 
+  -- fix for Chrome UI
+  if win:application():title() == "Google Chrome" then
+    clickPoint.y = clickPoint.y - clickPoint.h
+  end
+
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseDown, clickPoint):post()
 
   hs.timer.usleep(sleepTime)
 
-  ext.utils.newKeyEvent({ ctrl = true }, space, true):post()
-  ext.utils.newKeyEvent({ ctrl = true }, space, false):post()
+  hs.eventtap.keyStroke({ "ctrl" }, space)
 
-  hs.timer.usleep(sleepTime)
+  hs.timer.usleep(longSleepTime)
 
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseUp, clickPoint):post()
 
@@ -376,32 +382,6 @@ function ext.win.focus(win, direction)
   hs.window[functions[direction]](win)
 end
 
--- launch or focus or cycle app
-function ext.app.launchOrFocus(app)
-  local frontmostWindow = hs.window.frontmostWindow()
-  local currentApp      = frontmostWindow and frontmostWindow:application():title() or nil
-
-  if currentApp == app then
-    if frontmostWindow then
-      local appWindows     = frontmostWindow:application():allwindows()
-      local visibleWindows = hs.fnutils.filter(appWindows, function(win) return win:isstandard() end)
-
-      if #visibleWindows == 0 then
-        -- try sending cmd-n for new window if no windows are visible
-        -- this is due to some strange behavior of Finder
-        -- actualy doesn't solve them, but sometimes helps
-        ext.utils.newKeyEvent({ cmd = true }, 'n', true):post()
-        ext.utils.newKeyEvent({ cmd = true }, 'n', false):post()
-      else
-        -- cycle windows if there are any
-        ext.win.cycle(frontmostWindow)
-      end
-    end
-  else
-    application.launchOrFocus(app)
-  end
-end
-
 -- smart app launch or focus or cycle windows
 function ext.app.smartLaunchOrFocus(launchApps)
   local frontmostWindow = hs.window.frontmostWindow()
@@ -421,9 +401,7 @@ function ext.app.smartLaunchOrFocus(launchApps)
 
     table.sort(standardWindows, function(a, b) return a:id() < b:id() end)
 
-    hs.fnutils.each(standardWindows, function(window)
-      table.insert(runningWindows, window)
-    end)
+    runningWindows = standardWindows
   end)
 
   -- find if one of windows is already focused
@@ -432,6 +410,15 @@ function ext.app.smartLaunchOrFocus(launchApps)
   if #runningWindows == 0 then
     -- launch first application if there's no windows for any of them
     hs.application.launchOrFocus(launchApps[1])
+
+    -- -- send 'cmd-n' if no app windows are available
+    -- hs.timer.usleep(100000)
+    -- local frontmostApp     = hs.application.frontmostApplication()
+    -- local frontmostWindows = hs.fnutils.filter(frontmostApp:allWindows(), function(win) return win:isStandard() end)
+    -- if #frontmostWindows == 0 then
+    --   print("sending cmd-n!")
+    --   hs.eventtap.keyStroke({ 'cmd' }, 'n')
+    -- end
   else
     if not currentIndex then
       -- if none of them is selected focus the first one
@@ -444,18 +431,6 @@ function ext.app.smartLaunchOrFocus(launchApps)
       runningWindows[newIndex]:focus()
     end
   end
-end
-
--- properly working newKeyEvent
--- https://github.com/nathyong/mjolnir.ny.tiling/blob/master/spaces.lua
-function ext.utils.newKeyEvent(modifiers, key, pressed)
-  local keyEvent
-
-  keyEvent = hs.eventtap.event.newKeyEvent({}, '', pressed)
-  keyEvent:setKeyCode(hs.keycodes.map[key])
-  keyEvent:setFlags(modifiers)
-
-  return keyEvent
 end
 
 -- reload hammerspoon config
@@ -518,7 +493,7 @@ hs.fnutils.each({
   { key = 'r',     mod = mod.cc,  fn = bindWin(ext.win.pos, 'load')   },
   { key = 'tab',   mod = mod.cc,  fn = bindWin(ext.win.cycle)         },
   { key = 'space', mod = mod.cac, fn = hs.hints.windowHints           },
-  { key = '/',     mod = mod.cac, fn = hs.openConsole                 }
+  { key = '/',     mod = mod.cac, fn = hs.toggleConsole               }
 }, function(object)
   hs.hotkey.bind(object.mod, object.key, object.fn)
 end)
@@ -551,7 +526,7 @@ end)
 
 -- set window sizes
 hs.fnutils.each({
-  { key = '1', w = 1400, h = 940 },
+  { key = '1', w = 1400, h = 920 },
   { key = '2', w = 980,  h = 920 },
   { key = '3', w = 800,  h = 880 },
   { key = '4', w = 800,  h = 740 },
@@ -579,37 +554,59 @@ hs.fnutils.each({
   hs.hotkey.bind(mod.cac, object.key, function() ext.app.smartLaunchOrFocus(object.apps) end)
 end)
 
--- automute on sleep and power off
-ext.watchers.caffeinate = hs.caffeinate.watcher.new(function()
-  if event == hs.caffeinate.watcher.systemWillSleep or event == hs.caffeinate.watcher.systemWillPowerOff then
-    hs.audiodevice.defaultOutputDevice():setMuted(true)
-  end
-end):start()
-
--- notify on low battery, and power source changes
+-- notify on power events
 ext.watchers.battery = hs.battery.watcher.new(function()
+  local imagePath         = os.getenv('HOME') .. '/.hammerspoon/battery.png'
   local batteryPercentage = hs.battery.percentage()
+  local isCharged         = hs.battery.isCharged()
   local powerSource       = hs.battery.powerSource()
 
-  if batteryPercentage ~= ext.cache.batteryPercentage and not hs.battery.isCharging() and batteryPercentage < 20 then
+  if batteryPercentage < 100 then
+    ext.cache.batteryCharged = false
+  end
+
+  if isCharged ~= ext.cache.batteryCharged and batteryPercentage == 100 then
     hs.notify.new({
-      title    = 'Battery Status',
-      subTitle = 'Battery remaining: ' .. batteryPercentage .. '%'
+      title        = 'Battery Status',
+      subTitle     = 'Charged completely!',
+      contentImage = hs.image.imageFromPath(imagePath)
     }):send()
 
-    ext.cache.batteryPercentage = batteryPercentage
+    ext.cache.batteryCharged = true
   end
 
   if powerSource ~= ext.cache.powerSource then
     hs.notify.new({
-      title    = 'Power Source Status',
-      subTitle = 'Power source changed to: ' .. powerSource
+      title        = 'Power Source Status',
+      subTitle     = 'Current source: ' .. powerSource,
+      contentImage = hs.image.imageFromPath(imagePath)
     }):send()
 
     ext.cache.powerSource = powerSource
   end
 end):start()
 
+-- application watcher
+ext.watchers.appwatcher = hs.application.watcher.new(function(name, event, app)
+  if (event == hs.application.watcher.activated) then
+    local appActions = {
+      -- persistent mini player in iTunes
+      iTunes = function(app)
+        local state = app:findMenuItem({ "Window", "MiniPlayer" })
+
+        if state and not state["ticked"] then
+          app:selectMenuItem({ "Window", "MiniPlayer" })
+        end
+      end,
+
+      -- show all iTerm and Finder windows
+      iTerm  = function(app) app:selectMenuItem({ "Window", "Bring All to Front" }) end,
+      Finder = function(app) app:selectMenuItem({ "Window", "Bring All to Front" }) end
+    }
+
+    if appActions[name] then appActions[name](app) end
+  end
+end):start()
+
 -- autoreload hammerspoon
 ext.watchers.patchwatcher = hs.pathwatcher.new(os.getenv('HOME') .. '/.hammerspoon/', ext.utils.reloadConfig):start()
-

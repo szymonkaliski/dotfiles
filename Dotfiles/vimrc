@@ -22,7 +22,7 @@ Plug 'bruno-/vim-man'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'coderifous/textobj-word-column.vim'
 Plug 'ervandew/supertab'
-Plug 'justinmk/vim-dirvish'
+Plug 'justinmk/vim-dirvish',               { 'frozen': 1 }
 Plug 'matchit.zip'
 Plug 'pbrisbin/vim-mkdir'
 Plug 'tpope/vim-repeat'
@@ -31,7 +31,7 @@ Plug 'tpope/vim-surround'
 
 " on demand loading
 Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>SortMotion', '<Plug>SortLines' ] }
-Plug 'epeli/slimux',                       { 'on': [ 'SlimuxREPL', 'SlimuxREPLSendSelection', 'SlimuxREPLSendBuffer', 'SlimuxREPLSendLine', 'SlimuxREPLConfigure' ] }
+Plug 'epeli/slimux',                       { 'on': [ 'SlimuxREPL', 'SlimuxREPLSendSelection', 'SlimuxREPLSendBuffer', 'SlimuxREPLSendLine', 'SlimuxREPLSendParagraph', 'SlimuxGlobalConfigure' ] }
 Plug 'junegunn/goyo.vim',                  { 'on': 'Goyo' }
 Plug 'junegunn/limelight.vim',             { 'on': 'Limelight' }
 Plug 'junegunn/vim-easy-align',            { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
@@ -44,7 +44,6 @@ Plug 't9md/vim-quickhl',                   { 'on': [ '<Plug>(quickhl-manual-' ] 
 " loading based on system and vim version
 Plug 'airblade/vim-gitgutter',             { 'on': [] } " only on mac
 Plug 'benekastah/neomake',                 { 'on': [] } " only in nvim
-Plug 'marijnh/tern_for_vim',               { 'on': [] } " only on mac
 Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
 
@@ -105,17 +104,15 @@ set display+=lastline
 " redraw only when needed and fast tty
 set lazyredraw
 
-" fast tty
+" fast tty / timeouts
 set ttyfast
+set notimeout
+set ttimeout
 
 if !g:is_nvim
   set ttyscroll=3
+  set ttimeoutlen=10
 endif
-
-" fast timeoute
-set notimeout
-set ttimeout
-set ttimeoutlen=10
 
 " don't beep
 set noeb vb t_vb=
@@ -396,6 +393,7 @@ augroup detect_syntax
 
   au BufNewFile,BufRead *.ck                        setlocal filetype=ck
   au BufNewFile,BufRead *.edn                       setlocal filetype=clojure
+  au BufNewFile,BufRead *.es6                       setlocal filetype=javascript
   au BufNewFile,BufRead *.frag,*.vert,*.glsl        setlocal filetype=glsl
   au BufNewFile,BufRead *.ino                       setlocal filetype=arduino
   au BufNewFile,BufRead *.jsx                       setlocal filetype=javascript.jsx
@@ -416,9 +414,13 @@ augroup ft_settings
   au FileType css      setlocal iskeyword+=-
   au FileType markdown setlocal nolist
   au FileType text     setlocal nolist
-  au FileType vim      setlocal foldmethod=marker foldlevel=0
   au FileType arduino  setlocal commentstring=//\ %s
   au FileType glsl     setlocal commentstring=//\ %s
+
+  au FileType vim
+        \ setlocal foldmethod=marker |
+        \ setlocal foldlevel=0 |
+        \ nnoremap <leader>sf :so %<cr>:echo 'File sourced'<cr>
 
   au FileType clojure
         \ let b:delimitMate_quotes = '"' |
@@ -598,8 +600,10 @@ augroup dirvish_plugin
   au!
 
   au FileType dirvish
-        \ map <buffer> <silent> e     <cr> |
-        \ map <buffer> <silent> <c-f> q
+        \ map <buffer> <silent> u - |
+        \ map <buffer> <silent> e <cr> |
+        \ map <buffer> <silent> <c-f> q |
+        \ nnoremap <buffer> <silent> G :call cursor(line("w$"), 0)<cr> " why G gets bound to <leader>G in dirvish is a mystery, this 'fixes' it
 augroup END
 
 function! DirvishCurrentPath()
@@ -1025,18 +1029,14 @@ nmap gcc <Plug>CommentaryLine
 " }}}
 " plugin: slimux {{{
 
-if !g:is_gui
-  let g:slimux_select_from_current_window=1
-endif
+let g:slimux_select_from_current_window = g:is_gui ? 0 : 1
+let g:slimux_restore_selection_after_visual = 1
 
 map  <Plug>SlimuxSendBuffer :SlimuxREPLSendBuffer<cr>:call repeat#set("\<Plug>SlimuxSendBuffer")<cr>
 map  <Plug>SlimuxSendNextParagraph }jvip:SlimuxREPLSendLine<cr>:call repeat#set("\<Plug>SlimuxSendNextParagraph")<cr>
 map  <Plug>SlimuxSendPrevParagraph {jvip:SlimuxREPLSendLine<cr>:call repeat#set("\<Plug>SlimuxSendPrevParagraph")<cr>
 
-map  <Plug>SlimuxSendParagraph :let slimux_view=winsaveview()<cr>
-      \vip:SlimuxREPLSendSelection<cr>
-      \:call winrestview(slimux_view)<cr>
-      \:call repeat#set("\<Plug>SlimuxSendParagraph")<cr>
+map  <Plug>SlimuxSendParagraph :SlimuxREPLSendParagraph<cr>:call repeat#set("\<Plug>SlimuxSendParagraph")<cr>
 
 map  <Plug>SlimuxSendParens :let slimux_view=winsaveview()<cr>
       \va):SlimuxREPLSendSelection<cr>
@@ -1044,10 +1044,10 @@ map  <Plug>SlimuxSendParens :let slimux_view=winsaveview()<cr>
       \:call winrestview(slimux_view)<cr>
       \:call repeat#set("\<Plug>SlimuxSendParens")<cr>
 
-map  <leader>sc :SlimuxREPLConfigure<cr>
+map  <leader>sc :SlimuxGlobalConfigure<cr>
 map  <leader>ss <Plug>SlimuxSendParagraph
 map  <leader>sp <Plug>SlimuxSendParens
-map  <leader>sb <Plug>SlimuxSendBuffer
+map  <leader>sf <Plug>SlimuxSendBuffer
 map  <leader>s] <Plug>SlimuxSendNextParagraph
 map  <leader>s[ <Plug>SlimuxSendPrevParagraph
 
@@ -1080,19 +1080,6 @@ let g:markdown_fenced_languages=[ 'css', 'html', 'javascript', 'js=javascript', 
 
 let g:SuperTabDefaultCompletionType='context'
 let g:SuperTabContextDefaultCompletionType='<c-n>'
-
-" }}}
-" plugin: tern {{{
-
-if g:is_mac
-  augroup tern_plugin
-    au!
-
-    au FileType javascript call plug#load('tern_for_vim') | au! tern_plugin
-  augroup END
-
-  let g:tern_show_signature_in_pum=1
-endif
 
 " }}}
 " plugin: sort motion {{{
@@ -1330,8 +1317,8 @@ endfunction
 nnoremap ]l :call FixNext('lprev', 'llast')<cr>
 nnoremap [l :call FixPrevious('lnext', 'lfirst')<cr>
 
-nnoremap ]e :call FixNext('cprev', 'clast')<cr>
-nnoremap [e :call FixPrevious('cnext', 'cfirst')<cr>
+nnoremap ]c :call FixNext('cprev', 'clast')<cr>
+nnoremap [c :call FixPrevious('cnext', 'cfirst')<cr>
 
 " next / previous file (stolen from unimpaired)
 function! Entries(path)
@@ -1469,7 +1456,16 @@ endif
 " basically pipe throught simple node script
 
 function! CountWorkedDays() range
-  echomsg 'Worked days: ' . system('echo ' . shellescape(join(getline(a:firstline, a:lastline), '\n')) . '| count-work-days')
+  let l:cli = ''
+
+  if !executable('node')
+    let l:cli = l:cli . 'source /usr/local/opt/nvm/nvm.sh && nvm use default > /dev/null &&'
+  end
+
+  let l:cli = l:cli . 'echo ' . shellescape(join(getline(a:firstline, a:lastline), '\n'))
+  let l:cli = l:cli . ' | count-work-days'
+
+  echomsg 'Worked days: ' . system(l:cli)
 endfunction
 
 command! -range=% -nargs=0 CountWorkedDays :<line1>,<line2>call CountWorkedDays()
@@ -1604,7 +1600,8 @@ endif
 nnoremap <leader>sv :ReloadSettings<cr>
 
 " replace current word
-nnoremap <leader>r /\<<c-r><c-w>\><cr>:redraw!<cr>:%s//
+nnoremap <leader>r :<c-u>let replace_view=winsaveview()<cr>/\<<c-r><c-w>\><cr>:redraw!<cr>:call winrestview(replace_view)<cr>:%s//
+xnoremap <leader>r :<c-u>let replace_view=winsaveview()<cr>:<c-u>call VisualSearch('/')<cr>/<c-r>=@/<cr><cr>:call winrestview(replace_view)<cr>:redraw!<cr>:%s//
 
 " buffers
 nnoremap gb         :bnext<cr>

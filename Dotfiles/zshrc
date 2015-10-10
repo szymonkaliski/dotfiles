@@ -65,8 +65,19 @@ if [ -d /usr/local/share/npm/bin ]; then
   export PATH="$PATH:/usr/local/share/npm/bin"
 fi
 
+# grab latest nvm node by default
+if [ -d ~/.nvm/versions/node/ ]; then
+  local last_node="$(ls ~/.nvm/versions/node/ | tail -1)"
+  export PATH="$HOME/.nvm/versions/node/$last_node/bin:$PATH"
+fi
+
+# terminfo
+if [ -d $HOME/.terminfo ]; then
+  export TERMINFO=$HOME/.terminfo/
+fi
+
 # clean paths
-typeset -gU fpath path #cdpath manpath
+typeset -gU fpath path cdpath manpath
 
 # load modules
 autoload -Uz colors compinit vcs_info zmv zrecompile
@@ -83,16 +94,15 @@ colors
 [ -f ~/.zshrc.zwc.old ]     && rm -f ~/.zshrc.zwc.old        > /dev/null 2>&1
 [ -f ~/.zcompdump.zwc.old ] && rm -f ~/.zcompdump.zwc.old    > /dev/null 2>&1
 
-# npm completions
-if [ -f /usr/lib/node_modules/npm/lib/utils/completion.sh ]; then
-  source /usr/lib/node_modules/npm/lib/utils/completion.sh
-elif [ -f /usr/local/lib/node_modules/npm/lib/utils/completion.sh ]; then
-  source /usr/local/lib/node_modules/npm/lib/utils/completion.sh
-fi
+# lazy sourcing
+function lazy_source() {
+  eval "$1 () { [ -f $2 ] && source $2 && $1 \$@ }"
+}
 
 # live command coloring
 if [ -f ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
   source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
   ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 
   ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=black,bg=red')
@@ -121,9 +131,22 @@ if [ -f ~/.zsh/plugins/zsh-bd/bd.zsh ]; then
   source ~/.zsh/plugins/zsh-bd/bd.zsh
 fi
 
-# k for better ls
-if [ -f ~/.zsh/plugins/k/k.sh ]; then
-  source ~/.zsh/plugins/k/k.sh
+# rbenv init
+if hash rbenv 2> /dev/null; then
+  eval "$(rbenv init --no-rehash -)"
+  (rbenv rehash &) 2> /dev/null
+fi
+
+# lazy nvm init
+if [ -d /usr/local/opt/nvm/ ]; then
+  export NVM_DIR=~/.nvm
+
+  if [ ! -d $NVM_DIR ]; then
+    mkdir ~/.nvm/ > /dev/null 2>&1
+    cp -f /usr/local/opt/nvm/nvm-exec ~/.nvm/ > /dev/null 2>&1
+  fi
+
+  lazy_source nvm /usr/local/opt/nvm/nvm.sh
 fi
 
 # grc for more colors
@@ -139,12 +162,6 @@ if hash grc 2> /dev/null; then
   alias traceroute="colourify traceroute"
 fi
 
-# rbenv init
-if hash rbenv 2> /dev/null; then
-  eval "$(rbenv init --no-rehash -)"
-  (rbenv rehash &) 2> /dev/null
-fi
-
 # vcs info
 zstyle ":vcs_info:*" enable git #svn
 zstyle ":vcs_info:*" check-for-changes true
@@ -153,6 +170,7 @@ zstyle ":vcs_info:*" unstagedstr "%{$fg[red]%}"
 zstyle ":vcs_info:*" branchformat "%r"
 zstyle ":vcs_info:*" actionformats "%{$fg[green]%}%b %{$fg[yellow]%}%u%c"
 zstyle ":vcs_info:*" formats "%{$fg[green]%}%b %{$fg[yellow]%}%u%c"
+
 local VCS='$vcs_info_msg_0_'
 
 # prompt colors
@@ -273,8 +291,8 @@ alias -g M="| more -i"
 alias -g S="| sort"
 alias -g B="> /dev/null 2>&1 &"
 
-alias -g N="&& notify-terminal"
-alias -g P="&& pushover-terminal"
+alias -g N="; notify-terminal"
+alias -g P="; pushover-terminal"
 
 # tmux
 function tm() {
@@ -370,6 +388,9 @@ if [ "$(uname)" = "Darwin" ]; then
     alias stroke="/System/Library/CoreServices/Applications/Network\ Utility.app/Contents/Resources/stroke"
   fi
 
+  # airport utility
+  alias airport="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
+
   # taskpaper related
   if [ -d ~/Documents/Dropbox/Tasks/ ]; then
     alias tasks-next="node ~/Documents/Projects/Archive/TaskPaperNext/app.js"
@@ -399,9 +420,6 @@ if [ "$(uname)" = "Darwin" ]; then
 
     open $ARG
   }
-
-  # completion for mpv
-  compctl -g '*.mp3 *.avi *.mpg *.mpeg *.mkv *.mov *.wmv' mpv
 fi
 
 # linux only
@@ -411,6 +429,15 @@ if [ "$(uname)" = "Linux" ]; then
   alias reboot="sudo systemctl reboot"
   alias shutdown="sudo systemctl poweroff"
 fi
+
+# use local npm binaries
+function npm-exec() {
+  if ! hash npm 2> /dev/null; then
+    nvm use default
+  fi
+
+  $(npm bin)/$@
+}
 
 # sudo previous command
 function sudothat() {
@@ -616,7 +643,7 @@ if hash fzf 2> /dev/null; then
     local panes target
 
     panes=$(tmux list-panes -a -F '#S;[#I:#P];#T')
-    target=$(echo "$panes" | column -t -s ";" | fzf --select-1 --exit-0 --query="$1" --prompt="pane > ") || return
+    target=$(echo "$panes" | column -t -s ";" | sort | fzf --tac --no-sort --select-1 --exit-0 --query="$1" --prompt="pane > ") || return
 
     local target_session=$(echo $target | cut -d " " -f1)
     local target_window=$(echo $target | cut -d "[" -f2 | awk 'BEGIN{FS=":|-"} {print $1}')
