@@ -1,5 +1,5 @@
--- extensions
-local ext = {
+-- extensions, available in hammerspoon console
+ext = {
   frame    = {},
   win      = {},
   app      = {},
@@ -433,6 +433,12 @@ function ext.app.smartLaunchOrFocus(launchApps)
   end
 end
 
+-- toggle hammerspoon console refocusing window
+function ext.utils.toggleConsole()
+  hs.toggleConsole()
+  hs.window.frontmostWindow():focus()
+end
+
 -- reload hammerspoon config
 function ext.utils.reloadConfig()
   -- stop watchers to avoid leaks
@@ -471,12 +477,6 @@ function timeWin(fn, ...)
   return hs.timer.new(0.05, function() doWin(fn, arg) end)
 end
 
--- cycle between different window settings
-function cycleWin(fn, options, settings)
-  local setting = hs.fnutils.cycle(settings)
-  return function() doWin(fn, { options, setting() }) end
-end
-
 -- keyboard modifiers for bindings
 local mod = {
   cc  = { 'cmd', 'ctrl'         },
@@ -493,7 +493,7 @@ hs.fnutils.each({
   { key = 'r',     mod = mod.cc,  fn = bindWin(ext.win.pos, 'load')   },
   { key = 'tab',   mod = mod.cc,  fn = bindWin(ext.win.cycle)         },
   { key = 'space', mod = mod.cac, fn = hs.hints.windowHints           },
-  { key = '/',     mod = mod.cac, fn = hs.toggleConsole               }
+  { key = '/',     mod = mod.cac, fn = ext.utils.toggleConsole        }
 }, function(object)
   hs.hotkey.bind(object.mod, object.key, object.fn)
 end)
