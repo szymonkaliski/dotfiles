@@ -61,11 +61,11 @@ Plug 'groenewege/vim-less',                { 'for': 'less' }
 Plug 'kchmck/vim-coffee-script',           { 'for': 'coffee' }
 Plug 'keith/swift.vim',                    { 'for': 'swift' }
 Plug 'leafgarland/typescript-vim',         { 'for': 'typescript' }
-Plug 'moll/vim-node',                      { 'for': [ 'javascript', 'javascript.jsx' ] }
-Plug 'mxw/vim-jsx',                        { 'for': 'javascript.jsx' }
+Plug 'moll/vim-node',                      { 'for': 'javascript'  }
+Plug 'mxw/vim-jsx',                        { 'for': 'javascript' }
 Plug 'nelstrom/vim-markdown-folding',      { 'for': 'markdown' }
 Plug 'othree/html5.vim',                   { 'for': 'html' }
-Plug 'pangloss/vim-javascript',            { 'for': [ 'javascript', 'javascript.jsx', 'html' ] }
+Plug 'pangloss/vim-javascript',            { 'for': [ 'javascript', 'html' ] }
 Plug 'sophacles/vim-processing',           { 'for': 'processing' }
 Plug 'sudar/vim-arduino-syntax',           { 'for': 'arduino' }
 Plug 'tikhomirov/vim-glsl',                { 'for': 'glsl' }
@@ -396,7 +396,7 @@ augroup detect_syntax
   au BufNewFile,BufRead *.es6                       setlocal filetype=javascript
   au BufNewFile,BufRead *.frag,*.vert,*.glsl        setlocal filetype=glsl
   au BufNewFile,BufRead *.ino                       setlocal filetype=arduino
-  au BufNewFile,BufRead *.jsx                       setlocal filetype=javascript.jsx
+  au BufNewFile,BufRead *.jsx                       setlocal filetype=javascript | setlocal syntax=javascript.jsx
   au BufNewFile,BufRead *.m,*.mm                    setlocal filetype=objc
   au BufNewFile,BufRead *.md                        setlocal filetype=markdown
   au BufNewFile,BufRead *.pde                       setlocal filetype=processing
@@ -439,7 +439,7 @@ augroup ft_settings
 
   au FileType javascript
         \ setlocal foldmethod=syntax |
-        \ setlocal suffixesadd=.js |
+        \ setlocal suffixesadd=.js,.jsx |
         \ setlocal makeprg=javascript\ % |
         \ setlocal errorformat=%Evm.js:%*\\d:\ Uncaught\ SyntaxError:\ %f:%l,\ %C%m,%Z%m,%AError:\ %m,%AEvalError:\ %m,%ARangeError:\ %m,%AReferenceError:\ %m,%ASyntaxError:\ %m,%ATypeError:\ %m,%Z%*[\ ]at\ %f:%l:%c,%Z%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]at\ %f:%l:%c,%Z%p^,%A%f:%l,%C%m,%-G%.%# |
 
@@ -667,7 +667,7 @@ if g:is_nvim
   augroup neomake_plugin
     au!
 
-    au BufRead,BufWritePost *.js,*.json                     silent Neomake " jshint, jscs
+    au BufRead,BufWritePost *.js,*.jsx,*.json               silent Neomake " jshint, jscs
     au BufRead,BufWritePost *.clj,*.cljs                    silent Neomake " lein kibit
     au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* silent Neomake " shellcheck
   augroup END

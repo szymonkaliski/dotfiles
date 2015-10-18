@@ -17,6 +17,9 @@ ext.cache.batteryCharged    = hs.battery.isCharged()
 ext.cache.batteryPercentage = hs.battery.percentage()
 ext.cache.powerSource       = hs.battery.powerSource()
 
+-- saved timers
+ext.cache.launchTimer       = nil
+
 -- extension settings
 ext.win.animationDuration   = 0.15
 ext.win.margin              = 6
@@ -411,14 +414,22 @@ function ext.app.smartLaunchOrFocus(launchApps)
     -- launch first application if there's no windows for any of them
     hs.application.launchOrFocus(launchApps[1])
 
-    -- -- send 'cmd-n' if no app windows are available
-    -- hs.timer.usleep(100000)
-    -- local frontmostApp     = hs.application.frontmostApplication()
-    -- local frontmostWindows = hs.fnutils.filter(frontmostApp:allWindows(), function(win) return win:isStandard() end)
-    -- if #frontmostWindows == 0 then
-    --   print("sending cmd-n!")
-    --   hs.eventtap.keyStroke({ 'cmd' }, 'n')
-    -- end
+    -- clear timer if exists
+    if ext.cache.launchTimer then ext.cache.launchTimer:stop() end
+
+    -- wait 500ms for window to appear and try sending cmd-n if it's not there
+    ext.cache.launchTimer = hs.timer.doAfter(0.5, function()
+      local frontmostApp     = hs.application.frontmostApplication()
+      local frontmostWindows = hs.fnutils.filter(frontmostApp:allWindows(), function(win) return win:isStandard() end)
+
+      -- break if this app is not frontmost (when/why?)
+      if frontmostApp:title() ~= launchApps[1] then return end
+
+      -- send cmd-n to this app
+      if #frontmostWindows == 0 then
+        hs.eventtap.keyStroke({ 'cmd' }, 'n')
+      end
+    end)
   else
     if not currentIndex then
       -- if none of them is selected focus the first one

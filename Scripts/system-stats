@@ -33,9 +33,15 @@ if hash tmux 2> /dev/null; then
 fi
 
 if [ "$(uname)" = "Darwin" ]; then
-  BATTERY=$(pmset -g ps | sed -n 's/.*[[:blank:]]+*\(.*%\).*/\1/p')
+  BATTERY_CHARGE=$(pmset -g ps | sed -n 's/.*[[:blank:]]+*\(.*%\).*/\1/p')
+
+  BATTERY_MAX=$(ioreg -w0 -l | grep MaxCapacity | cut -d '=' -f2)
+  BATTERY_DESIGN=$(ioreg -w0 -l | grep DesignCapacity | cut -d '=' -f2)
+  BATTERY_HEALTH=$(echo "scale=2; $BATTERY_MAX / $BATTERY_DESIGN * 100" | bc | sed "s/\..*//g")
+
   if [ "$BATTERY" != "100%" ]; then
-    MSG="$MSG, battery: $(tput setaf 3)$BATTERY$(tput sgr0)"
+    MSG="$MSG, battery charge: $(tput setaf 3)$BATTERY_CHARGE$(tput sgr0)"
+    MSG="$MSG, battery health: $(tput setaf 3)$BATTERY_HEALTH%$(tput sgr0)"
   fi
 fi
 
