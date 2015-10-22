@@ -31,7 +31,7 @@ hs.window.animationDuration = ext.win.animationDuration
 hs.hints.fontName           = 'Helvetica-Bold'
 hs.hints.fontSize           = 22
 hs.hints.showTitleThresh    = 0
-hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'Z', 'X', 'C'  }
+hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'Z', 'X', 'C' }
 
 -- returns frame pushed to screen edge
 function ext.frame.push(screen, direction, value)
@@ -210,7 +210,10 @@ function ext.win.pushAndNudge(win, options)
   end
 
   ext.win.push(win, direction, value)
-  ext.win.nudge(win, direction)
+
+  hs.timer.doAfter(hs.window.animationDuration * 3 / 2, function()
+    ext.win.nudge(win, direction)
+  end)
 end
 
 -- sends window in direction
@@ -247,7 +250,9 @@ function ext.win.full(win)
   ext.win.setFrame(win, frame)
 
   -- center after setting frame, fixes terminal
-  ext.win.center(win)
+  hs.timer.doAfter(hs.window.animationDuration * 3 / 2, function()
+    ext.win.center(win)
+  end)
 end
 
 -- throw to next screen, center and fit
@@ -279,8 +284,10 @@ function ext.win.throw(win, direction)
 
   win:focus()
 
-  -- center after setting frame, fixes terminal and macvim
-  ext.win.center(win)
+  -- center after setting frame, fixes terminal
+  hs.timer.doAfter(hs.window.animationDuration * 3 / 2, function()
+    ext.win.center(win)
+  end)
 end
 
 -- set window size and center
@@ -311,7 +318,7 @@ function ext.win.moveToSpace(win, space)
   clickPoint.y = clickPoint.y + clickPoint.h / 2
 
   -- fix for Chrome UI
-  if win:application():title() == "Google Chrome" then
+  if win:application():title() == 'Google Chrome' then
     clickPoint.y = clickPoint.y - clickPoint.h
   end
 
@@ -319,7 +326,7 @@ function ext.win.moveToSpace(win, space)
 
   hs.timer.usleep(sleepTime)
 
-  hs.eventtap.keyStroke({ "ctrl" }, space)
+  hs.eventtap.keyStroke({ 'ctrl' }, space)
 
   hs.timer.usleep(longSleepTime)
 
@@ -393,7 +400,7 @@ function ext.app.smartLaunchOrFocus(launchApps)
 
   -- filter running applications by apps array
   local runningApps = hs.fnutils.map(launchApps, function(launchApp)
-    return hs.application.find(launchApp)
+    return hs.application.get(launchApp)
   end)
 
   -- create table of sorted windows per application
@@ -407,9 +414,6 @@ function ext.app.smartLaunchOrFocus(launchApps)
     runningWindows = standardWindows
   end)
 
-  -- find if one of windows is already focused
-  local currentIndex = hs.fnutils.indexOf(runningWindows, frontmostWindow)
-
   if #runningWindows == 0 then
     -- launch first application if there's no windows for any of them
     hs.application.launchOrFocus(launchApps[1])
@@ -417,7 +421,7 @@ function ext.app.smartLaunchOrFocus(launchApps)
     -- clear timer if exists
     if ext.cache.launchTimer then ext.cache.launchTimer:stop() end
 
-    -- wait 500ms for window to appear and try sending cmd-n if it's not there
+    -- wait 500ms for window to appear and try sending showing the window (cmd-n / cmd-0 or other)
     ext.cache.launchTimer = hs.timer.doAfter(0.5, function()
       local frontmostApp     = hs.application.frontmostApplication()
       local frontmostWindows = hs.fnutils.filter(frontmostApp:allWindows(), function(win) return win:isStandard() end)
@@ -425,12 +429,21 @@ function ext.app.smartLaunchOrFocus(launchApps)
       -- break if this app is not frontmost (when/why?)
       if frontmostApp:title() ~= launchApps[1] then return end
 
-      -- send cmd-n to this app
       if #frontmostWindows == 0 then
-        hs.eventtap.keyStroke({ 'cmd' }, 'n')
+        -- check if there's app name in window menu (Calendar, Messages, etc...)
+        if frontmostApp:findMenuItem({ 'Window', launchApps[1] }) then
+          -- select it, usually moves to space with this window
+          frontmostApp:selectMenuItem({ 'Window', launchApps[1] })
+        else
+          -- otherwise send cmd-n to create new window
+          hs.eventtap.keyStroke({ 'cmd' }, 'n')
+        end
       end
     end)
   else
+    -- check if one of windows is already focused
+    local currentIndex = hs.fnutils.indexOf(runningWindows, frontmostWindow)
+
     if not currentIndex then
       -- if none of them is selected focus the first one
       runningWindows[1]:focus()
@@ -447,7 +460,9 @@ end
 -- toggle hammerspoon console refocusing window
 function ext.utils.toggleConsole()
   hs.toggleConsole()
-  hs.window.frontmostWindow():focus()
+
+  local frontmostWindow = hs.window.frontmostWindow()
+  if frontmostWindow then frontmostWindow:focus() end
 end
 
 -- reload hammerspoon config
@@ -532,7 +547,8 @@ end)
 
 -- move window directly to space by number
 hs.fnutils.each({ '1', '2', '3', '4', '5', '6', '7', '8', '9' }, function(space)
-  hs.hotkey.bind(mod.cac, space, bindWin(ext.win.moveToSpace, space))
+  -- NOTE: somehow binding this to pressedFn doesn't work!
+  hs.hotkey.bind(mod.cac, space, nil, bindWin(ext.win.moveToSpace, space))
 end)
 
 -- set window sizes
@@ -597,22 +613,35 @@ ext.watchers.battery = hs.battery.watcher.new(function()
   end
 end):start()
 
+-- notify on wifi connection status
+ext.watchers.wifi = hs.wifi.watcher.new(function()
+  local imagePath      = os.getenv('HOME') .. '/.hammerspoon/airport.png'
+  local currentNetwork = hs.wifi.currentNetwork()
+  local subTitle       = currentNetwork and 'Network: ' .. currentNetwork or 'Disconnected'
+
+  hs.notify.new({
+    title        = 'Wi-Fi Status',
+    subTitle     = subTitle,
+    contentImage = hs.image.imageFromPath(imagePath)
+  }):send()
+end):start()
+
 -- application watcher
 ext.watchers.appwatcher = hs.application.watcher.new(function(name, event, app)
   if (event == hs.application.watcher.activated) then
     local appActions = {
       -- persistent mini player in iTunes
       iTunes = function(app)
-        local state = app:findMenuItem({ "Window", "MiniPlayer" })
+        local state = app:findMenuItem({ 'Window', 'MiniPlayer' })
 
-        if state and not state["ticked"] then
-          app:selectMenuItem({ "Window", "MiniPlayer" })
+        if state and not state['ticked'] then
+          app:selectMenuItem({ 'Window', 'MiniPlayer' })
         end
       end,
 
-      -- show all iTerm and Finder windows
-      iTerm  = function(app) app:selectMenuItem({ "Window", "Bring All to Front" }) end,
-      Finder = function(app) app:selectMenuItem({ "Window", "Bring All to Front" }) end
+      -- always show all iTerm and Finder windows
+      iTerm  = function(app) app:selectMenuItem({ 'Window', 'Bring All to Front' }) end,
+      Finder = function(app) app:selectMenuItem({ 'Window', 'Bring All to Front' }) end
     }
 
     if appActions[name] then appActions[name](app) end

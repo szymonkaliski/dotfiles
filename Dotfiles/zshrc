@@ -436,7 +436,7 @@ function npm-exec() {
     nvm use default
   fi
 
-  $(npm bin)/$@
+  "$(npm bin)/$@"
 }
 
 # sudo previous command
@@ -446,13 +446,15 @@ function sudothat() {
 }
 
 # man in vim
-
 function viman() {
   $EDITOR -c "Man $1 $2" -c "silent only"
 }
 compdef _man viman=man
 
-alias man="viman"
+# grep in vim
+function vigrep() {
+  $EDITOR -c "call GrepHandler(\"$@\")"
+}
 
 # history
 function h() {
