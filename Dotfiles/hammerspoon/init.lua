@@ -1,3 +1,5 @@
+spaces = require('hs._asm.undocumented.spaces')
+
 -- extensions, available in hammerspoon console
 ext = {
   frame    = {},
@@ -19,6 +21,9 @@ ext.cache.powerSource       = hs.battery.powerSource()
 
 -- saved timers
 ext.cache.launchTimer       = nil
+
+-- saved space drawings
+ext.cache.spaces            = {}
 
 -- extension settings
 ext.win.animationDuration   = 0.15
@@ -198,7 +203,7 @@ function ext.win.nudge(win, direction)
 end
 
 -- push and nudge window in direction
-function ext.win.pushAndNudge(win, options)
+function ext.win.pushAndSend(win, options)
   local direction, value
 
   if type(options) == 'table' then
@@ -212,7 +217,7 @@ function ext.win.pushAndNudge(win, options)
   ext.win.push(win, direction, value)
 
   hs.timer.doAfter(hs.window.animationDuration * 3 / 2, function()
-    ext.win.nudge(win, direction)
+    ext.win.send(win, direction)
   end)
 end
 
@@ -528,7 +533,7 @@ end)
 hs.fnutils.each({ 'up', 'down', 'left', 'right' }, function(direction)
   local nudge = timeWin(ext.win.nudge, direction)
 
-  hs.hotkey.bind(mod.cc,  direction, bindWin(ext.win.pushAndNudge, direction))
+  hs.hotkey.bind(mod.cc,  direction, bindWin(ext.win.pushAndSend, direction))
   hs.hotkey.bind(mod.ca,  direction, bindWin(ext.win.send, direction))
   hs.hotkey.bind(mod.cac, direction, function() nudge:start() end, function() nudge:stop() end)
   hs.hotkey.bind(mod.cas, direction, bindWin(ext.win.throw, direction))
@@ -627,7 +632,7 @@ ext.watchers.wifi = hs.wifi.watcher.new(function()
 end):start()
 
 -- application watcher
-ext.watchers.appwatcher = hs.application.watcher.new(function(name, event, app)
+ext.watchers.apps = hs.application.watcher.new(function(name, event, app)
   if (event == hs.application.watcher.activated) then
     local appActions = {
       -- persistent mini player in iTunes
@@ -647,6 +652,58 @@ ext.watchers.appwatcher = hs.application.watcher.new(function(name, event, app)
     if appActions[name] then appActions[name](app) end
   end
 end):start()
+
+-- imitate ios dots for spaces
+ext.utils.spacesDots = function()
+  local spacesCount  = spaces.count()
+  local currentSpace = spaces.currentSpace();
+  local screenFrame  = hs.screen.allScreens()[1]:fullFrame()
+
+  -- TODO: move to config on top
+  local circleSize          = 8
+  local circleDistance      = 16
+  local circleSelectedAlpha = 0.45
+  local circleAlpha         = 0.15
+
+  -- init circles in cache
+  if #ext.cache.spaces == 0 then
+    for i = 1, 9 do
+      local circle = hs.drawing.circle({ x = -10, y = -10, w = circleSize, h = circleSize })
+
+      circle
+        :setStroke(false)
+        :setLevel(hs.drawing.windowLevels.desktopIcon) -- lay as high as icons (lower values disable clicking)
+        :setBehaviorByLabels({ 'canJoinAllSpaces', 'stationary' }) -- stick to all spaces
+        :setClickCallback(function() hs.eventtap.keyStroke({ 'ctrl' }, i) end) -- switch to space on click
+
+      ext.cache.spaces[i] = circle
+    end
+  end
+
+  -- update circles
+  for i = 1, 9 do
+    local circle = ext.cache.spaces[i]
+    local x      = screenFrame.w / 2 - (spacesCount / 2) * circleDistance + i * circleDistance - circleSize
+    local y      = screenFrame.h - circleDistance
+    local alpha  = i == currentSpace and circleSelectedAlpha or circleAlpha
+
+    circle
+      :setTopLeft({ x = x, y = y })
+      :setFillColor({ red = 1.0, green = 1.0, blue = 1.0, alpha = alpha })
+
+    if i <= spacesCount then
+      circle:show()
+    else
+      circle:hide()
+    end
+  end
+end
+
+-- setup dots on startup
+ext.utils.spacesDots()
+
+-- spaces watcher
+ext.watchers.spaces = hs.spaces.watcher.new(ext.utils.spacesDots):start()
 
 -- autoreload hammerspoon
 ext.watchers.patchwatcher = hs.pathwatcher.new(os.getenv('HOME') .. '/.hammerspoon/', ext.utils.reloadConfig):start()

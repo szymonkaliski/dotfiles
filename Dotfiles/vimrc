@@ -1472,26 +1472,39 @@ if g:is_nvim
   command! -complete=shellcmd -nargs=+ T :terminal <q-args>
 endif
 
-" count worked days looking like that:
+function! PipeThroughScript(lines, script)
+  let l:cli = ''
+
+  let l:cli = l:cli . 'echo ' . shellescape(join(a:lines, '\n'))
+  let l:cli = l:cli . ' | ' . a:script
+
+  return system(l:cli)
+endfunction
+
+" count worked days looking like this:
 " day1: 1/2
 " day2: 3/4
 " day3: 1
 " basically pipe throught simple node script
 
 function! CountWorkedDays() range
-  let l:cli = ''
-
-  if !executable('node')
-    let l:cli = l:cli . 'source /usr/local/opt/nvm/nvm.sh && nvm use default > /dev/null &&'
-  end
-
-  let l:cli = l:cli . 'echo ' . shellescape(join(getline(a:firstline, a:lastline), '\n'))
-  let l:cli = l:cli . ' | count-work-days'
-
-  echomsg 'Worked days: ' . system(l:cli)
+  echomsg 'Worked days: ' . PipeThroughScript(getline(a:firstline, a:lastline), 'count-work-days')
 endfunction
 
 command! -range=% -nargs=0 CountWorkedDays :<line1>,<line2>call CountWorkedDays()
+
+" count worked hours looking like this:
+" project1
+" 10:00 - 12:00
+" project2
+" 13:00 - 13:30
+" basically pipe through simple node script
+
+function! CountWorkedHours() range
+  echomsg PipeThroughScript(getline(a:firstline, a:lastline), 'count-work-hours')
+endfunction
+
+command! -range=% -nargs=0 CountWorkedHours :<line1>,<line2>call CountWorkedHours()
 
 " zoom / restore window
 function! ZoomToggle() abort
