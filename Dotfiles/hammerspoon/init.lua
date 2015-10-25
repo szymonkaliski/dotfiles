@@ -307,6 +307,11 @@ function ext.win.setSize(win, size)
   frame = ext.frame.center(frame, screen)
 
   ext.win.setFrame(win, frame)
+
+  -- center after setting frame, fixes terminal
+  hs.timer.doAfter(hs.window.animationDuration * 3 / 2, function()
+    ext.win.center(win)
+  end)
 end
 
 -- move window to another space
@@ -558,7 +563,7 @@ end)
 
 -- set window sizes
 hs.fnutils.each({
-  { key = '1', w = 1400, h = 920 },
+  { key = '1', w = 1420, h = 960 },
   { key = '2', w = 980,  h = 920 },
   { key = '3', w = 800,  h = 880 },
   { key = '4', w = 800,  h = 740 },
@@ -635,15 +640,6 @@ end):start()
 ext.watchers.apps = hs.application.watcher.new(function(name, event, app)
   if (event == hs.application.watcher.activated) then
     local appActions = {
-      -- persistent mini player in iTunes
-      iTunes = function(app)
-        local state = app:findMenuItem({ 'Window', 'MiniPlayer' })
-
-        if state and not state['ticked'] then
-          app:selectMenuItem({ 'Window', 'MiniPlayer' })
-        end
-      end,
-
       -- always show all iTerm and Finder windows
       iTerm  = function(app) app:selectMenuItem({ 'Window', 'Bring All to Front' }) end,
       Finder = function(app) app:selectMenuItem({ 'Window', 'Bring All to Front' }) end
@@ -672,8 +668,8 @@ ext.utils.spacesDots = function()
 
       circle
         :setStroke(false)
-        :setLevel(hs.drawing.windowLevels.desktopIcon) -- lay as high as icons (lower values disable clicking)
         :setBehaviorByLabels({ 'canJoinAllSpaces', 'stationary' }) -- stick to all spaces
+        :setLevel(hs.drawing.windowLevels.desktopIcon) -- lay as high as icons (lower values disable click callback?)
         :setClickCallback(function() hs.eventtap.keyStroke({ 'ctrl' }, i) end) -- switch to space on click
 
       ext.cache.spaces[i] = circle

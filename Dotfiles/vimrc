@@ -106,11 +106,11 @@ set display+=lastline
 set lazyredraw
 
 " fast tty / timeouts
-set ttyfast
 set notimeout
 set ttimeout
 
 if !g:is_nvim
+  set ttyfast
   set ttyscroll=3
   set ttimeoutlen=10
 endif
@@ -152,6 +152,9 @@ colorscheme hybrid
 " jellybeans
 " colorscheme jellybeans
 
+" base16 tomorrow
+" colorscheme base16-tomorrow
+
 " disable background color erase so that color scheme work properly in tmux
 " set t_ut=
 
@@ -167,7 +170,6 @@ set autoindent
 set breakindent
 
 " leader
-" let mapleader=';'
 let mapleader="\<Space>"
 
 " additional settings
@@ -250,7 +252,7 @@ set grepformat=%f:%l:%c:%m
 
 " set path
 if g:is_mac
-  let $PATH='/usr/local/bin:' . $PATH . ':/Users/Szymon/Documents/Code/Bin:/Users/Szymon/Documents/Code/Scripts'
+  let $PATH='/usr/local/bin:' . $PATH . ':/Users/Szymon/Documents/Code/Scripts'
 endif
 
 " code folding
@@ -442,7 +444,7 @@ augroup ft_settings
         \ setlocal foldmethod=syntax |
         \ setlocal suffixesadd=.js,.jsx |
         \ setlocal makeprg=javascript\ % |
-        \ setlocal errorformat=%Evm.js:%*\\d:\ Uncaught\ SyntaxError:\ %f:%l,\ %C%m,%Z%m,%AError:\ %m,%AEvalError:\ %m,%ARangeError:\ %m,%AReferenceError:\ %m,%ASyntaxError:\ %m,%ATypeError:\ %m,%Z%*[\ ]at\ %f:%l:%c,%Z%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]at\ %f:%l:%c,%Z%p^,%A%f:%l,%C%m,%-G%.%# |
+        \ setlocal errorformat=%Evm.js:%*\\d:\ Uncaught\ SyntaxError:\ %f:%l,\ %C%m,%Z%m,%AError:\ %m,%AEvalError:\ %m,%ARangeError:\ %m,%AReferenceError:\ %m,%ASyntaxError:\ %m,%ATypeError:\ %m,%Z%*[\ ]at\ %f:%l:%c,%Z%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]at\ %f:%l:%c,%Z%p^,%A%f:%l,%C%m,%-G%.%#
 
   au FileType lua
         \ syn region luaFunctionBlock transparent fold matchgroup=luaFunction
@@ -674,17 +676,18 @@ if g:is_nvim
   augroup neomake_plugin
     au!
 
-    au BufRead,BufWritePost *.js,*.jsx,*.json               silent Neomake " eslint, jscs
-    au BufRead,BufWritePost *.clj,*.cljs                    silent Neomake " lein kibit
-    au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* silent Neomake " shellcheck
+    au BufRead,BufWritePost *.js,*.jsx,*.json               Neomake " eslint, jscs
+    au BufRead,BufWritePost *.clj,*.cljs                    Neomake " lein kibit
+    au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* Neomake " shellcheck
   augroup END
 
   function! AirlineNeomakeStatus()
     let l:counts = neomake#statusline#LoclistCounts()
     let l:w = get(l:counts, 'W', 0)
     let l:e = get(l:counts, 'E', 0)
+    let l:x = get(l:counts, 'x', 0)
 
-    if l:w || l:e
+    if l:w || l:e || l:x
       let l:result = ''
       if l:e
         let l:result = l:result . 'Error: ' . e
@@ -692,9 +695,15 @@ if g:is_nvim
           let l:result = l:result . ' '
         endif
       endif
+
       if l:w
         let l:result = l:result . 'Warning: ' . w
       endif
+
+      if l:x
+        let l:result = l.result . ' Unkonwn: ' . x
+      endif
+
       return l:result
     else
       return ''
@@ -709,6 +718,7 @@ if g:is_nvim
       \ }
   let g:neomake_clojure_enabled_makers = [ 'kibit' ]
 
+  " let g:neomake_open_list = 1
   let g:neomake_place_signs = 0
   let g:neomake_airline = 1
 endif
@@ -1010,6 +1020,8 @@ let g:easy_align_delimiters = {
       \     'stick_to_left':   0
       \   }
       \ }
+
+let g:easy_align_bypass_fold = 1
 
 xmap <leader>a =gv<Plug>(EasyAlign)
 nmap ga        <Plug>(EasyAlign)
