@@ -25,6 +25,9 @@ ext.cache.launchTimer       = nil
 -- saved space drawings
 ext.cache.spaces            = {}
 
+-- saved ping status
+ext.cache.ping              = nil
+
 -- extension settings
 ext.win.animationDuration   = 0.15
 ext.win.margin              = 6
@@ -563,7 +566,7 @@ end)
 
 -- set window sizes
 hs.fnutils.each({
-  { key = '1', w = 1420, h = 960 },
+  { key = '1', w = 1420, h = 940 },
   { key = '2', w = 980,  h = 920 },
   { key = '3', w = 800,  h = 880 },
   { key = '4', w = 800,  h = 740 },
@@ -578,10 +581,9 @@ end)
 hs.fnutils.each({
   { key = 'b', apps = { 'Safari', 'Google Chrome' } },
   { key = 'c', apps = { 'Calendar'                } },
-  { key = 'f', apps = { 'Finder'                  } },
+  { key = 'f', apps = { 'Finder', 'ForkLift'      } },
   { key = 'm', apps = { 'Messages', 'FaceTime'    } },
   { key = 'n', apps = { 'Notational Velocity'     } },
-  { key = 'p', apps = { 'TaskPaper'               } },
   { key = 'r', apps = { 'Reminders'               } },
   { key = 's', apps = { 'Slack', 'Skype'          } },
   { key = 't', apps = { 'iTerm2', 'Terminal'      } },
@@ -635,6 +637,23 @@ ext.watchers.wifi = hs.wifi.watcher.new(function()
     contentImage = hs.image.imageFromPath(imagePath)
   }):send()
 end):start()
+
+-- notify when offline, check every second, sadly blocks hammerspoon heavily
+-- ext.watchers.offline = hs.timer.doEvery(1, function()
+--   local result    = os.execute('ping -t1 -c3 8.8.8.8') and true or false
+--   local imagePath = os.getenv('HOME') .. '/.hammerspoon/airport.png'
+--   local subTitle  = result and 'Online' or 'Offline'
+
+--   if ext.cache.ping ~= nil and ext.cache.ping ~= result then
+--     hs.notify.new({
+--       title        = 'Network Status',
+--       subTitle     = subTitle,
+--       contentImage = hs.image.imageFromPath(imagePath)
+--     }):send()
+--   end
+
+--   ext.cache.ping = result
+-- end)
 
 -- application watcher
 ext.watchers.apps = hs.application.watcher.new(function(name, event, app)

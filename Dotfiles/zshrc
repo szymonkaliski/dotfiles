@@ -377,10 +377,8 @@ if [ "$(uname)" = "Darwin" ]; then
   alias cpwd='echo -n \"$(pwd | tr -d "\n")\" | pbcopy'
 
   # nice markdown files in cli using markdown-pdf from npm
-  if [ -d /usr/local/share/npm/lib/node_modules/markdown-pdf/bin ]; then
-    alias markdown-pdf="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf"
-    alias markdown-pdf-nice="node /usr/local/share/npm/lib/node_modules/markdown-pdf/bin/markdown-pdf \
-      --css-path ~/Documents/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
+  if hash markdown-pdf 2> /dev/null; then
+    alias markdown-pdf-nice="markdown-pdf --css-path ~/Documents/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
   fi
 
   # network utility port scan

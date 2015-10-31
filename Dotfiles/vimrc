@@ -115,6 +115,9 @@ if !g:is_nvim
   set ttimeoutlen=10
 endif
 
+" more frequent updates
+set updatetime=1000
+
 " don't beep
 set noeb vb t_vb=
 
@@ -205,6 +208,7 @@ set nobackup
 set noswapfile
 set undofile
 set undodir=~/.vim/undo//
+set backupdir=~/.vim/backup//
 
 " fix for node fs.watch
 set backupcopy=yes
@@ -1177,7 +1181,9 @@ augroup ft_abbrev
 
   au FileType javascript,javascript.jsx
         \ call SpacelessIabbrev('clog', 'console.log') |
-        \ call SpacelessIabbrev('fn', 'function')
+        \ call SpacelessIabbrev('fn', 'function') |
+        \ call SpacelessIabbrev('rfac', 'React.createFactory(') |
+        \ call SpacelessIabbrev('rcla', 'React.createClass(')
 augroup END
 
 " }}}
