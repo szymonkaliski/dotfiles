@@ -26,36 +26,6 @@ set lines=72 columns=160
 macmenu &File.Print key=<nop>
 
 " }}}
-" plugin: choose {{{
-
-let g:choose_options=" -s 20 -c 345EF2"
-
-function! FileChoose()
-  let l:command="ag -l -g '' | choose" . g:choose_options
-  let l:selection=system(l:command)
-
-  if !empty(l:selection)
-    execute "silent! e " . l:selection
-  endif
-endfunction
-
-function! BufferChoose()
-  let l:list=join(BuffersList(), " ")
-  let l:command="echo " . l:list . " | tr ' ' '\\n' | choose" . g:choose_options
-  let l:selection=system(l:command)
-
-  if !empty(l:selection)
-    execute "silent! e " . l:selection
-  endif
-endfunction
-
-command! FileChoose   call FileChoose()
-command! BufferChoose call BufferChoose()
-
-nnoremap <silent> <c-p> :FileChoose<cr>
-nnoremap <silent> <c-b> :BufferChoose<cr>
-
-" }}}
 " custom commands {{{
 
 function! Terminal()

@@ -590,7 +590,7 @@ function ff() {
 if hash fzf 2> /dev/null; then
   # default options
   export FZF_DEFAULT_COMMAND="ag -l -g ''"
-  export FZF_DEFAULT_OPTS="--inline-info --ansi --extended --cycle
+  export FZF_DEFAULT_OPTS="--inline-info --ansi --cycle
                            --history=$HOME/.fzfhistory
                            --history-size=10000
                            --color=bg+:0,hl:110,hl+:110
@@ -629,30 +629,6 @@ if hash fzf 2> /dev/null; then
       cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf --no-sort --tac --prompt='jump > ' --reverse)"
     else
       _z "$@"
-    fi
-  }
-
-  # tmux session
-  function ftsession() {
-    local session=$(tmux list-sessions -F "#{session_name}" | fzf --select-1 --exit-0 --query="$1" --prompt="session > ")
-    [ -n "$session" ] && tmux switch-client -t "$session"
-  }
-
-  # tmux pane
-  function ftpane() {
-    local panes target
-
-    panes=$(tmux list-panes -a -F '#S;[#I:#P];#T')
-    target=$(echo "$panes" | column -t -s ";" | sort | fzf --tac --no-sort --select-1 --exit-0 --query="$1" --prompt="pane > ") || return
-
-    local target_session=$(echo $target | cut -d " " -f1)
-    local target_window=$(echo $target | cut -d "[" -f2 | awk 'BEGIN{FS=":|-"} {print $1}')
-    local target_pane=$(echo $target | cut -d "[" -f2 | awk 'BEGIN{FS=":|-"} {print $2}' | cut -c 1)
-
-    if [ -z "$TMUX" ]; then
-      tmux attach-session -t "$target_session" \; select-pane -t "$target_window.$target_pane"
-    else
-      tmux switch-client -t "$target_session:$target_window.$target_pane"
     fi
   }
 fi

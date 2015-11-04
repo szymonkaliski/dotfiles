@@ -28,6 +28,9 @@ ext.cache.spaces            = {}
 -- saved ping status
 ext.cache.ping              = nil
 
+-- saved custom bindings
+ext.cache.bindings          = {}
+
 -- extension settings
 ext.win.animationDuration   = 0.15
 ext.win.margin              = 6
@@ -470,6 +473,49 @@ function ext.app.smartLaunchOrFocus(launchApps)
   end
 end
 
+-- count all windows on all spaces
+function ext.app.allWindowsCount(appName)
+  local _, result = hs.applescript.applescript(string.gsub([[
+    tell application "APP_NAME" to count windows
+  ]], 'APP_NAME', appName))
+
+  return tonumber(result)
+end
+
+-- ask before quitting app when there are multiple windows
+function ext.app.askBeforeQuitting(app, enabled)
+  local appName = app:name()
+
+  if not enabled and ext.cache.bindings[appName] then
+    ext.cache.bindings[appName]:disable()
+    return
+  end
+
+  if ext.cache.bindings[appName] then
+    ext.cache.bindings[appName]:enable()
+  else
+    ext.cache.bindings[appName] = hs.hotkey.bind({ 'cmd' }, 'q', function()
+      local windowsCount = ext.app.allWindowsCount(appName)
+      local shouldKill   = true
+
+      if windowsCount > 1 then
+        local _, result = hs.applescript.applescript(string.gsub([[
+          tell application "APP_NAME" to set response to button returned of (display dialog "There are multiple windows opened.\nAre you sure you want to quit?" with icon caution buttons {"Cancel", "Quit"})
+        ]], 'APP_NAME', appName))
+
+        shouldKill = result == 'Quit'
+      end
+
+      if shouldKill then
+        hs.appfinder.appFromName(appName):kill()
+      else
+        local frontmostWindow = hs.window.frontmostWindow()
+        if frontmostWindow then frontmostWindow:focus() end
+      end
+    end)
+  end
+end
+
 -- toggle hammerspoon console refocusing window
 function ext.utils.toggleConsole()
   hs.toggleConsole()
@@ -658,13 +704,21 @@ end):start()
 -- application watcher
 ext.watchers.apps = hs.application.watcher.new(function(name, event, app)
   if (event == hs.application.watcher.activated) then
-    local appActions = {
-      -- always show all iTerm and Finder windows
-      iTerm  = function(app) app:selectMenuItem({ 'Window', 'Bring All to Front' }) end,
-      Finder = function(app) app:selectMenuItem({ 'Window', 'Bring All to Front' }) end
-    }
+    if hs.fnutils.some({ 'Finder', 'iTerm2' }, function(testName) return testName == name end) then
+      app:selectMenuItem({ 'Window', 'Bring All to Front' })
+    end
+  end
 
-    if appActions[name] then appActions[name](app) end
+  if (event == hs.application.watcher.activated) then
+    if hs.fnutils.some({ 'Safari', 'Google Chrome' }, function(testName) return testName == name end) then
+      ext.app.askBeforeQuitting(app, true)
+    end
+  end
+
+  if (event == hs.application.watcher.deactivated) then
+    if hs.fnutils.some({ 'Safari', 'Google Chrome' }, function(testName) return testName == name end) then
+      ext.app.askBeforeQuitting(app, false)
+    end
   end
 end):start()
 

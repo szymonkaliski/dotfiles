@@ -4,6 +4,7 @@ let g:app_name = has('nvim') ? 'nvim' : 'vim'
 let g:fzfdir   = globpath('/usr/local/Cellar/fzf/', '*', 1, 1) + globpath('/usr/share/vim/vimfiles/plugin',' fzf.vim', 1, 1)
 let g:is_gui   = has('gui_running')
 let g:is_mac   = has('mac')
+let g:is_vim   = !has('nvim')
 let g:is_nvim  = has('nvim')
 let g:is_tmux  = ($TMUX != '')
 let g:is_iterm = ($TERM_PROGRAM == 'iTerm.app')
@@ -37,15 +38,15 @@ Plug 'junegunn/limelight.vim',             { 'on': 'Limelight' }
 Plug 'junegunn/vim-easy-align',            { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
 Plug 'mbbill/undotree',                    { 'on': 'UndotreeToggle' }
 Plug 'rhysd/clever-f.vim',                 { 'on': '<Plug>(clever-f-' }
+Plug 't9md/vim-quickhl',                   { 'on': [ '<Plug>(quickhl-manual-' ] }
 Plug 'tpope/vim-commentary',               { 'on': '<Plug>Commentary' }
 Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterOperator', '<Plug>ReplaceWithRegisterLine', '<Plug>ReplaceWithRegisterVisual' ] }
-Plug 't9md/vim-quickhl',                   { 'on': [ '<Plug>(quickhl-manual-' ] }
 
 " loading based on system and vim version
 Plug 'airblade/vim-gitgutter',             { 'on': [] } " only on mac
 Plug 'benekastah/neomake',                 { 'on': [] } " only in nvim
 Plug 'marijnh/tern_for_vim',               { 'on': [], 'do': 'npm install' } " only on mac
-Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim
+Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
 
 " smart FZF loading
@@ -541,6 +542,14 @@ let g:airline#extensions#tabline#right_sep = ''
 let g:airline#extensions#tabline#right_alt_sep = ''
 let g:airline#extensions#tabline#close_symbol = '✕'
 
+" truncating
+let g:airline#extensions#default#section_truncate_width = {
+      \ 'b': 20,
+      \ 'x': 60,
+      \ 'y': 90,
+      \ 'z': 50
+      \ }
+
 " extensions
 function! AirlineInit()
   if g:is_mac
@@ -646,41 +655,45 @@ let g:gitgutter_signs = 0
 " }}}
 " plugin: syntastic {{{
 
-augroup syntastic_plugin
-  au!
+if g:is_mac && g:is_vim
+  augroup syntastic_plugin
+    au!
 
-  " jscs only if .jscsrc exists in root directory
-  au FileType javascript
-        \ if filereadable(getcwd() . '/.jscsrc') |
-        \   let g:syntastic_javascript_checkers = g:syntastic_javascript_checkers + ['jscs'] |
-        \ endif
-augroup END
+    au FileType javascript
+          \ if filereadable(getcwd() . '/.jscsrc') |
+          \   let g:syntastic_javascript_checkers = g:syntastic_javascript_checkers + ['jscs'] |
+          \ endif |
+          \ if executable(getcwd() . '/node_modules/.bin/eslint') |
+          \   let g:syntastic_javascript_eslint_exe = getcwd() . '/node_modules/.bin/eslint'
+          \ endif
+  augroup END
 
-let g:syntastic_aggregating_errors = 1
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 0
-let g:syntastic_check_on_open = 0
-let g:syntastic_check_on_wq = 0
-let g:syntastic_cursor_column = 0
-let g:syntastic_enable_highlighting = 1
-let g:syntastic_enable_signs = 0
-let g:syntastic_error_symbol = '!'
-let g:syntastic_stl_format = '%E{Error: %e}%B{ }%W{Warning: %w}'
-let g:syntastic_style_error_symbol = '!'
-let g:syntastic_style_warning_symbol = '?'
-let g:syntastic_warning_symbol = '?'
+  let g:syntastic_aggregating_errors = 1
+  let g:syntastic_always_populate_loc_list = 1
+  let g:syntastic_auto_loc_list = 0
+  let g:syntastic_check_on_open = 0
+  let g:syntastic_check_on_wq = 0
+  let g:syntastic_cursor_column = 0
+  let g:syntastic_enable_highlighting = 1
+  let g:syntastic_enable_signs = 0
+  let g:syntastic_error_symbol = '!'
+  let g:syntastic_stl_format = '%E{Error: %e}%B{ }%W{Warning: %w}'
+  let g:syntastic_style_error_symbol = '!'
+  let g:syntastic_style_warning_symbol = '?'
+  let g:syntastic_warning_symbol = '?'
 
-let g:syntastic_objc_check_header = 1
-let g:syntastic_javascript_checkers = [ 'eslint' ]
+  let g:syntastic_objc_check_header = 1
+  let g:syntastic_javascript_checkers = [ 'eslint' ]
+endif
 
 " }}}
 " plugin: neomake {{{
 
-if g:is_nvim
+if g:is_mac && g:is_nvim
   augroup neomake_plugin
     au!
 
-    au BufRead,BufWritePost *.js,*.jsx,*.json               Neomake " eslint, jscs
+    au BufRead,BufWritePost *.js,*.jsx,*.json               Neomake " eslint
     au BufRead,BufWritePost *.clj,*.cljs                    Neomake " lein kibit
     au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* Neomake " shellcheck
   augroup END
@@ -705,7 +718,7 @@ if g:is_nvim
       endif
 
       if l:x
-        let l:result = l.result . ' Unkonwn: ' . x
+        let l:result = l.result . ' Unknown: ' . x
       endif
 
       return l:result
@@ -713,6 +726,11 @@ if g:is_nvim
       return ''
     endif
   endfunction
+
+  " favour local eslint instead of global
+  if executable(getcwd() . '/node_modules/.bin/eslint')
+    let g:neomake_javascript_eslint_exe = getcwd() . '/node_modules/.bin/eslint'
+  endif
 
   let g:neomake_clojure_kibit_maker = {
       \ 'exe':           'lein',
@@ -1035,6 +1053,7 @@ nmap ga        <Plug>(EasyAlign)
 
 let g:rooter_use_lcd = 1
 let g:rooter_disable_map = 1
+let g:rooter_silent_chdir = 1
 let g:rooter_patterns = [ 'package.json', 'node_modules/', '.git/' ]
 
 " }}}
@@ -1150,8 +1169,8 @@ if g:is_mac
     au!
 
     au FileType javascript
-      \ silent! call plug#load('tern_for_vim') |
-      \ autocmd! tern_plugin
+          \ silent! call plug#load('tern_for_vim') |
+          \ autocmd! tern_plugin
   augroup END
 
   let g:tern_show_signature_in_pum=1
@@ -1179,7 +1198,7 @@ augroup ft_abbrev
   au FileType lua
         \ call SpacelessIabbrev('fn', 'function')
 
-  au FileType javascript,javascript.jsx
+  au FileType javascript
         \ call SpacelessIabbrev('clog', 'console.log') |
         \ call SpacelessIabbrev('fn', 'function') |
         \ call SpacelessIabbrev('rfac', 'React.createFactory(') |
