@@ -408,6 +408,37 @@ function ext.win.focus(win, direction)
   hs.window[functions[direction]](win)
 end
 
+function ext.app.forceLaunchOrFocus(appName)
+  -- first focus with hammerspoon
+  hs.application.launchOrFocus(appName)
+
+  -- clear timer if exists
+  if ext.cache.launchTimer then ext.cache.launchTimer:stop() end
+
+  -- wait 500ms for window to appear and try hard to show the window
+  ext.cache.launchTimer = hs.timer.doAfter(0.5, function()
+    local frontmostApp     = hs.application.frontmostApplication()
+    local frontmostWindows = hs.fnutils.filter(frontmostApp:allWindows(), function(win) return win:isStandard() end)
+
+    -- break if this app is not frontmost (when/why?)
+    if frontmostApp:title() ~= appName then
+      print('Expected app in front: ' .. appName .. ' got: ' .. frontmostApp:title())
+      return
+    end
+
+    if #frontmostWindows == 0 then
+      -- check if there's app name in window menu (Calendar, Messages, etc...)
+      if frontmostApp:findMenuItem({ 'Window', appName }) then
+        -- select it, usually moves to space with this window
+        frontmostApp:selectMenuItem({ 'Window', appName })
+      else
+        -- otherwise send cmd-n to create new window
+        hs.eventtap.keyStroke({ 'cmd' }, 'n')
+      end
+    end
+  end)
+end
+
 -- smart app launch or focus or cycle windows
 function ext.app.smartLaunchOrFocus(launchApps)
   local frontmostWindow = hs.window.frontmostWindow()
@@ -430,32 +461,12 @@ function ext.app.smartLaunchOrFocus(launchApps)
     runningWindows = standardWindows
   end)
 
-  if #runningWindows == 0 then
-    -- launch first application if there's no windows for any of them
-    hs.application.launchOrFocus(launchApps[1])
-
-    -- clear timer if exists
-    if ext.cache.launchTimer then ext.cache.launchTimer:stop() end
-
-    -- wait 500ms for window to appear and try sending showing the window (cmd-n / cmd-0 or other)
-    ext.cache.launchTimer = hs.timer.doAfter(0.5, function()
-      local frontmostApp     = hs.application.frontmostApplication()
-      local frontmostWindows = hs.fnutils.filter(frontmostApp:allWindows(), function(win) return win:isStandard() end)
-
-      -- break if this app is not frontmost (when/why?)
-      if frontmostApp:title() ~= launchApps[1] then return end
-
-      if #frontmostWindows == 0 then
-        -- check if there's app name in window menu (Calendar, Messages, etc...)
-        if frontmostApp:findMenuItem({ 'Window', launchApps[1] }) then
-          -- select it, usually moves to space with this window
-          frontmostApp:selectMenuItem({ 'Window', launchApps[1] })
-        else
-          -- otherwise send cmd-n to create new window
-          hs.eventtap.keyStroke({ 'cmd' }, 'n')
-        end
-      end
-    end)
+  if #runningApps == 0 then
+    -- if no apps are running then launch first one in list
+    ext.app.forceLaunchOrFocus(launchApps[1])
+  elseif #runningWindows == 0 then
+    -- if some apps are running, but no windows - force create one
+    ext.app.forceLaunchOrFocus(runningApps[1]:title())
   else
     -- check if one of windows is already focused
     local currentIndex = hs.fnutils.indexOf(runningWindows, frontmostWindow)
@@ -476,15 +487,15 @@ end
 -- count all windows on all spaces
 function ext.app.allWindowsCount(appName)
   local _, result = hs.applescript.applescript(string.gsub([[
-    tell application "APP_NAME" to count windows
-  ]], 'APP_NAME', appName))
+    tell application "{APP_NAME}" to count windows
+  ]], '{(.-)}', { APP_NAME = appName }))
 
   return tonumber(result)
 end
 
 -- ask before quitting app when there are multiple windows
-function ext.app.askBeforeQuitting(app, enabled)
-  local appName = app:name()
+function ext.app.askBeforeQuitting(appName, enabled, count)
+  count = count or 1
 
   if not enabled and ext.cache.bindings[appName] then
     ext.cache.bindings[appName]:disable()
@@ -498,10 +509,10 @@ function ext.app.askBeforeQuitting(app, enabled)
       local windowsCount = ext.app.allWindowsCount(appName)
       local shouldKill   = true
 
-      if windowsCount > 1 then
+      if windowsCount > count then
         local _, result = hs.applescript.applescript(string.gsub([[
-          tell application "APP_NAME" to set response to button returned of (display dialog "There are multiple windows opened.\nAre you sure you want to quit?" with icon caution buttons {"Cancel", "Quit"})
-        ]], 'APP_NAME', appName))
+          tell application "{APP_NAME}" to set response to button returned of (display dialog "There are multiple windows opened: {NUM_WINDOWS}\nAre you sure you want to quit?" with icon 1 buttons {"Cancel", "Quit"})
+        ]], '{(.-)}', { APP_NAME = appName, NUM_WINDOWS = windowsCount }))
 
         shouldKill = result == 'Quit'
       end
@@ -704,20 +715,25 @@ end):start()
 -- application watcher
 ext.watchers.apps = hs.application.watcher.new(function(name, event, app)
   if (event == hs.application.watcher.activated) then
-    if hs.fnutils.some({ 'Finder', 'iTerm2' }, function(testName) return testName == name end) then
+    if hs.fnutils.some({ 'Finder', 'iTerm2' }, function(appName) return appName == name end) then
       app:selectMenuItem({ 'Window', 'Bring All to Front' })
     end
   end
 
   if (event == hs.application.watcher.activated) then
-    if hs.fnutils.some({ 'Safari', 'Google Chrome' }, function(testName) return testName == name end) then
-      ext.app.askBeforeQuitting(app, true)
-    end
+    hs.fnutils.each({
+      { app = 'Safari',        count = 2 }, -- somehow for one window Safari returns two
+      { app = 'Google Chrome', count = 1 }
+    }, function(object)
+      if object.app == name then
+        ext.app.askBeforeQuitting(object.app, true, object.count)
+      end
+    end)
   end
 
   if (event == hs.application.watcher.deactivated) then
-    if hs.fnutils.some({ 'Safari', 'Google Chrome' }, function(testName) return testName == name end) then
-      ext.app.askBeforeQuitting(app, false)
+    if hs.fnutils.some({ 'Safari', 'Google Chrome' }, function(appName) return appName == name end) then
+      ext.app.askBeforeQuitting(name, false)
     end
   end
 end):start()
