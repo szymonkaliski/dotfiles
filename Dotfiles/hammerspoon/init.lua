@@ -456,9 +456,11 @@ function ext.app.smartLaunchOrFocus(launchApps)
       return win:isStandard()
     end)
 
+    -- sort by id, so windows don't jump randomly every time
     table.sort(standardWindows, function(a, b) return a:id() < b:id() end)
 
-    runningWindows = standardWindows
+    -- concat with all running windows
+    hs.fnutils.concat(runningWindows, standardWindows);
   end)
 
   if #runningApps == 0 then
@@ -487,16 +489,16 @@ end
 -- count all windows on all spaces
 function ext.app.allWindowsCount(appName)
   local _, result = hs.applescript.applescript(string.gsub([[
-    tell application "{APP_NAME}" to count windows
+    tell application "{APP_NAME}"
+      count every window where visible is true
+    end tell
   ]], '{(.-)}', { APP_NAME = appName }))
 
   return tonumber(result)
 end
 
 -- ask before quitting app when there are multiple windows
-function ext.app.askBeforeQuitting(appName, enabled, count)
-  count = count or 1
-
+function ext.app.askBeforeQuitting(appName, enabled)
   if not enabled and ext.cache.bindings[appName] then
     ext.cache.bindings[appName]:disable()
     return
@@ -509,9 +511,11 @@ function ext.app.askBeforeQuitting(appName, enabled, count)
       local windowsCount = ext.app.allWindowsCount(appName)
       local shouldKill   = true
 
-      if windowsCount > count then
+      if windowsCount > 1 then
         local _, result = hs.applescript.applescript(string.gsub([[
-          tell application "{APP_NAME}" to set response to button returned of (display dialog "There are multiple windows opened: {NUM_WINDOWS}\nAre you sure you want to quit?" with icon 1 buttons {"Cancel", "Quit"})
+          tell application "{APP_NAME}"
+            button returned of (display dialog "There are multiple windows opened: {NUM_WINDOWS}\nAre you sure you want to quit?" with icon 1 buttons {"Cancel", "Quit"})
+          end tell
         ]], '{(.-)}', { APP_NAME = appName, NUM_WINDOWS = windowsCount }))
 
         shouldKill = result == 'Quit'
@@ -721,14 +725,9 @@ ext.watchers.apps = hs.application.watcher.new(function(name, event, app)
   end
 
   if (event == hs.application.watcher.activated) then
-    hs.fnutils.each({
-      { app = 'Safari',        count = 2 }, -- somehow for one window Safari returns two
-      { app = 'Google Chrome', count = 1 }
-    }, function(object)
-      if object.app == name then
-        ext.app.askBeforeQuitting(object.app, true, object.count)
-      end
-    end)
+    if hs.fnutils.some({ 'Safari', 'Google Chrome' }, function(appName) return appName == name end) then
+      ext.app.askBeforeQuitting(name, true)
+    end
   end
 
   if (event == hs.application.watcher.deactivated) then
@@ -742,7 +741,7 @@ end):start()
 ext.utils.spacesDots = function()
   local spacesCount  = spaces.count()
   local currentSpace = spaces.currentSpace();
-  local screenFrame  = hs.screen.allScreens()[1]:fullFrame()
+  local screenFrame  = hs.screen.primaryScreen():fullFrame()
 
   -- TODO: move to config on top
   local circleSize          = 8
@@ -768,7 +767,7 @@ ext.utils.spacesDots = function()
   -- update circles
   for i = 1, 9 do
     local circle = ext.cache.spaces[i]
-    local x      = screenFrame.w / 2 - (spacesCount / 2) * circleDistance + i * circleDistance - circleSize
+    local x      = screenFrame.w / 2 - (spacesCount / 2) * circleDistance + i * circleDistance - circleSize * 3 / 2
     local y      = screenFrame.h - circleDistance
     local alpha  = i == currentSpace and circleSelectedAlpha or circleAlpha
 
