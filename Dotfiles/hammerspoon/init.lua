@@ -25,8 +25,8 @@ ext.cache.launchTimer       = nil
 -- saved space drawings
 ext.cache.spaces            = {}
 
--- saved ping status
-ext.cache.ping              = nil
+-- saved offline status
+ext.cache.offline           = nil
 
 -- saved custom bindings
 ext.cache.bindings          = {}
@@ -320,6 +320,18 @@ function ext.win.setSize(win, size)
   end)
 end
 
+-- focus window in direction
+function ext.win.focus(win, direction)
+  local functions = {
+    up    = 'focusWindowNorth',
+    down  = 'focusWindowSouth',
+    left  = 'focusWindowWest',
+    right = 'focusWindowEast'
+  }
+
+  hs.window[functions[direction]](win)
+end
+
 -- move window to another space
 function ext.win.moveToSpace(win, space)
   local clickPoint    = win:zoomButtonRect()
@@ -375,13 +387,14 @@ function ext.win.pos(win, option)
 end
 
 -- cycle application windows
--- https://github.com/nifoc/dotfiles/blob/master/mjolnir/cycle.lua
-function ext.win.cycle(win)
-  local standardWindows = hs.fnutils.filter(win:application():allWindows(), function(win)
+function ext.win.cycleWindows(win, appWindowsOnly)
+  local allWindows = appWindowsOnly and win:application():allWindows() or hs.window.allWindows()
+
+  local standardWindows = hs.fnutils.filter(allWindows, function(win)
     return win:isStandard()
   end)
 
-  if #standardWindows >= 2 then
+  if #standardWindows > 1 then
     table.sort(standardWindows, function(a, b) return a:id() < b:id() end)
 
     local activeWindowIndex = hs.fnutils.indexOf(standardWindows, win)
@@ -392,20 +405,17 @@ function ext.win.cycle(win)
       if activeWindowIndex > #standardWindows then activeWindowIndex = 1 end
 
       standardWindows[activeWindowIndex]:focus()
+    else
+      ext.app.activateFrontmost()
     end
+  else
+    ext.app.activateFrontmost()
   end
 end
 
--- focus window in direction
-function ext.win.focus(win, direction)
-  local functions = {
-    up    = 'focusWindowNorth',
-    down  = 'focusWindowSouth',
-    left  = 'focusWindowWest',
-    right = 'focusWindowEast'
-  }
-
-  hs.window[functions[direction]](win)
+function ext.app.activateFrontmost()
+  local frontmostWindow = hs.window.frontmostWindow()
+  if frontmostWindow then frontmostWindow:focus() end
 end
 
 function ext.app.forceLaunchOrFocus(appName)
@@ -494,7 +504,19 @@ function ext.app.allWindowsCount(appName)
     end tell
   ]], '{(.-)}', { APP_NAME = appName }))
 
-  return tonumber(result)
+  return tonumber(result) or 0
+end
+
+-- quit app using applescript
+-- faster than :kill() for some reason
+function ext.app.quit(appName)
+  local _, result = hs.applescript.applescript(string.gsub([[
+    tell application "{APP_NAME}"
+      quit
+    end tell
+  ]], '{(.-)}', { APP_NAME = appName }))
+
+  return result
 end
 
 -- ask before quitting app when there are multiple windows
@@ -514,7 +536,7 @@ function ext.app.askBeforeQuitting(appName, enabled)
       if windowsCount > 1 then
         local _, result = hs.applescript.applescript(string.gsub([[
           tell application "{APP_NAME}"
-            button returned of (display dialog "There are multiple windows opened: {NUM_WINDOWS}\nAre you sure you want to quit?" with icon 1 buttons {"Cancel", "Quit"})
+            button returned of (display dialog "There are multiple windows opened: {NUM_WINDOWS}\nAre you sure you want to quit?" with icon 1 buttons {"Cancel", "Quit"} default button "Quit")
           end tell
         ]], '{(.-)}', { APP_NAME = appName, NUM_WINDOWS = windowsCount }))
 
@@ -522,10 +544,9 @@ function ext.app.askBeforeQuitting(appName, enabled)
       end
 
       if shouldKill then
-        hs.appfinder.appFromName(appName):kill()
+        ext.app.quit(appName)
       else
-        local frontmostWindow = hs.window.frontmostWindow()
-        if frontmostWindow then frontmostWindow:focus() end
+        ext.app.activateFrontmost()
       end
     end)
   end
@@ -534,9 +555,7 @@ end
 -- toggle hammerspoon console refocusing window
 function ext.utils.toggleConsole()
   hs.toggleConsole()
-
-  local frontmostWindow = hs.window.frontmostWindow()
-  if frontmostWindow then frontmostWindow:focus() end
+  ext.app.activateFrontmost()
 end
 
 -- reload hammerspoon config
@@ -587,13 +606,14 @@ local mod = {
 
 -- basic bindings
 hs.fnutils.each({
-  { key = 'c',     mod = mod.cc,  fn = bindWin(ext.win.center)        },
-  { key = 'z',     mod = mod.cc,  fn = bindWin(ext.win.full)          },
-  { key = 's',     mod = mod.cc,  fn = bindWin(ext.win.pos, 'update') },
-  { key = 'r',     mod = mod.cc,  fn = bindWin(ext.win.pos, 'load')   },
-  { key = 'tab',   mod = mod.cc,  fn = bindWin(ext.win.cycle)         },
-  { key = 'space', mod = mod.cac, fn = hs.hints.windowHints           },
-  { key = '/',     mod = mod.cac, fn = ext.utils.toggleConsole        }
+  { key = 'c',     mod = mod.cc,  fn = bindWin(ext.win.center)              },
+  { key = 'z',     mod = mod.cc,  fn = bindWin(ext.win.full)                },
+  { key = 's',     mod = mod.cc,  fn = bindWin(ext.win.pos, 'update')       },
+  { key = 'r',     mod = mod.cc,  fn = bindWin(ext.win.pos, 'load')         },
+  { key = 'tab',   mod = mod.cc,  fn = bindWin(ext.win.cycleWindows, false) },
+  { key = 'tab',   mod = mod.ca,  fn = bindWin(ext.win.cycleWindows, true)  },
+  { key = 'space', mod = mod.cac, fn = hs.hints.windowHints                 },
+  { key = '/',     mod = mod.cac, fn = ext.utils.toggleConsole              }
 }, function(object)
   hs.hotkey.bind(object.mod, object.key, object.fn)
 end)
@@ -699,22 +719,25 @@ ext.watchers.wifi = hs.wifi.watcher.new(function()
   }):send()
 end):start()
 
--- notify when offline, check every second, sadly blocks hammerspoon heavily
--- ext.watchers.offline = hs.timer.doEvery(1, function()
---   local result    = os.execute('ping -t1 -c3 8.8.8.8') and true or false
---   local imagePath = os.getenv('HOME') .. '/.hammerspoon/airport.png'
---   local subTitle  = result and 'Online' or 'Offline'
+-- notify when offline, check every second
+ext.watchers.offline = hs.timer.doEvery(1, function()
+  -- ask for headers only - minimum network strain, ping would be best here though...
+  hs.http.doAsyncRequest('http://google.com', 'HEAD', nil, nil, function(code, body, response)
+    local offline   = code < 0
+    local imagePath = os.getenv('HOME') .. '/.hammerspoon/airport.png'
+    local subTitle  = offline and 'Offline' or 'Online'
 
---   if ext.cache.ping ~= nil and ext.cache.ping ~= result then
---     hs.notify.new({
---       title        = 'Network Status',
---       subTitle     = subTitle,
---       contentImage = hs.image.imageFromPath(imagePath)
---     }):send()
---   end
+    if offline ~= ext.cache.offline then
+      hs.notify.new({
+        title        = 'Network Status',
+        subTitle     = subTitle,
+        contentImage = hs.image.imageFromPath(imagePath)
+      }):send()
+    end
 
---   ext.cache.ping = result
--- end)
+    ext.cache.offline = offline
+  end)
+end)
 
 -- application watcher
 ext.watchers.apps = hs.application.watcher.new(function(name, event, app)
