@@ -707,17 +707,17 @@ ext.watchers.battery = hs.battery.watcher.new(function()
 end):start()
 
 -- notify on wifi connection status
-ext.watchers.wifi = hs.wifi.watcher.new(function()
-  local imagePath      = os.getenv('HOME') .. '/.hammerspoon/airport.png'
-  local currentNetwork = hs.wifi.currentNetwork()
-  local subTitle       = currentNetwork and 'Network: ' .. currentNetwork or 'Disconnected'
+-- ext.watchers.wifi = hs.wifi.watcher.new(function()
+--   local imagePath      = os.getenv('HOME') .. '/.hammerspoon/airport.png'
+--   local currentNetwork = hs.wifi.currentNetwork()
+--   local subTitle       = currentNetwork and 'Network: ' .. currentNetwork or 'Disconnected'
 
-  hs.notify.new({
-    title        = 'Wi-Fi Status',
-    subTitle     = subTitle,
-    contentImage = hs.image.imageFromPath(imagePath)
-  }):send()
-end):start()
+--   hs.notify.new({
+--     title        = 'Wi-Fi Status',
+--     subTitle     = subTitle,
+--     contentImage = hs.image.imageFromPath(imagePath)
+--   }):send()
+-- end):start()
 
 -- notify when offline, check every second
 ext.watchers.offline = hs.timer.doEvery(1, function()

@@ -30,14 +30,15 @@ Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
 
 " on demand loading
+Plug 'blueyed/vim-diminactive',            { 'on': [ 'DimInactive', 'DimInactiveToggle' ] }
 Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>SortMotion', '<Plug>SortLines' ] }
 Plug 'epeli/slimux',                       { 'on': [ 'SlimuxREPL', 'SlimuxREPLSendSelection', 'SlimuxREPLSendBuffer', 'SlimuxREPLSendLine', 'SlimuxREPLSendParagraph', 'SlimuxGlobalConfigure' ] }
 Plug 'ferranpm/vim-isolate',               { 'on': 'Isolate' }
 Plug 'junegunn/goyo.vim',                  { 'on': 'Goyo' }
 Plug 'junegunn/limelight.vim',             { 'on': 'Limelight' }
-Plug 'blueyed/vim-diminactive',            { 'on': [ 'DimInactive', 'DimInactiveToggle' ] }
 Plug 'junegunn/vim-easy-align',            { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
 Plug 'mbbill/undotree',                    { 'on': 'UndotreeToggle' }
+Plug 'mhinz/vim-sayonara',                 { 'on': 'Sayonara' }
 Plug 'rhysd/clever-f.vim',                 { 'on': '<Plug>(clever-f-' }
 Plug 't9md/vim-quickhl',                   { 'on': [ '<Plug>(quickhl-manual-' ] }
 Plug 'tpope/vim-commentary',               { 'on': '<Plug>Commentary' }
@@ -845,54 +846,45 @@ function! LineAppend(e)
 endfunction
 
 if !g:is_gui
-  let g:fzf_height = '20%'
+  let g:fzf_default_opt = { 'sink': 'e', 'window': 'enew' }
+  " let g:fzf_default_opt = { 'down': '20%' }
 
-  command! FZFFiles call fzf#run({
-        \ 'sink':    'e ',
-        \ 'options': '--reverse --multi --exit-0 --prompt="files > "',
-        \ 'up':      g:fzf_height
-        \ })
+  command! FZFFiles call fzf#run(extend(g:fzf_default_opt, {
+        \ 'options': '--reverse --multi --exit-0 --prompt="files > "'
+        \ }))
 
-  command! FZFBuffers call fzf#run({
+  command! FZFBuffers call fzf#run(extend(g:fzf_default_opt, {
         \ 'source':  BuffersList(),
-        \ 'sink':    'e ',
-        \ 'options': '--reverse --no-sort --prompt="buffers > "',
-        \ 'up':      g:fzf_height
-        \ })
+        \ 'options': '--reverse --no-sort --prompt="buffers > "'
+        \ }))
 
-  command! FZFMru call fzf#run({
+  command! FZFMru call fzf#run(extend(g:fzf_default_opt, {
         \ 'source':  RecentFiles(),
-        \ 'sink':    'e ',
-        \ 'options': '--reverse --multi --exit-0 --no-sort --prompt="mru > "',
-        \ 'up':      g:fzf_height
+        \ 'options': '--reverse --multi --exit-0 --no-sort --prompt="mru > "'
         \ })
 
-  command! FZFAgInput call fzf#run({
+  command! FZFAgInput call fzf#run(extend(g:fzf_default_opt, {
         \ 'source':  AgSearchInput(),
         \ 'sink':    function('AgHandler'),
-        \ 'options': '--reverse --ansi --multi --exit-0 --prompt="grep > "',
-        \ 'up':      g:fzf_height
+        \ 'options': '--reverse --ansi --multi --exit-0 --prompt="grep > "'
         \ })
 
-  command! -range FZFAgVisual call fzf#run({
+  command! -range FZFAgVisual call fzf#run(extend(g:fzf_default_opt, {zf#run({
         \ 'source':  AgSearchVisual(),
         \ 'sink':    function('AgHandler'),
-        \ 'options': '--reverse --ansi --multi --exit-0 --prompt="grep > "',
-        \ 'up':      g:fzf_height
+        \ 'options': '--reverse --ansi --multi --exit-0 --prompt="grep > "'
         \ })
 
-  command! FZFLines call fzf#run({
+  command! FZFLines call fzf#run(extend(g:fzf_default_opt, {zf#run({
         \ 'source':  BuffersLines(),
         \ 'sink':    function('BuffersLinesOpen'),
-        \ 'options': '--reverse --no-sort --exit-0 --nth=3.. --prompt="lines > "',
-        \ 'up':      g:fzf_height
+        \ 'options': '--reverse --no-sort --exit-0 --nth=3.. --prompt="lines > "'
         \ })
 
-  command! FZFRegisters call fzf#run({
+  command! FZFRegisters call fzf#run(extend(g:fzf_default_opt, {zf#run({
         \ 'source':  Registers(),
         \ 'sink':    function('LineAppend'),
-        \ 'options': '--reverse --no-sort --tac --exit-0 --prompt="registers > "',
-        \ 'up':      g:fzf_height
+        \ 'options': '--reverse --no-sort --tac --exit-0 --prompt="registers > "'
         \ })
 
   nnoremap <silent> <c-p>      :FZFFiles<cr>
@@ -909,12 +901,11 @@ if !g:is_gui
   xnoremap <silent> <leader>fg :FZFAgVisual<cr>
 
   if isdirectory($HOME . '/Documents/Dropbox/Notes')
-    command! FZFNotes call fzf#run({
+    command! FZFNotes call fzf#run(extend(g:fzf_default_opt, {zf#run({
           \ 'source':  'find ~/Documents/Dropbox/Notes -iname "*.txt" | cut -d "/" -f7 | sed "s/\.txt$//"',
           \ 'sink':    function('OpenNote'),
-          \ 'options': '--reverse --multi --prompt="notes > "',
-          \ 'up':      g:fzf_height
-          \ })
+          \ 'options': '--reverse --multi --prompt="notes > "'
+          \ }))
 
     function! OpenNote(e)
       exe 'e ~/Documents/Dropbox/Notes/' . escape(a:e, ' ') . '.txt'
@@ -924,12 +915,11 @@ if !g:is_gui
   endif
 
   if isdirectory($HOME . '/Documents/Dropbox/Tasks')
-    command! FZFTasks call fzf#run({
+    command! FZFTasks call fzf#run(extend(g:fzf_default_opt, {
           \ 'source':  'find ~/Documents/Dropbox/Tasks -iname "*.taskpaper" | cut -d "/" -f7 | sed "s/\.taskpaper$//"',
           \ 'sink':    function('OpenTask'),
-          \ 'options': '--reverse --multi --prompt="tasks > "',
-          \ 'up':      g:fzf_height
-          \ })
+          \ 'options': '--reverse --multi --prompt="tasks > "'
+          \ }))
 
     function! OpenTask(e)
       exe 'e ~/Documents/Dropbox/Tasks/' . escape(a:e, ' ') . '.taskpaper'
@@ -942,8 +932,8 @@ if !g:is_gui
     augroup fzf_plugin
       au!
 
-      " close fzf term window with Esc
-      au FileType fzf tnoremap <Esc> <c-c>
+      " au FileType fzf tnoremap <Esc> <c-c>
+      au FileType fzf tnoremap <Esc> <c-\><c-n>:Sayonara!<cr>
     augroup END
   endif
 endif
@@ -1192,6 +1182,11 @@ endif
 let g:diminactive_enable_focus = 1
 
 nnoremap <silent> <leader>td :DimInactiveToggle<cr>
+
+" }}}
+" plugin: sayonara {{{
+
+nnoremap <leader>q :Sayonara!<cr>
 
 " }}}
 " custom abbrevs {{{
