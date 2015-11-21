@@ -822,7 +822,7 @@ function! BuffersLinesOpen(l)
   let keys = split(a:l, ':')
   exe 'buffer ' . keys[0]
   exe keys[1]
-  normal! zozz
+  silent! normal! zozz
 endfunction
 
 function! Registers()
@@ -846,46 +846,50 @@ function! LineAppend(e)
 endfunction
 
 if !g:is_gui
-  let g:fzf_default_opt = { 'sink': 'e', 'window': 'enew' }
+  let g:fzf_default_opt = { 'window': 'enew' }
   " let g:fzf_default_opt = { 'down': '20%' }
 
   command! FZFFiles call fzf#run(extend(g:fzf_default_opt, {
+        \ 'source':  'ag -l -g ""',
+        \ 'sink':    'e',
         \ 'options': '--reverse --multi --exit-0 --prompt="files > "'
         \ }))
 
   command! FZFBuffers call fzf#run(extend(g:fzf_default_opt, {
         \ 'source':  BuffersList(),
+        \ 'sink':    'e',
         \ 'options': '--reverse --no-sort --prompt="buffers > "'
         \ }))
 
   command! FZFMru call fzf#run(extend(g:fzf_default_opt, {
         \ 'source':  RecentFiles(),
+        \ 'sink':    'e',
         \ 'options': '--reverse --multi --exit-0 --no-sort --prompt="mru > "'
-        \ })
+        \ }))
 
   command! FZFAgInput call fzf#run(extend(g:fzf_default_opt, {
         \ 'source':  AgSearchInput(),
         \ 'sink':    function('AgHandler'),
         \ 'options': '--reverse --ansi --multi --exit-0 --prompt="grep > "'
-        \ })
+        \ }))
 
-  command! -range FZFAgVisual call fzf#run(extend(g:fzf_default_opt, {zf#run({
+  command! -range FZFAgVisual call fzf#run(extend(g:fzf_default_opt, {
         \ 'source':  AgSearchVisual(),
         \ 'sink':    function('AgHandler'),
         \ 'options': '--reverse --ansi --multi --exit-0 --prompt="grep > "'
-        \ })
+        \ }))
 
-  command! FZFLines call fzf#run(extend(g:fzf_default_opt, {zf#run({
+  command! FZFLines call fzf#run(extend(g:fzf_default_opt, {
         \ 'source':  BuffersLines(),
         \ 'sink':    function('BuffersLinesOpen'),
         \ 'options': '--reverse --no-sort --exit-0 --nth=3.. --prompt="lines > "'
-        \ })
+        \ }))
 
-  command! FZFRegisters call fzf#run(extend(g:fzf_default_opt, {zf#run({
+  command! FZFRegisters call fzf#run(extend(g:fzf_default_opt, {
         \ 'source':  Registers(),
         \ 'sink':    function('LineAppend'),
         \ 'options': '--reverse --no-sort --tac --exit-0 --prompt="registers > "'
-        \ })
+        \ }))
 
   nnoremap <silent> <c-p>      :FZFFiles<cr>
   nnoremap <silent> <c-b>      :FZFBuffers<cr>
