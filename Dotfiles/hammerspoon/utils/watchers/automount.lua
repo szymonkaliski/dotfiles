@@ -47,7 +47,6 @@ local batteryWatcher = function()
 end
 
 -- unmount on sleep, mount on wake
--- TODO: does this even work?
 local sleepWatcher = function(event)
   if event == hs.caffeinate.watcher.systemWillSleep then
     log.i('sleep unmounting all')

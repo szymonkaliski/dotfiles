@@ -48,7 +48,9 @@ Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterO
 Plug 'airblade/vim-gitgutter',             { 'on': [] } " only on mac
 Plug 'benekastah/neomake',                 { 'on': [] } " only in nvim
 Plug 'marijnh/tern_for_vim',               { 'on': [], 'do': 'npm install' } " only on mac
+Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
 Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
+Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein deps' } " only in nvim
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
 
 " smart FZF loading
@@ -433,7 +435,7 @@ augroup ft_settings
         \ nnoremap <leader>sf :so %<cr>:echo 'File sourced'<cr>
 
   au FileType clojure
-        \ let b:delimitMate_quotes='"' |
+        \ let b:loaded_delimitMate = 1 |
         \ nnoremap <buffer> <leader>= :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
 
   au FileType taskpaper
@@ -1191,6 +1193,19 @@ nnoremap <silent> <leader>td :DimInactiveToggle<cr>
 " plugin: sayonara {{{
 
 nnoremap <leader>q :Sayonara!<cr>
+
+" }}}
+" plugin: parinfer {{{
+
+if g:is_mac && g:is_nvim
+  augroup parinfer_plugin
+    au!
+
+    au FileType clojure
+          \ silent! call plug#load('node-host', 'nvim-parinfer.js') |
+          \ autocmd! parinfer_plugin
+  augroup END
+endif
 
 " }}}
 " custom abbrevs {{{

@@ -513,18 +513,18 @@ exe "hi! markdownCodeDelimiter"    .s:fmt_none .s:fg_red     .s:bg_none
 " }}}
 " clojure highlighting {{{
 
-exe "hi! clojureAnonArg"  .s:fmt_none .s:fg_aqua .s:bg_none
-exe "hi! clojureDefine"   .s:fmt_none .s:fg_blue .s:bg_none
-exe "hi! clojureDeref"    .s:fmt_none .s:fg_aqua .s:bg_none
-exe "hi! clojureDispatch" .s:fmt_none .s:fg_aqua .s:bg_none
-exe "hi! clojureKeyword"  .s:fmt_none .s:fg_aqua .s:bg_none
-exe "hi! clojureMacro"    .s:fmt_none .s:fg_blue .s:bg_none
-exe "hi! clojureNumber"   .s:fmt_none .s:fg_aqua .s:bg_none
-exe "hi! clojureParen"    .s:fmt_none .s:fg_blue .s:bg_none
-exe "hi! clojureQuote"    .s:fmt_none .s:fg_blue .s:bg_none
-exe "hi! clojureSexp"     .s:fmt_none .s:fg_blue .s:bg_none
-exe "hi! clojureSpecial"  .s:fmt_none .s:fg_blue .s:bg_none
-exe "hi! clojureVarArg"   .s:fmt_none .s:fg_aqua .s:bg_none
+exe "hi! clojureAnonArg"  .s:fmt_none .s:fg_aqua    .s:bg_none
+exe "hi! clojureDefine"   .s:fmt_none .s:fg_blue    .s:bg_none
+exe "hi! clojureDeref"    .s:fmt_none .s:fg_aqua    .s:bg_none
+exe "hi! clojureDispatch" .s:fmt_none .s:fg_aqua    .s:bg_none
+exe "hi! clojureKeyword"  .s:fmt_none .s:fg_aqua    .s:bg_none
+exe "hi! clojureMacro"    .s:fmt_none .s:fg_blue    .s:bg_none
+exe "hi! clojureNumber"   .s:fmt_none .s:fg_aqua    .s:bg_none
+exe "hi! clojureParen"    .s:fmt_none .s:fg_comment .s:bg_none
+exe "hi! clojureQuote"    .s:fmt_none .s:fg_blue    .s:bg_none
+exe "hi! clojureSexp"     .s:fmt_none .s:fg_blue    .s:bg_none
+exe "hi! clojureSpecial"  .s:fmt_none .s:fg_blue    .s:bg_none
+exe "hi! clojureVarArg"   .s:fmt_none .s:fg_aqua    .s:bg_none
 
 " }}}
 " clever-f highlighting {{{
