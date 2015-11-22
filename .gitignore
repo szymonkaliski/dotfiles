@@ -4,6 +4,9 @@
 # Hammerspoon 3rd party addons
 Dotfiles/hammerspoon/hs/
 
+# zsh plugins
+Dotfiles/zsh/plugins/
+
 # simple script I use to copy files from different places into this repository
 # this allows me to keep my dotfiles in other (private) repo
 # and post to github only what I think is safe :)
