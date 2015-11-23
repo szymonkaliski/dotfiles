@@ -3,8 +3,7 @@ local framed      = require('ext.framed')
 local application = require('ext.application')
 
 local cache = {
-  windowPositions = {},
-  mousePosition   = nil
+  mousePosition = nil
 }
 
 local module = {}
@@ -118,8 +117,13 @@ function module.setSize(win, size)
   local screen = module.screenFrame(win)
   local frame  = win:frame()
 
-  frame.w = size.w
-  frame.h = size.h
+  if size.w and size.h then
+    frame.w = size.w
+    frame.h = size.h
+  elseif size.mod then
+    frame.w = frame.w + size.mod
+    frame.h = frame.h + size.mod
+  end
 
   frame = framed.fit(frame, screen)
   frame = framed.center(frame, screen)
@@ -181,8 +185,8 @@ end
 
 -- move window to another space
 function module.moveToSpace(win, space)
-  local clickPoint    = win:zoomButtonRect()
-  local sleepTime     = 1000
+  local clickPoint = win:zoomButtonRect()
+  local sleepTime  = 1000
 
   if clickPoint == nil then return end
 
@@ -197,7 +201,6 @@ function module.moveToSpace(win, space)
   end
 
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseDown, clickPoint):post()
-
   hs.timer.usleep(sleepTime)
 
   hs.eventtap.keyStroke({ 'ctrl' }, space)
@@ -208,7 +211,6 @@ function module.moveToSpace(win, space)
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseUp, clickPoint):post()
 
   hs.mouse.setAbsolutePosition(cache.mousePosition)
-
   cache.mousePosition = nil
 end
 
@@ -247,23 +249,58 @@ end
 
 -- save and restore window positions
 function module.persistPosition(win, option)
-  local id    = win:application():bundleID()
-  local frame = win:frame()
+  local appId           = win:application():bundleID()
+  local frame           = win:frame()
+  local windowPositions = hs.settings.get('windowPositions') or {}
+  local index           = windowPositions[appId] and windowPositions[appId].index or nil
+  local frames          = windowPositions[appId] and windowPositions[appId].frames or {}
 
-  -- saves window position if not saved before
-  if option == 'save' and not cache.windowPositions[id] then
-    cache.windowPositions[id] = frame
+  -- check if given frame differs frome last one in array
+  local framesDiffer = function(frame, frames)
+    return frames and (#frames == 0 or not frame:equals(frames[#frames]))
   end
 
-  -- force update saved window position
-  if option == 'update' then
-    cache.windowPositions[id] = frame
+  -- remove first element if we hit history limit
+  if #frames > window.historyLimit then
+    table.remove(frames, 1)
   end
 
-  -- restores window position
-  if option == 'load' and cache.windowPositions[id] then
-    module.setFrame(win, cache.windowPositions[id])
+  -- append window position to a table, only if it's a new frame
+  if option == 'save' and framesDiffer(frame, frames) then
+    table.insert(frames, frame.table)
+    index = #frames
   end
+
+  -- undo window position
+  if option == 'undo' and index ~= nil then
+    -- if we are at the last index
+    if index == #frames then
+      if framesDiffer(frame, frames) then
+        -- and current frame differs from last one - save it
+        table.insert(frames, frame.table)
+      else
+        -- otherwise frames are the same, so get the previous one
+        index = index - 1
+      end
+    end
+
+    module.setFrame(win, frames[index])
+    index = math.max(index - 1, 1)
+  end
+
+  -- redo window position
+  if option == 'redo' and index ~= nil then
+    index = math.min(#frames, index + 1)
+    module.setFrame(win, frames[index])
+  end
+
+  -- update window positions object
+  windowPositions[appId] = {
+    index  = index,
+    frames = frames
+  }
+
+  hs.settings.set('windowPositions', windowPositions)
 end
 
 return module

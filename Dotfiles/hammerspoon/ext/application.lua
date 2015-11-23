@@ -13,6 +13,12 @@ function module.activateFrontmost()
   if frontmostWindow then frontmostWindow:focus() end
 end
 
+-- toggle hammerspoon console and refocus last window
+function module.toggleConsole()
+  hs.toggleConsole()
+  module.activateFrontmost()
+end
+
 -- force application launch or focus
 function module.forceLaunchOrFocus(appName)
   -- first focus with hammerspoon
@@ -146,6 +152,15 @@ function module.askBeforeQuitting(appName, enabled)
       end
     end)
   end
+end
+
+-- show notification center
+function module.showNotificationCenter()
+  hs.applescript.applescript([[
+    tell application "System Events" to tell process "SystemUIServer"
+      click menu bar item "Notification Center" of menu bar 2
+    end tell
+  ]])
 end
 
 return module

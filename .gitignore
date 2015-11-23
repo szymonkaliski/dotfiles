@@ -7,6 +7,13 @@ Dotfiles/hammerspoon/hs/
 # zsh plugins
 Dotfiles/zsh/plugins/
 
+# vim plugins and other stuff
+Dotfiles/vim/autoload/
+Dotfiles/vim/backup/
+Dotfiles/vim/plugged/
+Dotfiles/vim/spell/
+Dotfiles/vim/undo/
+
 # simple script I use to copy files from different places into this repository
 # this allows me to keep my dotfiles in other (private) repo
 # and post to github only what I think is safe :)

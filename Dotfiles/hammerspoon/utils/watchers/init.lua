@@ -1,14 +1,14 @@
 local cache  = {}
 local module = {}
 
-module.startAll = function()
+module.start = function()
   hs.fnutils.each(watchers.enabled, function(watchName)
     cache[watchName] = require('utils.watchers.' .. watchName)
     cache[watchName]:start()
   end)
 end
 
-module.stopAll = function()
+module.stop = function()
   hs.fnutils.each(cache, function(watcher)
     watcher:stop()
   end)

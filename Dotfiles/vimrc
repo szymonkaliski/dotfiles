@@ -1,17 +1,3 @@
-" globals {{{
-
-let g:app_name = has('nvim') ? 'nvim' : 'vim'
-let g:fzfdir   = globpath('/usr/local/Cellar/fzf/', '*', 1, 1) + globpath('/usr/share/vim/vimfiles/plugin',' fzf.vim', 1, 1)
-let g:is_gui   = has('gui_running')
-let g:is_mac   = has('mac')
-let g:is_vim   = !has('nvim')
-let g:is_nvim  = has('nvim')
-let g:is_tmux  = ($TMUX != '')
-let g:is_iterm = ($TERM_PROGRAM == 'iTerm.app')
-
-" }}}
-" bundles {{{
-
 call plug#begin('~/.vim/plugged')
 
 " always load
@@ -22,6 +8,7 @@ Plug 'bling/vim-airline'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'coderifous/textobj-word-column.vim'
 Plug 'ervandew/supertab'
+Plug 'henrik/vim-indexed-search'
 Plug 'justinmk/vim-dirvish',               { 'frozen': 1 }
 Plug 'matchit.zip'
 Plug 'pbrisbin/vim-mkdir'
@@ -30,7 +17,6 @@ Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
 
 " on demand loading
-Plug 'blueyed/vim-diminactive',            { 'on': [ 'DimInactive', 'DimInactiveToggle' ] }
 Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>SortMotion', '<Plug>SortLines' ] }
 Plug 'epeli/slimux',                       { 'on': [ 'SlimuxREPL', 'SlimuxREPLSendSelection', 'SlimuxREPLSendBuffer', 'SlimuxREPLSendLine', 'SlimuxREPLSendParagraph', 'SlimuxGlobalConfigure' ] }
 Plug 'ferranpm/vim-isolate',               { 'on': 'Isolate' }
@@ -54,6 +40,9 @@ Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein deps' } " onl
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
 
 " smart FZF loading
+let g:fzfdir = globpath('/usr/local/Cellar/fzf/', '*', 1, 1)
+let g:fzfdir = g:fzfdir + globpath('/usr/share/vim/vimfiles/plugin',' fzf.vim', 1, 1)
+
 if len(g:fzfdir) == 1
   Plug g:fzfdir[0]
 endif
@@ -80,16 +69,13 @@ Plug 'vim-scripts/ck.vim',                 { 'for': 'ck' }
 
 call plug#end()
 
-if g:is_tmux
+if ($TMUX != '')
   call plug#load('vim-tmux-focus-events')
 endif
 
-if g:is_mac
-  call plug#load('vim-gitgutter', g:is_nvim ? 'neomake' : 'syntastic')
+if has('mac')
+  call plug#load('vim-gitgutter', has('nvim') ? 'neomake' : 'syntastic')
 endif
-
-" }}}
-" main settings {{{
 
 " viminfo - more v:oldfiles, register lines
 set viminfo='1000,<100,s10,
@@ -114,7 +100,7 @@ set lazyredraw
 set notimeout
 set ttimeout
 
-if !g:is_nvim
+if !has('nvim')
   set ttyfast
   set ttyscroll=3
   set ttimeoutlen=10
@@ -142,29 +128,10 @@ syntax sync minlines=256
 set synmaxcol=256
 
 " color theme
-" set t_Co=256
 set background=dark
-
-" solarized
-" let g:solarized_bold=0
-" let g:solarized_italic=0
-" let g:solarized_underline=0
-" let g:solarized_menu=0
-" let g:solarized_contrast="high"
-" let g:solarized_visibility="normal"
-" colorscheme solarized
 
 " hybrid
 colorscheme hybrid
-
-" jellybeans
-" colorscheme jellybeans
-
-" base16 tomorrow
-" colorscheme base16-tomorrow
-
-" disable background color erase so that color scheme work properly in tmux
-" set t_ut=
 
 " indentation
 filetype plugin indent on
@@ -188,8 +155,7 @@ set ruler
 set virtualedit=block
 
 set sidescrolloff=6
-let g:default_scrolloff=3
-exe 'set scrolloff=' . g:default_scrolloff
+set scrolloff=3
 
 " path used by gf, :find, etc..
 set path=.,,,./**
@@ -214,6 +180,14 @@ set noswapfile
 set undofile
 set undodir=~/.vim/undo//
 set backupdir=~/.vim/backup//
+
+if !isdirectory(&backupdir)
+  call mkdir(&backupdir, "p")
+endif
+
+if !isdirectory(&undodir)
+  call mkdir(&undodir, "p")
+endif
 
 " fix for node fs.watch
 set backupcopy=yes
@@ -260,7 +234,7 @@ set grepprg=ag\ --vimgrep\ $*
 set grepformat=%f:%l:%c:%m
 
 " set path
-if g:is_mac
+if has('mac')
   let $PATH='/usr/local/bin:' . $PATH . ':/Users/Szymon/Documents/Code/Scripts'
 endif
 
@@ -270,1334 +244,13 @@ set foldmethod=syntax
 set foldlevelstart=99
 set foldcolumn=0
 
-" nice fold text modified from: https://coderwall.com/p/usd_cw
-function! FoldText()
-  let l:lpadding = &fdc
-  redir => l:signs
-  exe 'silent sign place buffer=' . bufnr('%')
-  redir End
-  let l:lpadding += l:signs =~ 'id=' ? 2 : 0
-
-  if exists('+relativenumber')
-    if (&number)
-      let l:lpadding += max([&numberwidth, strlen(line('$'))]) + 1
-    elseif (&relativenumber)
-      let l:lpadding += max([&numberwidth, strlen(v:foldstart - line('w0')), strlen(line('w$') - v:foldstart), strlen(v:foldstart)]) + 1
-    endif
-  else
-    if (&number)
-      let l:lpadding += max([&numberwidth, strlen(line('$'))]) + 1
-    endif
-  endif
-
-  let l:start = substitute(getline(v:foldstart), '\t', repeat(' ', &tabstop), 'g')
-  let l:end = substitute(substitute(getline(v:foldend), '\t', repeat(' ', &tabstop), 'g'), '^\s*', '', 'g')
-
-  let l:width = winwidth(0) - l:lpadding
-
-  let l:separator = ' ... '
-  let l:separatorlen = strlen(substitute(l:separator, '.', 'x', 'g'))
-  let l:start = strpart(l:start , 0, l:width - strlen(substitute(l:end, '.', 'x', 'g')) - l:separatorlen)
-  let l:text = l:start . l:separator . l:end
-
-  return l:text
-endfunction
-
-set foldtext=FoldText()
-
-" iTerm2 cursor
-if g:is_iterm
-  if g:is_nvim
-    let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
-  elseif g:is_tmux
-    let &t_SI = "\<Esc>Ptmux;\<Esc>\e[5 q\<Esc>\\"
-    let &t_EI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
-  else
-    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-    let &t_EI = "\<Esc>]50;CursorShape=0\x7"
-  endif
-end
-
-" }}}
-" window title {{{
-
-" set nice window title
-function! WindowTitleFilePath()
-  let l:splited = split(expand('%:p'), '/')
-  let l:cut = 3
-
-  if len(l:splited) < l:cut
-    let cut = len(l:splited)
-  endif
-
-  let l:cut = -l:cut
-
-  if len(l:splited) == 0
-    return '[No Name]'
-  else
-    return join(l:splited[l:cut : -1], '/')
-  endif
-endfunction
-
-function! WindowTitle()
-  return g:app_name . ': ' . WindowTitleFilePath()
-endfunction
-
-" set title on start as simple 'vim'
-set title
-exe 'set titlestring=' . g:app_name
-
-" update titlestring with proper title
-augroup title_titlestring
-  au!
-
-  au BufEnter * let &titlestring=WindowTitle()
-augroup END
-
-" only needed in screen
-if &term == 'screen-256color'
-  " screen caption is set by iconstring
-  set t_IS=k
-  set t_IE=\
-  set icon
-
-  augroup title_iconstring
-    au!
-
-    au BufEnter * let &iconstring=WindowTitle()
-  augroup END
-
-  " screen window title is set by titlestring
-  set t_ts=]2;
-  set t_fs=\
-endif
-
-" }}}
-" autocommands {{{
-
-" return to same line after reopenning file
-augroup line_return
-  au!
-
-  au BufReadPost *
-        \ if line("'\"") > 0 && line("'\"") <= line("$") && !&diff |
-        \   exe 'normal! g`"zvzz' |
-        \ endif
-augroup END
-
-" automatically resize splits when resizing window
-augroup split_resize
-  au!
-
-  au VimResized * wincmd =
-augroup END
-
-" aupdate checktime for file re-reads
-augroup checktime_update
-  au!
-
-  au FocusGained,BufEnter,CursorHold * checktime
-augroup END
-
-" set proper syntaxes
-augroup detect_syntax
-  au!
-
-  au BufNewFile,BufRead *.ck                        setlocal filetype=ck
-  au BufNewFile,BufRead *.edn                       setlocal filetype=clojure
-  au BufNewFile,BufRead *.es6                       setlocal filetype=javascript
-  au BufNewFile,BufRead *.frag,*.vert,*.glsl        setlocal filetype=glsl
-  au BufNewFile,BufRead *.ino                       setlocal filetype=arduino
-  au BufNewFile,BufRead *.jsx                       setlocal filetype=javascript | setlocal syntax=javascript.jsx
-  au BufNewFile,BufRead *.m,*.mm                    setlocal filetype=objc
-  au BufNewFile,BufRead *.md                        setlocal filetype=markdown
-  au BufNewFile,BufRead *.pde                       setlocal filetype=processing
-  au BufNewFile,BufRead *.swift                     setlocal filetype=swift
-  au BufNewFile,BufRead *.taskpaper                 setlocal filetype=taskpaper
-  au BufNewFile,BufRead *.tpl,*.ejs                 let b:jst_subtype='html' | setlocal filetype=jst
-  au BufNewFile,BufRead *.ts                        setlocal filetype=typescript
-  au BufNewFile,BufRead ~/Documents/Dropbox/Notes/* setlocal filetype=markdown
-augroup END
-
-" custom settings based on filetype
-augroup ft_settings
-  au!
-
-  au FileType css      setlocal iskeyword+=-
-  au FileType markdown setlocal nolist
-  au FileType text     setlocal nolist
-  au FileType arduino  setlocal commentstring=//\ %s
-  au FileType glsl     setlocal commentstring=//\ %s
-
-  au FileType vim
-        \ setlocal foldmethod=marker |
-        \ setlocal foldlevel=0 |
-        \ nnoremap <leader>sf :so %<cr>:echo 'File sourced'<cr>
-
-  au FileType clojure
-        \ let b:loaded_delimitMate = 1 |
-        \ nnoremap <buffer> <leader>= :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
-
-  au FileType taskpaper
-        \ setlocal nolist |
-        \ call taskpaper#fold_projects() |
-        \ nnoremap <buffer> <leader>to zM:g/\v^(.*\@today)&(.*\@done)@!/foldopen!<cr>:nohlsearch<cr>gg |
-        \ nnoremap <buffer> <leader>tw :<c-u>call taskpaper#toggle_tag('waiting', '')<cr> |
-        \ nnoremap <buffer> <leader>tm :<c-u>call taskpaper#toggle_tag('due', '<c-r>=strftime('%Y-%m-%d', localtime() + 86400)<cr>')<cr>
-
-  au FileType processing
-        \ setlocal makeprg=processing\ %:p:h |
-        \ setlocal errorformat=%DEntering\ directory\ \"%f\",%f:%l:%c:%*\\d:%*\\d:\ %m,%-G%.%#
-
-  au FileType javascript
-        \ setlocal foldmethod=syntax |
-        \ setlocal suffixesadd=.js,.jsx |
-        \ setlocal makeprg=javascript\ % |
-        \ setlocal errorformat=%Evm.js:%*\\d:\ Uncaught\ SyntaxError:\ %f:%l,\ %C%m,%Z%m,%AError:\ %m,%AEvalError:\ %m,%ARangeError:\ %m,%AReferenceError:\ %m,%ASyntaxError:\ %m,%ATypeError:\ %m,%Z%*[\ ]at\ %f:%l:%c,%Z%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]%m\ \(%f:%l:%c\),%*[\ ]at\ %f:%l:%c,%Z%p^,%A%f:%l,%C%m,%-G%.%#
-
-  au FileType lua
-        \ syn region luaFunctionBlock transparent fold matchgroup=luaFunction
-        \ start='\<function\>' end ='\<end\>'
-        \ contains=ALLBUT,luaTodo,luaSpecial,luaCond,luaCondElseif,luaCondEnd,luaRepeat
-
-  au FileType objc
-        \ setlocal errorformat=%f:%l:%c:%.%#\ error:\ %m,%f:%l:%c:%.%#\ warning:\ %m,%-G%.%#
-augroup END
-
-" quickfix/loclist
-augroup quickfix
-  au!
-
-  au BufWinEnter quickfix setlocal cursorline
-
-  " automatically open quickfix / loclist
-  au QuickFixCmdPost grep,make,grepadd,vimgrep,vimgrepadd,cscope,cfile,cgetfile,caddfile,helpgrep cwindow
-  au QuickFixCmdPost lgrep,lmake,lgrepadd,lvimgrep,lvimgrepadd,lfile,lgetfile,laddfile            lwindow
-augroup END
-
-" command window
-augroup commandwin
-  au!
-
-  au CmdWinEnter *
-        \ setlocal cursorline |
-        \ nnoremap <buffer> <esc> :q<cr> |
-        \ iabbrev  <silent> <buffer> %% <c-r>=fnameescape(expand('%:~:h'))<cr>/
-augroup END
-
-" set autchdir on insert for relative paths completion
-augroup instert_chdir
-  au!
-
-  au InsertEnter * let save_cwd=getcwd() | set autochdir
-  au InsertLeave * set noautochdir | execute 'cd' fnameescape(save_cwd)
-augroup END
-
-" }}}
-" plugin: airline {{{
-
-augroup airline_plugin
-  au!
-
-  au User AirlineAfterInit call AirlineInit()
-augroup END
-
-" theme
-let g:airline_theme = 'tomorrow'
-" let g:airline_theme = 'jellybeans'
-
-" patch function
-let g:airline_theme_patch_func = 'AirlineThemePatch'
-
-" default extensions
-let g:airline_extensions = ['quickfix', 'tabline']
-
-if g:is_mac
-  let g:airline_extensions = g:airline_extensions + ['hunks']
-  let g:airline#extensions#hunks#non_zero_only = 1
-endif
-
-" initial sections
-let g:airline_section_b = '%{WindowTitleFilePath()}'
-let g:airline_section_c = ''
-let g:airline_section_x = ''
-let g:airline_section_y = ''
-
-" settings
-let g:airline_left_sep = ''
-let g:airline_right_sep = ''
-let g:airline_inactive_collapse = 0
-let g:airline_exclude_preview = 0
-let g:airline_detect_modified = 0
-let g:airline_detect_paste = 0
-
-" tabline
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#show_buffers = 1
-let g:airline#extensions#tabline#show_tab_type = 0
-let g:airline#extensions#tabline#tab_min_count = 2
-let g:airline#extensions#tabline#buffer_min_count = 2
-let g:airline#extensions#tabline#show_tab_nr = 0
-let g:airline#extensions#tabline#show_tab_type = 0
-let g:airline#extensions#tabline#show_close_button = 0
-let g:airline#extensions#tabline#left_sep = ''
-let g:airline#extensions#tabline#left_alt_sep = ''
-let g:airline#extensions#tabline#right_sep = ''
-let g:airline#extensions#tabline#right_alt_sep = ''
-let g:airline#extensions#tabline#close_symbol = '✕'
-
-" truncating
-let g:airline#extensions#default#section_truncate_width = {
-      \ 'b': 20,
-      \ 'x': 60,
-      \ 'y': 90,
-      \ 'z': 50
-      \ }
-
-" extensions
-function! AirlineInit()
-  if g:is_mac
-    let g:airline_section_y = airline#section#create(['hunks'])
-
-    if g:is_nvim
-      let g:airline_section_warning = '%{AirlineNeomakeStatus()}'
-    else
-      let g:airline_extensions = g:airline_extensions + ['syntastic']
-      let g:airline_section_warning = '%{airline#extensions#syntastic#get_warnings()}'
-    endif
-  endif
-endfunction
-
-" theme patching
-function! AirlineThemePatch(palette)
-  if g:airline_theme == 'tomorrow' || g:airline_theme == 'solarized' || g:airline_theme == 'jellybeans'
-    let l:palettes = [a:palette.normal, a:palette.insert, a:palette.replace, a:palette.visual, a:palette.accents]
-
-    for l:palette in l:palettes
-      for l:colors in values(l:palette)
-        if len(l:colors) >= 5
-          let l:colors[4] = 'none'
-        endif
-      endfor
-    endfor
-
-    if g:airline_theme == 'tomorrow' && !g:is_gui
-      for l:colors in values(a:palette.inactive)
-        let l:colors[2] = '245'
-        let l:colors[3] = '0'
-      endfor
-    endif
-
-    if g:airline_theme == 'tomorrow' && !g:is_gui && g:colors_name == 'hybrid'
-      for l:colors in values(a:palette.inactive)
-        let l:colors[2] = '243'
-        let l:colors[3] = '235'
-      endfor
-    endif
-
-    if g:airline_theme == 'solarized'
-      for l:colors in values(a:palette.inactive)
-        if &background == 'dark'
-          let l:colors[0] = '#586e75'
-          let l:colors[1] = '#073642'
-        else
-          let l:colors[0] = '#93a1a1'
-          let l:colors[1] = '#eee8d5'
-        endif
-        let l:colors[2] = '10'
-        let l:colors[3] = '0'
-      endfor
-    endif
-
-    if g:airline_theme == 'jellybeans'
-      for l:palette in l:palettes
-        for l:colors in values(l:palette)
-          if len(l:colors) >= 3 && l:colors[3] == '233'
-            let l:colors[3] = '234'
-          endif
-        endfor
-      endfor
-    endif
-  endif
-endfunction
-
-" }}}
-" plugin: dirvish {{{
-
-augroup dirvish_plugin
-  au!
-
-  au FileType dirvish
-        \ map <buffer> <silent> u - |
-        \ map <buffer> <silent> e <cr> |
-        \ map <buffer> <silent> <c-f> q |
-        \ nnoremap <buffer> <silent> G :call cursor(line("w$"), 0)<cr> " why G gets bound to <leader>G in dirvish is a mystery, this 'fixes' it
-augroup END
-
-function! DirvishCurrentPath()
-  let l:path = expand('%:~:h')
-
-  if len(l:path) == 0
-    let l:path = getcwd()
-  endif
-
-  return fnameescape(l:path)
-endfunction
-
-nnoremap <silent> <c-f> :e <c-r>=DirvishCurrentPath()<cr>/<cr>
-
-" }}}
-" plugin: gitgutter {{{
-
-let g:gitgutter_eager = 0
-let g:gitgutter_escape_grep = 1
-let g:gitgutter_map_keys = 0
-let g:gitgutter_max_signs = 1000
-let g:gitgutter_realtime = 0
-let g:gitgutter_signs = 0
-
-" }}}
-" plugin: syntastic {{{
-
-if g:is_mac && g:is_vim
-  augroup syntastic_plugin
-    au!
-
-    au FileType javascript
-          \ if filereadable(getcwd() . '/.jscsrc') |
-          \   let g:syntastic_javascript_checkers = g:syntastic_javascript_checkers + ['jscs'] |
-          \ endif |
-          \ if executable(getcwd() . '/node_modules/.bin/eslint') |
-          \   let g:syntastic_javascript_eslint_exe = getcwd() . '/node_modules/.bin/eslint'
-          \ endif
-  augroup END
-
-  let g:syntastic_aggregating_errors = 1
-  let g:syntastic_always_populate_loc_list = 1
-  let g:syntastic_auto_loc_list = 0
-  let g:syntastic_check_on_open = 0
-  let g:syntastic_check_on_wq = 0
-  let g:syntastic_cursor_column = 0
-  let g:syntastic_enable_highlighting = 1
-  let g:syntastic_enable_signs = 0
-  let g:syntastic_error_symbol = '!'
-  let g:syntastic_stl_format = '%E{Error: %e}%B{ }%W{Warning: %w}'
-  let g:syntastic_style_error_symbol = '!'
-  let g:syntastic_style_warning_symbol = '?'
-  let g:syntastic_warning_symbol = '?'
-
-  let g:syntastic_objc_check_header = 1
-  let g:syntastic_javascript_checkers = [ 'eslint' ]
-endif
-
-" }}}
-" plugin: neomake {{{
-
-if g:is_mac && g:is_nvim
-  augroup neomake_plugin
-    au!
-
-    au BufRead,BufWritePost *.js,*.jsx,*.json               Neomake " eslint
-    au BufRead,BufWritePost *.clj,*.cljs                    Neomake " lein kibit
-    au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* Neomake " shellcheck
-  augroup END
-
-  function! AirlineNeomakeStatus()
-    let l:counts = neomake#statusline#LoclistCounts()
-    let l:w = get(l:counts, 'W', 0)
-    let l:e = get(l:counts, 'E', 0)
-    let l:x = get(l:counts, 'x', 0)
-
-    if l:w || l:e || l:x
-      let l:result = ''
-      if l:e
-        let l:result = l:result . 'Error: ' . e
-        if l:w
-          let l:result = l:result . ' '
-        endif
-      endif
-
-      if l:w
-        let l:result = l:result . 'Warning: ' . w
-      endif
-
-      if l:x
-        let l:result = l.result . ' Unknown: ' . x
-      endif
-
-      return l:result
-    else
-      return ''
-    endif
-  endfunction
-
-  " favour local eslint instead of global
-  if executable(getcwd() . '/node_modules/.bin/eslint')
-    let g:neomake_javascript_eslint_exe = getcwd() . '/node_modules/.bin/eslint'
-  endif
-
-  let g:neomake_clojure_kibit_maker = {
-      \ 'exe':           'lein',
-      \ 'args':          [ 'kibit' ],
-      \ 'errorformat':   '%IAt %f:%l:,%C%m,%-G%.%#',
-      \ 'buffer_output': 1
-      \ }
-  let g:neomake_clojure_enabled_makers = [ 'kibit' ]
-
-  " let g:neomake_open_list = 1
-  let g:neomake_place_signs = 0
-  let g:neomake_airline = 1
-endif
-
-" }}}
-" plugin: delimitmate {{{
-
-let g:delimitMate_balance_matchpairs = 1
-let g:delimitMate_expand_cr = 1
-let g:delimitMate_expand_space = 1
-let g:delimitMate_nesting_quotes = [ '"', "'" ]
-
-" }}}
-" plugin: fzf {{{
-
-function! BuffersList()
-  let l:all = range(0, bufnr('$'))
-  let l:list = []
-
-  for l:buffer in l:all
-    let l:bufname = bufname(l:buffer)
-    if buflisted(l:buffer) && index(l:list, l:bufname) == -1 && strlen(l:bufname) > 1
-      call add(l:list, l:bufname)
-    endif
-  endfor
-
-  return list
-endfunction
-
-function! RecentFiles()
-  return filter(v:oldfiles, 'filereadable(glob(v:val))')
-endfunction
-
-function! AgSearchInput()
-  let l:input = input('Grep for: ')
-
-  return AgSearchHandler(l:input)
-endfunction
-
-function! AgSearchVisual()
-  let [l:lnum1, l:col1] = getpos(''<')[1:2]
-  let [l:lnum2, l:col2] = getpos(''>')[1:2]
-  let l:lines = getline(l:lnum1, l:lnum2)
-  let l:lines[-1] = l:lines[-1][: l:col2 - (&selection == 'inclusive' ? 1 : 2)]
-  let l:lines[0] = l:lines[0][l:col1 - 1:]
-
-  let l:selection = join(l:lines, '\n')
-
-  return AgSearchHandler(l:selection)
-endfunction
-
-function! AgSearchHandler(search)
-  return 'ag --smart-case --nogroup --color --column ' . a:search
-endfunction
-
-function! AgHandler(e)
-  let l:keys = split(a:e, ':')
-  let l:line = l:keys[1]
-  let l:col  = l:keys[2]
-  let l:file = escape(l:keys[0], ' ')
-
-  exe 'e ' . l:file
-  call cursor(l:line, l:col)
-endfunction
-
-function! BuffersLines()
-  let res = []
-
-  for b in filter(range(1, bufnr('$')), 'buflisted(v:val)')
-    call extend(res, map(getbufline(b,0,'$'), "b . ':' . (v:key + 1) . ':\t' . v:val "))
-  endfor
-
-  return res
-endfunction
-
-function! BuffersLinesOpen(l)
-  let keys = split(a:l, ':')
-  exe 'buffer ' . keys[0]
-  exe keys[1]
-  silent! normal! zozz
-endfunction
-
-function! Registers()
-  let l:regnum =  range(char2nr('a'), char2nr('z'))
-  let l:regnum += range(char2nr('0'), char2nr('9'))
-  let l:regstr =  [ '"' ]
-  let l:regnum += map(l:regstr, 'char2nr(v:val)')
-
-  let l:regnum = filter(l:regnum, "getreg(nr2char(v:val)) != ''")
-  let l:regnum = filter(l:regnum, "getreg(nr2char(v:val)) !~ '^$'")
-  let l:regnum = filter(l:regnum, "getreg(nr2char(v:val)) !~ '^\s\+$'")
-  let l:regnum = filter(l:regnum, "getreg(nr2char(v:val)) !~ '^\W\+$'")
-
-  let l:registers = map(l:regnum, 'getreg(nr2char(v:val))')
-
-  return l:registers
-endfunction
-
-function! LineAppend(e)
-  exe 'normal! o ' . a:e
-endfunction
-
-if !g:is_gui
-  let g:fzf_default_opt = { 'window': 'enew' }
-  " let g:fzf_default_opt = { 'down': '20%' }
-
-  command! FZFFiles call fzf#run(extend(g:fzf_default_opt, {
-        \ 'source':  'ag -l -g ""',
-        \ 'sink':    'e',
-        \ 'options': '--reverse --multi --exit-0 --prompt="files > "'
-        \ }))
-
-  command! FZFBuffers call fzf#run(extend(g:fzf_default_opt, {
-        \ 'source':  BuffersList(),
-        \ 'sink':    'e',
-        \ 'options': '--reverse --no-sort --prompt="buffers > "'
-        \ }))
-
-  command! FZFMru call fzf#run(extend(g:fzf_default_opt, {
-        \ 'source':  RecentFiles(),
-        \ 'sink':    'e',
-        \ 'options': '--reverse --multi --exit-0 --no-sort --prompt="mru > "'
-        \ }))
-
-  command! FZFAgInput call fzf#run(extend(g:fzf_default_opt, {
-        \ 'source':  AgSearchInput(),
-        \ 'sink':    function('AgHandler'),
-        \ 'options': '--reverse --ansi --multi --exit-0 --prompt="grep > "'
-        \ }))
-
-  command! -range FZFAgVisual call fzf#run(extend(g:fzf_default_opt, {
-        \ 'source':  AgSearchVisual(),
-        \ 'sink':    function('AgHandler'),
-        \ 'options': '--reverse --ansi --multi --exit-0 --prompt="grep > "'
-        \ }))
-
-  command! FZFLines call fzf#run(extend(g:fzf_default_opt, {
-        \ 'source':  BuffersLines(),
-        \ 'sink':    function('BuffersLinesOpen'),
-        \ 'options': '--reverse --no-sort --exit-0 --nth=3.. --prompt="lines > "'
-        \ }))
-
-  command! FZFRegisters call fzf#run(extend(g:fzf_default_opt, {
-        \ 'source':  Registers(),
-        \ 'sink':    function('LineAppend'),
-        \ 'options': '--reverse --no-sort --tac --exit-0 --prompt="registers > "'
-        \ }))
-
-  nnoremap <silent> <c-p>      :FZFFiles<cr>
-  nnoremap <silent> <c-b>      :FZFBuffers<cr>
-
-  nnoremap <silent> <leader>fe :FZFFiles<cr>
-  nnoremap <silent> <leader>fb :FZFBuffers<cr>
-  nnoremap <silent> <leader>fl :FZFLines<cr>
-  nnoremap <silent> <leader>fm :FZFMru<cr>
-  nnoremap <silent> <leader>fh :FZFRegisters<cr>
-  nnoremap <silent> <leader>fr :FZFRegisters<cr>
-
-  nnoremap <silent> <leader>fg :FZFAgInput<cr>
-  xnoremap <silent> <leader>fg :FZFAgVisual<cr>
-
-  if isdirectory($HOME . '/Documents/Dropbox/Notes')
-    command! FZFNotes call fzf#run(extend(g:fzf_default_opt, {zf#run({
-          \ 'source':  'find ~/Documents/Dropbox/Notes -iname "*.txt" | cut -d "/" -f7 | sed "s/\.txt$//"',
-          \ 'sink':    function('OpenNote'),
-          \ 'options': '--reverse --multi --prompt="notes > "'
-          \ }))
-
-    function! OpenNote(e)
-      exe 'e ~/Documents/Dropbox/Notes/' . escape(a:e, ' ') . '.txt'
-    endfunction
-
-    nnoremap <silent> <leader>fn :FZFNotes<cr>
-  endif
-
-  if isdirectory($HOME . '/Documents/Dropbox/Tasks')
-    command! FZFTasks call fzf#run(extend(g:fzf_default_opt, {
-          \ 'source':  'find ~/Documents/Dropbox/Tasks -iname "*.taskpaper" | cut -d "/" -f7 | sed "s/\.taskpaper$//"',
-          \ 'sink':    function('OpenTask'),
-          \ 'options': '--reverse --multi --prompt="tasks > "'
-          \ }))
-
-    function! OpenTask(e)
-      exe 'e ~/Documents/Dropbox/Tasks/' . escape(a:e, ' ') . '.taskpaper'
-    endfunction
-
-    nnoremap <silent> <leader>ft :FZFTasks<cr>
-  endif
-
-  if g:is_nvim
-    augroup fzf_plugin
-      au!
-
-      " au FileType fzf tnoremap <Esc> <c-c>
-      au FileType fzf tnoremap <Esc> <c-\><c-n>:Sayonara!<cr>
-    augroup END
-  endif
-endif
-
-" }}}
-" plugin: limelight {{{
-
-if g:colors_name == 'solarized'
-  let g:limelight_conceal_ctermfg = 10
-  let g:limelight_conceal_guifg = '#586e75'
-endif
-
-if g:colors_name == 'hybrid'
-  let g:limelight_conceal_ctermfg = 8
-endif
-
-let g:limelight_paragraph_span = 1
-
-" }}}
-" plugin: goyo {{{
-
-function! GoyoBefore()
-  if !g:is_gui
-    set showtabline=0
-  endif
-
-  if g:is_tmux
-    silent !tmux set status off > /dev/null
-    silent !tmux resize-pane -Z > /dev/null
-  endif
-
-  set scrolloff=999
-  Limelight
-endfunction
-
-function! GoyoAfter()
-  if !g:is_gui
-    set showtabline=2
-  endif
-
-  if g:is_tmux
-    silent !tmux set status on > /dev/null
-    silent !tmux resize-pane -Z > /dev/null
-  endif
-
-  exe 'set scrolloff=' . g:default_scrolloff
-  Limelight!
-endfunction
-
-let g:goyo_callbacks = [ function('GoyoBefore'), function('GoyoAfter') ]
-let g:goyo_width = 120
-
-command! Zen :Goyo
-
-nnoremap <silent> <leader>Z :Zen<cr>
-
-" }}}
-" plugin: json {{{
-
-let g:vim_json_syntax_conceal = 0
-
-" }}}
-" plugin: clever-f {{{
-
-let g:clever_f_across_no_line = 0
-let g:clever_f_chars_match_any_signs = ''
-let g:clever_f_fix_key_direction = 1
-let g:clever_f_smart_case = 1
-
-nmap f <Plug>(clever-f-f)
-xmap f <Plug>(clever-f-f)
-omap f <Plug>(clever-f-f)
-nmap F <Plug>(clever-f-F)
-xmap F <Plug>(clever-f-F)
-omap F <Plug>(clever-f-F)
-nmap t <Plug>(clever-f-t)
-xmap t <Plug>(clever-f-t)
-omap t <Plug>(clever-f-t)
-nmap T <Plug>(clever-f-T)
-xmap T <Plug>(clever-f-T)
-omap T <Plug>(clever-f-T)
-
-" }}}
-" plugin: easy-align {{{
-
-let g:easy_align_delimiters = {
-      \   '/': {
-      \     'pattern':         '//\+\|/\*\|\*/',
-      \     'delimiter_align': 'l',
-      \     'ignore_groups':   [ '!Comment' ]
-      \   },
-      \   ';': {
-      \     'pattern':         ';',
-      \     'delimiter_align': 'l',
-      \     'ignore_groups':   [ '!Comment' ]
-      \   },
-      \   '(': {
-      \     'pattern':         '(',
-      \     'delimiter_align': 'l',
-      \     'right_margin':    0
-      \   },
-      \   ']': {
-      \     'pattern':         '[[\]]',
-      \     'left_margin':     0,
-      \     'right_margin':    0,
-      \     'stick_to_left':   0
-      \   }
-      \ }
-
-let g:easy_align_bypass_fold = 1
-
-xmap <leader>a =gv<Plug>(EasyAlign)
-nmap ga        <Plug>(EasyAlign)
-
-" }}}
-" plugin: rooter {{{
-
-let g:rooter_use_lcd = 1
-let g:rooter_disable_map = 1
-let g:rooter_silent_chdir = 1
-let g:rooter_patterns = [ 'package.json', 'node_modules/', '.git/' ]
-
-" }}}
-" plugin: taskpaper {{{
-
-let g:task_paper_date_format = '%Y-%m-%d'
-let g:task_paper_styles = { 'today': 'ctermfg=DarkGreen guifg=#b5bd68' }
-
-" }}}
-" plugin: commentary {{{
-
-map  gc  <Plug>Commentary
-nmap gcc <Plug>CommentaryLine
-
-" }}}
-" plugin: slimux {{{
-
-let g:slimux_select_from_current_window = g:is_gui ? 0 : 1
-let g:slimux_restore_selection_after_visual = 1
-
-map  <Plug>SlimuxSendBuffer :SlimuxREPLSendBuffer<cr>:call repeat#set("\<Plug>SlimuxSendBuffer")<cr>
-map  <Plug>SlimuxSendNextParagraph }jvip:SlimuxREPLSendLine<cr>:call repeat#set("\<Plug>SlimuxSendNextParagraph")<cr>
-map  <Plug>SlimuxSendPrevParagraph {jvip:SlimuxREPLSendLine<cr>:call repeat#set("\<Plug>SlimuxSendPrevParagraph")<cr>
-
-map  <Plug>SlimuxSendParagraph :SlimuxREPLSendParagraph<cr>:call repeat#set("\<Plug>SlimuxSendParagraph")<cr>
-
-map  <Plug>SlimuxSendParens :let slimux_view=winsaveview()<cr>
-      \va):SlimuxREPLSendSelection<cr>
-      \:call SlimuxSendKeys("Enter")<cr>
-      \:call winrestview(slimux_view)<cr>
-      \:call repeat#set("\<Plug>SlimuxSendParens")<cr>
-
-map  <leader>sc :SlimuxGlobalConfigure<cr>
-map  <leader>ss <Plug>SlimuxSendParagraph
-map  <leader>sp <Plug>SlimuxSendParens
-map  <leader>sf <Plug>SlimuxSendBuffer
-map  <leader>s] <Plug>SlimuxSendNextParagraph
-map  <leader>s[ <Plug>SlimuxSendPrevParagraph
-
-xmap <leader>ss :SlimuxREPLSendSelection<cr>:call SlimuxSendKeys("Enter")<cr>
-
-" }}}
-" plugin: surround {{{
-
-nmap <leader>w ysiw
-nmap <leader>W ysiW
-xmap <leader>w S
-
-" }}}
-" plugin: undotree {{{
-
-let g:undotree_WindowLayout = 3
-let g:undotree_SplitWidth = 60
-let g:undotree_DiffpanelHeight = 20
-let g:undotree_SetFocusWhenToggle = 1
-
-nnoremap <leader>U :UndotreeToggle<cr>
-
-" }}}
-" plugin: markdown {{{
-
-let g:markdown_fenced_languages = [ 'css', 'html', 'javascript', 'js=javascript', 'json=javascript', 'bash=sh', 'lua' ]
-
-" }}}
-" plugin: supertab {{{
-
-let g:SuperTabDefaultCompletionType = 'context'
-let g:SuperTabContextDefaultCompletionType = '<c-n>'
-
-" }}}
-" plugin: sort motion {{{
-
-map  gs  <Plug>SortMotion
-map  gss <Plug>SortLines
-vmap gs  <Plug>SortMotionVisual
-
-" }}}
-" plugin: replace with register {{{
-
-nmap gr  <Plug>ReplaceWithRegisterOperator
-nmap grr <Plug>ReplaceWithRegisterLine
-xmap gr  <Plug>ReplaceWithRegisterVisual
-
-" }}}
-" plugin: javascript {{{
-
-let g:javascript_enable_domhtmlcss = 1
-
-" }}}
-" plugin: quickhl {{{
-
-let g:quickhl_manual_colors = [
-      \ "gui=bold ctermbg=110 ctermfg=0",
-      \ "gui=bold ctermbg=109 ctermfg=0",
-      \ "gui=bold ctermbg=143 ctermfg=0",
-      \ "gui=bold ctermbg=221 ctermfg=0",
-      \ "gui=bold ctermbg=173 ctermfg=0",
-      \ "gui=bold ctermbg=139 ctermfg=0",
-      \ "gui=bold ctermbg=167 ctermfg=0"
-      \ ]
-
-nmap <leader>h <Plug>(quickhl-manual-this)
-xmap <leader>h <Plug>(quickhl-manual-this)
-nmap <leader>H <Plug>(quickhl-manual-reset)
-xmap <leader>H <Plug>(quickhl-manual-reset)
-
-" }}}
-" plugin: tern {{{
-
-" load tern only on mac
-if g:is_mac
-  augroup tern_plugin
-    au!
-
-    au FileType javascript
-          \ silent! call plug#load('tern_for_vim') |
-          \ autocmd! tern_plugin
-  augroup END
-
-  let g:tern_show_signature_in_pum=1
-endif
-
-" }}}
-" plugin: diminactive {{{
-
-let g:diminactive_enable_focus = 1
-
-nnoremap <silent> <leader>td :DimInactiveToggle<cr>
-
-" }}}
-" plugin: sayonara {{{
-
-nnoremap <leader>q :Sayonara!<cr>
-
-" }}}
-" plugin: parinfer {{{
-
-if g:is_mac && g:is_nvim
-  augroup parinfer_plugin
-    au!
-
-    au FileType clojure
-          \ silent! call plug#load('node-host', 'nvim-parinfer.js') |
-          \ autocmd! parinfer_plugin
-  augroup END
-endif
-
-" }}}
-" custom abbrevs {{{
-
-iabbrev <silent> idate <c-r>=strftime('%Y-%m-%d')<cr>
-iabbrev <silent> itime <c-r>=strftime('%H:%M')<cr>
-
-function! EatChar(pat)
-  let l:c = nr2char(getchar(0))
-  return (l:c =~ a:pat) ? '' : l:c
-endfunction
-
-function! SpacelessIabbrev(from, to)
-  exe 'iabbrev <silent> <buffer> ' . a:from . ' ' . a:to . '<c-r>=EatChar("\\s")<cr>'
-endfunction
-
-" based on filetype
-augroup ft_abbrev
-  au!
-
-  au FileType lua
-        \ call SpacelessIabbrev('fn', 'function')
-
-  au FileType javascript
-        \ call SpacelessIabbrev('clog', 'console.log') |
-        \ call SpacelessIabbrev('fn', 'function') |
-        \ call SpacelessIabbrev('rfac', 'React.createFactory(') |
-        \ call SpacelessIabbrev('rcla', 'React.createClass(')
-augroup END
-
-" }}}
-" custom commands {{{
-
-" reload settings
-if !exists('*ReloadSettings')
-  function! ReloadSettings()
-    source $MYVIMRC
-    if g:is_gui | source $MYGVIMRC | endif
-
-    setlocal foldmethod=marker
-
-    AirlineRefresh
-
-    echo 'Settings reloaded'
-  endfunction
-
-  command! ReloadSettings :call ReloadSettings()
-endif
-
-" loads multiple files
-function! E(...)
-  for f1 in a:000
-    let files = glob(f1)
-    if files == ''
-      execute 'e ' . escape(f1, '\ "')
-    else
-      for f2 in split(files, "\n")
-        execute 'e ' . escape(f2, '\ "')
-      endfor
-    endif
-  endfor
-endfunction
-
-command! -complete=file -nargs=+ E call E(<f-args>)
-
-" kills trailing whitespaces
-function! KillWhitespace()
-  let l:cursor_pos = getpos('.')
-  keepjumps keeppatterns %s/\s\+$//e
-  call setpos('.', l:cursor_pos)
-
-  echo 'Whitespace cleaned'
-endfunction
-
-command! KillWhitespace :call KillWhitespace()
-
-" shows syntax highlight group for element
-function! ShowSyntax()
-  echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), ' > ')
-endfunction
-
-command! ShowSyntax :call ShowSyntax()
-
-" destroy all buffers that are not open in any tabs or windows
-" https://github.com/artnez/vim-wipeout/blob/master/plugin/wipeout.vim
-function! Wipeout(bang)
-  " figure out which buffers are visible in tabs
-  let l:visible = {}
-
-  for t in range(1, tabpagenr('$'))
-    for b in tabpagebuflist(t)
-      let l:visible[b] = 1
-    endfor
-  endfor
-
-  " close buffers that are loaded and not visible
-  let l:tally = 0
-  let l:cmd = 'bw'
-
-  if a:bang
-    let l:cmd = l:cmd . '!'
-  endif
-
-  for b in range(1, bufnr('$'))
-    if buflisted(b) && !has_key(l:visible, b)
-      let l:tally += 1
-      exe l:cmd . ' ' . b
-    endif
-  endfor
-
-  echon 'Deleted ' . l:tally . ' buffer' . (l:tally == 1 ? '' : 's')
-endfunction
-
-command! -bang Wipeout :call Wipeout(<bang>0)
-
-" open URL in browser
-if g:is_mac
-  function! HandleURL(visual)
-    let l:uri = ''
-
-    if a:visual
-      let [l:lnum1, l:col1] = getpos("'<")[1:2]
-      let [l:lnum2, l:col2] = getpos("'>")[1:2]
-      let l:lines = getline(l:lnum1, l:lnum2)
-      let l:lines[-1] = l:lines[-1][: l:col2 - (&selection == 'inclusive' ? 1 : 2)]
-      let l:lines[0] = l:lines[0][l:col1 - 1:]
-
-      let l:uri = join(l:lines, '\n')
-    else
-      let l:uri = matchstr(getline('.'), '[a-z]*:\/\/[^ >,;]*')
-    endif
-
-    if l:uri != ''
-      let l:uri = escape(l:uri, '#%!')
-
-      silent exe '!open "' . l:uri . '"'
-      redraw!
-
-      echo 'Opening: ' . l:uri
-    else
-      echo "Can't find URI"
-    endif
-  endfunction
-
-  map <Plug>HandleURLNormal :call HandleURL(0)<cr>:call repeat#set("\<Plug>HandleURLNormal")<cr>
-  map <Plug>HandleURLVisual :call HandleURL(1)<cr>:call repeat#set("\<Plug>HandleURLVisual")<cr>
-
-  nmap gx <Plug>HandleURLNormal
-  xmap gx <Plug>HandleURLVisual
-endif
-
-" proper indentation on i/a/A
-function! SmartInsert(c)
-  return len(getline('.')) == 0 ? 'cc' : a:c
-endfunction
-
-nnoremap <expr> i SmartInsert('i')
-nnoremap <expr> a SmartInsert('a')
-nnoremap <expr> A SmartInsert('A')
-
-" rename current file
-function! Rename()
-  let l:old_name = expand('%')
-  let l:new_name = input('New file name: ', fnameescape(expand('%')), 'file')
-
-  if l:new_name != '' && l:new_name != l:old_name
-    exe ':saveas ' . l:new_name
-    exe ':silent !rm ' . l:old_name
-    exe ':e!'
-  endif
-endfunction
-
-command! Rename :call Rename()
-
-" tab to space and back
-command! TabToSpace :setlocal expandtab | %retab!
-command! SpaceToTab :setlocal noexpandtab | %retab!
-
-" spelling
-command! SpellPL :setlocal spelllang=pl | setlocal spell
-command! SpellEN :setlocal spelllang=en | setlocal spell
-
-" location jumps
-function! FixPrevious(prev, last)
-  try
-    exe a:prev
-  catch
-    try | exe a:last | catch | endtry
-  endtry
-endfunction
-
-function! FixNext(next, first)
-  try
-    exe a:next
-  catch
-    try | exe a:first | catch | endtry
-  endtry
-endfunction
-
-nnoremap ]l :call FixNext('lprev', 'llast')<cr>
-nnoremap [l :call FixPrevious('lnext', 'lfirst')<cr>
-
-nnoremap ]c :call FixNext('cprev', 'clast')<cr>
-nnoremap [c :call FixPrevious('cnext', 'cfirst')<cr>
-
-" next / previous file (stolen from unimpaired)
-function! Entries(path)
-  let path = substitute(a:path,'[\\/]$','','')
-  let files = split(glob(path."/.*"),"\n")
-  let files += split(glob(path."/*"),"\n")
-  call map(files,'substitute(v:val,"[\\/]$","","")')
-  call filter(files,'v:val !~# "[\\\\/]\\.\\.\\=$"')
-
-  let filter_suffixes = substitute(escape(&suffixes, '~.*$^'), ',', '$\\|', 'g') .'$'
-  call filter(files, 'v:val !~# filter_suffixes')
-
-  return files
-endfunction
-
-function! FileByOffset(num)
-  let file = expand('%:p')
-  let num = a:num
-  while num
-    let files = Entries(fnamemodify(file,':h'))
-    if a:num < 0
-      call reverse(sort(filter(files,'v:val <# file')))
-    else
-      call sort(filter(files,'v:val ># file'))
-    endif
-    let temp = get(files,0,'')
-    if temp == ''
-      let file = fnamemodify(file,':h')
-    else
-      let file = temp
-      while isdirectory(file)
-        let files = Entries(file)
-        if files == []
-          break
-        endif
-        let file = files[num > 0 ? 0 : -1]
-      endwhile
-      let num += num > 0 ? -1 : 1
-    endif
-  endwhile
-  return file
-endfunction
-
-nnoremap ]f :<c-u>edit <c-r>=fnamemodify(fnameescape(FileByOffset(v:count1)), ':.')<cr><cr>
-nnoremap [f :<c-u>edit <c-r>=fnamemodify(fnameescape(FileByOffset(-v:count1)), ':.')<cr><cr>
-
-" makes * and # work in visual mode
-function! VisualSearch(cmdtype)
-  let l:temp = @s
-  normal! gv"sy
-  let @/ = '\V' . substitute(escape(@s, a:cmdtype.'\'), '\n', '\\n', 'g')
-  let @s = l:temp
-endfunction
-
-" select in visual mode, star, and don't move unles n/N/...
-xnoremap * :<c-u>let star_view=winsaveview()<cr>:<c-u>call VisualSearch('/')<cr>/<c-r>=@/<cr><cr>:call winrestview(star_view)<cr>
-xnoremap # :<c-u>let hash_view=winsaveview()<cr>:<c-u>call VisualSearch('?')<cr>?<c-r>=@/<cr><cr>:call winrestview(hash_view)<cr>
-
-" grep
-function! GrepHandler(text)
-  exe 'silent grep! ' . a:text
-  exe 'silent /' . a:text
-  redraw!
-endfunction
-
-function! Grep()
-  let l:input = input('Grep for: ')
-
-  call GrepHandler(l:input)
-endfunction
-
-function! GrepVisual()
-  let [l:lnum1, l:col1] = getpos("'<")[1:2]
-  let [l:lnum2, l:col2] = getpos("'>")[1:2]
-  let l:lines = getline(l:lnum1, l:lnum2)
-  let l:lines[-1] = l:lines[-1][: l:col2 - (&selection == 'inclusive' ? 1 : 2)]
-  let l:lines[0] = l:lines[0][l:col1 - 1:]
-
-  let l:selection = join(l:lines, '\n')
-
-  call GrepHandler(l:input)
-endfunction
-
-command!        Grep       :call Grep()
-command! -range GrepVisual :call GrepVisual()
-
-nnoremap <leader>G :Grep<cr>
-xnoremap <leader>G :GrepVisual<cr>
-
-" code TODO / FIXME in cwindow
-function! Todo() abort
-  let entries = []
-
-  for cmd in [ 'git grep -n -e TODO -e FIXME 2> /dev/null', 'ag --vimgrep "(TODO|FIXME)" 2> /dev/null' ]
-    let lines = split(system(cmd), '\n')
-    if v:shell_error != 0 | continue | endif
-    for line in lines
-      let [fname, lno, text] = matchlist(line, '^\([^:]*\):\([^:]*\):\(.*\)')[1:3]
-      call add(entries, { 'filename': fname, 'lnum': lno, 'text': text })
-    endfor
-    break
-  endfor
-
-  if !empty(entries)
-    call setqflist(entries)
-    copen
-  endif
-endfunction
-
-command! Todo :call Todo()
-
-" save and load session from session.vim
-function! SaveSession()
-  let l:dir = fnameescape(getcwd())
-  exe 'mksession! ' . l:dir . '/session.vim'
-endfunction
-
-function! LoadSession()
-  let l:dir = fnameescape(getcwd())
-  exe 'silent! source ' . l:dir . '/session.vim'
-endfunction
-
-command! SaveSession :call SaveSession()
-command! LoadSession :call LoadSession()
-
-" terminal shortcut for nvim
-if g:is_nvim
-  command! -complete=shellcmd -nargs=+ T :terminal <q-args>
-endif
-
-function! PipeThroughScript(lines, script)
-  let l:cli = ''
-
-  let l:cli = l:cli . 'echo ' . shellescape(join(a:lines, '\n'))
-  let l:cli = l:cli . ' | ' . a:script
-
-  return system(l:cli)
-endfunction
-
-" count worked days looking like this:
-" day1: 1/2
-" day2: 3/4
-" day3: 1
-" basically pipe throught simple node script
-
-function! CountWorkedDays() range
-  echomsg 'Worked days: ' . PipeThroughScript(getline(a:firstline, a:lastline), 'count-work-days')
-endfunction
-
-command! -range=% -nargs=0 CountWorkedDays :<line1>,<line2>call CountWorkedDays()
-
-" count worked hours looking like this:
-" project1
-" 10:00 - 12:00
-" project2
-" 13:00 - 13:30
-" basically pipe through simple node script
-
-function! CountWorkedHours() range
-  echomsg PipeThroughScript(getline(a:firstline, a:lastline), 'count-work-hours')
-endfunction
-
-command! -range=% -nargs=0 CountWorkedHours :<line1>,<line2>call CountWorkedHours()
-
-" zoom / restore window
-function! ZoomToggle() abort
-  if exists('t:zoomed') && t:zoomed
-    exec t:zoom_winrestcmd
-    let t:zoomed = 0
-  else
-    let t:zoom_winrestcmd = winrestcmd()
-    resize
-    vertical resize
-    let t:zoomed = 1
-  endif
-endfunction
-
-command! ZoomToggle call ZoomToggle()
-
-nnoremap <silent> <c-w>z :ZoomToggle<cr>
-
-" }}}
-" custom mappings {{{
-
 " terminal
-if g:is_nvim
+if has('nvim')
   tnoremap <Esc> <c-\><c-n>
 endif
+
+" re-source vimrc
+nnoremap <leader>sv :ReloadSettings<cr>
 
 " expand %% to directory of current file in command-line mode
 cnoremap %% <c-r>=fnameescape(expand('%:~:h'))<cr>/
@@ -1695,14 +348,15 @@ nnoremap <leader>og :e ~/.gvimrc<cr>
 nnoremap <leader>oz :e ~/.zshrc<cr>
 nnoremap <leader>om :e ~/.tmux.conf<cr>
 
-if g:is_mac
+if has('mac')
   nnoremap <leader>od :e ~/Documents/Dropbox/Notes/drafts.txt<cr>
   nnoremap <leader>ot :e ~/Documents/Dropbox/Tasks/Current.taskpaper<cr>
   nnoremap <leader>oh :e ~/.hammerspoon/init.lua<cr>
 endif
 
-" source vimrc
-nnoremap <leader>sv :ReloadSettings<cr>
+" select in visual mode, star, and don't move unles n/N/...
+xnoremap * :<c-u>let star_view=winsaveview()<cr>:<c-u>call VisualSearch('/')<cr>/<c-r>=@/<cr><cr>:call winrestview(star_view)<cr>
+xnoremap # :<c-u>let hash_view=winsaveview()<cr>:<c-u>call VisualSearch('?')<cr>?<c-r>=@/<cr><cr>:call winrestview(hash_view)<cr>
 
 " replace current word
 nnoremap <leader>r :<c-u>let replace_view=winsaveview()<cr>/\<<c-r><c-w>\><cr>:redraw!<cr>:call winrestview(replace_view)<cr>:%s//
@@ -1720,6 +374,12 @@ nnoremap [b :bprev<cr>
 nnoremap ]t :tabnext<cr>
 nnoremap [t :tabprev<cr>
 
+" loclist switching
+nnoremap ]l :call FixNext('lprev', 'llast')<cr>
+nnoremap [l :call FixPrevious('lnext', 'lfirst')<cr>
+nnoremap ]c :call FixNext('cprev', 'clast')<cr>
+nnoremap [c :call FixPrevious('cnext', 'cfirst')<cr>
+
 " new buffer / tab
 nnoremap <leader>B :enew<cr>
 nnoremap <leader>T :tabnew<cr>
@@ -1732,6 +392,10 @@ nnoremap <leader>p "+p<cr>
 
 " kill whitespace
 nnoremap <silent> <leader>k :KillWhitespace<cr>
+
+" nice grep
+nnoremap <leader>G :Grep<cr>
+xnoremap <leader>G :GrepVisual<cr>
 
 " clean current search and quickhl
 nmap <silent> <leader>c <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
@@ -1748,4 +412,5 @@ nnoremap <leader>= :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(ali
 " center on cursor using scrollof
 nnoremap <silent> <leader>z :let &scrolloff=999-&scrolloff<cr>
 
-" }}}
+" zoom window
+nnoremap <silent> <c-w>z :ZoomToggle<cr>
