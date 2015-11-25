@@ -3,7 +3,6 @@ files=(
   path
   terminfo
   completion
-  nvm
   colors
   vim
   prompt
@@ -24,6 +23,7 @@ for file in $files; do
 done
 
 if [ "$(uname)" = "Darwin" ]; then
+  source ~/.zsh/nvm.zsh;
   source ~/.zsh/darwin.zsh;
 fi
 

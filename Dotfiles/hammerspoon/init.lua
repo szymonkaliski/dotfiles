@@ -9,7 +9,7 @@ window                      = require('ext.window')
 window.margin               = 6
 window.fullFrame            = true
 window.fixEnabled           = false
-window.historyLimit         = 100
+window.historyLimit         = 20
 
 -- spaces dots settings
 dots.size                   = 8
@@ -25,7 +25,7 @@ hs.hints.showTitleThresh    = 0
 hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'Z', 'X', 'C' }
 
 -- enable notifications
-notify.enabled              = { 'battery', 'online' }
+notify.enabled              = { 'battery', 'online', 'wifi' }
 
 -- enable watchers
 watchers.enabled            = { 'application', 'automount', 'reload' }

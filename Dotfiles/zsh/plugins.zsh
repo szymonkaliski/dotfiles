@@ -9,7 +9,7 @@ if [ -f ~/.zsh/plugins/zsh-bd/bd.zsh ]; then
   source ~/.zsh/plugins/zsh-bd/bd.zsh
 fi
 
-plugins_install() {
+zsh_plugins_install() {
   local LAST_PWD=$(pwd)
 
   mkdir -p ~/.zsh/plugins/
@@ -22,7 +22,7 @@ plugins_install() {
   cd "$LAST_PWD"
 }
 
-plugins_update() {
+zsh_plugins_update() {
   local LAST_PWD=$(pwd)
 
   cd ~/.zsh/plugins/

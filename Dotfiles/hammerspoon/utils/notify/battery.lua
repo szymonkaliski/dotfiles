@@ -5,9 +5,9 @@ local cache = {
   powerSource       = hs.battery.powerSource()
 }
 
-return hs.battery.watcher.new(function()
-  local imagePath         = os.getenv('HOME') .. '/.hammerspoon/assets/battery.png'
+local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/battery.png'
 
+return hs.battery.watcher.new(function()
   local batteryPercentage = hs.battery.percentage()
   local isCharged         = hs.battery.isCharged()
   local powerSource       = hs.battery.powerSource()
@@ -20,7 +20,7 @@ return hs.battery.watcher.new(function()
     hs.notify.new({
       title        = 'Battery Status',
       subTitle     = 'Charged completely!',
-      contentImage = hs.image.imageFromPath(imagePath)
+      contentImage = imagePath
     }):send()
 
     cache.batteryCharged = true
@@ -30,7 +30,7 @@ return hs.battery.watcher.new(function()
     hs.notify.new({
       title        = 'Power Source Status',
       subTitle     = 'Current source: ' .. powerSource,
-      contentImage = hs.image.imageFromPath(imagePath)
+      contentImage = imagePath
     }):send()
 
     cache.powerSource = powerSource

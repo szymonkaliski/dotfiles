@@ -280,7 +280,7 @@ function module.persistPosition(win, option)
         table.insert(frames, frame.table)
       else
         -- otherwise frames are the same, so get the previous one
-        index = index - 1
+        index = math.max(index - 1, 1)
       end
     end
 

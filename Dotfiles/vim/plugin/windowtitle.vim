@@ -11,7 +11,11 @@ function! WindowTitleFilePath()
   let l:cut = -l:cut
 
   if len(l:splited) == 0
-    return '[No Name]'
+    if &buftype == 'nofile'
+      return '[Scratch]'
+    else
+      return '[No Name]'
+    endif
   else
     return join(l:splited[l:cut : -1], '/')
   endif
