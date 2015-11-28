@@ -2,12 +2,18 @@ local module      = {}
 local window      = require('ext.window')
 local application = require('ext.application')
 
+-- simple unpack clone
+function unpack(t, i)
+  i = i or 1
+  if t[i] ~= nil then
+    return t[i], unpack(t, i+1)
+  end
+end
+
 -- apply function to a window with optional params, saving it's position for restore
 local doWin = function(fn, ...)
-  local win = hs.window.frontmostWindow()
-  local arg = ...
-
-  if #arg == 1 then arg = arg[1] end
+  local win  = hs.window.frontmostWindow()
+  local args = ...
 
   if win and not win:isFullScreen() then
     -- persist position only if we are not already undo/redo/saving
@@ -16,20 +22,43 @@ local doWin = function(fn, ...)
     end
 
     -- finally call function on window with arguments
-    fn(win, arg)
+    fn(win, args)
   end
 end
 
 -- helper for simple hotkey binding
 local bindWin = function(fn, ...)
-  local arg = { ... }
-  return function() doWin(fn, arg) end
+  local args = unpack({ ... })
+  return function() doWin(fn, args) end
 end
 
 -- helper for appling function to a window with a timer
 local timeWin = function(fn, ...)
-  local arg = { ... }
-  return hs.timer.new(0.05, function() doWin(fn, arg) end)
+  local args = unpack({ ... })
+  return hs.timer.new(0.05, function() doWin(fn, args) end)
+end
+
+-- helper for cycling arguments with reset time
+local cycleWin = function(fn, ...)
+  local arg           = { ... }
+  local cycles        = arg[2]
+  local resetInterval = 1
+  local lastCycle     = hs.timer.secondsSinceEpoch()
+  local cycleIndex    = 1
+
+  return function()
+    local now = hs.timer.secondsSinceEpoch()
+
+    if (now - lastCycle) > resetInterval then
+      cycleIndex = 1
+    else
+      cycleIndex = (cycleIndex + 1) > #cycles and 1 or cycleIndex + 1
+    end
+
+    lastCycle = now
+
+    doWin(fn, { arg[1], cycles[cycleIndex] })
+  end
 end
 
 -- keyboard modifiers for bindings
@@ -60,8 +89,10 @@ module.start = function()
   -- arrow bindings
   hs.fnutils.each({ 'up', 'down', 'left', 'right' }, function(direction)
     local nudge = timeWin(window.nudge, direction)
+    local pushAndSendCycled = cycleWin(window.pushAndSend, direction, { 1 / 2, 1 / 3, 2 / 3 })
 
-    hs.hotkey.bind(mod.cc,  direction, bindWin(window.pushAndSend, direction))
+    -- hs.hotkey.bind(mod.cc,  direction, bindWin(window.pushAndSend, direction))
+    hs.hotkey.bind(mod.cc,  direction, function() pushAndSendCycled() end)
     hs.hotkey.bind(mod.ca,  direction, function() nudge:start() end, function() nudge:stop() end)
     hs.hotkey.bind(mod.cac, direction, bindWin(window.send, direction))
     hs.hotkey.bind(mod.cas, direction, bindWin(window.throwToScreen, direction))
@@ -123,7 +154,7 @@ module.start = function()
     { key = 'n', apps = { 'Notational Velocity'     } },
     { key = 'r', apps = { 'Reminders'               } },
     { key = 's', apps = { 'Slack', 'Skype'          } },
-    { key = 't', apps = { 'iTerm2', 'Terminal'      } },
+    { key = 't', apps = { 'Terminal', 'iTerm2'      } },
     { key = 'v', apps = { 'MacVim'                  } },
     { key = 'x', apps = { 'Xcode'                   } }
   }, function(object)

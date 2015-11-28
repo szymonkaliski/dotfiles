@@ -42,9 +42,9 @@ compdef _man pman=man
 
 # cd to currently open dir in finder
 cdf() {
-  local finder_dir = $(osascript -e 'try' \
+  local finder_dir="$(osascript -e 'try' \
     -e 'tell application "Finder" to get POSIX path of (target of front Finder window as text)' \
-    -e 'end try')
+    -e 'end try')"
   cd "$finder_dir"
 }
 

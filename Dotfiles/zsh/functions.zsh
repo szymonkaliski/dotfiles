@@ -62,7 +62,7 @@ sudothat() {
   eval "sudo $(fc -ln -1)"
 }
 
-# grep in vim
+# grep with vim
 vigrep() {
   $EDITOR -c "call GrepHandler(\"$@\")"
 }
@@ -76,7 +76,7 @@ h() {
   fi
 }
 
-# go up n directories
+# go up 'n' directories
 up() {
   for updirs in $(seq ${1:-1}); do
     cd ..
@@ -91,7 +91,7 @@ cdir() {
   cd "$@"
 }
 
-# make backup and back
+# quickly add and remove '.bak' to files
 bak() {
   for file in "$@"; do
     if [[ $file =~ "\.bak$" ]]; then
@@ -104,9 +104,9 @@ bak() {
 
 # rename files
 name() {
-  newname=$1
+  local newname="$1"
   vared -c -p "rename to: " newname
-  command mv $1 $newname
+  command mv "$1" "$newname"
 }
 
 # simple httpserver
@@ -174,7 +174,7 @@ sanitize() {
   find "$DIR" -type f -print0 | xargs -0 chmod 644
 }
 
-# recompile zsh completions
+# recompile zsh
 recompile() {
   autoload -U zrecompile
 

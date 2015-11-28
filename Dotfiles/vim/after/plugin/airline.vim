@@ -57,7 +57,7 @@ let g:airline#extensions#default#section_truncate_width = {
 
 " extensions
 function! s:AirlineInit()
-  if has('darwin')
+  if has('mac')
     let g:airline_section_y = airline#section#create(['hunks'])
 
     if has('nvim')

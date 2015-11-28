@@ -8,7 +8,6 @@ Plug 'bling/vim-airline'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'coderifous/textobj-word-column.vim'
 Plug 'ervandew/supertab'
-Plug 'henrik/vim-indexed-search'
 Plug 'justinmk/vim-dirvish',               { 'frozen': 1 }
 Plug 'matchit.zip'
 Plug 'pbrisbin/vim-mkdir'
@@ -107,7 +106,7 @@ if !has('nvim')
 endif
 
 " more frequent updates
-set updatetime=1000
+set updatetime=250
 
 " don't beep
 set noeb vb t_vb=

@@ -127,8 +127,8 @@ function! VisualSearch(cmdtype)
   let @s = l:temp
 endfunction
 
-" grep
-function! s:GrepHandler(text)
+" grep, not 's:' because we use it in vigrep
+function! GrepHandler(text)
   exe 'silent grep! ' . a:text
   exe 'silent /' . a:text
   redraw!
@@ -137,7 +137,7 @@ endfunction
 function! s:Grep()
   let l:input = input('Grep for: ')
 
-  call <sid>GrepHandler(l:input)
+  call GrepHandler(l:input)
 endfunction
 
 function! s:GrepVisual()
@@ -149,7 +149,7 @@ function! s:GrepVisual()
 
   let l:selection = join(l:lines, '\n')
 
-  call <sid>GrepHandler(l:input)
+  call GrepHandler(l:input)
 endfunction
 
 command!        Grep       :call <sid>Grep()

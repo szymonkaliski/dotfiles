@@ -7,11 +7,51 @@ local cache = {
 
 local module = {}
 
+local tableKeys = function(T)
+  local keys = {}
+
+  for k, _ in pairs(T) do
+    table.insert(keys, k)
+  end
+
+  return keys
+end
+
+local tableUniq = function(T)
+  local hash    = {}
+  local results = {}
+
+  hs.fnutils.each(T, function(value)
+    if not hash[value] then
+      table.insert(results, value)
+      hash[value] = true
+    end
+  end)
+
+  return results
+end
+
 module.draw = function()
   local activeSpace = spaces.activeSpace()
+  local cacheUUIDs  = tableKeys(cache.dots)
+  local screenUUIDs = {}
 
-  -- FIXME: what if I remove screen, the dots are still being drawn?
   hs.fnutils.each(hs.screen.allScreens(), function(screen)
+    screenUUIDs[screen:spacesUUID()] = screen
+  end)
+
+  local allUUIDs = tableUniq(hs.fnutils.concat(cacheUUIDs, tableKeys(screenUUIDs)))
+
+  hs.fnutils.each(allUUIDs, function(screenUUID)
+    local screen = screenUUIDs[screenUUID]
+
+    -- if this screen doesn't exist anymore, then delete all dots
+    -- TODO: check if this works
+    if not screen then
+      hs.fnutils.each(cache.dots[screenUUID], function(dot) dot:delete() end)
+      return
+    end
+
     local screenFrame  = screen:fullFrame()
     local screenUUID   = screen:spacesUUID()
     local screenSpaces = spaces.layout()[screenUUID]

@@ -50,6 +50,7 @@ function! s:AgHandler(e)
 
   exe 'e ' . l:file
   call cursor(l:line, l:col)
+  silent! normal! zozz
 endfunction
 
 function! s:BuffersLines()
