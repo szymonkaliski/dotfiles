@@ -1,4 +1,6 @@
 local spaces = require('hs._asm.undocumented.spaces')
+local keys   = require('ext.table').keys
+local uniq   = require('ext.table').uniq
 
 local cache = {
   watchers = {},
@@ -7,40 +9,16 @@ local cache = {
 
 local module = {}
 
-local tableKeys = function(T)
-  local keys = {}
-
-  for k, _ in pairs(T) do
-    table.insert(keys, k)
-  end
-
-  return keys
-end
-
-local tableUniq = function(T)
-  local hash    = {}
-  local results = {}
-
-  hs.fnutils.each(T, function(value)
-    if not hash[value] then
-      table.insert(results, value)
-      hash[value] = true
-    end
-  end)
-
-  return results
-end
-
 module.draw = function()
   local activeSpace = spaces.activeSpace()
-  local cacheUUIDs  = tableKeys(cache.dots)
+  local cacheUUIDs  = keys(cache.dots)
   local screenUUIDs = {}
 
   hs.fnutils.each(hs.screen.allScreens(), function(screen)
     screenUUIDs[screen:spacesUUID()] = screen
   end)
 
-  local allUUIDs = tableUniq(hs.fnutils.concat(cacheUUIDs, tableKeys(screenUUIDs)))
+  local allUUIDs = uniq(hs.fnutils.concat(cacheUUIDs, keys(screenUUIDs)))
 
   hs.fnutils.each(allUUIDs, function(screenUUID)
     local screen = screenUUIDs[screenUUID]
@@ -59,17 +37,15 @@ module.draw = function()
     if not cache.dots[screenUUID] then cache.dots[screenUUID] = {} end
 
     for i = 1, math.max(#screenSpaces, #cache.dots[screenUUID]) do
-      local dot
+      local dot = cache.dots[screenUUID][i]
 
-      if not cache.dots[screenUUID][i] then
+      if not dot then
         dot = hs.drawing.circle({ x = 0, y = 0, w = dots.size, h = dots.size })
 
         dot
           :setStroke(false)
           :setBehaviorByLabels({ 'canJoinAllSpaces', 'stationary' })
           :setLevel(hs.drawing.windowLevels.desktopIcon)
-      else
-        dot = cache.dots[screenUUID][i]
       end
 
       local x     = screenFrame.w / 2 - (#screenSpaces / 2) * dots.distance + i * dots.distance - dots.size * 3 / 2

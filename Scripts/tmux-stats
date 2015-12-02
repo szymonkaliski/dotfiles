@@ -1,15 +1,27 @@
 #!/usr/bin/env bash
 
+IS_OSX() { $(uname) = "Darwin"; }
+
 HOSTNAME=$(hostname | cut -d. -f1)
+MSG=""
 
 if [[ ! $HOSTNAME =~ [Oo]rchid ]]; then
   MSG="$HOSTNAME : "
 fi
 
-LOAD=$(uptime | sed 's/.*load average: //' | awk -F\, '{print $2}')
+LOAD=$(uptime | sed 's/.*load average: //' | awk -F\, '{print $1}')
 MSG="$MSG$LOAD"
 
-if [ "$(uname)" = "Darwin" ]; then
+# if $IS_OSX; then
+#   CPU_LINE=$(top -l 2 -R | grep "CPU usage:" | tail -1 | sed 's/CPU usage: //')
+#   CPU_USER=$(echo "$CPU_LINE" | awk '{print $1}')
+# else
+#   CPU_LINE=$(top -b -n 1 | grep "Cpu(s)" )
+#   CPU_USER=$(echo "$CPU_LINE" | grep -Po "(\d+(.\d+)?)(?=%?\s?(us(er)?))")
+# fi
+# MSG="$MSG$CPU_USER"
+
+if $IS_OSX; then
   PMSET=$(pmset -g ps | awk 'NR==2')
 
   if echo $PMSET | grep -q "\ charging\|no\ estimate"; then
@@ -21,4 +33,4 @@ if [ "$(uname)" = "Darwin" ]; then
   fi
 fi
 
-echo $MSG
+echo "$MSG"

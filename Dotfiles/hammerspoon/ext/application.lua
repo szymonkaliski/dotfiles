@@ -155,6 +155,7 @@ function module.askBeforeQuitting(appName, enabled)
 end
 
 -- show notification center
+-- NOTE: you can do that from Settings > Keyboard > Mission Control
 function module.showNotificationCenter()
   hs.applescript.applescript([[
     tell application "System Events" to tell process "SystemUIServer"

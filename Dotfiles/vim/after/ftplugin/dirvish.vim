@@ -1,6 +1,3 @@
-map <buffer> <silent> u -
-map <buffer> <silent> e <cr>
-map <buffer> <silent> <c-f> q
-
-" why G gets bound to <leader>G in dirvish is a mystery, this 'fixes' it (somtimes?)
-nnoremap <buffer> <silent> G :call cursor(line("w$"), 0)<cr>
+nnoremap <buffer> <silent> u :Dirvish %:h:h<cr>:DirvishSort<cr>
+nnoremap <buffer> <silent> e :<c-u>call dirvish#visit('edit', 0)<cr>:DirvishSort<cr>
+nnoremap <buffer> <silent> <c-f> q

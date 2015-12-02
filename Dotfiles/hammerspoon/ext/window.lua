@@ -260,9 +260,10 @@ function module.persistPosition(win, option)
     return frames and (#frames == 0 or not frame:equals(frames[#frames]))
   end
 
-  -- remove first element if we hit history limit
+  -- remove first element if we hit history limit (adjusting index if needed)
   if #frames > window.historyLimit then
     table.remove(frames, 1)
+    index = index > #frames and #frames or math.max(index - 1, 1)
   end
 
   -- append window position to a table, only if it's a new frame
@@ -274,7 +275,8 @@ function module.persistPosition(win, option)
   -- undo window position
   if option == 'undo' and index ~= nil then
     -- if we are at the last index
-    if index == #frames then
+    -- (or more, which shouldn't happen?)
+    if index >= #frames then
       if framesDiffer(frame, frames) then
         -- and current frame differs from last one - save it
         table.insert(frames, frame.table)

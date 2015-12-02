@@ -80,7 +80,6 @@ module.start = function()
     { key = 'tab',   mod = mod.cc,  fn = bindWin(window.cycleWindows, false)     },
     { key = 'tab',   mod = mod.ca,  fn = bindWin(window.cycleWindows, true)      },
     { key = '/',     mod = mod.cc,  fn = application.toggleConsole               },
-    { key = 'n',     mod = mod.cc,  fn = application.showNotificationCenter      },
     { key = 'space', mod = mod.cac, fn = hs.hints.windowHints                    }
   }, function(object)
     hs.hotkey.bind(object.mod, object.key, object.fn)
@@ -118,9 +117,10 @@ module.start = function()
 
   -- move window directly to space by number
   -- NOTE: binding this to pressedFn doesn't work!
-  hs.fnutils.each({ '1', '2', '3', '4', '5', '6', '7', '8', '9' }, function(space)
-    hs.hotkey.bind(mod.cac, space, nil, bindWin(window.moveToSpace, space))
-  end)
+  -- NOTE: this is broken if we are using spaces/quickswitch
+  -- hs.fnutils.each({ '1', '2', '3', '4', '5', '6', '7', '8', '9' }, function(space)
+  --   hs.hotkey.bind(mod.cac, space, nil, bindWin(window.moveToSpace, space))
+  -- end)
 
   -- set window sizes
   hs.fnutils.each({

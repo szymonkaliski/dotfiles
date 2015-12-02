@@ -1,6 +1,7 @@
 -- require modules into global namespace so they are available in the console
 bindings                    = require('bindings')
 dots                        = require('utils.spaces.dots')
+quickswitch                 = require('utils.spaces.quickswitch')
 notify                      = require('utils.notify')
 watchers                    = require('utils.watchers')
 window                      = require('ext.window')
@@ -31,6 +32,12 @@ notify.enabled              = { 'battery', 'online', 'wifi' }
 watchers.enabled            = { 'application', 'automount', 'reload' }
 
 -- start everything
-hs.fnutils.each({ dots, notify, watchers, bindings }, function(module)
+hs.fnutils.each({
+  bindings,
+  dots,
+  notify,
+  quickswitch,
+  watchers
+}, function(module)
   module.start()
 end)

@@ -39,7 +39,7 @@ function! s:AgSearchVisual()
 endfunction
 
 function! s:AgSearchHandler(search)
-  return 'ag --smart-case --nogroup --color --column ' . a:search
+  return 'ag --smart-case --nogroup --color --column "' . a:search . '"'
 endfunction
 
 function! s:AgHandler(e)
