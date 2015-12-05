@@ -5,6 +5,31 @@ local module = {}
 local cache  = {}
 
 -- sends proper amount of ctrl+left/right to move you to given space, even if it's fullscreen app!
+module.switch = function(targetIdx)
+  local activeSpace  = spaces.activeSpace()
+  local screenSpaces = spaces.layout()[hs.screen.mainScreen():spacesUUID()]
+  local targetSpace  = screenSpaces[targetIdx]
+  local activeIdx    = hs.fnutils.indexOf(screenSpaces, activeSpace)
+
+  -- check if we really can send the keystrokes
+  local shouldSendEvents = hs.fnutils.every({
+    targetSpace,
+    activeIdx,
+    activeIdx ~= targetIdx,
+    not spaces.isAnimating()
+  }, function(test) return test end)
+
+  if shouldSendEvents then
+    local eventCount     = math.abs(targetIdx - activeIdx)
+    local eventDirection = targetIdx > activeIdx and 'right' or 'left'
+
+    for _ = 1, eventCount do
+      hs.eventtap.keyStroke({ 'ctrl' }, eventDirection)
+    end
+  end
+end
+
+-- taps to ctrl + 1-9 overriding default functionality
 module.start = function()
   cache.eventtap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
     local key       = event:getCharacters()
@@ -16,27 +41,7 @@ module.start = function()
       return
     end
 
-    local activeSpace  = spaces.activeSpace()
-    local screenSpaces = spaces.layout()[hs.screen.mainScreen():spacesUUID()]
-    local targetSpace  = screenSpaces[targetIdx]
-    local activeIdx    = hs.fnutils.indexOf(screenSpaces, activeSpace)
-
-    -- check if we really can send the keystrokes
-    local shouldSendEvents = hs.fnutils.every({
-      targetSpace,
-      activeIdx,
-      activeIdx ~= targetIdx,
-      not spaces.isAnimating()
-    }, function(test) return test end)
-
-    if shouldSendEvents then
-      local eventCount     = math.abs(targetIdx - activeIdx)
-      local eventDirection = targetIdx > activeIdx and 'right' or 'left'
-
-      for _ = 1, eventCount do
-        hs.eventtap.keyStroke({ 'ctrl' }, eventDirection)
-      end
-    end
+    module.switch(targetIdx)
 
     -- stop propagation
     return true

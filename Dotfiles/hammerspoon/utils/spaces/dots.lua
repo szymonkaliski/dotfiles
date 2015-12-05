@@ -1,6 +1,7 @@
 local spaces = require('hs._asm.undocumented.spaces')
 local keys   = require('ext.table').keys
 local uniq   = require('ext.table').uniq
+local switch = require('utils.spaces.quickswitch').switch;
 
 local cache = {
   watchers = {},
@@ -24,9 +25,12 @@ module.draw = function()
     local screen = screenUUIDs[screenUUID]
 
     -- if this screen doesn't exist anymore, then delete all dots
-    -- TODO: check if this works
     if not screen then
-      hs.fnutils.each(cache.dots[screenUUID], function(dot) dot:delete() end)
+      hs.fnutils.each(cache.dots[screenUUID], function(dot)
+        dot:delete()
+        dot = nil
+      end)
+
       return
     end
 
@@ -41,25 +45,26 @@ module.draw = function()
 
       if not dot then
         dot = hs.drawing.circle({ x = 0, y = 0, w = dots.size, h = dots.size })
-
-        dot
           :setStroke(false)
           :setBehaviorByLabels({ 'canJoinAllSpaces', 'stationary' })
           :setLevel(hs.drawing.windowLevels.desktopIcon)
       end
 
-      local x     = screenFrame.w / 2 - (#screenSpaces / 2) * dots.distance + i * dots.distance - dots.size * 3 / 2
-      local y     = screenFrame.h - dots.distance
-      local alpha = screenSpaces[i] == activeSpace and dots.selectedAlpha or dots.alpha
-
-      dot
-        :setTopLeft({ x = x, y = y })
-        :setFillColor({ red = 1.0, green = 1.0, blue = 1.0, alpha = alpha })
-
       if i <= #screenSpaces then
-        dot:show()
+        local x     = screenFrame.w / 2 - (#screenSpaces / 2) * dots.distance + i * dots.distance - dots.size * 3 / 2
+        local y     = screenFrame.h - dots.distance
+        local alpha = screenSpaces[i] == activeSpace and dots.selectedAlpha or dots.alpha
+
+        dot
+          :setTopLeft({ x = x, y = y })
+          :setFillColor({ red = 1.0, green = 1.0, blue = 1.0, alpha = alpha })
+          :setClickCallback(function() switch(i) end)
+          :show()
       else
-        dot:hide()
+        -- somehow :hide() creates problems when switching spaces ("ghost dots")
+        -- deleting invisible dots fixes it
+        dot:delete()
+        dot = nil
       end
 
       cache.dots[screenUUID][i] = dot
@@ -77,6 +82,12 @@ end
 
 module.stop = function()
   hs.fnutils.each(cache.watchers, function(watcher) watcher:stop() end)
+
+  hs.fnutils.each(cache.dots, function(screen)
+    hs.fnutils.each(screen, function(dot)
+      dot:delete()
+    end)
+  end)
 
   cache.dots = {}
 end
