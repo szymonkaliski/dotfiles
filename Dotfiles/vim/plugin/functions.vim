@@ -1,7 +1,8 @@
 " re-source vimrc
 if !exists('*ReloadSettings')
   function! ReloadSettings()
-    source $MYVIMRC
+    silent! source $MYVIMRC
+
     if has('gui') | source $MYGVIMRC | endif
 
     setlocal foldmethod=marker
@@ -129,15 +130,18 @@ endfunction
 
 " grep, not 's:' because we use it in vigrep
 function! GrepHandler(text)
-  exe 'silent grep! ' . a:text
-  exe 'silent /' . a:text
+  exe 'noautocmd silent! grep! ' . a:text
+  exe 'silent! /' . a:text
   redraw!
+  copen
 endfunction
 
 function! s:Grep()
   let l:input = input('Grep for: ')
 
-  call GrepHandler(l:input)
+  if len(l:input) > 0
+    call GrepHandler(l:input)
+  endif
 endfunction
 
 function! s:GrepVisual()
@@ -149,7 +153,9 @@ function! s:GrepVisual()
 
   let l:selection = join(l:lines, '\n')
 
-  call GrepHandler(l:input)
+  if len(l:selection) > 0
+    call GrepHandler(l:selection)
+  end
 endfunction
 
 command!        Grep       :call <sid>Grep()

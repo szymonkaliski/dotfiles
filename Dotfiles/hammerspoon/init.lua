@@ -29,7 +29,7 @@ hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E'
 notify.enabled              = { 'battery', 'online', 'wifi' }
 
 -- enable watchers
-watchers.enabled            = { 'application', 'automount', 'reload' }
+watchers.enabled            = { 'application', 'controlplane', 'reload', 'urlevent' }
 
 -- start everything
 hs.fnutils.each({

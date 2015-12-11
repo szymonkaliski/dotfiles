@@ -14,6 +14,7 @@ Plug 'pbrisbin/vim-mkdir'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
+Plug 'yssl/QFEnter'
 
 " on demand loading
 Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>SortMotion', '<Plug>SortLines' ] }
@@ -170,7 +171,8 @@ set nolist
 set listchars=tab:▸\ ,trail:∙
 
 " buffers/tabs settings
-set switchbuf=useopen,split
+" set switchbuf=useopen,split
+set switchbuf=useopen
 set hidden
 
 " no backups or swapfiles, with centralized and persistent undo history
@@ -374,10 +376,10 @@ nnoremap ]t :tabnext<cr>
 nnoremap [t :tabprev<cr>
 
 " loclist switching
-nnoremap ]l :call FixNext('lprev', 'llast')<cr>
-nnoremap [l :call FixPrevious('lnext', 'lfirst')<cr>
-nnoremap ]c :call FixNext('cprev', 'clast')<cr>
-nnoremap [c :call FixPrevious('cnext', 'cfirst')<cr>
+nnoremap ]l :call FixNext('lprev', 'llast')<cr>zz
+nnoremap [l :call FixPrevious('lnext', 'lfirst')<cr>zz
+nnoremap ]c :call FixNext('cprev', 'clast')<cr>zz
+nnoremap [c :call FixPrevious('cnext', 'cfirst')<cr>zz
 
 " new buffer / tab
 nnoremap <leader>B :enew<cr>

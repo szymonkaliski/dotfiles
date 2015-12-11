@@ -54,3 +54,4 @@ let g:neomake_clojure_enabled_makers = [ 'kibit' ]
 
 let g:neomake_place_signs = 0
 let g:neomake_airline = 1
+" let g:neomake_open_list = 1

@@ -23,12 +23,16 @@ endfunction
 function! s:AgSearchInput()
   let l:input = input('Grep for: ')
 
-  return s:AgSearchHandler(l:input)
+  if len(l:input) > 0
+    return s:AgSearchHandler(l:input)
+  else
+    return ''
+  endif
 endfunction
 
 function! s:AgSearchVisual()
-  let [l:lnum1, l:col1] = getpos(''<')[1:2]
-  let [l:lnum2, l:col2] = getpos(''>')[1:2]
+  let [l:lnum1, l:col1] = getpos("'<")[1:2]
+  let [l:lnum2, l:col2] = getpos("'>")[1:2]
   let l:lines = getline(l:lnum1, l:lnum2)
   let l:lines[-1] = l:lines[-1][: l:col2 - (&selection == 'inclusive' ? 1 : 2)]
   let l:lines[0] = l:lines[0][l:col1 - 1:]
@@ -149,7 +153,7 @@ nnoremap <silent> <leader>fg :FZFAgInput<cr>
 xnoremap <silent> <leader>fg :FZFAgVisual<cr>
 
 if isdirectory($HOME . '/Documents/Dropbox/Notes')
-  command! FZFNotes call fzf#run(extend(s:fzf_default_opt, {zf#run({
+  command! FZFNotes call fzf#run(extend(s:fzf_default_opt, {
         \ 'source':  'find ~/Documents/Dropbox/Notes -iname "*.txt" | cut -d "/" -f7 | sed "s/\.txt$//"',
         \ 'sink':    function('s:OpenNote'),
         \ 'options': '--reverse --multi --prompt="notes > "'

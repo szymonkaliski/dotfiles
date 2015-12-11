@@ -13,6 +13,7 @@ module.switch = function(targetIdx)
 
   -- check if we really can send the keystrokes
   local shouldSendEvents = hs.fnutils.every({
+    targetIdx <= #screenSpaces,
     targetSpace,
     activeIdx,
     activeIdx ~= targetIdx,

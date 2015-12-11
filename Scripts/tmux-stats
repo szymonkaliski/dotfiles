@@ -25,10 +25,10 @@ if $IS_OSX; then
   PMSET=$(pmset -g ps | awk 'NR==2')
 
   if echo $PMSET | grep -q "\ charging\|no\ estimate"; then
-    BATTERY_PERCENT=$(echo $PMSET | sed -n 's/.*[[:blank:]]+*\(.*%\).*/\1/p')
+    BATTERY_PERCENT=$(echo $PMSET | sed -n 's/.*[[:blank:]]+*\([0-9]*%\).*/\1/p')
     MSG="$MSG : $BATTERY_PERCENT"
   elif echo $PMSET | grep -q "discharging"; then
-    BATTERY_TIME=$(echo $PMSET | sed -n 's/.*[[:blank:]]+*\(.*\:.*\)\ .*/\1/p')"h"
+    BATTERY_TIME=$(echo $PMSET | sed -n 's/.*[[:blank:]]+*\([0-9]*\:[0-9]*\)\ .*/\1/p')"h"
     MSG="$MSG : $BATTERY_TIME"
   fi
 fi
