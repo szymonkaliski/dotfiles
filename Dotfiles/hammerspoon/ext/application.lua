@@ -57,6 +57,8 @@ function module.smartLaunchOrFocus(launchApps)
   local runningApps     = hs.application.runningApplications()
   local runningWindows  = {}
 
+  launchApps = type(launchApps) == 'table' and launchApps or { launchApps }
+
   -- filter running applications by apps array
   local runningApps = hs.fnutils.map(launchApps, function(launchApp)
     return hs.application.get(launchApp)

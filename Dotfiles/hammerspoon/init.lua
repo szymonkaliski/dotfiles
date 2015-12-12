@@ -5,6 +5,7 @@ quickswitch                 = require('utils.spaces.quickswitch')
 notify                      = require('utils.notify')
 watchers                    = require('utils.watchers')
 window                      = require('ext.window')
+menus                       = require('utils.menus')
 
 -- extension settings
 window.margin               = 6
@@ -35,6 +36,7 @@ watchers.enabled            = { 'application', 'controlplane', 'reload', 'urleve
 hs.fnutils.each({
   bindings,
   dots,
+  menus,
   notify,
   quickswitch,
   watchers
