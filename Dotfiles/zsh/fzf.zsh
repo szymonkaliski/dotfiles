@@ -35,3 +35,8 @@ fh() {
 fkill() {
   ps -ef | sed 1d | fzf --multi --query="$1" --prompt="kill > " --reverse | awk '{ print $2 }' | xargs kill -${1:-9}
 }
+
+# find any file on disk
+fl() {
+  locate / | fzf --reverse --prompt='locate > '
+}

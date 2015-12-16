@@ -16,6 +16,9 @@ sudo pmset -a sms 0 &> /dev/null
 # decrese standby delay to 20 minutes
 sudo pmset -a standbydelay 1200
 
+# enable locate command
+sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist > /dev/null 2>&1
+
 # enable trim 10.10.4+
 read -p "Enble trim? (y/n) " RESP
 if [ "$RESP" = "y" ]; then

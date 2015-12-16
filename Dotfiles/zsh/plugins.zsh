@@ -15,8 +15,9 @@ zsh_plugins_install() {
   mkdir -p ~/.zsh/plugins/
   cd ~/.zsh/plugins/
 
-  git clone git://github.com/rupa/z.git
   git clone git://github.com/Tarrasch/zsh-bd
+  git clone git://github.com/hlissner/zsh-autopair
+  git clone git://github.com/rupa/z.git
   git clone git://github.com/zsh-users/zsh-syntax-highlighting.git
 
   cd "$LAST_PWD"

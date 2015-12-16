@@ -1,25 +1,31 @@
+local keys   = require('ext.table').keys
 local module = {}
 
-local browsers = { 'Safari', 'Google Chrome' }
+-- watch for http and https events and open in currently running browser instead of default one
+-- click with 'cmd' to open in background
+-- change default system browser to Hammerspoon for it to work
 
 module.start = function()
-  -- watch for http and https events and open in currently running browser instead of default one
-  -- change default system browser to Hammerspoon for it to work
   hs.urlevent.httpCallback = function(_, _, _, fullURL)
-    local runningApplications = hs.application.runningApplications()
+    local modifiers = hs.eventtap.checkKeyboardModifiers()
+    local isCmd     = modifiers['cmd'] == true
 
-    local browser = hs.fnutils.find(runningApplications, function(app)
-      return hs.fnutils.contains(browsers, app:name())
+    local runningBrowsers = hs.fnutils.find(urlevent.browserPreference, function(browserName)
+      return hs.application.get(browserName) ~= nil
     end)
 
-    local browserName = browser and browser:name() or browsers[1]
+    local browserName = runningBrowsers or urlevent.browserPreference[1]
 
     hs.applescript.applescript(string.gsub([[
       tell application "{APP_NAME}"
-        activate
+        {ACTIVATE}
         open location "{URL}"
       end tell
-    ]], '{(.-)}', { APP_NAME = browserName, URL = fullURL }))
+    ]], '{(.-)}', {
+      APP_NAME = browserName,
+      URL      = fullURL,
+      ACTIVATE = not isCmd and 'activate' or '' -- 'activate' brings to front if cmd is not clicked
+    }))
   end
 end
 
