@@ -4,8 +4,8 @@ local onlineSpotify = require('utils.mediakeys.onlinespotify')
 local module = {}
 local cache  = {}
 
--- overrides for prev/play/next
--- currently controls online spotify if running,
+-- overrides prev/play/next
+-- currently controls online spotify in Chrome if running,
 -- defaults back to propagating event to os
 module.start = function()
   cache.eventtap = hs.eventtap.new({ hs.eventtap.event.types.NSSystemDefined }, function(event)

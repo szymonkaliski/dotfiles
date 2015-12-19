@@ -1,25 +1,46 @@
 local module    = {}
 
-local bluetooth = require('hs._asm.undocumented.bluetooth')
-local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/macbook.png'
+local bluetooth   = require('hs._asm.undocumented.bluetooth')
+local template    = require('ext.template')
+local imagePath   = os.getenv('HOME') .. '/.hammerspoon/assets/macbook.png'
+local scriptsPath = os.getenv('HOME') .. '/Documents/Code/Scripts/'
 
 local watchers  = {}
-local cache     = {
-  powerSource = hs.battery.powerSource()
-}
+local cache     = { powerSource = hs.battery.powerSource() }
 
-local umountAll = function()
-  hs.applescript.applescript([[
-    tell application "Finder"
-      eject (every disk)
-    end tell
-  ]])
+local runMountTask = function(name, script)
+  hs.fnutils.each({ 'mountTask', 'umountTask' }, function(task)
+    if cache[task] then cache[task]:terminate() end
+  end)
+
+  cache[name] = hs.task.new(scriptsPath .. script, callback)
+  cache[name]:start()
 end
 
-local mountAll = function()
-  os.execute([[
-    /usr/sbin/diskutil list | awk '/Apple_HFS/ {print $NF}' | xargs -I{} /usr/sbin/diskutil mount {} > /dev/null 2>&1 &
-  ]])
+local umountAll = function(callback)
+  runMountTask('umountTask', 'umount-all')
+end
+
+local mountAll = function(callback)
+  runMountTask('mountTask', 'mount-all')
+end
+
+local setVPN = function(options)
+  hs.applescript.applescript(template([[
+    tell application "System Events"
+      tell current location of network preferences
+        {COMMAND} the service "VPN"
+      end tell
+    end tell
+  ]], { COMMAND = options.connect == true and 'connect' or 'disconnect' }))
+end
+
+local disconnectVPN = function()
+  setVPN({ connect = false })
+end
+
+local connectVPN = function()
+  setVPN({ connect = true })
 end
 
 local notify = function(message)
@@ -37,14 +58,19 @@ local batteryWatcher = function()
 
   if cache.powerSource ~= nil and cache.powerSource ~= powerSource then
     if powerSource == 'Battery Power' then
-      umountAll()
       bluetooth.power(false)
-      notify('Disks ejected, Bluetooth off')
+
+      umountAll(function()
+        notify('Disks ejected, Bluetooth off')
+      end)
     end
 
     if powerSource == 'AC Power' then
       bluetooth.power(true)
-      notify('Bluetooth on')
+
+      mountAll(function()
+        notify('Disks mounted, Bluetooth on')
+      end)
     end
   end
 
@@ -54,19 +80,38 @@ end
 -- unmount on sleep, mount on wake
 local sleepWatcher = function(event)
   if event == hs.caffeinate.watcher.systemWillSleep then
-    umountAll()
-    notify('Disks ejected')
+    umountAll(function()
+      notify('Disks ejected')
+    end)
   end
 
   if event == hs.caffeinate.watcher.systemDidWake then
-    mountAll()
-    notify('Disks mounted')
+    mountAll(function()
+      notify('Disks mounted')
+    end)
+  end
+end
+
+-- connect to VPN if wifi other than home
+local wifiWatcher = function()
+  local network = hs.wifi.currentNetwork()
+
+  if network ~= cache.network and network ~= controlplane.homeNetwork then
+    connectVPN()
+    notify('VPN connected')
+  else
+    disconnectVPN()
+    notify('VPN disconnected')
   end
 end
 
 module.start = function()
   watchers.battery = hs.battery.watcher.new(batteryWatcher)
   watchers.sleep   = hs.caffeinate.watcher.new(sleepWatcher)
+  watchers.wifi    = hs.wifi.watcher.new(wifiWatcher)
+
+  -- run wifi watcher on start to be sure we are on VPN if needed
+  wifiWatcher()
 
   hs.fnutils.each(watchers, function(watcher)
     watcher:start()

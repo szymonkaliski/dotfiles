@@ -20,10 +20,10 @@ function! E(...)
   for f1 in a:000
     let files = glob(f1)
     if files == ''
-      execute 'e ' . escape(f1, '\ "')
+      exe 'e ' . escape(f1, '\ "')
     else
       for f2 in split(files, "\n")
-        execute 'e ' . escape(f2, '\ "')
+        exe 'e ' . escape(f2, '\ "')
       endfor
     endif
   endfor
@@ -234,7 +234,7 @@ command! -range=% -nargs=0 CountWorkedHours :<line1>,<line2>call <sid>CountWorke
 " zoom / restore window
 function! s:ZoomToggle() abort
   if exists('t:zoomed') && t:zoomed
-    exec t:zoom_winrestcmd
+    exe t:zoom_winrestcmd
     let t:zoomed = 0
   else
     let t:zoom_winrestcmd = winrestcmd()
@@ -245,3 +245,17 @@ function! s:ZoomToggle() abort
 endfunction
 
 command! ZoomToggle call <sid>ZoomToggle()
+
+" Today view - taskpaper + drafts in split,
+" folds open on @today and last section of drafts
+function! s:Today()
+  e ~/Documents/Dropbox/Tasks/Current.taskpaper
+  norm zM
+  %g/\v^(.*\@today)&(.*\@done)@!/foldopen!
+  norm gg
+  vsp ~/Documents/Dropbox/Notes/drafts.txt
+  norm zMGzazz
+  redraw!
+endfunction
+
+command! Today call <sid>Today()

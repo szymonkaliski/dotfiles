@@ -36,16 +36,8 @@ Plug 'benekastah/neomake',                 { 'on': [] } " only in nvim
 Plug 'marijnh/tern_for_vim',               { 'on': [], 'do': 'npm install' } " only on mac
 Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
 Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
-Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein deps' } " only in nvim
+Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein deps', 'commit': 'ab1f02c1df164cc57c61b269f4ef0b84e03170d9' } " only in nvim
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
-
-" smart FZF loading
-let g:fzfdir = globpath('/usr/local/Cellar/fzf/', '*', 1, 1)
-let g:fzfdir = g:fzfdir + globpath('/usr/share/vim/vimfiles/plugin',' fzf.vim', 1, 1)
-
-if len(g:fzfdir) == 1
-  Plug g:fzfdir[0]
-endif
 
 " filetype based plugins
 Plug 'b4winckler/vim-objc',                { 'for': 'objc' }
@@ -66,6 +58,14 @@ Plug 'sudar/vim-arduino-syntax',           { 'for': 'arduino' }
 Plug 'tikhomirov/vim-glsl',                { 'for': 'glsl' }
 Plug 'tpope/vim-markdown',                 { 'for': 'markdown' }
 Plug 'vim-scripts/ck.vim',                 { 'for': 'ck' }
+
+" smart FZF loading
+let g:fzfdir = globpath('/usr/local/Cellar/fzf/', '*', 1, 1)
+let g:fzfdir = g:fzfdir + globpath('/usr/share/vim/vimfiles/plugin',' fzf.vim', 1, 1)
+
+if len(g:fzfdir) == 1
+  Plug g:fzfdir[0]
+endif
 
 call plug#end()
 
@@ -400,7 +400,8 @@ nnoremap <leader>G :Grep<cr>
 xnoremap <leader>G :GrepVisual<cr>
 
 " clean current search and quickhl
-nmap <silent> <leader>c <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
+nmap <silent> <leader>c :nohlsearch<cr>:redraw!<cr>
+nmap <silent> <leader>C <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
 
 " toggles
 nnoremap <silent> <leader>tl :set list!<cr>

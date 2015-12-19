@@ -1,4 +1,5 @@
-local module = {}
+local template = require('ext.template')
+local module   = {}
 
 local wrapInChromeSpotifyCall = function(str)
   return [[
@@ -18,10 +19,10 @@ end
 -- call JS inside of proper Chrome tab,
 -- hacky but works
 local clickSpotifyId = function(domId)
-  hs.applescript.applescript(wrapInChromeSpotifyCall(string.gsub([[
+  hs.applescript.applescript(wrapInChromeSpotifyCall(template([[
     execute currentTab javascript "document.getElementById('app-player').contentWindow.document.getElementById('{DOM_ID}').click()"
     return
-  ]],'{(.-)}', { DOM_ID = domId })))
+  ]], { DOM_ID = domId })))
 end
 
 module.toggle = function()

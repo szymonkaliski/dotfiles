@@ -1,13 +1,14 @@
 -- require modules into global namespace so they are available in the console
 bindings                    = require('bindings')
-dots                        = require('utils.spaces.dots')
-quickswitch                 = require('utils.spaces.quickswitch')
+window                      = require('ext.window')
 notify                      = require('utils.notify')
 watchers                    = require('utils.watchers')
-window                      = require('ext.window')
 menus                       = require('utils.menus')
-urlevent                    = require('utils.watchers.urlevent')
 mediakeys                   = require('utils.mediakeys')
+dots                        = require('utils.spaces.dots')
+quickswitch                 = require('utils.spaces.quickswitch')
+urlevent                    = require('utils.watchers.urlevent')
+controlplane                = require('utils.watchers.controlplane');
 
 -- extension settings
 window.margin               = 6
@@ -30,6 +31,9 @@ hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E'
 
 -- urlevent browser preference
 urlevent.browserPreference  = { 'Safari', 'Google Chrome' }
+
+-- controlplane settings
+controlplane.homeNetwork    = 'Skynet'
 
 -- enable notifications
 notify.enabled              = { 'battery', 'online', 'wifi' }

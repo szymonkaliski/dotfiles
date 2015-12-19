@@ -44,6 +44,8 @@ alias td="tree -adC -I '.git|node_modules|bower_components'"
 
 alias tl="tmux ls | sed 's/:/;/' | sed 's/\[.*\]//g' | column -t -s ';'"
 
+alias today="$EDITOR +Today"
+
 alias -g C="| wc -l"
 alias -g G="| egrep -i --color=auto"
 alias -g H="| head"

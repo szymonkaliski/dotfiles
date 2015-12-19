@@ -1,9 +1,10 @@
+local template = require('ext.template')
+local log      = hs.logger.new('application', 'debug')
+
 local cache = {
   bindings    = {},
   launchTimer = nil
 }
-
-local log = hs.logger.new('application', 'debug')
 
 local module = {}
 
@@ -102,11 +103,11 @@ end
 
 -- count all windows on all spaces
 function module.allWindowsCount(appName)
-  local _, result = hs.applescript.applescript(string.gsub([[
+  local _, result = hs.applescript.applescript(template([[
     tell application "{APP_NAME}"
       count every window where visible is true
     end tell
-  ]], '{(.-)}', { APP_NAME = appName }))
+  ]], { APP_NAME = appName }))
 
   return tonumber(result) or 0
 end
@@ -114,11 +115,11 @@ end
 -- quit app using applescript
 -- faster than :kill() for some reason
 function module.quit(appName)
-  local _, result = hs.applescript.applescript(string.gsub([[
+  local _, result = hs.applescript.applescript(template([[
     tell application "{APP_NAME}"
       quit
     end tell
-  ]], '{(.-)}', { APP_NAME = appName }))
+  ]], { APP_NAME = appName }))
 
   return result
 end
@@ -138,11 +139,11 @@ function module.askBeforeQuitting(appName, enabled)
       local shouldKill   = true
 
       if windowsCount > 1 then
-        local _, result = hs.applescript.applescript(string.gsub([[
+        local _, result = hs.applescript.applescript(template([[
           tell application "{APP_NAME}"
             button returned of (display dialog "There are multiple windows opened: {NUM_WINDOWS}\nAre you sure you want to quit?" with icon 1 buttons {"Cancel", "Quit"} default button "Quit")
           end tell
-        ]], '{(.-)}', { APP_NAME = appName, NUM_WINDOWS = windowsCount }))
+        ]], { APP_NAME = appName, NUM_WINDOWS = windowsCount }))
 
         shouldKill = result == 'Quit'
       end

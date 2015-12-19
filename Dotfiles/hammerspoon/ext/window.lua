@@ -1,6 +1,6 @@
-local spaces      = require('hs._asm.undocumented.spaces')
-local framed      = require('ext.framed')
 local application = require('ext.application')
+local framed      = require('ext.framed')
+local spaces      = require('hs._asm.undocumented.spaces')
 
 local cache = {
   mousePosition = nil
@@ -145,7 +145,11 @@ function module.focus(win, direction)
     right = 'focusWindowEast'
   }
 
-  hs.window[functions[direction]](win)
+  local candidateWindows = nil  -- we want to focus all windows
+  local frontmost        = true -- focuses the nearest window that isn't occluded by any other window
+  local strict           = true -- only consider windows at an angle between 45 and -45 degrees
+
+  hs.window[functions[direction]](win, candidateWindows, frontmost, strict)
 end
 
 -- throw to screen in direction, center and fit
