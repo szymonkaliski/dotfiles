@@ -3,6 +3,8 @@ local smartLaunchOrFocus = require('ext.application').smartLaunchOrFocus
 local spaces             = require('hs._asm.undocumented.spaces')
 local switch             = require('utils.spaces.quickswitch').switch;
 
+-- FIXME: broken on multiple displays
+
 local module = {}
 local cache  = {}
 

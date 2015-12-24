@@ -3,12 +3,11 @@ bindings                    = require('bindings')
 window                      = require('ext.window')
 notify                      = require('utils.notify')
 watchers                    = require('utils.watchers')
-menus                       = require('utils.menus')
 mediakeys                   = require('utils.mediakeys')
 dots                        = require('utils.spaces.dots')
 quickswitch                 = require('utils.spaces.quickswitch')
 urlevent                    = require('utils.watchers.urlevent')
-controlplane                = require('utils.watchers.controlplane');
+controlplane                = require('utils.controlplane')
 
 -- extension settings
 window.margin               = 6
@@ -32,21 +31,21 @@ hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E'
 -- urlevent browser preference
 urlevent.browserPreference  = { 'Safari', 'Google Chrome' }
 
--- controlplane settings
-controlplane.homeNetwork    = 'Skynet'
-
 -- enable notifications
 notify.enabled              = { 'battery', 'online', 'wifi' }
 
 -- enable watchers
-watchers.enabled            = { 'application', 'controlplane', 'reload', 'urlevent' }
+watchers.enabled            = { 'application', 'reload', 'urlevent' }
+
+-- enable controlplane extensions
+controlplane.enabled        = { 'automount', 'bluetooth', 'displays', 'persistvpn' }
 
 -- start everything
 hs.fnutils.each({
   bindings,
+  controlplane,
   dots,
   mediakeys,
-  menus,
   notify,
   quickswitch,
   watchers

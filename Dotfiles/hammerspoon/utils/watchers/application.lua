@@ -2,7 +2,7 @@ local application = require('ext.application')
 
 return hs.application.watcher.new(function(name, event, app)
   if event == hs.application.watcher.activated then
-    if hs.fnutils.some({ 'Finder', 'iTerm2' }, function(appName) return appName == name end) then
+    if hs.fnutils.some({ 'Finder' }, function(appName) return appName == name end) then
       app:selectMenuItem({ 'Window', 'Bring All to Front' })
     end
   end

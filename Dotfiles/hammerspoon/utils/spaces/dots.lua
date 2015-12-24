@@ -56,7 +56,7 @@ module.draw = function()
         local alpha = screenSpaces[i] == activeSpace and dots.selectedAlpha or dots.alpha
 
         dot
-          :setTopLeft({ x = x, y = y })
+          :setTopLeft({ x = x + screenFrame.x, y = y + screenFrame.y })
           :setFillColor({ red = 1.0, green = 1.0, blue = 1.0, alpha = alpha })
           :setClickCallback(function() switch(i) end)
           :show()

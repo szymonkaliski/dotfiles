@@ -2,6 +2,8 @@ if !(has('mac') && has('nvim'))
   finish
 endif
 
+let g:parinfer_mode = 'indent' 
+
 augroup parinfer_plugin
   au!
 

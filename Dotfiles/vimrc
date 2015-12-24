@@ -36,7 +36,7 @@ Plug 'benekastah/neomake',                 { 'on': [] } " only in nvim
 Plug 'marijnh/tern_for_vim',               { 'on': [], 'do': 'npm install' } " only on mac
 Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
 Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
-Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein deps', 'commit': 'ab1f02c1df164cc57c61b269f4ef0b84e03170d9' } " only in nvim
+Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein cljsbuild once plugin' } " only in nvim
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
 
 " filetype based plugins
