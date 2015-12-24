@@ -1,4 +1,5 @@
 local module = {}
+local cache  = {}
 
 local onlineWatcher = require('ext.onlinewatcher')
 local notify        = require('utils.controlplane.notify')
@@ -22,22 +23,14 @@ local isVPNConnected = function()
   return res == 1
 end
 
-local setVPN = function(options)
-  hs.applescript.applescript(template([[
+local connectVPN = function(options)
+  hs.applescript.applescript([[
     tell application "System Events"
       tell current location of network preferences
-        {COMMAND} the service "VPN"
+        connect the service "VPN"
       end tell
     end tell
-  ]], { COMMAND = options.connect == true and 'connect' or 'disconnect' }))
-end
-
-local disconnectVPN = function()
-  setVPN({ connect = false })
-end
-
-local connectVPN = function()
-  setVPN({ connect = true })
+  ]])
 end
 
 module.start = function()
@@ -45,8 +38,17 @@ module.start = function()
     -- don't connect if we already are connected
     if not isOnline or isVPNConnected() then return end
 
+    -- ignore if we are connecting
+    if cache.connecting then return end
+
+    -- otherwise connect and notify
     connectVPN()
-    notify('Reconnecting to VPN')
+    notify('Reconnecting to VPN...')
+
+    -- give VPN some time to connect
+    local vpnTimeout = 5
+    cache.connecting = true
+    hs.timer.doAfter(vpnTimeout, function() cache.connecting = false end)
   end)
 end
 
