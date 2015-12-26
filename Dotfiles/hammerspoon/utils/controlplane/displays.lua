@@ -6,10 +6,10 @@ local screenWatcher = function()
   local thunderboltDisplay = hs.screen.findByName('Thunderbolt Display')
   local laptopDisplay      = hs.screen.findByName('Color LCD')
 
-  if not thunderboltDisplay then
-    laptopDisplay:setPrimary()
-  else
+  if thunderboltDisplay then
     thunderboltDisplay:setPrimary()
+  else
+    laptopDisplay:setPrimary()
   end
 end
 

@@ -8,6 +8,7 @@ dots                        = require('utils.spaces.dots')
 quickswitch                 = require('utils.spaces.quickswitch')
 urlevent                    = require('utils.watchers.urlevent')
 controlplane                = require('utils.controlplane')
+menus                       = require('utils.menus')
 
 -- extension settings
 window.margin               = 6
@@ -46,6 +47,7 @@ hs.fnutils.each({
   controlplane,
   dots,
   mediakeys,
+  menus,
   notify,
   quickswitch,
   watchers

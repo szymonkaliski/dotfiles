@@ -28,13 +28,13 @@ local notifyOnOffline = function(offline)
 end
 
 module.start = function()
-  onlineWatcher.subscribe('offlineNotify', function(isOnline)
+  cache.onlineHandle = onlineWatcher.subscribe(function(isOnline)
     notifyOnOffline(not isOnline)
   end)
 end
 
 module.stop = function()
-  onlineWatcher.unsubscribe('offlineNotify')
+  onlineWatcher.unsubscribe(cache.onlineHandle)
 end
 
 return module

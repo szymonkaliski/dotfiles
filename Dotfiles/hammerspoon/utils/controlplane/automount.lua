@@ -1,27 +1,28 @@
 local module = {}
-local cache  = { watchers = {} }
+local cache  = { watchers = {}, tasks = {} }
 
-local notify = require('utils.controlplane.notify')
+local scriptsPath = os.getenv('HOME') .. '/Documents/Code/Scripts/'
+local notify      = require('utils.controlplane.notify')
 
 local stopMountTasks = function()
-  hs.fnutils.each({ 'mountTask', 'umountTask' }, function(task)
-    if cache[task] then cache[task]:terminate() end
-  end)
+  for _, task in pairs(cache.tasks) do
+    task:terminate()
+  end
 end
 
-local runMountTask = function(name, script, callback)
+local runMountTask = function(script, callback)
   stopMountTasks()
 
-  cache[name] = hs.task.new(scriptsPath .. script, callback)
-  cache[name]:start()
+  cache.tasks[script] = hs.task.new(scriptsPath .. script, callback)
+  cache.tasks[script]:start()
 end
 
 local umountAll = function(callback)
-  runMountTask('umountTask', 'umount-all', function() notify('Disks ejected') end)
+  runMountTask('umount-all', function() notify('Disks ejected') end)
 end
 
 local mountAll = function(callback)
-  runMountTask('mountTask', 'mount-all', function() notify('Disks mounted') end)
+  runMountTask('mount-all', function() notify('Disks mounted') end)
 end
 
 local batteryWatcher = function()
@@ -40,8 +41,8 @@ local batteryWatcher = function()
   cache.powerSource = powerSource
 end
 
-local sleepWatcher = function()
-  if event == hs.caffeinate.watcher.systemWillSleep then
+local sleepWatcher = function(event)
+  if event == hs.caffeinate.watcher.systemWillSleep or event == hs.caffeinate.watcher.systemWillPowerOff then
     umountAll()
   end
 

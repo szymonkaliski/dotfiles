@@ -32,7 +32,7 @@ alias diff="colordiff"
 alias wget="wget -c"
 alias watch="watch -n1 -c -t"
 
-alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias globalip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"
 alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
 

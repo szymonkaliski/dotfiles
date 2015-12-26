@@ -34,7 +34,7 @@ local connectVPN = function(options)
 end
 
 module.start = function()
-  onlineWatcher.subscribe('persistVPN', function(isOnline)
+  cache.onlineHandle = onlineWatcher.subscribe(function(isOnline)
     -- don't connect if we already are connected
     if not isOnline or isVPNConnected() then return end
 
@@ -46,14 +46,14 @@ module.start = function()
     notify('Reconnecting to VPN...')
 
     -- give VPN some time to connect
-    local vpnTimeout = 5
+    local vpnTimeout = 10
     cache.connecting = true
     hs.timer.doAfter(vpnTimeout, function() cache.connecting = false end)
   end)
 end
 
 module.stop = function()
-  onlineWatcher.unsubscribe('persistVPN')
+  onlineWatcher.unsubscribe(cache.onlineHandle)
 end
 
 return module

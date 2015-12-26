@@ -1,13 +1,12 @@
+local module = {}
+local cache  = {}
+
 local keys               = require('ext.table').keys
 local smartLaunchOrFocus = require('ext.application').smartLaunchOrFocus
 local spaces             = require('hs._asm.undocumented.spaces')
 local switch             = require('utils.spaces.quickswitch').switch;
 
--- FIXME: broken on multiple displays
-
-local module = {}
-local cache  = {}
-
+-- FIXME: spaces for multiple displays
 local generateSpacesMenu = function()
   local activeSpace  = spaces.activeSpace()
   local screenSpaces = spaces.layout()[hs.screen.mainScreen():spacesUUID()]
@@ -42,10 +41,16 @@ end
 module.start = function()
   local appMenu = hs.menubar.new(false)
 
+  local powerMenu = {
+    { title = 'Sleep',     fn = hs.caffeinate.systemSleep    },
+    { title = 'Restart',   fn = hs.caffeinate.restartSystem  },
+    { title = 'Shutdown',  fn = hs.caffeinate.shutdownSystem }
+  }
+
   cache.eventtap = hs.eventtap.new({ hs.eventtap.event.types.rightMouseDown }, function(event)
     local modifiers = event:getFlags()
     local screen    = hs.mouse.getCurrentScreen()
-    local mousePos  = hs.mouse.getRelativePosition()
+    local mousePos  = hs.mouse.getAbsolutePosition()
 
     local windowsOnScreen = hs.fnutils.filter(hs.window.orderedWindows(), function(win)
       return win:screen() == screen
@@ -72,15 +77,13 @@ module.start = function()
 
         { title = '-' },
 
+        { title = 'Settings',  fn = function() smartLaunchOrFocus('System Preferences')          end },
         { title = 'Running',   menu = generateRunningMenu() },
         { title = 'Spaces',    menu = generateSpacesMenu() },
-        { title = 'Settings',  fn = function() smartLaunchOrFocus('System Preferences')          end },
 
         { title = '-' },
 
-        { title = 'Lock',      fn = hs.caffeinate.systemSleep    },
-        { title = 'Restart',   fn = hs.caffeinate.restartSystem  },
-        { title = 'Shutdown',  fn = hs.caffeinate.shutdownSystem }
+        { title = 'Power',     menu = powerMenu }
       })
       :popupMenu(mousePos)
 
