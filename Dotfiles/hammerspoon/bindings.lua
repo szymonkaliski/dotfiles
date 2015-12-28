@@ -11,11 +11,17 @@ function unpack(t, i)
 end
 
 -- apply function to a window with optional params, saving it's position for restore
-local doWin = function(fn, ...)
+local doWin = function(fn, options, ...)
   local win  = hs.window.frontmostWindow()
   local args = ...
 
-  if win and not win:isFullScreen() then
+  local allowFullscreen = options and options.allowFullscreen
+
+  if args == nil and options then
+    args = options
+  end
+
+  if win and (allowFullscreen or not win:isFullScreen()) then
     -- persist position only if we are not already undo/redo/saving
     if fn ~= window.persistPosition then
       window.persistPosition(win, 'save')
@@ -27,21 +33,21 @@ local doWin = function(fn, ...)
 end
 
 -- helper for simple hotkey binding
-local bindWin = function(fn, ...)
+local bindWin = function(fn, options, ...)
   local args = unpack({ ... })
-  return function() doWin(fn, args) end
+  return function() doWin(fn, options, args) end
 end
 
 -- helper for appling function to a window with a timer
-local timeWin = function(fn, ...)
+local timeWin = function(fn, options, ...)
   local args = unpack({ ... })
-  return hs.timer.new(0.05, function() doWin(fn, args) end)
+  return hs.timer.new(0.05, function() doWin(fn, options, args) end)
 end
 
 -- helper for cycling arguments with reset time
 local cycleWin = function(fn, ...)
-  local arg           = { ... }
-  local cycles        = arg[2]
+  local args          = { ... }
+  local cycles        = args[2]
   local resetInterval = 1
   local lastCycle     = hs.timer.secondsSinceEpoch()
   local cycleIndex    = 1
@@ -57,7 +63,7 @@ local cycleWin = function(fn, ...)
 
     lastCycle = now
 
-    doWin(fn, { arg[1], cycles[cycleIndex] })
+    doWin(fn, { args[1], cycles[cycleIndex] })
   end
 end
 
@@ -72,15 +78,15 @@ local mod = {
 module.start = function()
   -- basic bindings
   hs.fnutils.each({
-    { key = 'c',     mod = mod.cc,  fn = bindWin(window.center)                  },
-    { key = 'z',     mod = mod.cc,  fn = bindWin(window.fullscreen)              },
-    { key = 's',     mod = mod.cc,  fn = bindWin(window.persistPosition, 'save') },
-    { key = 'u',     mod = mod.cc,  fn = bindWin(window.persistPosition, 'undo') },
-    { key = 'r',     mod = mod.cc,  fn = bindWin(window.persistPosition, 'redo') },
-    { key = 'tab',   mod = mod.cc,  fn = bindWin(window.cycleWindows, false)     },
-    { key = 'tab',   mod = mod.ca,  fn = bindWin(window.cycleWindows, true)      },
-    { key = '/',     mod = mod.cc,  fn = application.toggleConsole               },
-    { key = 'space', mod = mod.cac, fn = hs.hints.windowHints                    }
+    { key = 'c',     mod = mod.cc,  fn = bindWin(window.center)                                          },
+    { key = 'z',     mod = mod.cc,  fn = bindWin(window.fullscreen)                                      },
+    { key = 's',     mod = mod.cc,  fn = bindWin(window.persistPosition, 'save')                         },
+    { key = 'u',     mod = mod.cc,  fn = bindWin(window.persistPosition, 'undo')                         },
+    { key = 'r',     mod = mod.cc,  fn = bindWin(window.persistPosition, 'redo')                         },
+    { key = 'tab',   mod = mod.cc,  fn = bindWin(window.cycleWindows, { allowFullscreen = true }, false) },
+    { key = 'tab',   mod = mod.ca,  fn = bindWin(window.cycleWindows, { allowFullscreen = true }, true)  },
+    { key = '/',     mod = mod.cc,  fn = application.toggleConsole                                       },
+    { key = 'space', mod = mod.cac, fn = hs.hints.windowHints                                            }
   }, function(object)
     hs.hotkey.bind(object.mod, object.key, object.fn)
   end)
@@ -104,7 +110,7 @@ module.start = function()
     { key = 'home',     direction = 'left'  },
     { key = 'end',      direction = 'right' }
   }, function(object)
-    hs.hotkey.bind(mod.cc, object.key, bindWin(window.focus, object.direction))
+    hs.hotkey.bind(mod.cc, object.key, bindWin(window.focus, { allowFullscreen = true }, object.direction))
   end)
 
   -- move window to left/right space with 'fn'

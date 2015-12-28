@@ -3,6 +3,7 @@ if !(has('mac') && has('nvim'))
 endif
 
 let g:parinfer_mode = 'indent' 
+let g:parinfer_airline_integration = 0
 
 augroup parinfer_plugin
   au!

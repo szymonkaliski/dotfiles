@@ -125,7 +125,9 @@ function module.quit(appName)
 end
 
 -- ask before quitting app when there are multiple windows
-function module.askBeforeQuitting(appName, enabled)
+function module.askBeforeQuitting(appName, options)
+  local enabled = options.enabled or false
+
   if not enabled and cache.bindings[appName] then
     cache.bindings[appName]:disable()
     return
@@ -141,6 +143,7 @@ function module.askBeforeQuitting(appName, enabled)
       if windowsCount > 1 then
         local _, result = hs.applescript.applescript(template([[
           tell application "{APP_NAME}"
+            activate
             button returned of (display dialog "There are multiple windows opened: {NUM_WINDOWS}\nAre you sure you want to quit?" with icon 1 buttons {"Cancel", "Quit"} default button "Quit")
           end tell
         ]], { APP_NAME = appName, NUM_WINDOWS = windowsCount }))

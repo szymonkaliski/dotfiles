@@ -145,9 +145,9 @@ function module.focus(win, direction)
     right = 'focusWindowEast'
   }
 
-  local candidateWindows = nil  -- we want to focus all windows
-  local frontmost        = true -- focuses the nearest window that isn't occluded by any other window
-  local strict           = true -- only consider windows at an angle between 45 and -45 degrees
+  local candidateWindows = nil   -- we want to focus all windows
+  local frontmost        = false -- focuses the nearest window that isn't occluded by any other window
+  local strict           = true  -- only consider windows at an angle between 45 and -45 degrees
 
   hs.window[functions[direction]](win, candidateWindows, frontmost, strict)
 end
@@ -222,31 +222,29 @@ end
 function module.cycleWindows(win, appWindowsOnly)
   local allWindows = appWindowsOnly and win:application():allWindows() or hs.window.allWindows()
 
-  -- we only care about standard windows
-  local standardWindows = hs.fnutils.filter(allWindows, function(win)
-    return win:isStandard()
-  end)
+  --  we only care about standard windows
+  local windows = hs.fnutils.filter(allWindows, function(win) return win:isStandard() end)
 
-  if #standardWindows == 1 then
+  if #windows == 1 then
     -- if we have only one window - focus it
-    standardWindows[1]:focus()
-  elseif #standardWindows > 1 then
+    windows[1]:focus()
+  elseif #windows > 1 then
     -- if there are more than one, sort them first by id
-    table.sort(standardWindows, function(a, b) return a:id() < b:id() end)
+    table.sort(windows, function(a, b) return a:id() < b:id() end)
 
     -- check if one of them is active
-    local activeWindowIndex = hs.fnutils.indexOf(standardWindows, win)
+    local activeWindowIndex = hs.fnutils.indexOf(windows, win)
 
     if activeWindowIndex then
       -- if it is, then focus next one
       activeWindowIndex = activeWindowIndex + 1
 
-      if activeWindowIndex > #standardWindows then activeWindowIndex = 1 end
+      if activeWindowIndex > #windows then activeWindowIndex = 1 end
 
-      standardWindows[activeWindowIndex]:focus()
+      windows[activeWindowIndex]:focus()
     else
       -- otherwise focus first one
-      standardWindows[1]:focus()
+      windows[1]:focus()
     end
   end
 end

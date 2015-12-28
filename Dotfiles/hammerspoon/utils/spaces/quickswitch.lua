@@ -12,7 +12,7 @@ module.switch = function(targetIdx)
   -- otherwise ask for main screen (one that's focused)
   -- this fixes oddities with fullscreen apps and multiple screens
   local activeWindow = hs.window.focusedWindow()
-  local activeScreen = activeWindow:role() ~= 'AXScrollArea' and activeWindow:screen() or hs.screen.mainScreen()
+  local activeScreen = (activeWindow and activeWindow:role() ~= 'AXScrollArea') and activeWindow:screen() or hs.screen.mainScreen()
 
   local screenSpaces = spaces.layout()[activeScreen:spacesUUID()]
   local targetSpace  = screenSpaces[targetIdx]

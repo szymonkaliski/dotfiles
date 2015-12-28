@@ -3,24 +3,24 @@ bindings                    = require('bindings')
 window                      = require('ext.window')
 notify                      = require('utils.notify')
 watchers                    = require('utils.watchers')
-mediakeys                   = require('utils.mediakeys')
 dots                        = require('utils.spaces.dots')
 quickswitch                 = require('utils.spaces.quickswitch')
 urlevent                    = require('utils.watchers.urlevent')
 controlplane                = require('utils.controlplane')
+specialkeys                 = require('utils.specialkeys')
 menus                       = require('utils.menus')
 
 -- extension settings
-window.margin               = 6
-window.fullFrame            = true
 window.fixEnabled           = false
+window.fullFrame            = true
 window.historyLimit         = 20
+window.margin               = 6
 
 -- spaces dots settings
-dots.size                   = 8
-dots.distance               = 16
-dots.selectedAlpha          = 0.45
 dots.alpha                  = 0.15
+dots.selectedAlpha          = 0.45
+dots.distance               = 16
+dots.size                   = 8
 
 -- hs settings
 hs.window.animationDuration = 0.15
@@ -41,14 +41,17 @@ watchers.enabled            = { 'application', 'reload', 'urlevent' }
 -- enable controlplane extensions
 controlplane.enabled        = { 'automount', 'bluetooth', 'displays', 'persistvpn' }
 
+-- enable special keys functions
+specialkeys.enabled         = { 'onlinespotify' }
+
 -- start everything
 hs.fnutils.each({
   bindings,
   controlplane,
   dots,
-  mediakeys,
   menus,
   notify,
   quickswitch,
+  specialkeys,
   watchers
 }, function(module) module.start() end)

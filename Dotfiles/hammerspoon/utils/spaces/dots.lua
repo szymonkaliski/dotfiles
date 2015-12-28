@@ -11,9 +11,9 @@ local cache = {
 local module = {}
 
 module.draw = function()
-  local activeSpace = spaces.activeSpace()
-  local cacheUUIDs  = keys(cache.dots)
-  local screenUUIDs = {}
+  local activeSpaces = spaces.query(spaces.masks.currentSpaces, true)
+  local cacheUUIDs   = keys(cache.dots)
+  local screenUUIDs  = {}
 
   hs.fnutils.each(hs.screen.allScreens(), function(screen)
     screenUUIDs[screen:spacesUUID()] = screen
@@ -53,7 +53,7 @@ module.draw = function()
       if i <= #screenSpaces then
         local x     = screenFrame.w / 2 - (#screenSpaces / 2) * dots.distance + i * dots.distance - dots.size * 3 / 2
         local y     = screenFrame.h - dots.distance
-        local alpha = screenSpaces[i] == activeSpace and dots.selectedAlpha or dots.alpha
+        local alpha = hs.fnutils.contains(activeSpaces, screenSpaces[i]) and dots.selectedAlpha or dots.alpha
 
         dot
           :setTopLeft({ x = x + screenFrame.x, y = y + screenFrame.y })

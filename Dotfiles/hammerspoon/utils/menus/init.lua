@@ -3,21 +3,7 @@ local cache  = {}
 
 local keys               = require('ext.table').keys
 local smartLaunchOrFocus = require('ext.application').smartLaunchOrFocus
-local spaces             = require('hs._asm.undocumented.spaces')
 local switch             = require('utils.spaces.quickswitch').switch;
-
--- FIXME: spaces for multiple displays
-local generateSpacesMenu = function()
-  local activeSpace  = spaces.activeSpace()
-  local screenSpaces = spaces.layout()[hs.screen.mainScreen():spacesUUID()]
-  local spacesMenu   = {}
-
-  for i = 1, #screenSpaces do
-    table.insert(spacesMenu, { title = 'Space ' .. i, fn = function() switch(i) end })
-  end
-
-  return spacesMenu
-end
 
 local generateRunningMenu = function()
   local appMenu = {}
@@ -79,7 +65,6 @@ module.start = function()
 
         { title = 'Settings',  fn = function() smartLaunchOrFocus('System Preferences')          end },
         { title = 'Running',   menu = generateRunningMenu() },
-        { title = 'Spaces',    menu = generateSpacesMenu() },
 
         { title = '-' },
 
