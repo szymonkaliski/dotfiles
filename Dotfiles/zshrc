@@ -8,6 +8,7 @@ files=(
   prompt
   plugins
   locale
+  exports
   aliases
   functions
   fzf

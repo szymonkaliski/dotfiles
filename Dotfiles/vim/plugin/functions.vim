@@ -254,7 +254,7 @@ function! s:Today()
   %g/\v^(.*\@today)&(.*\@done)@!/foldopen!
   norm gg
   vsp ~/Documents/Dropbox/Notes/drafts.txt
-  norm zMGzazz
+  silent! norm zMGzazz
   redraw!
 endfunction
 

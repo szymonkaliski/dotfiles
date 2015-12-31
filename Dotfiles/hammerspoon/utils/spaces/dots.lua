@@ -26,10 +26,8 @@ module.draw = function()
 
     -- if this screen doesn't exist anymore, then delete all dots
     if not screen then
-      hs.fnutils.each(cache.dots[screenUUID], function(dot)
-        dot:delete()
-        dot = nil
-      end)
+      hs.fnutils.each(cache.dots[screenUUID], function(dot) dot:delete() end)
+      cache.dots[screenUUID] = nil
 
       return
     end
@@ -84,9 +82,7 @@ module.stop = function()
   hs.fnutils.each(cache.watchers, function(watcher) watcher:stop() end)
 
   hs.fnutils.each(cache.dots, function(screen)
-    hs.fnutils.each(screen, function(dot)
-      dot:delete()
-    end)
+    hs.fnutils.each(screen, function(dot) dot:delete() end)
   end)
 
   cache.dots = {}

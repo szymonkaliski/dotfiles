@@ -1,5 +1,3 @@
-export HOMEBREW_NO_EMOJI=1
-
 # make completion /Applications aware
 compctl -f \
   -x 'p[2]' \

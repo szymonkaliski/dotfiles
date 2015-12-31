@@ -1,9 +1,3 @@
-if hash nvim 2> /dev/null; then
-  export EDITOR="nvim"
-else
-  export EDITOR="vim"
-fi
-
 alias e=$EDITOR
 alias v=$EDITOR
 alias n="nvim"

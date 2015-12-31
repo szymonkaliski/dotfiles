@@ -61,9 +61,10 @@ module.processEvent = function(systemKey)
   }
 
   if systemKey.down then
-    onlineSpotify[spotifyMappings[systemKey.key]]()
-    return true -- stop propagation if we are controlling online Spotify
+    module[spotifyMappings[systemKey.key]]()
   end
+
+  return true -- stop propagation
 end
 
 return module
