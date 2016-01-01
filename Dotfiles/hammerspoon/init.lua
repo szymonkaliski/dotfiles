@@ -49,7 +49,7 @@ hs.fnutils.each({
   bindings,
   controlplane,
   dots,
-  menus,
+  -- menus,
   notify,
   quickswitch,
   specialkeys,

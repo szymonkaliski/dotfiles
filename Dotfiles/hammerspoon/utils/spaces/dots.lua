@@ -24,10 +24,14 @@ module.draw = function()
   hs.fnutils.each(allUUIDs, function(screenUUID)
     local screen = screenUUIDs[screenUUID]
 
-    -- if this screen doesn't exist anymore, then delete all dots
-    if not screen then
-      hs.fnutils.each(cache.dots[screenUUID], function(dot) dot:delete() end)
-      cache.dots[screenUUID] = nil
+    -- if this screen doesn't exist anymore, or there's only one space
+    -- then delete all dots, and don't display anything
+    if not screen or #spaces.layout()[screenUUID] <= 1 then
+      -- delete all cached dots
+      if cache.dots[screenUUID] then
+        hs.fnutils.each(cache.dots[screenUUID], function(dot) dot:delete() end)
+        cache.dots[screenUUID] = nil
+      end
 
       return
     end
@@ -59,7 +63,7 @@ module.draw = function()
           :setClickCallback(function() switch(i) end)
           :show()
       else
-        -- somehow :hide() creates problems when switching spaces ("ghost dots")
+        -- somehow :hide() creates problems when switching screens ("ghost dots")
         -- deleting invisible dots fixes it
         dot:delete()
         dot = nil

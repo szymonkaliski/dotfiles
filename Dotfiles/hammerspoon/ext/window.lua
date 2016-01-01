@@ -1,6 +1,7 @@
 local application = require('ext.application')
 local framed      = require('ext.framed')
 local spaces      = require('hs._asm.undocumented.spaces')
+local bezel       = require('ext.bezel')
 
 local cache = {
   mousePosition = nil
@@ -216,6 +217,13 @@ function module.moveToSpace(win, space)
 
   hs.mouse.setAbsolutePosition(cache.mousePosition)
   cache.mousePosition = nil
+
+  -- display bezel info after the space was changed
+  hs.timer.doAfter(0.1, function()
+    if space == 'right' or space == 'left' then
+      bezel(space == 'right' and '→' or '←', 70)
+    end
+  end)
 end
 
 -- cycle application windows

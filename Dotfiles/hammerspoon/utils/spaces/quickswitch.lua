@@ -46,11 +46,11 @@ module.switch = function(targetIdx)
     local eventDirection = targetIdx > activeIdx and 'right' or 'left'
     local activeFrame    = activeScreen:frame()
 
-    -- "hide" cursor in the right side of screen
+    -- "hide" cursor in the lower right side of screen
     -- it's invisible while we are changing spaces
     local newPosition    = {
-      x = activeFrame.x + activeFrame.w / 2,
-      y = activeFrame.y + activeFrame.h
+      x = activeFrame.x + activeFrame.w - 1,
+      y = activeFrame.y + activeFrame.h - 1
     }
 
     -- hs.mouse.setAbsolutePosition doesn't work for gaining proper screen focus (so ctrl + left/right works on that screen)

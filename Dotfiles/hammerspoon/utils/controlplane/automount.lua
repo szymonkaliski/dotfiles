@@ -1,5 +1,9 @@
 local module = {}
-local cache  = { watchers = {}, tasks = {} }
+local cache  = {
+  powerSource = hs.battery.powerSource(),
+  watchers    = {},
+  tasks       = {}
+}
 
 local scriptsPath = os.getenv('HOME') .. '/Documents/Code/Scripts/'
 local notify      = require('utils.controlplane.notify')
@@ -28,7 +32,7 @@ end
 local batteryWatcher = function()
   local powerSource = hs.battery.powerSource()
 
-  if cache.powerSource ~= nil and cache.powerSource ~= powerSource then
+  if cache.powerSource ~= powerSource then
     if powerSource == 'Battery Power' then
       umountAll()
     end
@@ -52,7 +56,7 @@ local sleepWatcher = function(event)
 end
 
 module.start = function()
-  cache.watchers.battery = hs.screen.watcher.new(batteryWatcher):start()
+  cache.watchers.battery = hs.battery.watcher.new(batteryWatcher):start()
   cache.watchers.sleep   = hs.caffeinate.watcher.new(sleepWatcher):start()
 end
 
