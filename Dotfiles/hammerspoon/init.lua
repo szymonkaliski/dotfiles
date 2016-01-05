@@ -4,7 +4,7 @@ window                      = require('ext.window')
 notify                      = require('utils.notify')
 watchers                    = require('utils.watchers')
 dots                        = require('utils.spaces.dots')
-quickswitch                 = require('utils.spaces.quickswitch')
+betterswitch                = require('utils.spaces.betterswitch')
 urlevent                    = require('utils.watchers.urlevent')
 controlplane                = require('utils.controlplane')
 specialkeys                 = require('utils.specialkeys')
@@ -51,7 +51,7 @@ hs.fnutils.each({
   dots,
   -- menus,
   notify,
-  quickswitch,
+  betterswitch,
   specialkeys,
   watchers
 }, function(module) module.start() end)

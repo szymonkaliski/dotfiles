@@ -1,7 +1,7 @@
-local spaces = require('hs._asm.undocumented.spaces')
-local keys   = require('ext.table').keys
-local uniq   = require('ext.table').uniq
-local switch = require('utils.spaces.quickswitch').switch;
+local keys          = require('ext.table').keys
+local spaces        = require('hs._asm.undocumented.spaces')
+local switchToIndex = require('utils.spaces.betterswitch').switchToIndex;
+local uniq          = require('ext.table').uniq
 
 local cache = {
   watchers = {},
@@ -60,7 +60,7 @@ module.draw = function()
         dot
           :setTopLeft({ x = x + screenFrame.x, y = y + screenFrame.y })
           :setFillColor({ red = 1.0, green = 1.0, blue = 1.0, alpha = alpha })
-          :setClickCallback(function() switch(i) end)
+          :setClickCallback(function() switchToIndex(i) end)
           :show()
       else
         -- somehow :hide() creates problems when switching screens ("ghost dots")

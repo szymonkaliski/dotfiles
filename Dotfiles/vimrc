@@ -351,7 +351,7 @@ nnoremap <leader>om :e ~/.tmux.conf<cr>
 
 if has('mac')
   nnoremap <leader>od :e ~/Documents/Dropbox/Notes/drafts.txt<cr>
-  nnoremap <leader>ot :e ~/Documents/Dropbox/Tasks/Current.taskpaper<cr>
+  nnoremap <leader>ot :e ~/Documents/Dropbox/Tasks/Tasks.taskpaper<cr>
   nnoremap <leader>oh :e ~/.hammerspoon/init.lua<cr>
 endif
 
@@ -376,10 +376,10 @@ nnoremap ]t :tabnext<cr>
 nnoremap [t :tabprev<cr>
 
 " loclist switching
-nnoremap ]l :call FixNext('lprev', 'llast')<cr>zz
-nnoremap [l :call FixPrevious('lnext', 'lfirst')<cr>zz
-nnoremap ]c :call FixNext('cprev', 'clast')<cr>zz
-nnoremap [c :call FixPrevious('cnext', 'cfirst')<cr>zz
+nnoremap ]l :call FixPrevious('lnext', 'lfirst')<cr>zz
+nnoremap [l :call FixNext('lprev', 'llast')<cr>zz
+nnoremap ]c :call FixPrevious('cnext', 'cfirst')<cr>zz
+nnoremap [c :call FixNext('cprev', 'clast')<cr>zz
 
 " new buffer / tab
 nnoremap <leader>B :enew<cr>

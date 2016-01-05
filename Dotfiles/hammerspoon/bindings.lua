@@ -118,12 +118,12 @@ module.start = function()
     { key = 'home', direction = 'left'  },
     { key = 'end',  direction = 'right' }
   }, function(object)
-    hs.hotkey.bind(mod.ca, object.key, bindWin(window.moveToSpace, object.direction))
+    hs.hotkey.bind(mod.ca, object.key, nil, bindWin(window.moveToSpace, object.direction))
   end)
 
   -- move window directly to space by number
   -- NOTE: binding this to pressedFn doesn't work!
-  -- NOTE: this is broken if we are using spaces/quickswitch
+  -- NOTE: this is broken if we are using spaces/betterswitch
   -- hs.fnutils.each({ '1', '2', '3', '4', '5', '6', '7', '8', '9' }, function(space)
   --   hs.hotkey.bind(mod.cac, space, nil, bindWin(window.moveToSpace, space))
   -- end)
@@ -160,7 +160,7 @@ module.start = function()
     { key = 'n', apps = { 'Notational Velocity'     } },
     { key = 'r', apps = { 'Reminders'               } },
     { key = 's', apps = { 'Slack', 'Skype'          } },
-    { key = 't', apps = { 'Terminal', 'iTerm2'      } },
+    { key = 't', apps = { 'iTerm2', 'Terminal'      } },
     { key = 'v', apps = { 'MacVim'                  } },
     { key = 'x', apps = { 'Xcode'                   } }
   }, function(object)

@@ -3,7 +3,6 @@ local cache  = {}
 
 local keys               = require('ext.table').keys
 local smartLaunchOrFocus = require('ext.application').smartLaunchOrFocus
-local switch             = require('utils.spaces.quickswitch').switch;
 
 local generateRunningMenu = function()
   local appMenu = {}

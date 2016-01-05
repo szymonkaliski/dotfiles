@@ -1,7 +1,9 @@
-local application = require('ext.application')
-local framed      = require('ext.framed')
-local spaces      = require('hs._asm.undocumented.spaces')
-local bezel       = require('ext.bezel')
+local application     = require('ext.application')
+local bezel           = require('ext.bezel')
+local focusScreen     = require('ext.screen').focusScreen
+local framed          = require('ext.framed')
+local highlightWindow = require('ext.drawing').highlightWindow
+local spaces          = require('hs._asm.undocumented.spaces')
 
 local cache = {
   mousePosition = nil
@@ -151,6 +153,7 @@ function module.focus(win, direction)
   local strict           = true  -- only consider windows at an angle between 45 and -45 degrees
 
   hs.window[functions[direction]](win, candidateWindows, frontmost, strict)
+  highlightWindow()
 end
 
 -- throw to screen in direction, center and fit
@@ -190,8 +193,8 @@ end
 
 -- move window to another space
 function module.moveToSpace(win, space)
-  local clickPoint = win:zoomButtonRect()
-  local sleepTime  = 1000
+  local clickPoint  = win:zoomButtonRect()
+  local sleepTime   = 1000
 
   if clickPoint == nil then return end
 
@@ -205,6 +208,9 @@ function module.moveToSpace(win, space)
     clickPoint.y = clickPoint.y - clickPoint.h
   end
 
+  -- focus screen before switching window
+  focusScreen(win:screen())
+
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseDown, clickPoint):post()
   hs.timer.usleep(sleepTime)
 
@@ -215,11 +221,12 @@ function module.moveToSpace(win, space)
 
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseUp, clickPoint):post()
 
-  hs.mouse.setAbsolutePosition(cache.mousePosition)
-  cache.mousePosition = nil
-
   -- display bezel info after the space was changed
   hs.timer.doAfter(0.1, function()
+    -- resetting mouse after small timeout is needed for focusing screen to work properly
+    hs.mouse.setAbsolutePosition(cache.mousePosition)
+    cache.mousePosition = nil
+
     if space == 'right' or space == 'left' then
       bezel(space == 'right' and '→' or '←', 70)
     end
@@ -255,6 +262,8 @@ function module.cycleWindows(win, appWindowsOnly)
       windows[1]:focus()
     end
   end
+
+  highlightWindow()
 end
 
 -- save and restore window positions

@@ -1,5 +1,6 @@
-local template = require('ext.template')
-local log      = hs.logger.new('application', 'debug')
+local highlightWindow = require('ext.drawing').highlightWindow
+local template        = require('ext.template')
+local log             = hs.logger.new('application', 'debug')
 
 local cache = {
   bindings    = {},
@@ -98,6 +99,8 @@ function module.smartLaunchOrFocus(launchApps)
 
       runningWindows[newIndex]:focus()
     end
+
+    highlightWindow()
   end
 end
 
