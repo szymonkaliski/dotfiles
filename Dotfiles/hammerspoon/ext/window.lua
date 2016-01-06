@@ -266,6 +266,13 @@ function module.cycleWindows(win, appWindowsOnly)
   highlightWindow()
 end
 
+-- show hints with highlight
+function module.windowHints()
+  hs.hints.windowHints(nil, function()
+    highlightWindow()
+  end)
+end
+
 -- save and restore window positions
 function module.persistPosition(win, option)
   local appId           = win:application():bundleID()

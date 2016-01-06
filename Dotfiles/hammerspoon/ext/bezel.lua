@@ -55,14 +55,18 @@ return function(text, textSize)
     :show()
 
   cache.timer = hs.timer.doAfter(2, function()
-    cache.bezelTimer = animateAlpha(cache.bezelDrawing, 0, function()
-      cache.bezelDrawing:delete()
-      cache.bezelDrawing = nil
-    end)
+    cache.bezelTimer = animateAlpha(cache.bezelDrawing, 0, {
+      done = function()
+        cache.bezelDrawing:delete()
+        cache.bezelDrawing = nil
+      end
+    })
 
-    cache.textTimer = animateAlpha(cache.textDrawing, 0, function()
-      cache.textDrawing:delete()
-      cache.textDrawing = nil
-    end)
+    cache.textTimer = animateAlpha(cache.textDrawing, 0, {
+      done = function()
+        cache.textDrawing:delete()
+        cache.textDrawing = nil
+      end
+    })
   end)
 end

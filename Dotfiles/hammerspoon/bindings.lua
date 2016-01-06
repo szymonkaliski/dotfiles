@@ -86,7 +86,7 @@ module.start = function()
     { key = 'tab',   mod = mod.cc,  fn = bindWin(window.cycleWindows, { allowFullscreen = true }, false) },
     { key = 'tab',   mod = mod.ca,  fn = bindWin(window.cycleWindows, { allowFullscreen = true }, true)  },
     { key = '/',     mod = mod.cc,  fn = application.toggleConsole                                       },
-    { key = 'space', mod = mod.cac, fn = hs.hints.windowHints                                            }
+    { key = 'space', mod = mod.cac, fn = window.windowHints                                              }
   }, function(object)
     hs.hotkey.bind(object.mod, object.key, object.fn)
   end)
