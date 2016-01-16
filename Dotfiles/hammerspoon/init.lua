@@ -23,7 +23,7 @@ dots.distance               = 16
 dots.size                   = 8
 
 -- hs settings
-hs.window.animationDuration = 0.15
+hs.window.animationDuration = 0.1
 hs.hints.fontName           = 'Helvetica-Bold'
 hs.hints.fontSize           = 22
 hs.hints.showTitleThresh    = 0

@@ -1,24 +1,14 @@
-local focusScreen = require('ext.screen').focusScreen
-local keys        = require('ext.table').keys
-local spaces      = require('hs._asm.undocumented.spaces')
+local activeScreen     = require('ext.screen').activeScreen
+local activeSpaceIndex = require('ext.spaces').activeSpaceIndex
+local focusScreen      = require('ext.screen').focusScreen
+local keys             = require('ext.table').keys
+local screenSpaces     = require('ext.spaces').screenSpaces
+local spaceFromIndex   = require('ext.spaces').spaceFromIndex
+local spaceInDirection = require('ext.spaces').spaceInDirection
+local spaces           = require('hs._asm.undocumented.spaces')
 
 local module = {}
 local cache  = { switching = false }
-
--- grabs screen with active window, unless it's Finder's desktop
--- then we use mouse position
-local getActiveScreen = function()
-  local mousePoint   = hs.geometry.point(hs.mouse.getAbsolutePosition())
-  local activeWindow = hs.window.focusedWindow()
-
-  if activeWindow and activeWindow:role() ~= 'AXScrollArea' then
-    return activeWindow:screen()
-  else
-    return hs.fnutils.find(hs.screen.allScreens(), function(screen)
-      return mousePoint:inside(screen:frame())
-    end)
-  end
-end
 
 -- sends proper amount of ctrl+left/right to move you to given space, even if it's fullscreen app!
 module.switchToIndex = function(targetIdx)
@@ -26,20 +16,18 @@ module.switchToIndex = function(targetIdx)
   local mousePosition = hs.mouse.getAbsolutePosition()
 
   -- grab spaces for screen with active window
-  local activeScreen  = getActiveScreen()
-  local screenSpaces  = spaces.layout()[activeScreen:spacesUUID()]
+  local currentScreen = activeScreen()
+  local screenSpaces  = screenSpaces()
 
   -- grab index of currently active space
-  local activeIdx     = hs.fnutils.indexOf(screenSpaces, spaces.activeSpace()) or 1
-  local targetSpace   = screenSpaces[targetIdx]
+  local activeIdx     = activeSpaceIndex(screenSpaces)
+  local targetSpace   = spaceFromIndex(targetIdx)
 
   -- check if we really can send the keystrokes
   local shouldSendEvents = hs.fnutils.every({
-    targetIdx <= #screenSpaces,
-    targetSpace,
-    activeIdx,
-    activeIdx ~= targetIdx,
-    not cache.switching
+    not cache.switching,
+    targetSpace ~= nil,
+    activeIdx ~= targetIdx
   }, function(test) return test end)
 
   if shouldSendEvents then
@@ -49,7 +37,7 @@ module.switchToIndex = function(targetIdx)
     local eventDirection = targetIdx > activeIdx and 'right' or 'left'
 
     -- gain focus on the screen
-    focusScreen(activeScreen)
+    focusScreen(currentScreen)
 
     for _ = 1, eventCount do
       hs.eventtap.keyStroke({ 'ctrl' }, eventDirection)
@@ -71,34 +59,28 @@ module.switchToIndex = function(targetIdx)
 end
 
 module.switchInDirection = function(direction)
+  local currentScreen = activeScreen()
   local mousePosition = hs.mouse.getAbsolutePosition()
-  local activeScreen  = getActiveScreen()
-  local screenSpaces  = spaces.layout()[activeScreen:spacesUUID()]
-  local activeIdx     = hs.fnutils.indexOf(screenSpaces, spaces.activeSpace()) or 1
-  local targetIdx
-
-  if direction == 'left' then
-    targetIdx = math.max(1, activeIdx - 1)
-  else
-    targetIdx = math.min(#screenSpaces, activeIdx + 1)
-  end
-
-  local targetSpace = screenSpaces[targetIdx]
+  local targetSpace   = spaceInDirection(direction)
 
   cache.switching = true
 
-  focusScreen(activeScreen)
+  local changedFocus = focusScreen(currentScreen)
 
-  hs.timer.waitUntil(
-    function()
-      return spaces.activeSpace() == targetSpace
-    end,
-    function()
-      hs.mouse.setAbsolutePosition(mousePosition)
-      cache.switching = false
-    end,
-    0.01 -- check every 1/100 of second
-  )
+  if changedFocus then
+    hs.timer.waitUntil(
+      function()
+        return spaces.activeSpace() == targetSpace
+      end,
+      function()
+        hs.mouse.setAbsolutePosition(mousePosition)
+        cache.switching = false
+      end,
+      0.01 -- check every 1/100 of second
+    )
+  else
+    cache.switching = false
+  end
 end
 
 -- taps to ctrl + 1-9 overriding default functionality
@@ -118,7 +100,7 @@ module.start = function()
 
     -- switch left/right if it's ctrl + left(123)/right(124)
     if isCtrlFn and (keyCode == 123 or keyCode == 124) then
-      module.switchInDirection(keyCode == 123 and 'left' or 'right')
+      module.switchInDirection(keyCode == 123 and 'west' or 'east')
       return false
     end
 

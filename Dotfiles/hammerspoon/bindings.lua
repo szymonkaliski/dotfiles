@@ -115,10 +115,10 @@ module.start = function()
 
   -- move window to left/right space with 'fn'
   hs.fnutils.each({
-    { key = 'home', direction = 'left'  },
-    { key = 'end',  direction = 'right' }
+    { key = 'home', direction = 'west' },
+    { key = 'end',  direction = 'east' }
   }, function(object)
-    hs.hotkey.bind(mod.ca, object.key, nil, bindWin(window.moveToSpace, object.direction))
+    hs.hotkey.bind(mod.ca, object.key, nil, bindWin(window.moveToSpaceInDirection, object.direction))
   end)
 
   -- move window directly to space by number

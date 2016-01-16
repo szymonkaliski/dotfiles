@@ -1,9 +1,12 @@
-local application     = require('ext.application')
-local bezel           = require('ext.bezel')
-local focusScreen     = require('ext.screen').focusScreen
-local framed          = require('ext.framed')
-local highlightWindow = require('ext.drawing').highlightWindow
-local spaces          = require('hs._asm.undocumented.spaces')
+local activeScreen     = require('ext.screen').activeScreen
+local application      = require('ext.application')
+local bezel            = require('ext.bezel')
+local focusScreen      = require('ext.screen').focusScreen
+local framed           = require('ext.framed')
+local highlightWindow  = require('ext.drawing').highlightWindow
+local screenSpaces     = require('ext.spaces').screenSpaces
+local spaceInDirection = require('ext.spaces').spaceInDirection
+local spaces           = require('hs._asm.undocumented.spaces')
 
 local cache = {
   mousePosition = nil
@@ -192,11 +195,21 @@ function module.throwToScreen(win, direction)
 end
 
 -- move window to another space
-function module.moveToSpace(win, space)
+function module.moveToSpaceInDirection(win, direction)
   local clickPoint  = win:zoomButtonRect()
   local sleepTime   = 1000
+  local targetSpace = spaceInDirection(direction)
 
-  if clickPoint == nil then return end
+  -- check if all conditions are ok to move the window
+  local shouldMoveWindow = hs.fnutils.every({
+    clickPoint ~= nil,
+    targetSpace ~= nil,
+    not cache.movingWindowToSpace
+  }, function(test) return test end)
+
+  if not shouldMoveWindow then return end
+
+  cache.movingWindowToSpace = true
 
   cache.mousePosition = cache.mousePosition or hs.mouse.getAbsolutePosition()
 
@@ -214,23 +227,27 @@ function module.moveToSpace(win, space)
   hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseDown, clickPoint):post()
   hs.timer.usleep(sleepTime)
 
-  hs.eventtap.keyStroke({ 'ctrl' }, space)
+  hs.eventtap.keyStroke({ 'ctrl' }, direction == 'east' and 'right' or 'left')
 
-  -- wait to finish animation
-  while (spaces.isAnimating()) do end
+  hs.timer.waitUntil(
+    function()
+      return spaces.activeSpace() == targetSpace
+    end,
+    function()
+      hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseUp, clickPoint):post()
 
-  hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseUp, clickPoint):post()
+      -- resetting mouse after small timeout is needed for focusing screen to work properly
+      hs.mouse.setAbsolutePosition(cache.mousePosition)
+      cache.mousePosition = nil
 
-  -- display bezel info after the space was changed
-  hs.timer.doAfter(0.1, function()
-    -- resetting mouse after small timeout is needed for focusing screen to work properly
-    hs.mouse.setAbsolutePosition(cache.mousePosition)
-    cache.mousePosition = nil
+      -- reset cache
+      cache.movingWindowToSpace = false
 
-    if space == 'right' or space == 'left' then
-      bezel(space == 'right' and '→' or '←', 70)
-    end
-  end)
+      -- display bezel info
+      bezel(direction == 'east' and '→' or '←', 70)
+    end,
+    0.01 -- check every 1/100 of a second
+  )
 end
 
 -- cycle application windows
@@ -268,9 +285,7 @@ end
 
 -- show hints with highlight
 function module.windowHints()
-  hs.hints.windowHints(nil, function()
-    highlightWindow()
-  end)
+  hs.hints.windowHints(nil, highlightWindow)
 end
 
 -- save and restore window positions

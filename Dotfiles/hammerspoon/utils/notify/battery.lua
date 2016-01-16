@@ -33,14 +33,6 @@ return hs.battery.watcher.new(function()
     cache.batteryCharged = true
   end
 
-  if batteryPercentage <= 20 and batteryPercentage % 5 == 0 and powerSource == 'Battery Power' then
-    hs.notify.new({
-      title        = 'Battery Status',
-      subTitle     = 'Time remaining: ' .. stringifyMinutes(hs.battery.timeRemaining()),
-      contentImage = imagePath
-    }):send()
-  end
-
   if powerSource ~= cache.powerSource then
     hs.notify.new({
       title        = 'Power Source Status',
