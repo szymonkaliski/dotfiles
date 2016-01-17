@@ -10,11 +10,11 @@ module.start = function()
     local modifiers = hs.eventtap.checkKeyboardModifiers()
     local isCmd     = modifiers['cmd'] == true
 
-    local runningBrowser = hs.fnutils.find(urlevent.browserPreference, function(browserName)
+    local runningBrowser = hs.fnutils.find(watchers.urlPreference, function(browserName)
       return hs.application.get(browserName) ~= nil
     end)
 
-    local browserName = runningBrowser or urlevent.browserPreference[1]
+    local browserName = runningBrowser or watchers.urlPreference[1]
 
     hs.applescript.applescript(template([[
       tell application "{APP_NAME}"
