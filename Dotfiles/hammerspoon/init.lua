@@ -8,40 +8,41 @@ specialkeys                  = require('utils.specialkeys')
 watchers                     = require('utils.watchers')
 window                       = require('ext.window')
 
--- extension settings
+-- extensions
 window.fixEnabled            = false
 window.fullFrame             = true
 window.historyLimit          = 20
 window.margin                = 6
 
--- spaces dots settings
+-- dots
 dots.alpha                   = 0.15
 dots.selectedAlpha           = 0.45
 dots.distance                = 16
 dots.size                    = 8
 
--- hs settings
+-- hs
 hs.window.animationDuration  = 0.1
 hs.hints.fontName            = 'Helvetica-Bold'
 hs.hints.fontSize            = 22
 hs.hints.showTitleThresh     = 0
 hs.hints.hintChars           = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'Z', 'X', 'C' }
 
--- enable notifications
+-- notifications
 notify.enabled               = { 'battery', 'online', 'wifi' }
 
--- enable watchers
+-- watchers
 watchers.enabled             = { 'application', 'reload', 'urlevent' }
 watchers.urlPreference       = { 'Safari', 'Google Chrome' }
 
--- enable and configure controlplane extensions
+-- controlplane
 controlplane.enabled         = { 'audio', 'automount', 'bluetooth', 'displays', 'persistvpn' }
 controlplane.audioPreference = { 'EDIROL FA-66 (3624)', 'Built-in Output' }
 
--- enable special keys functions
-specialkeys.enabled          = { 'onlinespotify' }
+-- special keyboard keys
+specialkeys.enabled          = { 'players' }
+specialkeys.playerPreference = { 'Spotify', 'OnlineSpotify', 'iTunes' }
 
--- start everything
+-- start
 hs.fnutils.each({
   bindings,
   controlplane,

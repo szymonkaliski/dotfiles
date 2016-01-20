@@ -8,7 +8,7 @@ local screenWatcher = function()
 
   if thunderboltDisplay then
     thunderboltDisplay:setPrimary()
-  else
+  elseif laptopDisplay then
     laptopDisplay:setPrimary()
   end
 end
@@ -16,7 +16,7 @@ end
 module.start = function()
   cache.watcher = hs.screen.watcher.new(screenWatcher):start()
 
-  -- run on start
+  -- setup on start
   screenWatcher()
 end
 

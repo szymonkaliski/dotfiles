@@ -1,7 +1,8 @@
 local keys          = require('ext.table').keys
 local spaces        = require('hs._asm.undocumented.spaces')
-local switchToIndex = require('utils.spaces.betterswitch').switchToIndex;
+local switchToIndex = require('utils.spaces.betterswitch').switchToIndex
 local uniq          = require('ext.table').uniq
+local animateAlpha  = require('ext.drawing').animateAlpha
 
 local cache = {
   watchers = {},
@@ -11,6 +12,8 @@ local cache = {
 local module = {}
 
 module.draw = function()
+  hs.drawing.disableScreenUpdates()
+
   local activeSpaces = spaces.query(spaces.masks.currentSpaces, true)
   local cacheUUIDs   = keys(cache.dots)
   local screenUUIDs  = {}
@@ -29,7 +32,11 @@ module.draw = function()
     if not screen or #spaces.layout()[screenUUID] <= 1 then
       -- delete all cached dots
       if cache.dots[screenUUID] then
-        hs.fnutils.each(cache.dots[screenUUID], function(dot) dot:delete() end)
+        hs.fnutils.each(cache.dots[screenUUID], function(container)
+          if container.animation then container.animation:stop() end
+          if container.dot then container.dot:delete() end
+        end)
+
         cache.dots[screenUUID] = nil
       end
 
@@ -43,13 +50,21 @@ module.draw = function()
     if not cache.dots[screenUUID] then cache.dots[screenUUID] = {} end
 
     for i = 1, math.max(#screenSpaces, #cache.dots[screenUUID]) do
-      local dot = cache.dots[screenUUID][i]
+      local container = cache.dots[screenUUID][i] or {}
+
+      local dot       = container.dot
+      local animation = container.animation
 
       if not dot then
         dot = hs.drawing.circle({ x = 0, y = 0, w = dots.size, h = dots.size })
           :setStroke(false)
-          :setBehaviorByLabels({ 'canJoinAllSpaces', 'stationary' })
-          :setLevel(hs.drawing.windowLevels.desktopIcon)
+          :setBehaviorByLabels({ 'moveToActiveSpace', 'stationary' })
+          :setLevel(hs.drawing.windowLevels.desktop)
+          :setFillColor({ red = 1.0, green = 1.0, blue = 1.0, alpha = 1.0 })
+      end
+
+      if animation then
+        animation:stop()
       end
 
       if i <= #screenSpaces then
@@ -59,9 +74,11 @@ module.draw = function()
 
         dot
           :setTopLeft({ x = x + screenFrame.x, y = y + screenFrame.y })
-          :setFillColor({ red = 1.0, green = 1.0, blue = 1.0, alpha = alpha })
           :setClickCallback(function() switchToIndex(i) end)
+          :setAlpha(0)
           :show()
+
+        animation = animateAlpha(dot, alpha, { speed = 0.15 })
       else
         -- somehow :hide() creates problems when switching screens ("ghost dots")
         -- deleting invisible dots fixes it
@@ -69,9 +86,14 @@ module.draw = function()
         dot = nil
       end
 
-      cache.dots[screenUUID][i] = dot
+      cache.dots[screenUUID][i] = {
+        dot       = dot,
+        animation = animation
+      }
     end
   end)
+
+  hs.drawing.enableScreenUpdates()
 end
 
 module.start = function()

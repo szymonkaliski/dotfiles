@@ -8,7 +8,30 @@ local spaceInDirection = require('ext.spaces').spaceInDirection
 local spaces           = require('hs._asm.undocumented.spaces')
 
 local module = {}
-local cache  = { switching = false }
+local cache  = {}
+
+local waitForAnimation = function(targetSpace, changedFocus, mousePosition)
+  if cache.waiting then return end
+
+  cache.changeStart = hs.timer.secondsSinceEpoch()
+
+  -- wait for switching to end (spaces.isAnimating() doesn't work)
+  -- and move cursor back to original position
+  cache.waiting = hs.timer.waitUntil(
+    function()
+      return (spaces.activeSpace() == targetSpace) or (hs.timer.secondsSinceEpoch() - cache.changeStart > 1)
+    end,
+    function()
+      if changedFocus then
+        hs.mouse.setAbsolutePosition(mousePosition)
+      end
+
+      cache.switching = false
+      cache.waiting   = nil
+    end,
+    0.01
+  )
+end
 
 -- sends proper amount of ctrl+left/right to move you to given space, even if it's fullscreen app!
 module.switchToIndex = function(targetIdx)
@@ -26,7 +49,7 @@ module.switchToIndex = function(targetIdx)
   -- check if we really can send the keystrokes
   local shouldSendEvents = hs.fnutils.every({
     not cache.switching,
-    targetSpace ~= nil,
+    targetSpace,
     activeIdx ~= targetIdx
   }, function(test) return test end)
 
@@ -37,24 +60,13 @@ module.switchToIndex = function(targetIdx)
     local eventDirection = targetIdx > activeIdx and 'right' or 'left'
 
     -- gain focus on the screen
-    focusScreen(currentScreen)
+    local changedFocus = focusScreen(currentScreen)
 
     for _ = 1, eventCount do
       hs.eventtap.keyStroke({ 'ctrl' }, eventDirection)
     end
 
-    -- wait for switching to end (spaces.isAnimating() doesn't work)
-    -- and move cursor back to original position
-    hs.timer.waitUntil(
-      function()
-        return spaces.activeSpace() == targetSpace
-      end,
-      function()
-        hs.mouse.setAbsolutePosition(mousePosition)
-        cache.switching = false
-      end,
-      0.01 -- check every 1/100 of second
-    )
+    waitForAnimation(targetSpace, changedFocus, mousePosition)
   end
 end
 
@@ -63,24 +75,9 @@ module.switchInDirection = function(direction)
   local mousePosition = hs.mouse.getAbsolutePosition()
   local targetSpace   = spaceInDirection(direction)
 
-  cache.switching = true
-
+  -- gain focus on the screen
   local changedFocus = focusScreen(currentScreen)
-
-  if changedFocus then
-    hs.timer.waitUntil(
-      function()
-        return spaces.activeSpace() == targetSpace
-      end,
-      function()
-        hs.mouse.setAbsolutePosition(mousePosition)
-        cache.switching = false
-      end,
-      0.01 -- check every 1/100 of second
-    )
-  else
-    cache.switching = false
-  end
+  waitForAnimation(targetSpace, changedFocus, mousePosition)
 end
 
 -- taps to ctrl + 1-9 overriding default functionality

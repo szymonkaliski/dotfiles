@@ -23,7 +23,7 @@ end
 module.start = function()
   cache.watcher = hs.screen.watcher.new(screenWatcher):start()
 
-  -- run on start
+  -- setup on start
   screenWatcher()
 end
 
