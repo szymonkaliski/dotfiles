@@ -5,9 +5,9 @@ endif
 augroup neomake_plugin
   au!
 
-  au BufRead,BufWritePost *.js,*.jsx,*.json               Neomake
-  au BufRead,BufWritePost *.clj,*.cljs                    Neomake
-  au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* Neomake
+  au BufRead,BufWritePost *.js,*.jsx,*.json               Neomake | redraw
+  au BufRead,BufWritePost *.clj,*.cljs                    Neomake | redraw
+  au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* Neomake | redraw
 augroup END
 
 function! AirlineNeomakeStatus()

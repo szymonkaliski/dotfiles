@@ -36,7 +36,7 @@ watchers.urlPreference       = { 'Safari', 'Google Chrome' }
 
 -- controlplane
 controlplane.enabled         = { 'audio', 'automount', 'bluetooth', 'displays', 'persistvpn' }
-controlplane.audioPreference = { 'EDIROL FA-66 (3624)', 'Built-in Output' }
+controlplane.audioPreference = { 'EDIROL FA-66 (3624)', 'Display Audio', 'Built-in Output' }
 
 -- special keyboard keys
 specialkeys.enabled          = { 'players' }
