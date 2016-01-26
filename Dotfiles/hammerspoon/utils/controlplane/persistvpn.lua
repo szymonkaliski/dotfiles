@@ -1,66 +1,22 @@
-local module = {}
-local cache  = {}
-
-local onlineWatcher = require('ext.onlinewatcher')
-local notify        = require('utils.controlplane.notify')
+local module        = {}
+local cache         = {}
 local vpnTimeout    = 10 -- timeout before re-connecting to VPN
 
-local iconOn = hs.image.imageFromASCII([[
-.....................
-.....................
-..........3..........
-.....................
-.....2.........4.....
-...1......c......5...
-.......b.....d.......
-.....................
-......a.......e......
-.....................
-.....................
-.......h.....f.......
-....A.....g.....6....
-.....................
-........9...7........
-.....................
-..........8..........
-.....................
-.....................
-.....................
-]], {
-  {
-    lineWidth = 1.2,
-    fillColor = { alpha = 0 }
-  },
-  { fillColor = { alpha = 1 } }
-})
+local notify        = require('utils.controlplane.notify')
+local onlineWatcher = require('ext.onlinewatcher')
 
-local iconOff = hs.image.imageFromASCII([[
-.....................
-.....................
-..........3..........
-.....................
-.....2.........4.....
-...1.............5...
-.....................
-.....................
-.....................
-.....................
-.....................
-.....................
-....A...........6....
-.....................
-........9...7........
-.....................
-..........8..........
-.....................
-.....................
-.....................
-]], {
-  {
-    lineWidth = 1.2,
-    fillColor = { alpha = 0 }
-  }
-})
+local iconOff       = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-off.png'
+local iconOn        = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-on.png'
+
+local openVPNSettings = function()
+  hs.applescript.applescript([[
+    tell application "System Preferences"
+      activate
+      set the current pane to pane id "com.apple.preference.network"
+      reveal anchor "VPN" of pane id "com.apple.preference.network"
+    end tell
+  ]])
+end
 
 local isVPNConnected = function()
   local _, res = hs.applescript.applescript([[
@@ -116,15 +72,37 @@ end
 local updateMenuItem = function()
   local isConnected = isVPNConnected()
 
+  local generateMenu = function(options)
+    return {
+      { title = options.statusText,        disabled = true      },
+      { title = options.subStatusText,     fn = options.fn      },
+      { title = '-'                                             },
+      { title = 'Open VPN Preferences...', fn = openVPNSettings }
+    }
+  end
+
   if isConnected then
     cache.menuItem
-      :setTooltip('VPN connected')
+      :setMenu(generateMenu({
+        statusText    = 'VPN: Connected',
+        subStatusText = 'Disconnect from VPN',
+        fn            = disconnectVPN
+      }))
       :setIcon(iconOn)
   elseif cache.connecting then
-    cache.menuItem:setTooltip('VPN connecting...')
+    cache.menuItem
+      :setMenu(generateMenu({
+        statusText    = 'VPN: Connecting...',
+        subStatusText = 'Disconnect from VPN',
+        fn            = disconnectVPN
+      }))
   else
     cache.menuItem
-      :setTooltip('VPN disconnected')
+      :setMenu(generateMenu({
+        statusText    = 'VPN: Disconnected',
+        subStatusText = 'Connect to VPN',
+        fn            = connectVPN
+      }))
       :setIcon(iconOff)
   end
 end
@@ -136,17 +114,7 @@ module.start = function()
 
   -- create menu icon for quick toggle
   cache.menuItem = hs.menubar.new()
-
-  cache.menuItem:setClickCallback(function()
-    local vpnEnabled = hs.settings.get('vpnEnabled')
-    hs.settings.set('vpnEnabled', not vpnEnabled)
-
-    if vpnEnabled then
-      connectVPN()
-    else
-      disconnectVPN()
-    end
-  end)
+  updateMenuItem()
 
   cache.onlineHandle = onlineWatcher.subscribe(function(isOnline)
     -- we don't care about VPN if there's no internet connection

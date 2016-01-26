@@ -50,7 +50,9 @@ module.switchToIndex = function(targetIdx)
   local shouldSendEvents = hs.fnutils.every({
     not cache.switching,
     targetSpace,
-    activeIdx ~= targetIdx
+    activeIdx ~= targetIdx,
+    targetIdx <= #screenSpaces,
+    targetIdx >= 1
   }, function(test) return test end)
 
   if shouldSendEvents then

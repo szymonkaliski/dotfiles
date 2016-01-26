@@ -327,7 +327,7 @@ exe "hi! Title"         .s:fg_yellow      .s:bg_none        .s:fmt_none
 exe "hi! Visual"        .s:fg_none        .s:bg_selection   .s:fmt_none
 "		VisualNos"
 exe "hi! WarningMsg"    .s:fg_red         .s:bg_none        .s:fmt_none
-exe "hi! WildMenu"      .s:fg_background  .s:bg_blue   .s:fmt_none
+exe "hi! WildMenu"      .s:fg_background  .s:bg_blue        .s:fmt_none
 
 " Use Xresources for background colour
 if has('gui_running') || (g:hybrid_use_Xresources != 1 && g:hybrid_use_iTerm_colors != 1)
