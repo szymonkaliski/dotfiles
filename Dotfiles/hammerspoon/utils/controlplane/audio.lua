@@ -1,8 +1,9 @@
 local module = {}
 local cache  = {
-  previousDevice = hs.audiodevice.current().uid,
-  builtInInput   = hs.audiodevice.findDeviceByName('Built-in Input'),
-  builtInOutput  = hs.audiodevice.findDeviceByName('Built-in Output')
+  previousDevice   = hs.audiodevice.current().uid,
+  wasJackConnected = hs.audiodevice.findDeviceByName('Built-in Input'):jackConnected(),
+  builtInInput     = hs.audiodevice.findDeviceByName('Built-in Input'),
+  builtInOutput    = hs.audiodevice.findDeviceByName('Built-in Output')
 }
 
 local notify = require('utils.controlplane.notify')
@@ -10,13 +11,14 @@ local notify = require('utils.controlplane.notify')
 local switchToPreferredDevice = function()
   local isJackConnected = cache.builtInOutput:jackConnected()
 
-  if isJackConnected and cache.previousDevice ~= cache.builtInOutput:uid() then
+  if isJackConnected and not cache.wasJackConnected then
     cache.builtInInput:setDefaultInputDevice()
     cache.builtInOutput:setDefaultOutputDevice()
 
     notify('Audio device: Headphones')
 
-    cache.previousDevice = cache.builtInOutput:uid()
+    cache.previousDevice   = cache.builtInOutput:uid()
+    cache.wasJackConnected = true
   end
 
   if not isJackConnected then
@@ -26,7 +28,7 @@ local switchToPreferredDevice = function()
 
     local availableDevice = hs.audiodevice.findDeviceByName(foundName)
 
-    if availableDevice and cache.previousDevice ~= availableDevice:uid() then
+    if availableDevice and (cache.previousDevice ~= availableDevice:uid() or cache.wasJackConnected) then
       availableDevice:setDefaultInputDevice()
       availableDevice:setDefaultOutputDevice()
 
@@ -34,6 +36,8 @@ local switchToPreferredDevice = function()
 
       cache.previousDevice = availableDevice:uid()
     end
+
+    cache.wasJackConnected = false
   end
 end
 

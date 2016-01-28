@@ -72,10 +72,14 @@ end
 local updateMenuItem = function()
   local isConnected = isVPNConnected()
 
-  local generateMenu = function(options)
+  local generateVPNMenu = function(options)
+    local changeVPNStatus = function()
+      hs.settings.set('vpnEnabled', options.switchVPNStatus)
+    end
+
     return {
       { title = options.statusText,        disabled = true      },
-      { title = options.subStatusText,     fn = options.fn      },
+      { title = options.subStatusText,     fn = changeVPNStatus },
       { title = '-'                                             },
       { title = 'Open VPN Preferences...', fn = openVPNSettings }
     }
@@ -83,25 +87,25 @@ local updateMenuItem = function()
 
   if isConnected then
     cache.menuItem
-      :setMenu(generateMenu({
-        statusText    = 'VPN: Connected',
-        subStatusText = 'Disconnect from VPN',
-        fn            = disconnectVPN
+      :setMenu(generateVPNMenu({
+        statusText      = 'VPN: Connected',
+        subStatusText   = 'Disconnect from VPN',
+        switchVPNStatus = false
       }))
       :setIcon(iconOn)
   elseif cache.connecting then
     cache.menuItem
-      :setMenu(generateMenu({
-        statusText    = 'VPN: Connecting...',
-        subStatusText = 'Disconnect from VPN',
-        fn            = disconnectVPN
+      :setMenu(generateVPNMenu({
+        statusText      = 'VPN: Connecting...',
+        subStatusText   = 'Disconnect from VPN',
+        switchVPNStatus = false
       }))
   else
     cache.menuItem
-      :setMenu(generateMenu({
-        statusText    = 'VPN: Disconnected',
-        subStatusText = 'Connect to VPN',
-        fn            = connectVPN
+      :setMenu(generateVPNMenu({
+        statusText      = 'VPN: Disconnected',
+        subStatusText   = 'Connect to VPN',
+        switchVPNStatus = true
       }))
       :setIcon(iconOff)
   end
