@@ -12,6 +12,7 @@ augroup END
 
 function! AirlineNeomakeStatus()
   let l:counts = neomake#statusline#LoclistCounts()
+
   let l:w = get(l:counts, 'W', 0)
   let l:e = get(l:counts, 'E', 0)
   let l:x = get(l:counts, 'x', 0)
@@ -19,18 +20,18 @@ function! AirlineNeomakeStatus()
   if l:w || l:e || l:x
     let l:result = ''
     if l:e
-      let l:result = l:result . 'Error: ' . e
+      let l:result = l:result . 'Errors: ' . e
       if l:w
         let l:result = l:result . ' '
       endif
     endif
 
     if l:w
-      let l:result = l:result . 'Warning: ' . w
+      let l:result = l:result . 'Warnings: ' . w
     endif
 
     if l:x
-      let l:result = l.result . ' Unknown: ' . x
+      let l:result = l:result . ' Unknown: ' . x
     endif
 
     return l:result

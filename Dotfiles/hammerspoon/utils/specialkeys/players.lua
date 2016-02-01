@@ -15,9 +15,23 @@ local playerMappings = {
   OnlineSpotify = onlineSpotify
 }
 
+local notify = function(player)
+  local name    = player.name
+  local app     = hs.application.find(name)
+  local appIcon = app and hs.image.imageFromAppBundle(app:bundleID())
+
+  hs.notify.new({
+    title        = player.getCurrentArtist(),
+    subTitle     = player.getCurrentTrack(),
+    contentImage = appIcon
+  }):send()
+end
+
 local executeWithPlayer = function(player, action)
   log.d(player.name, action)
+
   player[action]()
+  notify(player)
 end
 
 module.shouldProcessEvent = function(systemKey)

@@ -302,7 +302,7 @@ exe "hi! LineNr"        .s:fg_selection   .s:bg_none        .s:fmt_none
 exe "hi! CursorLineNr"  .s:fg_orange      .s:bg_none        .s:fmt_bold
 " exe "hi! MatchParen"    .s:fg_blue        .s:bg_none        .s:fmt_revr
 " exe "hi! MatchParen"    .s:fg_none        .s:bg_none        .s:fmt_none
-exe "hi! MatchParen"    .s:fg_orange      .s:bg_none        .s:fmt_none
+exe "hi! MatchParen"    .s:fg_yellow      .s:bg_none        .s:fmt_none
 exe "hi! ModeMsg"       .s:fg_green       .s:bg_none        .s:fmt_none
 exe "hi! MoreMsg"       .s:fg_green       .s:bg_none        .s:fmt_none
 exe "hi! NonText"       .s:fg_background  .s:bg_none        .s:fmt_none
@@ -312,7 +312,7 @@ exe "hi! PmenuSbar"     .s:fg_none        .s:bg_selection   .s:fmt_none
 exe "hi! PmenuThumb"    .s:fg_none        .s:bg_comment     .s:fmt_none
 exe "hi! Question"      .s:fg_green       .s:bg_none        .s:fmt_none
 " exe "hi! Search"        .s:fg_background  .s:bg_yellow      .s:fmt_none
-exe "hi! Search"        .s:fg_orange      .s:bg_none        .s:fmt_revr
+exe "hi! Search"        .s:fg_yellow      .s:bg_none        .s:fmt_revr
 exe "hi! SpecialKey"    .s:fg_selection   .s:bg_none        .s:fmt_none
 exe "hi! SpellCap"      .s:fg_blue        .s:bg_darkblue    .s:fmt_none
 exe "hi! SpellLocal"    .s:fg_aqua        .s:bg_darkcyan    .s:fmt_none
@@ -530,7 +530,8 @@ exe "hi! clojureVarArg"   .s:fmt_none .s:fg_aqua    .s:bg_none
 " clever-f highlighting {{{
 
 " exe "hi! CleverFDefaultLabel" .s:fg_green .s:bg_none .s:fmt_revr
-exe "hi! CleverFDefaultLabel" .s:fg_orange .s:bg_none .s:fmt_none
+" exe "hi! CleverFDefaultLabel" .s:fg_orange .s:bg_none .s:fmt_none
+exe "hi! CleverFDefaultLabel" .s:fg_yellow .s:bg_none .s:fmt_revr
 
 " }}}
 " plug highlighting {{{

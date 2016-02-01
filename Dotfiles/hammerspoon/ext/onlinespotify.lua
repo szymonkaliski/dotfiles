@@ -37,6 +37,26 @@ module.next = function()
   clickSpotifyId('next')
 end
 
+module.getCurrentArtist = function()
+  if not module.isRunning() then return false end
+
+  local _, res = hs.applescript.applescript(wrapInChromeSpotifyCall([[
+    return execute currentTab javascript "document.getElementById('app-player').contentWindow.document.getElementById('track-artist').textContent"
+  ]]))
+
+  return res
+end
+
+module.getCurrentTrack = function()
+  if not module.isRunning() then return false end
+
+  local _, res = hs.applescript.applescript(wrapInChromeSpotifyCall([[
+    return execute currentTab javascript "document.getElementById('app-player').contentWindow.document.getElementById('track-name').textContent"
+  ]]))
+
+  return res
+end
+
 module.isPlaying = function()
   if not module.isRunning() then return false end
 

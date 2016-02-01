@@ -71,9 +71,10 @@ endfunction
 
 " theme patching
 function! AirlineThemePatch(palette)
-  if g:airline_theme == 'tomorrow' || g:airline_theme == 'solarized' || g:airline_theme == 'jellybeans'
-    let l:palettes = [a:palette.normal, a:palette.insert, a:palette.replace, a:palette.visual, a:palette.accents]
+  if g:airline_theme == 'tomorrow' || g:airline_theme == 'solarized'
+    let l:palettes = [ a:palette.normal, a:palette.insert, a:palette.replace, a:palette.visual, a:palette.accents ]
 
+    " nothing in italic or bold
     for l:palette in l:palettes
       for l:colors in values(l:palette)
         if len(l:colors) >= 5
@@ -82,20 +83,27 @@ function! AirlineThemePatch(palette)
       endfor
     endfor
 
-    if g:airline_theme == 'tomorrow' && !has('gui')
+    " patch theme for tomorrow colors
+    if g:airline_theme == 'tomorrow' && g:colors_name != 'hybrid'
       for l:colors in values(a:palette.inactive)
         let l:colors[2] = '245'
         let l:colors[3] = '0'
       endfor
     endif
 
-    if g:airline_theme == 'tomorrow' && !has('gui') && g:colors_name == 'hybrid'
+    " patch theme for hybrid colors
+    if g:airline_theme == 'tomorrow' && g:colors_name == 'hybrid'
       for l:colors in values(a:palette.inactive)
         let l:colors[2] = '243'
         let l:colors[3] = '235'
       endfor
+
+      for l:palette in l:palettes
+        let l:palette.airline_warning[3] = '1'
+      endfor
     endif
 
+    " patch theme for solarized colors
     if g:airline_theme == 'solarized'
       for l:colors in values(a:palette.inactive)
         if &background == 'dark'
@@ -107,16 +115,6 @@ function! AirlineThemePatch(palette)
         endif
         let l:colors[2] = '10'
         let l:colors[3] = '0'
-      endfor
-    endif
-
-    if g:airline_theme == 'jellybeans'
-      for l:palette in l:palettes
-        for l:colors in values(l:palette)
-          if len(l:colors) >= 3 && l:colors[3] == '233'
-            let l:colors[3] = '234'
-          endif
-        endfor
       endfor
     endif
   endif

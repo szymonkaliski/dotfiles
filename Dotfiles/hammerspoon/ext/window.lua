@@ -1,6 +1,6 @@
 local activeScreen     = require('ext.screen').activeScreen
 local application      = require('ext.application')
-local bezel            = require('ext.bezel')
+local bezel            = require('ext.drawing').bezel
 local focusScreen      = require('ext.screen').focusScreen
 local framed           = require('ext.framed')
 local highlightWindow  = require('ext.drawing').highlightWindow
