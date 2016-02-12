@@ -35,8 +35,9 @@ watchers.enabled             = { 'application', 'reload', 'urlevent' }
 watchers.urlPreference       = { 'Safari', 'Google Chrome' }
 
 -- controlplane
-controlplane.enabled         = { 'audio', 'automount', 'bluetooth', 'displays', 'persistvpn' }
-controlplane.audioPreference = { 'HDMI', 'EDIROL FA-66 (3624)', 'Display Audio', 'Built-in Output' }
+controlplane.enabled         = { 'automount', 'autoafp', 'bluetooth', 'displays', 'persistvpn' }
+controlplane.homeNetwork     = 'Skynet 5G'
+controlplane.afpVolumes      = { 'afp://Stelis._afpovertcp._tcp.local/' }
 
 -- special keyboard keys
 specialkeys.enabled          = { 'players' }

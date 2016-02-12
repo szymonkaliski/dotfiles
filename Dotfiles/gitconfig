@@ -21,6 +21,7 @@
   st = status -sb
   di = diff --minimal
   ds = diff --minimal --staged
+  dl = diff --minimal HEAD^ HEAD
   ls = log --pretty=format:"%C(yellow)%h%x09%C(green)%cr%x09%C(reset)%s\\%C(magenta)%d\\ %C(blue)[%cn]" --decorate
   ll = log --pretty=format:"%C(yellow)%h%x09%C(green)%cd%x09%C(reset)%s\\%C(magenta)%d\\ %C(blue)[%cn]" --decorate --numstat
 [push]

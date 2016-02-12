@@ -108,7 +108,7 @@ module.bezel = function(text, textSize)
 end
 
 module.highlightWindow = function()
-  local borderWidth = 6
+  local borderWidth = 10
 
   local setBorderFrame = function()
     local focusedWindow = hs.window.focusedWindow()
@@ -133,12 +133,12 @@ module.highlightWindow = function()
     else
       cache.borderDrawing
         :setFrame({
-          x = frame.x - borderWidth / 2,
-          y = frame.y - borderWidth / 2,
-          w = frame.w + borderWidth,
-          h = frame.h + borderWidth
+          x = frame.x - borderWidth / 2 - 2,
+          y = frame.y - borderWidth / 2 - 2,
+          w = frame.w + borderWidth + 4,
+          h = frame.h + borderWidth + 4
         })
-        :setRoundedRectRadii(8, 8)
+        :setRoundedRectRadii(borderWidth, borderWidth)
     end
 
     return borderDrawing

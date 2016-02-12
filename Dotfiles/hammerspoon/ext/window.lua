@@ -257,12 +257,18 @@ function module.cycleWindows(win, appWindowsOnly)
   --  we only care about standard windows
   local windows = hs.fnutils.filter(allWindows, function(win) return win:isStandard() end)
 
+  -- get id based of appname and window id
+  -- this basically makes sorting windows bit saner
+  local getId = function(win)
+    return win:application():bundleID() .. '-' .. win:id()
+  end
+
   if #windows == 1 then
     -- if we have only one window - focus it
     windows[1]:focus()
   elseif #windows > 1 then
     -- if there are more than one, sort them first by id
-    table.sort(windows, function(a, b) return a:id() < b:id() end)
+    table.sort(windows, function(a, b) return getId(a) < getId(b) end)
 
     -- check if one of them is active
     local activeWindowIndex = hs.fnutils.indexOf(windows, win)
