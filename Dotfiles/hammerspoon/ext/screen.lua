@@ -17,21 +17,20 @@ module.activeScreen = function()
 end
 
 module.focusScreen = function(screen)
-  local frame = screen:frame()
+  local frame         = screen:frame()
+  local mousePosition = hs.mouse.getAbsolutePosition()
 
   -- if mouse is already on the given screen we can safely return
-  if hs.geometry(hs.mouse.getAbsolutePosition()):inside(frame) then return false end
+  if hs.geometry(mousePosition):inside(frame) then return false end
 
   -- "hide" cursor in the lower right side of screen
   -- it's invisible while we are changing spaces
-  local mousePosition = {
+  local newMousePosition = {
     x = frame.x + frame.w - 1,
     y = frame.y + frame.h - 1
   }
 
-  -- hs.mouse.setAbsolutePosition doesn't work for gaining proper screen focus
-  -- moving the mouse pointer with cliclick (available on homebrew) works
-  os.execute(template([[ /usr/local/bin/cliclick m:={X},{Y} ]], { X = mousePosition.x, Y = mousePosition.y }))
+  hs.mouse.setAbsolutePosition(newMousePosition)
   hs.timer.usleep(1000)
 
   return true

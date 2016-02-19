@@ -40,7 +40,10 @@ module.switchToIndex = function(targetIdx)
 
   -- grab spaces for screen with active window
   local currentScreen = activeScreen()
-  local screenSpaces  = screenSpaces()
+  local screenSpaces  = screenSpaces(currentScreen)
+
+  -- gain focus on the screen
+  local changedFocus = focusScreen(currentScreen)
 
   -- grab index of currently active space
   local activeIdx     = activeSpaceIndex(screenSpaces)
@@ -60,9 +63,6 @@ module.switchToIndex = function(targetIdx)
 
     local eventCount     = math.abs(targetIdx - activeIdx)
     local eventDirection = targetIdx > activeIdx and 'right' or 'left'
-
-    -- gain focus on the screen
-    local changedFocus = focusScreen(currentScreen)
 
     for _ = 1, eventCount do
       hs.eventtap.keyStroke({ 'ctrl' }, eventDirection)
