@@ -1,7 +1,8 @@
 local module      = {}
+
 local window      = require('ext.window')
 local application = require('ext.application')
-local webview     = require('ext.webview')
+local system      = require('ext.system')
 
 -- simple unpack clone
 function unpack(t, i)
@@ -49,7 +50,7 @@ end
 local cycleWin = function(fn, ...)
   local args          = { ... }
   local cycles        = args[2]
-  local resetInterval = 1
+  local resetInterval = 2
   local lastCycle     = hs.timer.secondsSinceEpoch()
   local cycleIndex    = 1
 
@@ -86,8 +87,8 @@ module.start = function()
     { key = 'r',     mod = mod.cc,  fn = bindWin(window.persistPosition, 'redo')                         },
     { key = 'tab',   mod = mod.cc,  fn = bindWin(window.cycleWindows, { allowFullscreen = true }, false) },
     { key = 'tab',   mod = mod.ca,  fn = bindWin(window.cycleWindows, { allowFullscreen = true }, true)  },
-    { key = '/',     mod = mod.cc,  fn = application.toggleConsole                                       },
-    { key = '/',     mod = mod.cac, fn = webview.search                                                  },
+    { key = '/',     mod = mod.cc,  fn = system.toggleConsole                                            },
+    { key = 'm',     mod = mod.cc,  fn = system.toggleDoNotDisturb                                       },
     { key = 'space', mod = mod.cac, fn = window.windowHints                                              }
   }, function(object)
     hs.hotkey.bind(object.mod, object.key, object.fn)
@@ -96,11 +97,12 @@ module.start = function()
   -- arrow bindings
   hs.fnutils.each({ 'up', 'down', 'left', 'right' }, function(direction)
     local nudge = timeWin(window.nudge, direction)
-    local pushAndSendCycled = cycleWin(window.pushAndSend, direction, { 1 / 2, 1 / 3, 2 / 3 })
+    local pushAndSendCycled = cycleWin(window.pushAndSend, direction, { 1 / 2, 2 / 3, 1 / 3 })
 
     -- hs.hotkey.bind(mod.cc,  direction, bindWin(window.pushAndSend, direction))
     hs.hotkey.bind(mod.cc,  direction, function() pushAndSendCycled() end)
     hs.hotkey.bind(mod.ca,  direction, function() nudge:start() end, function() nudge:stop() end)
+    -- hs.hotkey.bind(mod.ca,  direction, nil, nil, bindWin(window.nudge, direction))
     hs.hotkey.bind(mod.cac, direction, bindWin(window.send, direction))
     hs.hotkey.bind(mod.cas, direction, bindWin(window.throwToScreen, direction))
   end)
@@ -157,9 +159,23 @@ module.start = function()
     { key = 's', apps = { 'Slack', 'Skype'          } },
     { key = 't', apps = { 'iTerm2', 'Terminal'      } },
     { key = 'v', apps = { 'MacVim'                  } },
-    { key = 'x', apps = { 'Xcode'                   } }
+    { key = 'x', apps = { 'Xcode'                   } },
   }, function(object)
     hs.hotkey.bind(mod.cac, object.key, function() application.smartLaunchOrFocus(object.apps) end)
+  end)
+
+  -- open files
+  hs.fnutils.each({
+    {
+      key  = 'i',
+      path = os.getenv('HOME') .. '/Library/Mobile Documents/W6L39UYL6Z~com~mindnode~MindNode/Documents/Ideas.mindnode'
+    },
+    {
+      key  = 'd',
+      path = os.getenv('HOME') .. '/Documents/Dropbox/Notes/drafts.txt'
+    }
+  }, function(object)
+    hs.hotkey.bind(mod.cac, object.key, function() os.execute('open "' .. object.path .. '"') end)
   end)
 end
 

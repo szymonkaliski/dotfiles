@@ -16,7 +16,7 @@ map  <Plug>SlimuxSendParens :let slimux_view=winsaveview()<cr>
 map  <leader>sc :SlimuxGlobalConfigure<cr>
 map  <leader>ss <Plug>SlimuxSendParagraph
 map  <leader>sp <Plug>SlimuxSendParens
-map  <leader>sf <Plug>SlimuxSendBuffer
+map  <leader>sb <Plug>SlimuxSendBuffer
 map  <leader>s] <Plug>SlimuxSendNextParagraph
 map  <leader>s[ <Plug>SlimuxSendPrevParagraph
 

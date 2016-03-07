@@ -1,6 +1,3 @@
-alias e=$EDITOR
-alias v=$EDITOR
-alias n="nvim"
 alias sudo="sudo "
 
 alias ls="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable"

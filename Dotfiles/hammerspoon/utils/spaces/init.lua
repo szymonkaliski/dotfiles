@@ -2,8 +2,8 @@ local cache  = {}
 local module = {}
 
 module.start = function()
-  hs.fnutils.each(menus.enabled, function(controlName)
-    cache[controlName] = require('utils.menus.' .. controlName)
+  hs.fnutils.each(spaces.enabled, function(controlName)
+    cache[controlName] = require('utils.spaces.' .. controlName)
     cache[controlName]:start()
   end)
 end

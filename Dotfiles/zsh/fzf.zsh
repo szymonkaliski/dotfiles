@@ -40,3 +40,19 @@ fkill() {
 fl() {
   locate / | fzf --reverse --prompt='locate > '
 }
+
+# checkout git commit
+fcom() {
+  local commits=$(git ls --reverse)
+  local commit=$(echo "$commits" | fzf --tac +s +m -e)
+
+  git checkout $(echo "$commit" | sed "s/ .*//")
+}
+
+# checkout git branch (including remote)
+fbr() {
+  local branches=$(git branch --all | grep -v HEAD)
+  local branch=$(echo "$branches" | fzf -d $(( 2 + $(wc -l <<< "$branches") )) +m)
+
+  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+}

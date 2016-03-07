@@ -15,7 +15,8 @@ local getOSXAppearance = function()
 end
 
 local getHighlightWindowColor = function()
-  local blueColor = { red = 145 / 255, green = 196 / 255, blue = 239 / 255, alpha = 1.0 }
+  -- local blueColor = { red = 145 / 255, green = 196 / 255, blue = 239 / 255, alpha = 1.0 }
+  local blueColor = { red = 50 / 255, green = 138 / 255, blue = 215 / 255, alpha = 1.0 }
   local grayColor = { red = 143 / 255, green = 143 / 255, blue = 143 / 255, alpha = 1.0 }
 
   return getOSXAppearance() == 'graphite' and grayColor or blueColor
@@ -133,10 +134,10 @@ module.highlightWindow = function()
     else
       cache.borderDrawing
         :setFrame({
-          x = frame.x - borderWidth / 2 - 2,
-          y = frame.y - borderWidth / 2 - 2,
-          w = frame.w + borderWidth + 4,
-          h = frame.h + borderWidth + 4
+          x = frame.x - borderWidth / 2 - 1,
+          y = frame.y - borderWidth / 2 - 1,
+          w = frame.w + borderWidth + 2,
+          h = frame.h + borderWidth + 2
         })
         :setRoundedRectRadii(borderWidth, borderWidth)
     end

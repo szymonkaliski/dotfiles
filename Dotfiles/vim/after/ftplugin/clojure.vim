@@ -6,3 +6,4 @@ if s:is_nvim
 end
 
 nnoremap <buffer> <leader>= :let align_view=winsaveview()<cr>=ip<cr>:call winrestview(align_view)<cr>
+nnoremap <buffer> <leader>tp :ToggleParinfer<cr>

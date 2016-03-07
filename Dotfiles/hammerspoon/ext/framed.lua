@@ -1,7 +1,7 @@
 local module = {}
 
 -- returns frame pushed to screen edge
-function module.push(screen, direction, value)
+module.push = function(screen, direction, value)
   local m = window.margin
   local h = screen.h - m
   local w = screen.w - m
@@ -51,7 +51,7 @@ function module.push(screen, direction, value)
 end
 
 -- returns frame moved by window.margin
-function module.nudge(frame, screen, direction)
+module.nudge = function(frame, screen, direction)
   local m = window.margin
   local h = screen.h - m
   local w = screen.w - m
@@ -84,7 +84,7 @@ function module.nudge(frame, screen, direction)
 end
 
 -- returns frame sent to screen edge
-function module.send(frame, screen, direction)
+module.send = function(frame, screen, direction)
   local m = window.margin
   local h = screen.h - m
   local w = screen.w - m
@@ -103,7 +103,7 @@ function module.send(frame, screen, direction)
 end
 
 -- returns frame fited inside screen
-function module.fit(frame, screen)
+module.fit = function(frame, screen)
   frame.w = math.min(frame.w, screen.w - window.margin * 2)
   frame.h = math.min(frame.h, screen.h - window.margin * 2)
 
@@ -111,7 +111,7 @@ function module.fit(frame, screen)
 end
 
 -- returns frame centered inside screen
-function module.center(frame, screen)
+module.center = function(frame, screen)
   frame.x = screen.w / 2 - frame.w / 2 + screen.x
   frame.y = screen.h / 2 - frame.h / 2 + screen.y
 

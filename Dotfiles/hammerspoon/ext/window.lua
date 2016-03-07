@@ -15,7 +15,7 @@ local cache = {
 local module = {}
 
 -- get screen frame
-function module.screenFrame(win)
+module.screenFrame = function(win)
   local funcName  = window.fullFrame and 'fullFrame' or 'frame'
   local winScreen = win:screen()
 
@@ -23,12 +23,12 @@ function module.screenFrame(win)
 end
 
 -- set frame
-function module.setFrame(win, frame, time)
+module.setFrame = function(win, frame, time)
   win:setFrame(frame, time or hs.window.animationDuration)
 end
 
 -- ugly fix for problem with window height when it's as big as screen
-function module.fixFrame(win)
+module.fixFrame = function(win)
   if window.fixEnabled then
     local screen = module.screenFrame(win)
     local frame  = win:frame()
@@ -41,7 +41,7 @@ function module.fixFrame(win)
 end
 
 -- pushes window in direction
-function module.push(win, direction, value)
+module.push = function(win, direction, value)
   local screen = module.screenFrame(win)
   local frame
 
@@ -52,7 +52,7 @@ function module.push(win, direction, value)
 end
 
 -- nudges window in direction
-function module.nudge(win, direction)
+module.nudge = function(win, direction)
   local screen = module.screenFrame(win)
   local frame  = win:frame()
 
@@ -61,7 +61,7 @@ function module.nudge(win, direction)
 end
 
 -- push and nudge window in direction
-function module.pushAndSend(win, options)
+module.pushAndSend = function(win, options)
   local direction, value
 
   if type(options) == 'table' then
@@ -80,7 +80,7 @@ function module.pushAndSend(win, options)
 end
 
 -- sends window in direction
-function module.send(win, direction)
+module.send = function(win, direction)
   local screen = module.screenFrame(win)
   local frame  = win:frame()
 
@@ -91,7 +91,7 @@ function module.send(win, direction)
 end
 
 -- centers window
-function module.center(win)
+module.center = function(win)
   local screen = module.screenFrame(win)
   local frame  = win:frame()
 
@@ -100,7 +100,7 @@ function module.center(win)
 end
 
 -- fullscreen window with margin
-function module.fullscreen(win)
+module.fullscreen = function(win)
   local screen = module.screenFrame(win)
   local frame  = {
     x = window.margin + screen.x,
@@ -119,7 +119,7 @@ function module.fullscreen(win)
 end
 
 -- set window size and center
-function module.setSize(win, size)
+module.setSize = function(win, size)
   local screen = module.screenFrame(win)
   local frame  = win:frame()
 
@@ -143,7 +143,7 @@ function module.setSize(win, size)
 end
 
 -- focus window in direction
-function module.focus(win, direction)
+module.focus = function(win, direction)
   local functions = {
     up    = 'focusWindowNorth',
     down  = 'focusWindowSouth',
@@ -160,7 +160,7 @@ function module.focus(win, direction)
 end
 
 -- throw to screen in direction, center and fit
-function module.throwToScreen(win, direction)
+module.throwToScreen = function(win, direction)
   local winScreen       = win:screen()
   local frameFunc       = module.fullFrame and 'fullFrame' or 'frame'
   local throwScreenFunc = {
@@ -195,7 +195,7 @@ function module.throwToScreen(win, direction)
 end
 
 -- move window to another space
-function module.moveToSpaceInDirection(win, direction)
+module.moveToSpaceInDirection = function(win, direction)
   local clickPoint  = win:zoomButtonRect()
   local sleepTime   = 1000
   local targetSpace = spaceInDirection(direction)
@@ -244,14 +244,14 @@ function module.moveToSpaceInDirection(win, direction)
       cache.movingWindowToSpace = false
 
       -- display bezel info
-      bezel(direction == 'east' and '→' or '←', 70)
+      -- bezel(direction == 'east' and '→' or '←', 70)
     end,
     0.01 -- check every 1/100 of a second
   )
 end
 
 -- cycle application windows
-function module.cycleWindows(win, appWindowsOnly)
+module.cycleWindows = function(win, appWindowsOnly)
   local allWindows = appWindowsOnly and win:application():allWindows() or hs.window.allWindows()
 
   --  we only care about standard windows
@@ -290,12 +290,12 @@ function module.cycleWindows(win, appWindowsOnly)
 end
 
 -- show hints with highlight
-function module.windowHints()
+module.windowHints = function()
   hs.hints.windowHints(nil, highlightWindow)
 end
 
 -- save and restore window positions
-function module.persistPosition(win, option)
+module.persistPosition = function(win, option)
   local appId           = win:application():bundleID()
   local frame           = win:frame()
   local windowPositions = hs.settings.get('windowPositions') or {}

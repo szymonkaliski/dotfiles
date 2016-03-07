@@ -1,6 +1,8 @@
 local animateAlpha = require('ext.drawing').animateAlpha
 local keys         = require('ext.table').keys
-local spaces       = require('hs._asm.undocumented.spaces')
+local query        = require('hs._asm.undocumented.spaces').query
+local masks        = require('hs._asm.undocumented.spaces').masks
+local layout       = require('hs._asm.undocumented.spaces').layout
 local uniq         = require('ext.table').uniq
 
 local cache = {
@@ -13,7 +15,7 @@ local module = {}
 module.draw = function()
   hs.drawing.disableScreenUpdates()
 
-  local activeSpaces = spaces.query(spaces.masks.currentSpaces, true)
+  local activeSpaces = query(masks.currentSpaces, true)
   local cacheUUIDs   = keys(cache.dots)
   local screenUUIDs  = {}
 
@@ -28,7 +30,7 @@ module.draw = function()
 
     -- if this screen doesn't exist anymore, or there's only one space
     -- then delete all dots, and don't display anything
-    if not screen or #spaces.layout()[screenUUID] <= 1 then
+    if not screen or #layout()[screenUUID] <= 1 then
       -- delete all cached dots
       if cache.dots[screenUUID] then
         hs.fnutils.each(cache.dots[screenUUID], function(container)
@@ -44,7 +46,7 @@ module.draw = function()
 
     local screenFrame  = screen:fullFrame()
     local screenUUID   = screen:spacesUUID()
-    local screenSpaces = spaces.layout()[screenUUID]
+    local screenSpaces = layout()[screenUUID]
 
     if not cache.dots[screenUUID] then cache.dots[screenUUID] = {} end
 
@@ -55,7 +57,7 @@ module.draw = function()
       local animation = container.animation
 
       if not dot then
-        dot = hs.drawing.circle({ x = 0, y = 0, w = dots.size, h = dots.size })
+        dot = hs.drawing.circle({ x = 0, y = 0, w = spaces.dots.size, h = spaces.dots.size })
           :setStroke(false)
           :setBehaviorByLabels({ 'moveToActiveSpace', 'stationary' })
           :setLevel(hs.drawing.windowLevels.desktop)
@@ -67,9 +69,9 @@ module.draw = function()
       end
 
       if i <= #screenSpaces then
-        local x     = screenFrame.w / 2 - (#screenSpaces / 2) * dots.distance + i * dots.distance - dots.size * 3 / 2
-        local y     = screenFrame.h - dots.distance
-        local alpha = hs.fnutils.contains(activeSpaces, screenSpaces[i]) and dots.selectedAlpha or dots.alpha
+        local x     = screenFrame.w / 2 - (#screenSpaces / 2) * spaces.dots.distance + i * spaces.dots.distance - spaces.dots.size * 3 / 2
+        local y     = screenFrame.h - spaces.dots.distance
+        local alpha = hs.fnutils.contains(activeSpaces, screenSpaces[i]) and spaces.dots.selectedAlpha or spaces.dots.alpha
 
         dot
           :setTopLeft({ x = x + screenFrame.x, y = y + screenFrame.y })
@@ -96,10 +98,10 @@ end
 
 module.start = function()
   -- we need to redraw dots on screen and space events
-  cache.watchers.spaces = hs.spaces.watcher.new(dots.draw):start()
-  cache.watchers.screen = hs.screen.watcher.new(dots.draw):start()
+  cache.watchers.spaces = hs.spaces.watcher.new(module.draw):start()
+  cache.watchers.screen = hs.screen.watcher.new(module.draw):start()
 
-  dots.draw()
+  module.draw()
 end
 
 module.stop = function()

@@ -4,6 +4,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'Konfekt/FastFold'
 Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
+Plug 'chaoren/vim-wordmotion'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'coderifous/textobj-word-column.vim'
 Plug 'ervandew/supertab'
@@ -31,7 +32,7 @@ Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterO
 
 " loading based on system and vim version
 Plug 'airblade/vim-gitgutter',             { 'on': [] } " only on mac
-Plug 'benekastah/neomake',                 { 'on': [], 'commit': 'e06f85e1651f5fe8841df3c85df1c51a891ccac4' } " only in nvim
+Plug 'benekastah/neomake',                 { 'on': [] } " only in nvim
 Plug 'marijnh/tern_for_vim',               { 'on': [], 'do': 'npm install' } " only on mac
 Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
 Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
@@ -179,12 +180,8 @@ set nobackup
 set noswapfile
 set undofile
 set undodir=~/.vim/undo//
-set backupdir=~/.vim/backup//
 
-if !isdirectory(&backupdir)
-  call mkdir(&backupdir, "p")
-endif
-
+" create undodir if needed
 if !isdirectory(&undodir)
   call mkdir(&undodir, "p")
 endif
@@ -193,8 +190,8 @@ endif
 set backupcopy=yes
 
 " long history and undo
-set history=1000
-set undolevels=1000
+set history=10000
+set undolevels=10000
 set undoreload=10000
 
 " search settings
