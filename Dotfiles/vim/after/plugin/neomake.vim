@@ -10,6 +10,8 @@ augroup neomake_plugin
   au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* Neomake | redraw
 augroup END
 
+" nice airline integration
+
 function! AirlineNeomakeStatus()
   let total = 0
 
@@ -28,21 +30,28 @@ function! AirlineNeomakeStatus()
   end
 endfunction
 
-" favour local eslint instead of global
+" favour local installed versions of js checkers
+
 if executable(getcwd() . '/node_modules/.bin/eslint')
   let g:neomake_javascript_enabled_makers = [ 'eslint' ]
-
   let g:neomake_javascript_eslint_exe = getcwd() . '/node_modules/.bin/eslint'
+endif
+
+if executable(getcwd() . '/node_modules/.bin/standard')
+  let g:neomake_javascript_enabled_makers = [ 'standard' ]
+  let g:neomake_javascript_semistandard_exe = getcwd() . '/node_modules/.bin/standard'
 endif
 
 if executable(getcwd() . '/node_modules/.bin/semistandard')
   let g:neomake_javascript_enabled_makers = [ 'semistandard' ]
-
-  let g:neomake_javascript_semistandard_maker = {
-        \ 'exe':         getcwd() . '/node_modules/.bin/semistandard',
-        \ 'errorformat': '  %f:%l:%c: %m'
-        \ }
+  let g:neomake_javascript_semistandard_exe = getcwd() . '/node_modules/.bin/semistandard'
 endif
+
+" kibit maker
+
+function! SetWarningType(entry)
+  let a:entry.type = 'W'
+endfunction
 
 let g:neomake_clojure_enabled_makers = [ 'kibit' ]
 
@@ -50,24 +59,11 @@ let g:neomake_clojure_kibit_maker = {
     \ 'exe':           'lein',
     \ 'args':          [ 'kibit' ],
     \ 'errorformat':   '%IAt %f:%l:,%C%m,%-G%.%#',
-    \ 'buffer_output': 1
+    \ 'buffer_output': 1,
+    \ 'postprocess': function('SetWarningType')
     \ }
 
-let g:neomake_place_signs = 1
-" let g:neomake_airline = 1
-" let g:neomake_open_list = 1
+" settings
 
-let g:neomake_error_sign = {
-      \ 'text':   '✕',
-      \ 'texthl': 'ErrorMsg'
-      \ }
+let g:neomake_place_signs = 0
 
-let g:neomake_warning_sign = {
-      \ 'text':   '✕',
-      \ 'texthl': 'ErrorMsg'
-      \ }
-
-let g:neomake_informational_sign = {
-      \ 'text':   '⚬',
-      \ 'texthl': 'WarningMsg'
-      \ }

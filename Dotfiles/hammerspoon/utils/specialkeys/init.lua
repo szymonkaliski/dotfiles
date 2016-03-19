@@ -9,19 +9,17 @@ module.start = function()
     table.insert(cache.modules, require('utils.specialkeys.' .. moduleName))
   end)
 
-  cache.eventtap = hs.eventtap.new({ hs.eventtap.event.types.NSSystemDefined }, function(event)
-    local systemKey = event:systemKey()
-
-    -- exit as soon as possible if we don't care about the event
-    if not next(systemKey) then return false end
-
+  cache.eventtap = hs.eventtap.new({
+    hs.eventtap.event.types.keyDown,
+    hs.eventtap.event.types.NSSystemDefined
+  }, function(event)
     local matchingModule = hs.fnutils.find(cache.modules, function(module)
-      return module.shouldProcessEvent(systemKey) == true
+      return module.shouldProcessEvent(event) == true
     end)
 
     if not matchingModule then return false end
 
-    return matchingModule.processEvent(systemKey)
+    return matchingModule.processEvent(event)
   end):start()
 end
 

@@ -1,13 +1,20 @@
 local module        = {}
 local brightnessMod = 5
 
-module.shouldProcessEvent = function(systemKey)
+module.shouldProcessEvent = function(event)
+  local systemKey = event:systemKey()
+
+  if not next(systemKey) then return false end
+
   return hs.fnutils.some({ 'BRIGHTNESS_UP', 'BRIGHTNESS_DOWN' }, function(key)
     return key == systemKey.key
   end)
 end
 
-module.processEvent = function(systemKey)
+-- NOTE: this doesn't work with apple wirless keyboard
+module.processEvent = function(event)
+  local systemKey = event:systemKey()
+
   -- ignore keyup
   if not systemKey.down then return true end
 

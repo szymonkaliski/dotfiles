@@ -1,9 +1,9 @@
 bindings                    = require('bindings')
-window                      = require('ext.window')
 controlplane                = require('utils.controlplane')
 notify                      = require('utils.notify')
-watchers                    = require('utils.watchers')
 spaces                      = require('utils.spaces')
+watchers                    = require('utils.watchers')
+window                      = require('ext.window')
 
 -- extensions
 window.fixEnabled           = false
@@ -26,20 +26,20 @@ hs.hints.fontSize           = 22
 hs.hints.showTitleThresh    = 0
 hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'Z', 'X', 'C' }
 
--- notifications
-notify.enabled              = { 'battery', 'online', 'wifi' }
-
--- watchers
-watchers.enabled            = { 'application', 'reload', 'urlevent' }
-watchers.urlPreference      = { 'Safari', 'Google Chrome' }
-
 -- controlplane
 controlplane.enabled        = { 'automount', 'autoafp', 'bluetooth', 'displays', 'persistvpn' }
 controlplane.afpVolumes     = { 'afp://Stelis._afpovertcp._tcp.local/' }
 controlplane.homeNetwork    = 'Skynet 5G'
 
+-- notifications
+notify.enabled              = { 'battery', 'online', 'wifi' }
+
 -- spaces
 spaces.enabled              = { 'dots', 'betterswitch' }
+
+-- watchers
+watchers.enabled            = { 'application', 'reload', 'urlevent' }
+watchers.urlPreference      = { 'Safari', 'Google Chrome' }
 
 -- start
 hs.fnutils.each({

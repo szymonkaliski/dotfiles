@@ -34,13 +34,19 @@ local executeWithPlayer = function(player, action)
   notify(player)
 end
 
-module.shouldProcessEvent = function(systemKey)
+module.shouldProcessEvent = function(event)
+  local systemKey = event:systemKey()
+
+  if not next(systemKey) then return false end
+
   return hs.fnutils.some({ 'PLAY', 'REWIND', 'FAST' }, function(key)
     return key == systemKey.key
   end)
 end
 
-module.processEvent = function(systemKey)
+module.processEvent = function(event)
+  local systemKey = event:systemKey()
+
   if systemKey.down then
     local action = keyMappings[systemKey.key]
 
