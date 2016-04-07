@@ -24,4 +24,8 @@ module.spaceInDirection = function(direction)
   return screenSpaces[targetIdx]
 end
 
+module.isSpaceFullscreenApp = function(spaceID)
+  return spaceID ~= nil and #spaces.spaceOwners(spaceID) > 0
+end
+
 return module

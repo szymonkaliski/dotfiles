@@ -1,12 +1,13 @@
-local activeScreen     = require('ext.screen').activeScreen
-local application      = require('ext.application')
-local bezel            = require('ext.drawing').bezel
-local focusScreen      = require('ext.screen').focusScreen
-local framed           = require('ext.framed')
-local highlightWindow  = require('ext.drawing').highlightWindow
-local screenSpaces     = require('ext.spaces').screenSpaces
-local spaceInDirection = require('ext.spaces').spaceInDirection
-local spaces           = require('hs._asm.undocumented.spaces')
+local activeScreen         = require('ext.screen').activeScreen
+local application          = require('ext.application')
+local bezel                = require('ext.drawing').bezel
+local focusScreen          = require('ext.screen').focusScreen
+local framed               = require('ext.framed')
+local highlightWindow      = require('ext.drawing').highlightWindow
+local isSpaceFullscreenApp = require('ext.spaces').isSpaceFullscreenApp
+local screenSpaces         = require('ext.spaces').screenSpaces
+local spaceInDirection     = require('ext.spaces').spaceInDirection
+local spaces               = require('hs._asm.undocumented.spaces')
 
 local cache = {
   mousePosition = nil
@@ -204,6 +205,7 @@ module.moveToSpaceInDirection = function(win, direction)
   local shouldMoveWindow = hs.fnutils.every({
     clickPoint ~= nil,
     targetSpace ~= nil,
+    not isSpaceFullscreenApp(targetSpace),
     not cache.movingWindowToSpace
   }, function(test) return test end)
 
@@ -296,7 +298,8 @@ end
 
 -- save and restore window positions
 module.persistPosition = function(win, option)
-  local appId           = win:application():bundleID()
+  local application     = win:application()
+  local appId           = application:bundleID() or application:name()
   local frame           = win:frame()
   local windowPositions = hs.settings.get('windowPositions') or {}
   local index           = windowPositions[appId] and windowPositions[appId].index or nil

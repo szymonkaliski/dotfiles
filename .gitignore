@@ -15,6 +15,9 @@ Dotfiles/vim/spell/
 Dotfiles/vim/undo/
 Dotfiles/vim/.init.vim-rplugin~
 
+# lein
+Dotfiles/lein/repl-history
+
 # simple script I use to copy files from different places into this repository
 # this allows me to keep my dotfiles in other (private) repo
 # and post to github only what I think is safe :)

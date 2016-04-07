@@ -14,7 +14,9 @@ Plug 'pbrisbin/vim-mkdir'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
 Plug 'vim-airline/vim-airline' | Plug 'vim-airline/vim-airline-themes'
+Plug 'wellle/targets.vim'
 Plug 'yssl/QFEnter'
 
 " on demand loading
@@ -37,12 +39,13 @@ Plug 'szymonkaliski/neomake',              { 'branch': 'semistandard-maker', 'on
 Plug 'marijnh/tern_for_vim',               { 'on': [], 'do': 'npm install' } " only on mac
 Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
 Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
-Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein cljsbuild once plugin' } " only in nvim
+Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein do npm install, cljsbuild once plugin' } " only in nvim
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
 
 " filetype based plugins
 Plug 'b4winckler/vim-objc',                { 'for': 'objc' }
 Plug 'briancollins/vim-jst',               { 'for': 'jst' }
+Plug 'cespare/vim-toml',                   { 'for': 'toml' }
 Plug 'davidoc/taskpaper.vim',              { 'for': 'taskpaper' }
 Plug 'elzr/vim-json',                      { 'for': 'json' }
 Plug 'groenewege/vim-less',                { 'for': 'less' }
@@ -262,9 +265,11 @@ map gf :e <cfile><cr>
 " search for currently selected text from visual mode
 vnoremap / "vy/<c-r>v
 
-" input mode mappings
+" c-a / c-e everywhere
 inoremap <c-a> <c-o>0
 inoremap <c-e> <c-o>$
+cnoremap <c-a> <home>
+cnoremap <c-e> <end>
 
 " proper movement
 nnoremap <left>  <nop>
@@ -366,18 +371,6 @@ nnoremap gB         :bprev<cr>
 nnoremap <leader>bd :bdelete!<cr>
 nnoremap <leader>bb :b#<cr>
 
-" easier tab / buffer switching
-nnoremap ]b :bnext<cr>
-nnoremap [b :bprev<cr>
-nnoremap ]t :tabnext<cr>
-nnoremap [t :tabprev<cr>
-
-" loclist switching
-nnoremap ]l :call FixPrevious('lnext', 'lfirst')<cr>zz
-nnoremap [l :call FixNext('lprev', 'llast')<cr>zz
-nnoremap ]c :call FixPrevious('cnext', 'cfirst')<cr>zz
-nnoremap [c :call FixNext('cprev', 'clast')<cr>zz
-
 " new buffer / tab
 nnoremap <leader>B :enew<cr>
 nnoremap <leader>T :tabnew<cr>
@@ -399,12 +392,6 @@ xnoremap <leader>G :GrepVisual<cr>
 " clean current search and quickhl
 nmap <silent> <leader>c :nohlsearch<cr>:redraw!<cr>
 nmap <silent> <leader>C <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
-
-" toggles
-nnoremap <silent> <leader>tl :set list!<cr>
-nnoremap <silent> <leader>tn :set number!<cr>
-nnoremap <silent> <leader>ts :setlocal spell!<cr>
-nnoremap <silent> <leader>tw :set wrap!<cr>
 
 " aligns
 nnoremap <leader>= :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>

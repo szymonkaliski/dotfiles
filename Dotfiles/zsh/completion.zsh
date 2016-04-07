@@ -1,13 +1,17 @@
-if [ -d ~/.zsh/completion ]; then
-  export FPATH="~/.zsh/completion:$FPATH"
-fi
-
 if [ -d /usr/local/share/zsh/site-functions ]; then
   export FPATH="/usr/local/share/zsh/site-functions:$FPATH"
 fi
 
 if [ -d /usr/local/share/zsh-completions ]; then
   export FPATH="/usr/local/share/zsh-completions:$FPATH"
+fi
+
+if [ -d ~/.zsh/completion ]; then
+  export FPATH="~/.zsh/completion:$FPATH"
+fi
+
+if [ -f /usr/local/Library/Contributions/brew_zsh_completion.zsh ]; then
+  ln -s /usr/local/Library/Contributions/brew_zsh_completion.zsh ~/.zsh/completion/_brew > /dev/null 2>&1
 fi
 
 typeset -gU fpath    # clean paths

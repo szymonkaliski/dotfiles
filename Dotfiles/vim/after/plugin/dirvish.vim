@@ -18,7 +18,7 @@ function! s:DirvishSort()
   if &filetype == 'dirvish'
     setlocal modifiable
     sort r /[^\/]$/
-    setlocal nomodifiable
+    " setlocal nomodifiable
   endif
 endfunction
 

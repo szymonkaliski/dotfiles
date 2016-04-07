@@ -71,6 +71,7 @@ end
 
 -- keyboard modifiers for bindings
 local mod = {
+  a   = { 'alt'                 },
   cc  = { 'cmd', 'ctrl'         },
   ca  = { 'cmd', 'alt'          },
   cac = { 'cmd', 'alt', 'ctrl'  },
@@ -87,9 +88,9 @@ module.start = function()
     { key = 'r',     mod = mod.cc,  fn = bindWin(window.persistPosition, 'redo')                         },
     { key = 'tab',   mod = mod.cc,  fn = bindWin(window.cycleWindows, { allowFullscreen = true }, false) },
     { key = 'tab',   mod = mod.ca,  fn = bindWin(window.cycleWindows, { allowFullscreen = true }, true)  },
+    { key = 'tab',   mod = mod.a,   fn = window.windowHints                                              },
     { key = '/',     mod = mod.cc,  fn = system.toggleConsole                                            },
-    { key = 'm',     mod = mod.cc,  fn = system.toggleDoNotDisturb                                       },
-    { key = 'space', mod = mod.cac, fn = window.windowHints                                              }
+    { key = 'm',     mod = mod.cc,  fn = system.toggleDoNotDisturb                                       }
   }, function(object)
     hs.hotkey.bind(object.mod, object.key, object.fn)
   end)
@@ -102,7 +103,6 @@ module.start = function()
     -- hs.hotkey.bind(mod.cc,  direction, bindWin(window.pushAndSend, direction))
     hs.hotkey.bind(mod.cc,  direction, function() pushAndSendCycled() end)
     hs.hotkey.bind(mod.ca,  direction, function() nudge:start() end, function() nudge:stop() end)
-    -- hs.hotkey.bind(mod.ca,  direction, nil, nil, bindWin(window.nudge, direction))
     hs.hotkey.bind(mod.cac, direction, bindWin(window.send, direction))
     hs.hotkey.bind(mod.cas, direction, bindWin(window.throwToScreen, direction))
   end)
