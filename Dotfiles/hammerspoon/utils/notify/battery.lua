@@ -10,7 +10,6 @@ local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/battery.png'
 local stringifyMinutes = function(minutes)
   local hours   = math.floor(minutes / 60)
   local minutes = minutes % 60
-
   return string.format('%02d', hours) .. ':' .. string.format('%02d', minutes)
 end
 
@@ -18,6 +17,7 @@ return hs.battery.watcher.new(function()
   local batteryPercentage = hs.battery.percentage()
   local isCharged         = hs.battery.isCharged()
   local powerSource       = hs.battery.powerSource()
+  local timeRemaining     = hs.battery.timeRemaining()
 
   if batteryPercentage < 100 then
     cache.batteryCharged = false
@@ -31,6 +31,14 @@ return hs.battery.watcher.new(function()
     }):send()
 
     cache.batteryCharged = true
+  end
+
+  if batteryPercentage < 30 and batteryPercentage % 5 == 0 and powerSource ~= 'AC Power' then
+    hs.notify.new({
+      title        = 'Battery Status',
+      subTitle     = 'Remaining: ' .. stringifyMinutes(timeRemaining) .. 'h (' .. math.floor(batteryPercentage) .. '%)',
+      contentImage = imagePath
+    }):send()
   end
 
   if powerSource ~= cache.powerSource then

@@ -21,9 +21,9 @@ nnoremap ]c :call <sid>GoPrevious('cnext', 'cfirst')<cr>zz
 nnoremap [c :call <sid>GoNext('cprev', 'clast')<cr>zz
 
 " tabs, not tags
-nnoremap [t :tabn<cr>
-nnoremap ]t :tabp<cr>
+nnoremap ]t :tabn<cr>
+nnoremap [t :tabp<cr>
 
 " not used
-unmap [T
 unmap ]T
+unmap [T

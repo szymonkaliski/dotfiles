@@ -11,14 +11,6 @@ window.fullFrame            = true
 window.historyLimit         = 20
 window.margin               = 6
 
--- dots
-spaces.dots = {
-  alpha                     = 0.15,
-  selectedAlpha             = 0.45,
-  distance                  = 16,
-  size                      = 8
-}
-
 -- hs
 hs.window.animationDuration = 0.1
 hs.hints.fontName           = 'Helvetica-Bold'
@@ -27,7 +19,7 @@ hs.hints.showTitleThresh    = 0
 hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'Z', 'X', 'C' }
 
 -- controlplane
-controlplane.enabled        = { 'automount', 'autoafp', 'bluetooth', 'displays', 'persistvpn' }
+controlplane.enabled        = { 'automount', 'bluetooth', 'displays', 'persistvpn' }
 controlplane.afpVolumes     = { 'afp://Stelis._afpovertcp._tcp.local/' }
 controlplane.homeNetwork    = 'Skynet 5G'
 
@@ -35,7 +27,13 @@ controlplane.homeNetwork    = 'Skynet 5G'
 notify.enabled              = { 'battery', 'online', 'wifi' }
 
 -- spaces
-spaces.enabled              = { 'dots', 'betterswitch' }
+spaces.enabled              = { 'betterswitch' }
+spaces.dots = {
+  alpha                     = 0.15,
+  selectedAlpha             = 0.45,
+  distance                  = 16,
+  size                      = 8
+}
 
 -- watchers
 watchers.enabled            = { 'application', 'reload', 'urlevent' }
