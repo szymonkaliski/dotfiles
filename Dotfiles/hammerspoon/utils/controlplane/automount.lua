@@ -1,9 +1,10 @@
-local module = {}
 local cache  = {
   powerSource = hs.battery.powerSource(),
   watchers    = {},
   tasks       = {}
 }
+
+local module = { cache = cache }
 
 local scriptsPath = os.getenv('HOME') .. '/Documents/Code/Scripts/'
 local notify      = require('utils.controlplane.notify')

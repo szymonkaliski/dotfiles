@@ -20,7 +20,6 @@ hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E'
 
 -- controlplane
 controlplane.enabled        = { 'automount', 'bluetooth', 'displays', 'persistvpn' }
-controlplane.afpVolumes     = { 'afp://Stelis._afpovertcp._tcp.local/' }
 controlplane.homeNetwork    = 'Skynet 5G'
 
 -- notifications
@@ -47,6 +46,17 @@ hs.fnutils.each({
   spaces,
   watchers
 }, function(module) module.start() end)
+
+-- stop on shutdown
+hs.shutdownCallback = function()
+  hs.fnutils.each({
+    bindings,
+    controlplane,
+    notify,
+    spaces,
+    watchers
+  }, function(module) module.stop() end)
+end
 
 -- ensure IPC
 hs.ipc.cliInstall()

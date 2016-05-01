@@ -1,8 +1,7 @@
-local module = {}
 local cache  = {}
+local module = { cache = cache }
 
-local notify        = require('utils.controlplane.notify')
-local onlineWatcher = require('ext.onlinewatcher')
+local notify = require('utils.controlplane.notify')
 
 local isAFPConnected = function(name)
   local _, res = hs.applescript.applescript([[

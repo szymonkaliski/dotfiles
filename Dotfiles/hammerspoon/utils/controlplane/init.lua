@@ -1,5 +1,5 @@
 local cache  = {}
-local module = {}
+local module = { cache = cache }
 
 module.start = function()
   hs.fnutils.each(controlplane.enabled, function(controlName)

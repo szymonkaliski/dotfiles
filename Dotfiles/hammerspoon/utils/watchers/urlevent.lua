@@ -7,14 +7,15 @@ local module   = {}
 -- change default system browser to Hammerspoon for it to work
 module.start = function()
   hs.urlevent.httpCallback = function(_, _, _, fullURL)
-    local modifiers = hs.eventtap.checkKeyboardModifiers()
-    local isCmd     = modifiers['cmd'] == true
+    local modifiers          = hs.eventtap.checkKeyboardModifiers()
+    local shouldFocusBrowser = modifiers['cmd'] == true
 
     local runningBrowser = hs.fnutils.find(watchers.urlPreference, function(browserName)
       return hs.application.get(browserName) ~= nil
     end)
 
     local browserName = runningBrowser or watchers.urlPreference[1]
+    local currentApp  = hs.application:frontmostApplication()
 
     hs.applescript.applescript(template([[
       tell application "{APP_NAME}"
@@ -24,8 +25,13 @@ module.start = function()
     ]], {
       APP_NAME = browserName,
       URL      = fullURL,
-      ACTIVATE = not isCmd and 'activate' or '' -- 'activate' brings to front if cmd is not clicked
+      ACTIVATE = shouldFocusBrowser and 'activate' or '' -- 'activate' brings to front if cmd is clicked
     }))
+
+    -- focus back the current app
+    if not shouldFocusBrowser and not currentApp:isFrontmost() then
+      currentApp:activate()
+    end
   end
 end
 

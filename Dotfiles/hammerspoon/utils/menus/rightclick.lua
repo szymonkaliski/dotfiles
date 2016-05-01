@@ -1,5 +1,5 @@
-local module = {}
 local cache  = {}
+local module = { cache = cache }
 
 local keys               = require('ext.table').keys
 local smartLaunchOrFocus = require('ext.application').smartLaunchOrFocus

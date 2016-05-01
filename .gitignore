@@ -17,6 +17,7 @@ Dotfiles/vim/.init.vim-rplugin~
 
 # lein
 Dotfiles/lein/repl-history
+Dotfiles/lein/self-installs
 
 # simple script I use to copy files from different places into this repository
 # this allows me to keep my dotfiles in other (private) repo

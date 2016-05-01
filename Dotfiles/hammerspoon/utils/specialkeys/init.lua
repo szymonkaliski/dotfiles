@@ -1,9 +1,6 @@
-local module = {}
 local cache  = { modules = {} }
+local module = { cache = cache }
 
--- overrides prev/play/next
--- currently controls online spotify in Chrome if running,
--- defaults back to propagating event to os
 module.start = function()
   hs.fnutils.each(specialkeys.enabled, function(moduleName)
     table.insert(cache.modules, require('utils.specialkeys.' .. moduleName))

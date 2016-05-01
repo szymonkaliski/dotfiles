@@ -1,9 +1,9 @@
-local module        = {}
 local cache         = {}
+local module        = { cache = cache }
+
 local vpnTimeout    = 10 -- timeout before re-connecting to VPN
 
 local notify        = require('utils.controlplane.notify')
-local onlineWatcher = require('ext.onlinewatcher')
 
 local iconOff       = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-off.png'
 local iconOn        = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-on.png'
@@ -120,7 +120,9 @@ module.start = function()
   cache.menuItem = hs.menubar.new()
   updateMenuItem()
 
-  cache.onlineHandle = onlineWatcher.subscribe(function(isOnline)
+  cache.onlineHandle = hs.timer.doEvery(1, function()
+    local isOnline = hs.network.reachability.internet():status() == 2
+
     -- we don't care about VPN if there's no internet connection
     if not isOnline then return end
 
@@ -143,7 +145,7 @@ module.start = function()
 end
 
 module.stop = function()
-  onlineWatcher.unsubscribe(cache.onlineHandle)
+  cache.onlineHandle:stop()
 end
 
 return module

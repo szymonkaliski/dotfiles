@@ -17,6 +17,7 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'vim-airline/vim-airline' | Plug 'vim-airline/vim-airline-themes'
 Plug 'wellle/targets.vim'
+Plug 'wesQ3/vim-windowswap'
 Plug 'yssl/QFEnter'
 
 " on demand loading

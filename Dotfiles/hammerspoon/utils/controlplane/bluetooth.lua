@@ -1,5 +1,5 @@
-local module    = {}
-local cache     = {}
+local cache  = {}
+local module = { cache = cache }
 
 local bluetooth = require('hs._asm.undocumented.bluetooth')
 local notify    = require('utils.controlplane.notify')

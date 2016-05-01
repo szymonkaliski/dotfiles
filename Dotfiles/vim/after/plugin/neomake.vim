@@ -6,6 +6,8 @@ augroup neomake_plugin
   au!
 
   au BufRead,BufWritePost *.js,*.jsx,*.json               Neomake | redraw
+  au BufRead,BufWritePost *.c,*.h,*.cpp,*.hpp             Neomake | redraw
+  au BufRead,BufWritePost *.py                            Neomake | redraw
   au BufRead,BufWritePost *.clj,*.cljs                    Neomake | redraw
   au BufRead,BufWritePost *.sh,~/Documents/Code/Scripts/* Neomake | redraw
 augroup END
@@ -60,7 +62,7 @@ let g:neomake_clojure_kibit_maker = {
     \ 'args':          [ 'kibit' ],
     \ 'errorformat':   '%IAt %f:%l:,%C%m,%-G%.%#',
     \ 'buffer_output': 1,
-    \ 'postprocess': function('SetWarningType')
+    \ 'postprocess':   function('SetWarningType')
     \ }
 
 " settings

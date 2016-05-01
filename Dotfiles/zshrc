@@ -16,6 +16,7 @@ files=(
   bindkeys
   terminal
   autopair
+  docker
   # locale
   # rbenv
 )

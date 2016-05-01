@@ -9,11 +9,8 @@ local screenSpaces         = require('ext.spaces').screenSpaces
 local spaceInDirection     = require('ext.spaces').spaceInDirection
 local spaces               = require('hs._asm.undocumented.spaces')
 
-local cache = {
-  mousePosition = nil
-}
-
-local module = {}
+local cache  = { mousePosition = nil }
+local module = { cache = cache }
 
 -- get screen frame
 module.screenFrame = function(win)

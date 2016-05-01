@@ -1,8 +1,7 @@
-local module = {}
 local cache  = {}
+local module = { cache = cache }
 
-local onlineWatcher = require('ext.onlinewatcher')
-local imagePath     = os.getenv('HOME') .. '/.hammerspoon/assets/airport.png'
+local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/airport.png'
 
 local openNetworkSettings = function()
   hs.applescript.applescript([[
@@ -28,13 +27,13 @@ local notifyOnOffline = function(offline)
 end
 
 module.start = function()
-  cache.onlineHandle = onlineWatcher.subscribe(function(isOnline)
-    notifyOnOffline(not isOnline)
-  end)
+  cache.onlineHandle = hs.network.reachability.internet():setCallback(function(_, status)
+    notifyOnOffline(status == 0)
+  end):start()
 end
 
 module.stop = function()
-  onlineWatcher.unsubscribe(cache.onlineHandle)
+  cache.onlineHandle:stop()
 end
 
 return module

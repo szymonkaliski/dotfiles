@@ -17,12 +17,16 @@ case $1 in
   gif)
     BEFORE="mkdir output"
     OPTIONS="-vf scale=640:-1 -r 10 output/gif%05d.png"
-    AFTER="convert -loop 0 output/*.png animation.gif"
+    AFTER="convert +repage -loop 0 output/*.png animation.gif"
     CLEANUP="rm -rf output"
     ;;
   mp3)
     OPTIONS="-f mp3 -acodec libmp3lame -ab 320000 -ar 44100"
     EXT=".mp3"
+    ;;
+  wav)
+    OPTIONS="-ar 44100"
+    EXT=".wav"
     ;;
   remove-audio)
     OPTIONS="-vcodec copy -an"

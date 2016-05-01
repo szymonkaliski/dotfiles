@@ -1,5 +1,5 @@
-local module = {}
 local cache  = {}
+local module = { cache = cache }
 
 -- set Thunderbolt Display as primary when available
 local screenWatcher = function()

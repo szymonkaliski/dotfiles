@@ -7,7 +7,7 @@ local cache = {
   launchTimer = nil
 }
 
-local module = {}
+local module = { cache = cache }
 
 -- activate frontmost window if exists
 module.activateFrontmost = function()

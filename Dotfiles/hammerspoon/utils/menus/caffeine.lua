@@ -1,5 +1,5 @@
-local cache = {}
-local module = {}
+local cache  = {}
+local module = { cache = cache }
 
 local iconOff = os.getenv('HOME') .. '/.hammerspoon/assets/caffeine-off.png'
 local iconOn  = os.getenv('HOME') .. '/.hammerspoon/assets/caffeine-on.png'

@@ -1,10 +1,11 @@
-local module = {}
 local cache  = {
   previousDevice   = hs.audiodevice.current().uid,
   wasJackConnected = hs.audiodevice.findDeviceByName('Built-in Input'):jackConnected(),
   builtInInput     = hs.audiodevice.findDeviceByName('Built-in Input'),
   builtInOutput    = hs.audiodevice.findDeviceByName('Built-in Output')
 }
+
+local module = { cache = cache }
 
 local notify = require('utils.controlplane.notify')
 
