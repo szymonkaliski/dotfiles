@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+timeout=${1:-1.0}
+
+space=$(/usr/local/bin/hs -c "local s = require('ext.spaces'); print(s.activeSpaceIndex(s.screenSpaces()))")
+(sleep "$timeout" && /usr/local/bin/hs -c "require('utils.spaces.betterswitch').switchToIndex($space)") &

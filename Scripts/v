@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+exe=vim
+
+if hash nvim 2> /dev/null; then
+  exe=nvim
+fi
+
+if [ -z "$*" ]; then
+  if [ -f "session.vim" ]; then
+    # load session.vim if we start without args, and if it exists
+    $exe -S session.vim
+  else
+    # load (n)vim with no file otherwise
+    $exe
+  fi
+else
+  # load vim with given args
+  $exe "$@"
+fi

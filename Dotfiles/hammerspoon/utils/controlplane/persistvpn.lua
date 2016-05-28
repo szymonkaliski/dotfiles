@@ -1,12 +1,12 @@
-local cache         = {}
-local module        = { cache = cache }
+local cache      = {}
+local module     = { cache = cache }
 
-local vpnTimeout    = 10 -- timeout before re-connecting to VPN
+local vpnTimeout = 10 -- timeout before re-connecting to VPN
 
-local notify        = require('utils.controlplane.notify')
+local notify     = require('utils.controlplane.notify')
 
-local iconOff       = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-off.png'
-local iconOn        = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-on.png'
+local iconOff    = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-off.png'
+local iconOn     = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-on.png'
 
 local openVPNSettings = function()
   hs.applescript.applescript([[
@@ -69,83 +69,87 @@ local disconnectVPN = function()
   notify('Disconnecting from VPN...')
 end
 
-local updateMenuItem = function()
-  local isConnected = isVPNConnected()
+local updateMenuItem = function(isConnected)
+  local changeVPNStatus = function() hs.settings.set('vpnEnabled', not isConnected) end
+  local statusText      = 'VPN: ' .. (isConnected and 'Connected' or 'Disconnected')
+  local subStatusText   = (isConnected and 'Disconnect from' or 'Connect to') .. ' VPN'
 
-  local generateVPNMenu = function(options)
-    local changeVPNStatus = function()
-      hs.settings.set('vpnEnabled', options.switchVPNStatus)
-    end
-
-    return {
-      { title = options.statusText,        disabled = true      },
-      { title = options.subStatusText,     fn = changeVPNStatus },
+  cache.menuItem
+    :setMenu({
+      { title = statusText,                disabled = true      },
+      { title = subStatusText,             fn = changeVPNStatus },
       { title = '-'                                             },
       { title = 'Open VPN Preferences...', fn = openVPNSettings }
-    }
-  end
+    })
+    :setIcon(isConnected and iconOn or iconOff)
+end
 
-  if isConnected then
-    cache.menuItem
-      :setMenu(generateVPNMenu({
-        statusText      = 'VPN: Connected',
-        subStatusText   = 'Disconnect from VPN',
-        switchVPNStatus = false
-      }))
-      :setIcon(iconOn)
-  elseif cache.connecting then
-    cache.menuItem
-      :setMenu(generateVPNMenu({
-        statusText      = 'VPN: Connecting...',
-        subStatusText   = 'Disconnect from VPN',
-        switchVPNStatus = false
-      }))
-  else
-    cache.menuItem
-      :setMenu(generateVPNMenu({
-        statusText      = 'VPN: Disconnected',
-        subStatusText   = 'Connect to VPN',
-        switchVPNStatus = true
-      }))
-      :setIcon(iconOff)
-  end
+local checkTrustedNetwork = function()
+  local currrentNetwork = hs.wifi.currentNetwork()
+
+  if not currrentNetwork then return end
+
+  local isInTrustedNetwork = hs.fnutils.some(controlplane.trustedNetworks, function(network)
+    return network == currrentNetwork
+  end)
+
+  hs.settings.set('vpnEnabled', not isInTrustedNetwork)
 end
 
 module.start = function()
-  -- start with vpn enabled status from saved setting
-  local vpnEnabled = hs.settings.get('vpnEnabled')
-  if vpnEnabled == nil then hs.settings.set('vpnEnabled', true) end
-
-  -- create menu icon for quick toggle
+  -- create menu icon
   cache.menuItem = hs.menubar.new()
-  updateMenuItem()
 
-  cache.onlineHandle = hs.timer.doEvery(1, function()
-    local isOnline = hs.network.reachability.internet():status() == 2
+  -- setup
+  checkTrustedNetwork()
+  updateMenuItem(isVPNConnected())
 
-    -- we don't care about VPN if there's no internet connection
-    if not isOnline then return end
-
+  -- watch for updates - would be great if we could get notifications on VPN change
+  cache.timerHandle = hs.timer.doEvery(1, function()
+    local isOnline    = hs.network.reachability.internet():status() == 2
+    local updateMenu  = false
     local isConnected = isVPNConnected()
     local vpnEnabled  = hs.settings.get('vpnEnabled')
 
+    -- we don't care about VPN if there's no internet connection
+    if not isOnline and not cache.wasOnline then
+      return
+    end
+
+    -- if something changed then update menu to be safe
+    if cache.wasOnline ~= isOnline or cache.wasConnected ~= isConnected then
+      updateMenu = true
+    end
+
     -- connect if not connected and should be
-    if vpnEnabled and not (cache.connecting or isConnected) then
+    if isOnline and vpnEnabled and not (cache.connecting or isConnected) then
       connectVPN()
+      updateMenu = true
     end
 
     -- disconnected if connected and shouldn't be
-    if not vpnEnabled and isConnected then
+    if isOnline and not vpnEnabled and isConnected then
       disconnectVPN()
+      updateMenu = true
     end
 
-    -- always update icon
-    updateMenuItem()
+    -- update menu if needed
+    if updateMenu then
+      updateMenuItem(isConnected)
+    end
+
+    -- save previous status
+    cache.wasOnline    = isOnline
+    cache.wasConnected = isConnected
   end)
+
+  -- auto connect on untrusted networks
+  cache.wifiWatcher = hs.wifi.watcher.new(checkTrustedNetwork):start()
 end
 
 module.stop = function()
-  cache.onlineHandle:stop()
+  cache.timerHandle:stop()
+  cache.wifiWatcher:stop()
 end
 
 return module

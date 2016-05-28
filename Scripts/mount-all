@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+/usr/sbin/diskutil list | awk '/Apple_HFS/ {print $NF}' | xargs -I{} /usr/sbin/diskutil mount {} > /dev/null 2>&1

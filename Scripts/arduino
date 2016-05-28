@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# dirty hack to move back to my current fullscreen terminal,
+# instead of focusing first space where arduino app appears,
+# requires HammerSpoon with IPC installed
+if [ -x /usr/local/bin/hs ]; then
+  dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  bash "$dir"/osx-stay-on-space 1.0
+fi
+
+/Applications/Arduino.app/Contents/MacOS/Arduino "$@"

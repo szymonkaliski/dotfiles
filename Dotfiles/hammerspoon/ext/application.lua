@@ -109,18 +109,6 @@ module.allWindowsCount = function(appName)
   return tonumber(result) or 0
 end
 
--- quit app using applescript
--- faster than :kill() for some reason
-module.quit = function(appName)
-  local _, result = hs.applescript.applescript(template([[
-    tell application "{APP_NAME}"
-      quit
-    end tell
-  ]], { APP_NAME = appName }))
-
-  return result
-end
-
 -- ask before quitting app when there are multiple windows
 module.askBeforeQuitting = function(appName, options)
   local enabled = options.enabled or false
@@ -135,23 +123,12 @@ module.askBeforeQuitting = function(appName, options)
   else
     cache.bindings[appName] = hs.hotkey.bind({ 'cmd' }, 'q', function()
       local windowsCount = module.allWindowsCount(appName)
-      local shouldKill   = true
 
       if windowsCount > 1 then
-        local _, result = hs.applescript.applescript(template([[
-          tell application "{APP_NAME}"
-            activate
-            button returned of (display dialog "There are multiple windows opened: {NUM_WINDOWS}\nAre you sure you want to quit?" with icon 1 buttons {"Cancel", "Quit"} default button "Quit")
-          end tell
-        ]], { APP_NAME = appName, NUM_WINDOWS = windowsCount }))
-
-        shouldKill = result == 'Quit'
-      end
-
-      if shouldKill then
-        module.quit(appName)
+        -- for some reason this is way more responsive that calling to hs.applescript...
+        hs.task.new(os.getenv('HOME') .. '/.hammerspoon/assets/ask-to-quit.scpt', nil, { appName }):start()
       else
-        module.activateFrontmost()
+        hs.application.find(appName):kill()
       end
     end)
   end

@@ -6,7 +6,6 @@ Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
 Plug 'chaoren/vim-wordmotion'
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'coderifous/textobj-word-column.vim'
 Plug 'ervandew/supertab'
 Plug 'justinmk/vim-dirvish'
 Plug 'matchit.zip'
@@ -35,8 +34,7 @@ Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterO
 
 " loading based on system and vim version
 Plug 'airblade/vim-gitgutter',             { 'on': [] } " only on mac
-Plug 'szymonkaliski/neomake',              { 'branch': 'semistandard-maker', 'on': [] } " only in nvim
-" Plug 'benekastah/neomake',                 { 'on': [] } " only in nvim
+Plug 'neomake/neomake',                    { 'on': [] } " only in nvim
 Plug 'marijnh/tern_for_vim',               { 'on': [], 'do': 'npm install' } " only on mac
 Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
 Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
@@ -159,6 +157,7 @@ set linebreak
 set ruler
 set virtualedit=block
 
+set sidescroll=1
 set sidescrolloff=6
 set scrolloff=3
 
@@ -354,7 +353,7 @@ nnoremap <leader>om :e ~/.tmux.conf<cr>
 
 if has('mac')
   nnoremap <leader>od :e ~/Documents/Dropbox/Notes/drafts.txt<cr>
-  nnoremap <leader>ot :e ~/Documents/Dropbox/Tasks/Tasks.taskpaper<cr>
+  nnoremap <leader>ot :e ~/Documents/Dropbox/Tasks/Todo.taskpaper<cr>
   nnoremap <leader>oh :e ~/.hammerspoon/init.lua<cr>
 endif
 
@@ -396,6 +395,9 @@ nmap <silent> <leader>C <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
 
 " aligns
 nnoremap <leader>= :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
+
+" folds
+nnoremap <leader><leader> za
 
 " center on cursor using scrollof
 nnoremap <silent> <leader>z :let &scrolloff=999-&scrolloff<cr>

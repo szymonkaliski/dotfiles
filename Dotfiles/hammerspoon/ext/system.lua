@@ -4,7 +4,7 @@ local activateFrontmost = require('ext.application').activateFrontmost
 
 -- show notification center
 -- NOTE: you can do that from Settings > Keyboard > Mission Control
-module.showNotificationCenter = function()
+module.toggleNotificationCenter = function()
   hs.applescript.applescript([[
     tell application "System Events" to tell process "SystemUIServer"
       click menu bar item "Notification Center" of menu bar 2

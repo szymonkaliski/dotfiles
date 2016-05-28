@@ -32,10 +32,35 @@ function! AirlineNeomakeStatus()
   end
 endfunction
 
-" favour local installed versions of js checkers
+" custom makers
+
+function! SetWarningType(entry)
+  let a:entry.type = 'W'
+endfunction
+
+let g:neomake_clojure_kibit_maker = {
+      \ 'exe':           'lein',
+      \ 'args':          [ 'kibit' ],
+      \ 'errorformat':   '%IAt %f:%l:,%C%m,%-G%.%#',
+      \ 'buffer_output': 1,
+      \ 'postprocess':   function('SetWarningType')
+      \ }
+
+let g:neomake_javascript_standard_maker = {
+      \ 'errorformat': '  %f:%l:%c: %m',
+      \ 'postprocess': function('SetWarningType')
+      \  }
+
+let g:neomake_javascript_semistandard_maker = {
+      \ 'errorformat': '  %f:%l:%c: %m',
+      \ 'postprocess': function('SetWarningType')
+      \  }
+
+" js (favour local npm installed checkers)
+
+let g:neomake_clojure_enabled_makers = [ 'eslint' ]
 
 if executable(getcwd() . '/node_modules/.bin/eslint')
-  let g:neomake_javascript_enabled_makers = [ 'eslint' ]
   let g:neomake_javascript_eslint_exe = getcwd() . '/node_modules/.bin/eslint'
 endif
 
@@ -49,21 +74,9 @@ if executable(getcwd() . '/node_modules/.bin/semistandard')
   let g:neomake_javascript_semistandard_exe = getcwd() . '/node_modules/.bin/semistandard'
 endif
 
-" kibit maker
-
-function! SetWarningType(entry)
-  let a:entry.type = 'W'
-endfunction
+" clojure
 
 let g:neomake_clojure_enabled_makers = [ 'kibit' ]
-
-let g:neomake_clojure_kibit_maker = {
-    \ 'exe':           'lein',
-    \ 'args':          [ 'kibit' ],
-    \ 'errorformat':   '%IAt %f:%l:,%C%m,%-G%.%#',
-    \ 'buffer_output': 1,
-    \ 'postprocess':   function('SetWarningType')
-    \ }
 
 " settings
 

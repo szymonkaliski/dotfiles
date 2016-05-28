@@ -232,7 +232,7 @@ command! ZoomToggle call <sid>ZoomToggle()
 " Today view - taskpaper + drafts in split,
 " folds open on @today and last section of drafts
 function! s:Today()
-  e ~/Documents/Dropbox/Tasks/Tasks.taskpaper
+  e ~/Documents/Dropbox/Tasks/Todo.taskpaper
   norm zM
   %g/\v^(.*\@today)&(.*\@done)@!/foldopen!
   norm gg

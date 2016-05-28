@@ -1,4 +1,4 @@
-local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/macbook.png'
+local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/system-preferences.png'
 
 return function(message)
   hs.notify.new({
