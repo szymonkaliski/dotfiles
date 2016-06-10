@@ -33,59 +33,77 @@ end
 
 module.start = function()
   local ultra = { 'ctrl', 'alt', 'cmd' }
-  local bind  = function(key, action) hs.hotkey.bind(ultra, key, action) end
+  local bind  = function(key, action, opts)
+    local shouldRepeat = opts and opts.shouldRepeat or false
+
+    if shouldRepeat then
+      hs.hotkey.bind(ultra, key, action, nil, action)
+    else
+      hs.hotkey.bind(ultra, key, action)
+    end
+  end
 
   hs.hotkey.bind({ 'alt' }, 'tab', window.windowHints)
 
-  hs.grid.setGrid('8x6').setMargins({ x = 4, y = 4 })
+  local w = 16
+  local h = 12
+  local m = 4
+
+  hs.grid.setGrid(w .. 'x' .. h).setMargins({ m, m })
+
+  hs.fnutils.each({
+    { key = 'h', fn = hs.grid.pushWindowLeft       },
+    { key = 'l', fn = hs.grid.pushWindowRight      },
+    { key = 'k', fn = hs.grid.pushWindowUp         },
+    { key = 'j', fn = hs.grid.pushWindowDown       },
+    { key = 'n', fn = hs.grid.pushWindowNextScreen },
+    { key = 'p', fn = hs.grid.pushWindowPrevScreen },
+    { key = '[', fn = hs.grid.resizeWindowThinner  },
+    { key = ']', fn = hs.grid.resizeWindowWider    },
+    { key = '=', fn = hs.grid.resizeWindowTaller   },
+    { key = '-', fn = hs.grid.resizeWindowShorter  },
+  }, function(object)
+    bind(object.key, doWin(object.fn, object.args), { shouldRepeat = true })
+  end)
 
   hs.fnutils.each({
     { key = 'f', fn = window.fullscreen, args = { allowFullscreen = true } },
-    { key = 'z', fn = hs.grid.maximizeWindow                               },
-    { key = 'n', fn = hs.grid.pushWindowNextScreen                         },
-    { key = 'p', fn = hs.grid.pushWindowPrevScreen                         },
-    { key = 'h', fn = hs.grid.pushWindowLeft                               },
-    { key = 'l', fn = hs.grid.pushWindowRight                              },
-    { key = 'k', fn = hs.grid.pushWindowUp                                 },
-    { key = 'j', fn = hs.grid.pushWindowDown                               },
-    { key = '[', fn = hs.grid.resizeWindowThinner                          },
-    { key = ']', fn = hs.grid.resizeWindowWider                            },
-    { key = '=', fn = hs.grid.resizeWindowTaller                           },
-    { key = '-', fn = hs.grid.resizeWindowShorter                          },
-    { key = 'u', fn = window.persistPosition, args ='undo'                 },
-    { key = 'r', fn = window.persistPosition, args ='redo'                 }
+    { key = 'u', fn = window.persistPosition, args = 'undo'                },
+    { key = 'r', fn = window.persistPosition, args = 'redo'                }
   }, function(object)
     bind(object.key, doWin(object.fn, object.args))
   end)
 
   hs.fnutils.each({
-    { key = '/',      fn = system.toggleConsole      },
-    { key = 'escape', fn = hs.caffeinate.systemSleep },
-    { key = 'tab',    fn = window.windowHints        }
+    { key = '/',      fn = system.toggleConsole },
+    { key = 'escape', fn = system.displaySleep  },
+    { key = 'tab',    fn = window.windowHints   }
   }, function(object)
     bind(object.key, object.fn)
   end)
 
   hs.fnutils.each({
-    { key = 't', apps = { 'iTerm2', 'Terminal'                     } },
-    { key = 'b', apps = { 'Safari', 'Google Chrome'                } },
-    { key = 'm', apps = { 'Messages', 'FaceTime', 'Slack', 'Skype' } }
+    { key = 't', apps = { 'iTerm2', 'Terminal'         } },
+    { key = 'b', apps = { 'Safari', 'Google Chrome'    } },
+    { key = 'm', apps = { 'Messages', 'Slack', 'Skype' } },
+    { key = '`', apps = { 'Finder'                     } }
   }, function(object)
     bind(object.key, function() smartLaunchOrFocus(object.apps) end)
   end)
 
+  -- TODO: set sizes
   hs.fnutils.each({
-    { key = '1', geom = { x = 0, y = 0, w = 8, h = 6 } },
-    { key = '2', geom = { x = 1, y = 0, w = 6, h = 6 } },
-    { key = '3', geom = { x = 2, y = 1, w = 4, h = 4 } },
-    { key = '4', geom = { x = 3, y = 1, w = 2, h = 3 } },
-    { key = '5', geom = { x = 3, y = 2, w = 2, h = 2 } },
+    { key = '1', geom = { x = 0, y = 0, w = 16, h = 12 } },
+    { key = '2', geom = { x = 1, y = 0, w = 14, h = 12 } },
+    { key = '3', geom = { x = 2, y = 0, w = 12, h = 12 } },
+    { key = '4', geom = { x = 3, y = 1, w = 10, h = 10 } },
+    { key = '5', geom = { x = 4, y = 2, w = 8,  h = 8  } },
 
-    { key = '6', geom = { x = 0, y = 0, w = 4, h = 6 } },
-    { key = '7', geom = { x = 4, y = 0, w = 4, h = 6 } },
+    { key = '6', geom = { x = 0, y = 0, w = 8, h = 12 } },
+    { key = '7', geom = { x = 8, y = 0, w = 8, h = 12 } },
 
-    { key = '8', geom = { x = 0, y = 1, w = 4, h = 4 } },
-    { key = '9', geom = { x = 4, y = 1, w = 4, h = 4 } }
+    { key = '8', geom = { x = 0, y = 2, w = 8, h = 8 } },
+    { key = '9', geom = { x = 8, y = 2, w = 8, h = 8 } }
   }, function(object)
     bind(object.key, doWin(hs.grid.set, object.geom))
   end)

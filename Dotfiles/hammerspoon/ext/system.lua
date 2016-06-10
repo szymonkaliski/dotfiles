@@ -71,5 +71,10 @@ module.toggleConsole = function()
   activateFrontmost()
 end
 
+-- sleep the display
+module.displaySleep = function()
+  hs.task.new('/usr/bin/pmset', nil, { 'displaysleepnow' }):start()
+end
+
 return module
 

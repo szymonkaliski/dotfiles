@@ -8,11 +8,13 @@ window                       = require('ext.window')
 -- extensions
 window.fixEnabled            = false
 window.fullFrame             = true
-window.historyLimit          = 20
+window.highlightEnabled      = false
+window.historyLimit          = 50
 window.margin                = 6
 
 -- hs
 hs.window.animationDuration  = 0.1
+
 hs.hints.fontName            = 'Helvetica-Bold'
 hs.hints.fontSize            = 22
 hs.hints.showTitleThresh     = 0
@@ -21,6 +23,7 @@ hs.hints.hintChars           = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E
 -- controlplane
 controlplane.enabled         = { 'automount', 'bluetooth', 'persistvpn' }
 controlplane.trustedNetworks = { 'Skynet', 'Skynet 5G' }
+controlplane.vpns            = { 'VPN PIA', 'VPN STL' }
 
 -- notifications
 notify.enabled               = { 'battery', 'online', 'wifi' }
@@ -29,10 +32,10 @@ notify.enabled               = { 'battery', 'online', 'wifi' }
 spaces.enabled               = { 'betterswitch' }
 
 -- watchers
-watchers.enabled             = { 'application', 'reload', 'urlevent' }
+watchers.enabled             = { 'autogrid', 'application', 'reload', 'urlevent' }
 watchers.urlPreference       = { 'Safari', 'Google Chrome' }
 
--- start
+-- start modules
 hs.fnutils.each({
   bindings,
   controlplane,
@@ -41,8 +44,12 @@ hs.fnutils.each({
   watchers
 }, function(module) module.start() end)
 
--- stop on shutdown
+-- stop modules on shutdown
 hs.shutdownCallback = function()
+  -- save window positions in hs.settings
+  window.persistPosition('store')
+
+  -- stop modules
   hs.fnutils.each({
     bindings,
     controlplane,
@@ -52,5 +59,5 @@ hs.shutdownCallback = function()
   }, function(module) module.stop() end)
 end
 
--- ensure IPC
+-- ensure IPC is there
 hs.ipc.cliInstall()

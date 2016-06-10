@@ -22,6 +22,8 @@ local getHighlightWindowColor = function()
 end
 
 module.highlightWindow = function()
+  if not window.highlightEnabled then return end
+
   local borderWidth   = 6
   local fadeTime      = 0.25
   local stickTime     = 0.5

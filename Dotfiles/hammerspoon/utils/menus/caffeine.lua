@@ -1,4 +1,4 @@
-local cache  = {}
+local cache  = { displayIdle = hs.settings.get('displayIdle') or false }
 local module = { cache = cache }
 
 local iconOff = os.getenv('HOME') .. '/.hammerspoon/assets/caffeine-off.png'
@@ -43,10 +43,10 @@ end
 
 updateCaffeineStatus = function(newStatus)
   if newStatus ~= nil then
-    hs.settings.set('displaySleepPrevented', newStatus)
+    cache.displayIdle = newStatus
   end
 
-  hs.caffeinate.set('displayIdle', hs.settings.get('displaySleepPrevented'))
+  hs.caffeinate.set('displayIdle', cache.displayIdle)
 
   updateMenuItem()
 end
@@ -58,7 +58,7 @@ module.start = function()
 end
 
 module.stop = function()
-
+  hs.settings.set('displaySleepPrevented', cache.displayIdle)
 end
 
 return module

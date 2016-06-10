@@ -1,13 +1,14 @@
-local activeScreen         = require('ext.screen').activeScreen
-local application          = require('ext.application')
-local bezel                = require('ext.drawing').bezel
 local focusScreen          = require('ext.screen').focusScreen
+local highlightWindow      = require('ext.drawing').highlightWindow
 local isSpaceFullscreenApp = require('ext.spaces').isSpaceFullscreenApp
-local screenSpaces         = require('ext.spaces').screenSpaces
 local spaceInDirection     = require('ext.spaces').spaceInDirection
 local spaces               = require('hs._asm.undocumented.spaces')
 
-local cache  = { mousePosition = nil }
+local cache  = {
+  mousePosition   = nil,
+  windowPositions = hs.settings.get('windowPositions') or {}
+}
+
 local module = { cache = cache }
 
 -- fullscreen toggle
@@ -64,9 +65,6 @@ module.moveToSpace = function(win, direction)
 
       -- reset cache
       cache.movingWindowToSpace = false
-
-      -- display bezel info
-      -- bezel(direction == 'east' and '→' or '←', 70)
     end,
     0.01 -- check every 1/100 of a second
   )
@@ -118,12 +116,20 @@ end
 
 -- save and restore window positions
 module.persistPosition = function(win, option)
-  local application     = win:application()
-  local appId           = application:bundleID() or application:name()
-  local frame           = win:frame()
-  local windowPositions = hs.settings.get('windowPositions') or {}
-  local index           = windowPositions[appId] and windowPositions[appId].index or nil
-  local frames          = windowPositions[appId] and windowPositions[appId].frames or {}
+  local windowPositions = cache.windowPositions
+
+  -- store position into hs.settings
+  if win == 'store' or option == 'store' then
+    hs.settings.set('windowPositions', windowPositions)
+    return
+  end
+
+  -- otherwise run the logic
+  local application = win:application()
+  local appId       = application:bundleID() or application:name()
+  local frame       = win:frame()
+  local index       = windowPositions[appId] and windowPositions[appId].index or nil
+  local frames      = windowPositions[appId] and windowPositions[appId].frames or {}
 
   -- check if given frame differs frome last one in array
   local framesDiffer = function(frame, frames)
@@ -156,23 +162,21 @@ module.persistPosition = function(win, option)
       end
     end
 
-    module.setFrame(win, frames[index])
+    win:setFrame(frames[index])
     index = math.max(index - 1, 1)
   end
 
   -- redo window position
   if option == 'redo' and index ~= nil then
     index = math.min(#frames, index + 1)
-    module.setFrame(win, frames[index])
+    win:setFrame(frames[index])
   end
 
-  -- update window positions object
-  windowPositions[appId] = {
+  -- update cached window positions object
+  cache.windowPositions[appId] = {
     index  = index,
     frames = frames
   }
-
-  hs.settings.set('windowPositions', windowPositions)
 end
 
 return module

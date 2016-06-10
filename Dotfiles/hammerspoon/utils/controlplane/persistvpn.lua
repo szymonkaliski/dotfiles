@@ -1,4 +1,7 @@
-local cache      = {}
+local cache      = {
+  vpnEnabled = hs.settings.get('vpnEnabled') or false,
+  vpnName    = hs.settings.get('vpnName') or controlplane.vpns[1]
+}
 local module     = { cache = cache }
 
 local vpnTimeout = 10 -- timeout before re-connecting to VPN
@@ -9,20 +12,24 @@ local iconOff    = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-off.png'
 local iconOn     = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-on.png'
 
 local openVPNSettings = function()
+  local name = cache.vpnName
+
   hs.applescript.applescript([[
     tell application "System Preferences"
       activate
       set the current pane to pane id "com.apple.preference.network"
-      reveal anchor "VPN" of pane id "com.apple.preference.network"
+      reveal anchor "]] .. name .. [[" of pane id "com.apple.preference.network"
     end tell
   ]])
 end
 
 local isVPNConnected = function()
+  local name = cache.vpnName
+
   local _, res = hs.applescript.applescript([[
     tell application "System Events"
       tell current location of network preferences
-        set connection to the service "VPN"
+        set connection to the service "]] .. name .. [["
         set config to the current configuration of connection
 
         if config is connected then
@@ -38,10 +45,12 @@ local isVPNConnected = function()
 end
 
 local connectVPN = function()
+  local name = cache.vpnName
+
   hs.applescript.applescript([[
     tell application "System Events"
       tell current location of network preferences
-        connect the service "VPN"
+        connect the service "]] .. name .. [["
       end tell
     end tell
   ]])
@@ -52,36 +61,75 @@ local connectVPN = function()
     cache.connecting = false
   end)
 
-  notify('Connecting to VPN...')
+  notify('Connecting to ' .. name .. '...')
 end
 
 local disconnectVPN = function()
+  local name = cache.vpnName
+
   hs.applescript.applescript([[
     tell application "System Events"
       tell current location of network preferences
-        disconnect the service "VPN"
+        disconnect the service "]] .. name .. [["
       end tell
     end tell
   ]])
 
   cache.connecting = false
 
-  notify('Disconnecting from VPN...')
+  notify('Disconnecting from ' .. name .. '...')
 end
 
 local updateMenuItem = function(isConnected)
-  local changeVPNStatus = function() hs.settings.set('vpnEnabled', not isConnected) end
-  local statusText      = 'VPN: ' .. (isConnected and 'Connected' or 'Disconnected')
-  local subStatusText   = (isConnected and 'Disconnect from' or 'Connect to') .. ' VPN'
+  if isConnected then
+    cache.menuItem
+      :setMenu({
+        {
+          title = cache.vpnName .. ': Connected',
+          disabled = true
+        },
+        {
+          title = 'Disconnect',
+          fn = function() cache.vpnEnabled = false end
+        },
+        { title = '-' },
+        {
+          title = 'Open VPN Preferences...',
+          fn = openVPNSettings
+        }
+      })
+  else
+    local vpnSubmenu = {}
 
-  cache.menuItem
-    :setMenu({
-      { title = statusText,                disabled = true      },
-      { title = subStatusText,             fn = changeVPNStatus },
-      { title = '-'                                             },
-      { title = 'Open VPN Preferences...', fn = openVPNSettings }
-    })
-    :setIcon(isConnected and iconOn or iconOff)
+    hs.fnutils.each(controlplane.vpns, function(vpn)
+      table.insert(vpnSubmenu, {
+        title = vpn,
+        fn = function()
+          cache.vpnName    = vpn
+          cache.vpnEnabled = true
+        end
+      })
+    end)
+
+    cache.menuItem
+      :setMenu({
+        {
+          title = 'VPN: Disconnected',
+          disabled = true
+        },
+        {
+          title = 'Connect',
+          menu = vpnSubmenu
+        },
+        { title = '-' },
+        {
+          title = 'Open VPN Preferences...',
+          fn = openVPNSettings
+        }
+      })
+  end
+
+  cache.menuItem:setIcon(isConnected and iconOn or iconOff)
 end
 
 local checkTrustedNetwork = function()
@@ -93,7 +141,7 @@ local checkTrustedNetwork = function()
     return network == currrentNetwork
   end)
 
-  hs.settings.set('vpnEnabled', not isInTrustedNetwork)
+  cache.vpnEnabled = not isInTrustedNetwork
 end
 
 module.start = function()
@@ -109,7 +157,7 @@ module.start = function()
     local isOnline    = hs.network.reachability.internet():status() == 2
     local updateMenu  = false
     local isConnected = isVPNConnected()
-    local vpnEnabled  = hs.settings.get('vpnEnabled')
+    local vpnEnabled  = cache.vpnEnabled
 
     -- we don't care about VPN if there's no internet connection
     if not isOnline and not cache.wasOnline then
@@ -148,6 +196,10 @@ module.start = function()
 end
 
 module.stop = function()
+  -- store last vpn status
+  hs.settings.set('vpnEnabled', cache.vpnEnabled)
+  hs.settings.set('vpnName', cache.vpnName)
+
   cache.timerHandle:stop()
   cache.wifiWatcher:stop()
 end
