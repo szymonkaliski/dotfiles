@@ -21,7 +21,7 @@ hs.hints.showTitleThresh     = 0
 hs.hints.hintChars           = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'Z', 'X', 'C' }
 
 -- controlplane
-controlplane.enabled         = { 'automount', 'bluetooth', 'persistvpn' }
+controlplane.enabled         = { 'automount', 'bluetooth', 'displays', 'persistvpn' }
 controlplane.trustedNetworks = { 'Skynet', 'Skynet 5G' }
 controlplane.vpns            = { 'VPN PIA', 'VPN STL' }
 

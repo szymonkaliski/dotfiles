@@ -16,7 +16,6 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'vim-airline/vim-airline' | Plug 'vim-airline/vim-airline-themes'
 Plug 'wellle/targets.vim'
-Plug 'wesQ3/vim-windowswap'
 Plug 'yssl/QFEnter'
 
 " on demand loading
@@ -38,7 +37,7 @@ Plug 'neomake/neomake',                    { 'on': [] } " only in nvim
 Plug 'marijnh/tern_for_vim',               { 'on': [], 'do': 'npm install' } " only on mac
 Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
 Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
-" Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein do npm install, cljsbuild once plugin' } " only in nvim
+Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein do npm install, cljsbuild once plugin' } " only in nvim
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
 
 " filetype based plugins

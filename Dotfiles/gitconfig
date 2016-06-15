@@ -17,6 +17,7 @@
   amend = !git log -n 1 --pretty=tformat:%s%n%n%b | git commit -F - --amend
   edit  = !$EDITOR $(git ls-files -m)
 
+  cm = commit -m
   ci = commit -am
   st = status -sb
   di = diff --minimal

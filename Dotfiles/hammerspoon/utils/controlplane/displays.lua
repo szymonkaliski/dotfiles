@@ -1,16 +1,10 @@
 local cache  = {}
 local module = { cache = cache }
 
--- set Thunderbolt Display as primary when available
+-- laptop screen should always be primary one
 local screenWatcher = function()
-  local thunderboltDisplay = hs.screen.findByName('Thunderbolt Display')
-  local laptopDisplay      = hs.screen.findByName('Color LCD')
-
-  if thunderboltDisplay then
-    thunderboltDisplay:setPrimary()
-  elseif laptopDisplay then
-    laptopDisplay:setPrimary()
-  end
+  local laptopDisplay = hs.screen.findByName('Color LCD')
+  if laptopDisplay then laptopDisplay:setPrimary() end
 end
 
 module.start = function()
