@@ -53,13 +53,16 @@ module.start = function()
 
   hs.fnutils.each({
     { key = 'h', fn = hs.grid.pushWindowLeft       },
-    { key = 'l', fn = hs.grid.pushWindowRight      },
-    { key = 'k', fn = hs.grid.pushWindowUp         },
     { key = 'j', fn = hs.grid.pushWindowDown       },
-    { key = 'n', fn = hs.grid.pushWindowNextScreen },
-    { key = 'p', fn = hs.grid.pushWindowPrevScreen },
+    { key = 'k', fn = hs.grid.pushWindowUp         },
+    { key = 'l', fn = hs.grid.pushWindowRight      },
+
+    { key = ',', fn = hs.grid.pushWindowNextScreen },
+    { key = '.', fn = hs.grid.pushWindowPrevScreen },
+
     { key = '[', fn = hs.grid.resizeWindowThinner  },
     { key = ']', fn = hs.grid.resizeWindowWider    },
+
     { key = '=', fn = hs.grid.resizeWindowTaller   },
     { key = '-', fn = hs.grid.resizeWindowShorter  },
   }, function(object)
@@ -83,10 +86,9 @@ module.start = function()
   end)
 
   hs.fnutils.each({
-    { key = 't', apps = { 'iTerm2', 'Terminal'         } },
-    { key = 'b', apps = { 'Safari', 'Google Chrome'    } },
-    { key = 'm', apps = { 'Messages', 'Slack', 'Skype' } },
-    { key = '`', apps = { 'Finder'                     } }
+    { key = 'return', apps = { 'iTerm2', 'Terminal'         } },
+    { key = 'space',  apps = { 'Safari', 'Google Chrome'    } },
+    { key = '`',      apps = { 'Finder'                     } }
   }, function(object)
     bind(object.key, function() smartLaunchOrFocus(object.apps) end)
   end)

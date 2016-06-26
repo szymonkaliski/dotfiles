@@ -2,7 +2,7 @@ if !(has('mac') && has('nvim'))
   finish
 endif
 
-let g:parinfer_mode_default = 'paren'
+let g:parinfer_mode_default = 'indent'
 let g:parinfer_mode = g:parinfer_mode_default
 let g:parinfer_airline_integration = 0
 let g:parinfer_preview_cursor_scope = 1
