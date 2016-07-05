@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# easily create reminders:
+# remind "do something" "today" "17:00"
+
+osascript - "$1" "$2" "$3" << END
+on run argv
+	set queryDay to item 2 of argv
+	set theHour to item 3 of argv
+	set theYear to year of (current date)
+
+  if queryDay = "today" then
+		set theDay to day of (current date) as string
+		set theMonth to month of (current date)
+
+		set theDate to theDay & " " & theMonth & " " & theYear
+	else if queryDay = "tomorrow" then
+		set theDay to (day of ((current date) + (24 * 60 * 60)))
+
+		if (day of (current date)) < (day of ((current date) + (24 * 60 * 60))) then
+			set theMonth to month of (current date)
+		else
+			set theMonth to (month of ((current date) + (30 * 24 * 60 * 60)))
+		end if
+
+		if year of (current date) < year of ((current date) + (24 * 60 * 60)) then
+			set theYear to (year of (current date)) + 1
+		else
+			set theYear to year of (current date)
+		end if
+
+		set theDate to theDay & " " & theMonth & " " & theYear
+	else
+		set theDate to queryDay
+	end if
+
+	set stringedDate to theDate as string
+	set stringedHour to theHour as string
+	set stringedAll to (stringedDate & " " & stringedHour)
+
+	tell application "Reminders"
+		make new reminder with properties {name:item 1 of argv, due date:date stringedAll}
+	end tell
+end run
+END

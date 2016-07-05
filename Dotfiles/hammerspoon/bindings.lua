@@ -65,6 +65,7 @@ module.start = function()
 
     { key = '=', fn = hs.grid.resizeWindowTaller   },
     { key = '-', fn = hs.grid.resizeWindowShorter  },
+    { key = 'z', fn = hs.grid.maximizeWindow       }
   }, function(object)
     bind(object.key, doWin(object.fn, object.args), { shouldRepeat = true })
   end)

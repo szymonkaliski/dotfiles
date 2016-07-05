@@ -4,8 +4,10 @@ local module   = {}
 
 -- watch for http and https events and open in currently running browser instead of default one
 -- click with 'cmd' to open in background
--- change default system browser to Hammerspoon for it to work
+-- change default system browser to Hammerspoon for it to work (maybe not required with setDefaultHandler in here?)
 module.start = function()
+  hs.urlevent.setDefaultHandler('http')
+
   hs.urlevent.httpCallback = function(_, _, _, fullURL)
     local modifiers          = hs.eventtap.checkKeyboardModifiers()
     local shouldFocusBrowser = modifiers['cmd'] == true

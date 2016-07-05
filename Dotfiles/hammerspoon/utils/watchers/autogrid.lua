@@ -1,20 +1,34 @@
 local cache  = {}
 local module = { cache = cache }
 
-module.start = function(_)
-  -- we only care about "normal" windows for snapping
-  cache.filter = hs.window.filter.new(function(win)
-    return win:isStandard() and win:isVisible() and not win:isFullScreen()
-  end)
+local snapWindow = function(win)
+  local smallWin = { w = 300, h = 300 }
+  local frame    = win:frame()
 
-  -- auto snap any new "normal" window
-  cache.filter:subscribe({ hs.window.filter.windowCreated }, function(win, _, _)
+  if
+    win:isStandard()
+    and win:isVisible()
+    and not win:isFullScreen()
+    and frame.w > smallWin.w
+    and frame.h > smallWin.h
+  then
     hs.grid.snap(win)
-  end)
+  end
+end
 
-  -- snap all windows on screen change
+module.start = function(_)
+
+  cache.filter = hs.window.filter.new(nil)
+
+  cache.filter:subscribe({
+    hs.window.filter.windowCreated,
+    hs.window.filter.windowVisible,
+    hs.window.filter.windowOnScreen,
+    hs.window.filter.windowMoved
+  }, snapWindow)
+
   cache.watcher = hs.screen.watcher.new(function()
-    hs.fnutils.map(hs.window.visibleWindows(), hs.grid.snap)
+    hs.fnutils.map(hs.window.visibleWindows(), snapWindow)
   end):start()
 end
 
