@@ -29,7 +29,12 @@ let g:airline_left_sep = ''
 let g:airline_right_sep = ''
 let g:airline_inactive_collapse = 0
 let g:airline_exclude_preview = 0
+
 let g:airline_detect_modified = 0
+let g:airline_detect_paste = 0
+let g:airline_detect_spell = 0
+let g:airline_detect_iminsert = 0
+let g:airline_detect_crypt = 0
 let g:airline_detect_paste = 0
 
 " tabline

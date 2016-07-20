@@ -4,9 +4,9 @@ call plug#begin('~/.vim/plugged')
 Plug 'Konfekt/FastFold'
 Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
+Plug 'ajh17/VimCompletesMe'
 Plug 'chaoren/vim-wordmotion'
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'ervandew/supertab'
 Plug 'justinmk/vim-dirvish'
 Plug 'matchit.zip'
 Plug 'pbrisbin/vim-mkdir'
@@ -34,11 +34,11 @@ Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterO
 " loading based on system and vim version
 Plug 'airblade/vim-gitgutter',             { 'on': [] } " only on mac
 Plug 'neomake/neomake',                    { 'on': [] } " only in nvim
-Plug 'marijnh/tern_for_vim',               { 'on': [], 'do': 'npm install' } " only on mac
 Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
 Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
 Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein do npm install, cljsbuild once plugin' } " only in nvim
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
+Plug 'bfredl/nvim-miniyank',               { 'on': [] } " only in nvim
 
 " filetype based plugins
 Plug 'b4winckler/vim-objc',                { 'for': 'objc' }
@@ -51,6 +51,7 @@ Plug 'kchmck/vim-coffee-script',           { 'for': 'coffee' }
 Plug 'keith/swift.vim',                    { 'for': 'swift' }
 Plug 'leafgarland/typescript-vim',         { 'for': 'typescript' }
 Plug 'moll/vim-node',                      { 'for': 'javascript'  }
+Plug 'mustache/vim-mustache-handlebars',   { 'for': [ 'handlebars', 'mustache' ] }
 Plug 'mxw/vim-jsx',                        { 'for': 'javascript' }
 Plug 'nelstrom/vim-markdown-folding',      { 'for': 'markdown' }
 Plug 'othree/html5.vim',                   { 'for': 'html' }
@@ -76,7 +77,13 @@ if ($TMUX != '')
 endif
 
 if has('mac')
-  call plug#load('vim-gitgutter', has('nvim') ? 'neomake' : 'syntastic')
+  call plug#load('vim-gitgutter')
+
+  if has('nvim')
+    call plug#load('neomake', 'nvim-miniyank')
+  else
+    call plug#load('syntastic')
+  endif
 endif
 
 " viminfo - more v:oldfiles, register lines

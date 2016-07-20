@@ -39,4 +39,42 @@ module.search = function()
  end
 end
 
+-- module.prompt = function()
+--   local screenFrame = hs.screen.mainScreen():fullFrame()
+--   local label       = ""
+--   local frame       = { x = screenFrame.x + screenFrame.w / 2, y = screenFrame.y + screenFrame.h / 4, w = 1, h = 1 }
+--   local callback    = function(input) print("prompter result:"..tostring(input)) end
+
+--   local uccName = "prompter" .. hs.host.uuid():gsub("-","")
+--   local view
+--   local ucc = hs.webview.usercontent.new(uccName):setCallback(function(input)
+--     if callback then
+--       callback(input.body)
+--     end
+
+--     view:delete()
+--   end)
+
+--   view = hs.webview.new(frame, { developerExtrasEnabled = true }, ucc):html([[
+--   <DOCTYPE html>
+--   <script type="text/javascript">
+--     window.alert("]] .. label .. [[");
+
+--     /*
+--     try {
+--       webkit.messageHandlers.]] .. uccName .. [[.postMessage(textMsg);
+--     }
+--     catch(err) {
+--       console.log('Controller ]] .. uccName .. [[ does not exist');
+--       console.log(err)
+--     }
+--     */
+--   </script>
+--   ]]):show()
+
+--   view:level(hs.drawing.windowLevels.screenSaver)
+
+--   return view
+-- end
+
 return module

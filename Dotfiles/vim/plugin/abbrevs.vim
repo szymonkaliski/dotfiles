@@ -14,12 +14,8 @@ endfunction
 augroup ft_abbrev
   au!
 
-  au FileType lua
-        \ call <sid>SpacelessIabbrev('fn', 'function')
-
   au FileType javascript,html
         \ call <sid>SpacelessIabbrev('clog', 'console.log') |
-        \ call <sid>SpacelessIabbrev('fn', 'function') |
         \ call <sid>SpacelessIabbrev('rfac', 'React.createFactory(') |
         \ call <sid>SpacelessIabbrev('rcla', 'React.createClass(')
 augroup END

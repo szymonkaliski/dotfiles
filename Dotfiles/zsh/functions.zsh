@@ -15,7 +15,7 @@ tm() {
         dir=${PWD##*/}
       fi
 
-      title="$(echo $dir | tr "[:upper:]" "[:lower:]" | sed "s/\ /\-/g")"
+      title="$(echo $dir | tr "[:upper:]" "[:lower:]" | sed "s/[\ |\.]/\-/g")"
     else
       title="home"
     fi
