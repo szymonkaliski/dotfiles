@@ -20,6 +20,7 @@ Plug 'yssl/QFEnter'
 
 " on demand loading
 Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>SortMotion', '<Plug>SortLines' ] }
+Plug 'duff/vim-scratch',                   { 'on': 'Scratch' }
 Plug 'epeli/slimux',                       { 'on': [ 'SlimuxREPL', 'SlimuxREPLSendSelection', 'SlimuxREPLSendBuffer', 'SlimuxREPLSendLine', 'SlimuxREPLSendParagraph', 'SlimuxGlobalConfigure' ] }
 Plug 'junegunn/goyo.vim',                  { 'on': 'Goyo' }
 Plug 'junegunn/limelight.vim',             { 'on': 'Limelight' }
@@ -380,7 +381,6 @@ nnoremap <leader>bb :b#<cr>
 " new buffer / tab
 nnoremap <leader>B :enew<cr>
 nnoremap <leader>T :tabnew<cr>
-nnoremap <leader>S :enew<cr>:setlocal buftype=nofile bufhidden=wipe noswapfile<cr>:echo "Scratch buffer created"<cr>
 
 " yank whole buffer
 nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>

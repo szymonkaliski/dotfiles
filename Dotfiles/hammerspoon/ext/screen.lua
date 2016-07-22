@@ -1,5 +1,4 @@
-local template = require('ext.template')
-local module   = {}
+local module = {}
 
 -- grabs screen with active window, unless it's Finder's desktop
 -- then we use mouse position

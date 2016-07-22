@@ -13,7 +13,7 @@ window.historyLimit          = 50
 window.margin                = 6
 
 -- hs
-hs.window.animationDuration  = 0.05
+hs.window.animationDuration  = 0.1
 
 hs.hints.fontName            = 'Helvetica-Bold'
 hs.hints.fontSize            = 22

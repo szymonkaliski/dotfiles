@@ -19,18 +19,19 @@ enum {
 enum {
   F_GUI,
   F_SFT,
-  F_ALT
+  F_ALT,
+  F_CTL
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Keymap 0: Basic layer
  *
  * ,--------------------------------------------------.           ,--------------------------------------------------.
- * |   =+   |   1  |   2  |   3  |   4  |   5  | `~   |           |      |   6  |   7  |   8  |   9  |   0  |   -_   |
+ * |   =+   |   1  |   2  |   3  |   4  |   5  | `~   |           |  Esc |   6  |   7  |   8  |   9  |   0  |   -_   |
  * |--------+------+------+------+------+-------------|           |------+------+------+------+------+------+--------|
  * | Tab    |   Q  |   W  |   E  |   R  |   T  |  L2  |           |  L2  |   Y  |   U  |   I  |   O  |   P  |   \|   |
  * |--------+------+------+------+------+------|      |           |      |------+------+------+------+------+--------|
- * |Ctrl/Esc|   A  |   S  |   D  |   F  |   G  |------|           |------|   H  |   J  |   K  |   L  |  :;  |   "'   |
+ * | LCtrl  |   A  |   S  |   D  |   F  |   G  |------|           |------|   H  |   J  |   K  |   L  |  :;  |   "'   |
  * |--------+------+------+------+------+------|  L1  |           |  L1  |------+------+------+------+------+--------|
  * | LShift |   Z  |   X  |   C  |   V  |   B  |      |           |      |   N  |   M  |  <,  |  >.  |   ?/ | RShift |
  * `--------+------+------+------+------+-------------'           `-------------+------+------+------+------+--------'
@@ -47,17 +48,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [L_BASE] = KEYMAP(
 // left hand
-    KC_EQL,        KC_1,  KC_2,   KC_3,    KC_4,    KC_5,       KC_GRV,
-    KC_TAB,        KC_Q,  KC_W,   KC_E,    KC_R,    KC_T,       MO(L_MDIA),
-    CTL_T(KC_ESC), KC_A,  KC_S,   KC_D,    KC_F,    KC_G,
-    F(F_SFT),      KC_Z,  KC_X,   KC_C,    KC_V,    KC_B,       MO(L_SYMB),
-    F(F_ALT),      KC_NO, KC_NO,  KC_LBRC, KC_RBRC,
-                                                    KC_NO,      KC_NO,
-                                                                MO(L_SYMB),
-                                           KC_BSPC, M(M_ULTRA), F(F_GUI),
+    KC_EQL,   KC_1,  KC_2,   KC_3,    KC_4,    KC_5,       KC_GRV,
+    KC_TAB,   KC_Q,  KC_W,   KC_E,    KC_R,    KC_T,       MO(L_MDIA),
+    F(F_CTL), KC_A,  KC_S,   KC_D,    KC_F,    KC_G,
+    F(F_SFT), KC_Z,  KC_X,   KC_C,    KC_V,    KC_B,       MO(L_SYMB),
+    F(F_ALT), KC_NO, KC_NO,  KC_LBRC, KC_RBRC,
+                                               KC_NO,      KC_NO,
+                                                           MO(L_SYMB),
+                                      KC_BSPC, M(M_ULTRA), F(F_GUI),
 
 // right hand
-    KC_ESC,     KC_6,   KC_7,    KC_8,    KC_9,    KC_0,     KC_MINS,
+    M(M_ESC),   KC_6,   KC_7,    KC_8,    KC_9,    KC_0,     KC_MINS,
     MO(L_MDIA), KC_Y,   KC_U,    KC_I,    KC_O,    KC_P,     KC_BSLS,
                 KC_H,   KC_J,    KC_K,    KC_L,    KC_SCLN,  KC_QUOT,
     MO(L_SYMB), KC_N,   KC_M,    KC_COMM, KC_DOT,  KC_SLSH,  F(F_SFT),
@@ -161,30 +162,31 @@ const uint16_t PROGMEM fn_actions[] = {
   [L_MDIA] = ACTION_LAYER_MOMENTARY(L_MDIA),
   [F_SFT]  = ACTION_MODS_ONESHOT(MOD_LSFT),
   [F_GUI]  = ACTION_MODS_ONESHOT(MOD_LGUI),
-  [F_ALT]  = ACTION_MODS_ONESHOT(MOD_LALT)
+  [F_ALT]  = ACTION_MODS_ONESHOT(MOD_LALT),
+  [F_CTL]  = ACTION_MODS_ONESHOT(MOD_LCTL)
 };
 
 const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
   switch(id) {
+    // escape and cancel oneshot layers
+    case M_ESC:
+      if (record->event.pressed) {
+        if (get_oneshot_mods() && !has_oneshot_mods_timed_out()) {
+          clear_oneshot_mods();
+        }
+        else {
+          register_code(KC_ESC);
+        }
+      } else {
+        unregister_code(KC_ESC);
+      }
+      break;
+
     // "ultra" key - like hyper/meh but also easy to click on macbook keyboard so I can have the same modifier in HS
     case M_ULTRA:
       return record->event.pressed ?
         MACRO(D(LCTL), D(LALT), D(LGUI), END) :
         MACRO(U(LCTL), U(LALT), U(LGUI), END);
-
-    // escape and cancel oneshot layers
-    // case M_ESC:
-    //   if (record->event.pressed) {
-    //     if (get_oneshot_mods() && !has_oneshot_mods_timed_out()) {
-    //       clear_oneshot_mods();
-    //     }
-    //     else {
-    //       register_code(KC_ESC);
-    //     }
-    //   } else {
-    //     unregister_code(KC_ESC);
-    //   }
-    //   break;
   }
 
   return MACRO_NONE;

@@ -1,8 +1,9 @@
 local module             = {}
 
-local window             = require('ext.window')
+local grid               = require('ext.grid')
 local smartLaunchOrFocus = require('ext.application').smartLaunchOrFocus
 local system             = require('ext.system')
+local window             = require('ext.window')
 
 -- simple unpack clone
 function unpack(t, i)
@@ -65,7 +66,9 @@ module.start = function()
 
     { key = '=', fn = hs.grid.resizeWindowTaller   },
     { key = '-', fn = hs.grid.resizeWindowShorter  },
-    { key = 'z', fn = hs.grid.maximizeWindow       }
+
+    { key = 'z', fn = hs.grid.maximizeWindow       },
+    { key = 's', fn = grid.swapScreens             }
   }, function(object)
     bind(object.key, doWin(object.fn, object.args), { shouldRepeat = true })
   end)
@@ -94,7 +97,6 @@ module.start = function()
     bind(object.key, function() smartLaunchOrFocus(object.apps) end)
   end)
 
-  -- TODO: set sizes
   hs.fnutils.each({
     { key = '1', geom = { x = 0, y = 0, w = 16, h = 12 } },
     { key = '2', geom = { x = 1, y = 0, w = 14, h = 12 } },
@@ -110,7 +112,6 @@ module.start = function()
   }, function(object)
     bind(object.key, doWin(hs.grid.set, object.geom))
   end)
-
 end
 
 -- TODO: stop all bindings?
