@@ -27,3 +27,6 @@ nnoremap [t :tabp<cr>
 " not used
 unmap ]T
 unmap [T
+
+" center on cursor using scrollof
+nnoremap <silent> coz :let &scrolloff=999-&scrolloff<cr>

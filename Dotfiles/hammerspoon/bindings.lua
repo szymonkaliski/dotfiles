@@ -33,6 +33,16 @@ local doWin = function(fn, options)
 end
 
 module.start = function()
+  -- alt + tab as alternative to cmd + tab
+  hs.hotkey.bind({ 'alt' }, 'tab', window.windowHints)
+
+  -- ctrl + enter = escape
+  hs.hotkey.bind({ 'ctrl' }, 'return', function()
+    hs.eventtap.event.newKeyEvent({}, 'escape', true):post()
+    hs.eventtap.event.newKeyEvent({}, 'escape', false):post()
+  end)
+
+  -- ultra bindings
   local ultra = { 'ctrl', 'alt', 'cmd' }
   local bind  = function(key, action, opts)
     local shouldRepeat = opts and opts.shouldRepeat or false
@@ -43,8 +53,6 @@ module.start = function()
       hs.hotkey.bind(ultra, key, action)
     end
   end
-
-  hs.hotkey.bind({ 'alt' }, 'tab', window.windowHints)
 
   local w = 16
   local h = 12

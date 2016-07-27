@@ -254,7 +254,9 @@ set foldcolumn=0
 
 " terminal
 if has('nvim')
-  tnoremap <Esc> <c-\><c-n>
+  tnoremap <esc> <c-\><c-n>
+  tnoremap <leader><esc> <esc>
+  let g:terminal_scrollback_buffer_size = 5000
 endif
 
 " re-source vimrc
@@ -270,7 +272,8 @@ map <tab> %
 map gf :e <cfile><cr>
 
 " search for currently selected text from visual mode
-vnoremap / "vy/<c-r>v
+vnoremap / "vy/<c-r>v<cr>
+vnoremap ? "vy?<c-r>v<cr>
 
 " c-a / c-e everywhere
 inoremap <c-a> <c-o>0
@@ -278,7 +281,7 @@ inoremap <c-e> <c-o>$
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 
-" proper movement
+" force proper movement
 nnoremap <left>  <nop>
 nnoremap <right> <nop>
 nnoremap <up>    <nop>
@@ -348,10 +351,6 @@ nnoremap S i<cr><esc>^mwgk:silent! s/\v +$//<cr>:noh<cr>
 " run make
 nnoremap R :wa<cr>:silent make!<cr>:redraw!<cr>
 
-" newlines without entering insert mode
-nnoremap go o<Esc>k
-nnoremap gO O<Esc>j
-
 " open common files
 nnoremap <leader>ov :e ~/.vimrc<cr>
 nnoremap <leader>og :e ~/.gvimrc<cr>
@@ -403,10 +402,8 @@ nmap <silent> <leader>C <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
 nnoremap <leader>= :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
 
 " folds
+nnoremap zf mzzMzv`zzt
 nnoremap <leader><leader> za
-
-" center on cursor using scrollof
-nnoremap <silent> <leader>z :let &scrolloff=999-&scrolloff<cr>
 
 " zoom window
 nnoremap <silent> <c-w>z :ZoomToggle<cr>
