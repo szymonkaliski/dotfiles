@@ -32,11 +32,11 @@ nnoremap gcc :xccmd commentAndUncommentCurrentLines<cr>
 vnoremap gc  :xccmd commentAndUncommentCurrentLines<cr>
 
 " jump to issues
-nmap ;e :xcmenucmd Jump to Next Issue<cr>
-nmap ;E :xcmenucmd Jump to Previous Issue<cr>
+nmap ]l :xcmenucmd Jump to Next Issue<cr>
+nmap [l :xcmenucmd Jump to Previous Issue<cr>
 
 " make
-nmap ;m :xmenucmd Run<cr>
+nmap R :xmenucmd Run<cr>
 
 " quicker indentation
 nnoremap > >>
@@ -68,9 +68,8 @@ vnoremap Q :norm @q<cr>
 map <tab> %
 
 " new tab
-nnoremap ;T :xccmd newTab<cr>
-nnoremap gT :xccmd selectPreviousTab<cr>
-nnoremap gt :xccmd selectNextTab<cr>
+nnoremap [t :xccmd selectPreviousTab<cr>
+nnoremap ]t :xccmd selectNextTab<cr>
 
 " fold
 nnoremap zc :xccmd fold<cr>
@@ -78,14 +77,3 @@ nnoremap zo :xccmd unfold<cr>
 
 " remove whitespace
 command! KillWhitespace :normal :%s/\s\+$//g<cr>
-nnoremap <silent> ;k :KillWhitespace<cr>:nohlsearch<cr>
-
-" select whole buffer
-nnoremap ;va ggVG
-
-" yank whole buffer
-nnoremap ;ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>
-
-" align block
-nnoremap ;a :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
-

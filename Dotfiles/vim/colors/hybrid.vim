@@ -384,7 +384,7 @@ exe "hi! Ignore"          .s:bg_none        .s:bg_none        .s:fmt_none
 
 exe "hi! Error"           .s:fg_red         .s:bg_darkred     .s:fmt_none
 
-exe "hi! Todo"            .s:fg_aqua        .s:bg_none        .s:fmt_none
+exe "hi! Todo"            .s:fg_aqua        .s:bg_darkblue    .s:fmt_none
 
 " Quickfix window highlighting
 exe "hi! qfLineNr"        .s:fg_yellow      .s:bg_none        .s:fmt_none
@@ -435,14 +435,15 @@ exe "hi! luaTable" .s:fmt_none .s:fg_blue .s:bg_none
 exe "hi! jsArrowFunction"        .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsBraces"               .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsBrackets"             .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsDomElemAttrs"         .s:fmt_none .s:fg_foreground .s:bg_none
-exe "hi! jsFuncAssignObjChain"   .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsFuncArgDestructuring" .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsDestructuringBraces"  .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsDomElemAttrs"         .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! jsFuncArgDestructuring" .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsFuncAssignObjChain"   .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsFuncBraces"           .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsFuncName"             .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsFuncParens"           .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsFunction"             .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsGlobalNodeObjects"    .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsGlobalObjects"        .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! jsHtmlElemAttrs"        .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! jsHtmlEvents"           .s:fmt_none .s:fg_foreground .s:bg_none

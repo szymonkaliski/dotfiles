@@ -1,11 +1,25 @@
 #!/usr/bin/env bash
 # mostly stolen from: https://github.com/mathiasbynens/dotfiles/blob/master/.osx
 
+# disable press-and-hold
+defaults write -g ApplePressAndHoldEnabled -bool false
+
 # set the icon size of Dock items to 48 pixels
 defaults write com.apple.dock tilesize -int 48
 
 # lock Dock size
 defaults write com.apple.dock size-immutable -bool yes
+
+# expand save panel by default
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
+
+# expand print panel by default
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
+
+# save to disk (not to iCloud) by default
+defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
 # disable local Time Machine backups
 hash tmutil &> /dev/null && sudo tmutil disablelocal

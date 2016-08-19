@@ -54,9 +54,9 @@ let g:airline#extensions#tabline#close_symbol = '✕'
 
 " truncating
 let g:airline#extensions#default#section_truncate_width = {
-      \ 'b': 20,
+      \ 'b': 100,
       \ 'x': 60,
-      \ 'y': 90,
+      \ 'y': 60,
       \ 'z': 50
       \ }
 

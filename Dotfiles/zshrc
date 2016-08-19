@@ -6,7 +6,6 @@ files=(
   colors
   vim
   prompt
-  plugins
   locale
   exports
   aliases
@@ -15,8 +14,7 @@ files=(
   history
   bindkeys
   terminal
-  autopair
-  docker
+  plugins
   # locale
   # rbenv
 )

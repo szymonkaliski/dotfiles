@@ -5,6 +5,8 @@
   quotepath = false
   pager = less -x2
   safecrlf = false
+[system]
+	untrackedCache = true
 [diff]
   color = auto
   algorithm = patience

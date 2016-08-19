@@ -34,12 +34,12 @@ Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterO
 
 " loading based on system and vim version
 Plug 'airblade/vim-gitgutter',             { 'on': [] } " only on mac
+Plug 'bfredl/nvim-miniyank',               { 'on': [] } " only in nvim
 Plug 'neomake/neomake',                    { 'on': [] } " only in nvim
 Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
 Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
 Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein do npm install, cljsbuild once plugin' } " only in nvim
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
-Plug 'bfredl/nvim-miniyank',               { 'on': [] } " only in nvim
 
 " filetype based plugins
 Plug 'b4winckler/vim-objc',                { 'for': 'objc' }
@@ -50,7 +50,6 @@ Plug 'elzr/vim-json',                      { 'for': 'json' }
 Plug 'groenewege/vim-less',                { 'for': 'less' }
 Plug 'kchmck/vim-coffee-script',           { 'for': 'coffee' }
 Plug 'keith/swift.vim',                    { 'for': 'swift' }
-Plug 'leafgarland/typescript-vim',         { 'for': 'typescript' }
 Plug 'moll/vim-node',                      { 'for': 'javascript'  }
 Plug 'mustache/vim-mustache-handlebars',   { 'for': [ 'handlebars', 'mustache' ] }
 Plug 'mxw/vim-jsx',                        { 'for': 'javascript' }

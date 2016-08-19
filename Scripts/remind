@@ -44,7 +44,7 @@ on run argv
       set wasRunning to true
     end if
 
-    make new reminder with properties {name:item 1 of argv, remind me:date stringedAll}
+    make new reminder with properties {name:item 1 of argv, remind me date: date stringedAll}
 
     if not wasRunning then
       quit

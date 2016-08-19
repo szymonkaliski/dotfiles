@@ -74,22 +74,6 @@ function! s:BuffersLinesOpen(l)
   silent! normal! zozz
 endfunction
 
-function! s:Registers()
-  let l:regnum =  range(char2nr('a'), char2nr('z'))
-  let l:regnum += range(char2nr('0'), char2nr('9'))
-  let l:regstr =  [ '"' ]
-  let l:regnum += map(l:regstr, 'char2nr(v:val)')
-
-  let l:regnum = filter(l:regnum, "getreg(nr2char(v:val)) != ''")
-  let l:regnum = filter(l:regnum, "getreg(nr2char(v:val)) !~ '^$'")
-  let l:regnum = filter(l:regnum, "getreg(nr2char(v:val)) !~ '^\s\+$'")
-  let l:regnum = filter(l:regnum, "getreg(nr2char(v:val)) !~ '^\W\+$'")
-
-  let l:registers = map(l:regnum, 'getreg(nr2char(v:val))')
-
-  return l:registers
-endfunction
-
 function! s:LineAppend(e)
   exe 'normal! o ' . a:e
 endfunction
@@ -133,21 +117,13 @@ command! FZFLines call fzf#run(extend(s:fzf_default_opt, {
       \ 'options': '--reverse --no-sort --exit-0 --nth=3.. --prompt="lines > "'
       \ }))
 
-command! FZFRegisters call fzf#run(extend(s:fzf_default_opt, {
-      \ 'source':  s:Registers(),
-      \ 'sink':    function('<sid>LineAppend'),
-      \ 'options': '--reverse --no-sort --tac --exit-0 --prompt="registers > "'
-      \ }))
-
 nnoremap <silent> <c-p>      :FZFFiles<cr>
 nnoremap <silent> <c-b>      :FZFBuffers<cr>
 
 nnoremap <silent> <leader>fe :FZFFiles<cr>
 nnoremap <silent> <leader>fb :FZFBuffers<cr>
 nnoremap <silent> <leader>fl :FZFLines<cr>
-nnoremap <silent> <leader>fm :FZFMru<cr>
-nnoremap <silent> <leader>fh :FZFRegisters<cr>
-nnoremap <silent> <leader>fr :FZFRegisters<cr>
+nnoremap <silent> <leader>fh :FZFMru<cr>
 
 nnoremap <silent> <leader>fg :FZFAgInput<cr>
 xnoremap <silent> <leader>fg :FZFAgVisual<cr>

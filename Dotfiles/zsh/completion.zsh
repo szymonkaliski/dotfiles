@@ -10,15 +10,11 @@ if [ -d ~/.zsh/completion ]; then
   export FPATH="~/.zsh/completion:$FPATH"
 fi
 
-if [ -f /usr/local/Library/Contributions/brew_zsh_completion.zsh ]; then
-  ln -s /usr/local/Library/Contributions/brew_zsh_completion.zsh ~/.zsh/completion/_brew > /dev/null 2>&1
-fi
-
 typeset -gU fpath    # clean paths
 autoload -z compinit # load completions
 compinit -C          # without securiy checks
 
-# complete with dots
+# complete with dots, useful on slow systems
 expand-or-complete-with-dots() {
   echo -n "$(tput setaf 6)...$(tput sgr0)"
   zle expand-or-complete

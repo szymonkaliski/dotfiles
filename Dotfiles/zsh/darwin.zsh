@@ -56,3 +56,8 @@ o() {
 
   open $ARG
 }
+
+# dash
+dash() {
+  open "dash://$*"
+}

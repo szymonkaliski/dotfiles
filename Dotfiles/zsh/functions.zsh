@@ -176,7 +176,7 @@ sanitize() {
 
 # recompile zsh
 recompile() {
-  autoload -U zrecompile
+  autoload -Uz zrecompile
 
   [ -f ~/.zshrc ]             && zrecompile -q -p ~/.zshrc     > /dev/null 2>&1
   [ -f ~/.zcompdump ]         && zrecompile -q -p ~/.zcompdump > /dev/null 2>&1

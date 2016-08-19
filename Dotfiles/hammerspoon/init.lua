@@ -28,9 +28,6 @@ controlplane.vpns            = { 'VPN PIA', 'VPN STL' }
 -- notifications
 notify.enabled               = { 'battery', 'online', 'wifi' }
 
--- spaces
-spaces.enabled               = { 'betterswitch' }
-
 -- watchers
 watchers.enabled             = { 'autogrid', 'application', 'reload', 'urlevent' }
 watchers.urlPreference       = { 'Safari', 'Google Chrome' }
@@ -40,7 +37,6 @@ hs.fnutils.each({
   bindings,
   controlplane,
   notify,
-  spaces,
   watchers
 }, function(module) module.start() end)
 
@@ -54,7 +50,6 @@ hs.shutdownCallback = function()
     bindings,
     controlplane,
     notify,
-    spaces,
     watchers
   }, function(module) module.stop() end)
 end
