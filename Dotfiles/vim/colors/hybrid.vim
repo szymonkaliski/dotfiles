@@ -537,6 +537,11 @@ exe "hi! clojureVarArg"   .s:fmt_none .s:fg_aqua    .s:bg_none
 exe "hi! pythonStatement" .s:fmt_none .s:fg_aqua .s:bg_none
 
 " }}}
+" cpp highlighting {{{
+
+exe "hi! cCustomFunc" .s:fmt_none .s:fg_foreground .s:bg_none
+
+" }}}
 " clever-f highlighting {{{
 
 " exe "hi! CleverFDefaultLabel" .s:fg_green .s:bg_none .s:fmt_revr

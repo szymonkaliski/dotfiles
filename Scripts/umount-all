@@ -1,5 +1,7 @@
 #!/usr/bin/env osascript
 
+do shell script "tmutil stopbackup"
+
 tell application "Finder"
   eject (every disk whose ejectable is true)
 end tell

@@ -54,6 +54,7 @@ Plug 'moll/vim-node',                      { 'for': 'javascript'  }
 Plug 'mustache/vim-mustache-handlebars',   { 'for': [ 'handlebars', 'mustache' ] }
 Plug 'mxw/vim-jsx',                        { 'for': 'javascript' }
 Plug 'nelstrom/vim-markdown-folding',      { 'for': 'markdown' }
+Plug 'octol/vim-cpp-enhanced-highlight',   { 'for': [ 'cpp', 'c' ] }
 Plug 'othree/html5.vim',                   { 'for': 'html' }
 Plug 'pangloss/vim-javascript',            { 'for': [ 'javascript', 'html' ] }
 Plug 'sophacles/vim-processing',           { 'for': 'processing' }
