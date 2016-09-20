@@ -7,17 +7,26 @@ local notify    = require('utils.controlplane.notify')
 local screenWatcher = function()
   local isThunderboltConnected = hs.screen.findByName('Thunderbolt Display')
 
-  -- turn on only when using with thunderbolt display
-  if isThunderboltConnected and not bluetooth.power() then
-    bluetooth.power(true)
-    notify('Bluetooth on')
+  if cache.timer then
+    cache.timer:stop()
   end
 
-  -- turn off otherwise
-  if not isThunderboltConnected and bluetooth.power() then
-    bluetooth.power(false)
-    notify('Bluetooth off')
-  end
+  -- wait time before turning bluetooth on/off, hopefully will fix problems with bluetooth adapter and mouse
+  local timeout = 2
+
+  cache.timer = hs.timer.doAfter(timeout, function()
+    -- turn on only when using with thunderbolt display
+    if isThunderboltConnected and not bluetooth.power() then
+      bluetooth.power(true)
+      notify('Bluetooth on')
+    end
+
+    -- turn off otherwise
+    if not isThunderboltConnected and bluetooth.power() then
+      bluetooth.power(false)
+      notify('Bluetooth off')
+    end
+  end)
 end
 
 module.start = function()

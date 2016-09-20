@@ -56,6 +56,13 @@ npm-exec() {
   PATH="$(npm bin):$PATH" "$@"
 }
 
+# switch npm account
+# I use .npmrc.account-name so I can easily switch between public and companies accounts
+npm-account() {
+  rm -f ~/.npmrc > /dev/null 2>&1
+  ln -s ~/.npmrc.$1 ~/.npmrc
+}
+
 # sudo previous command
 sudothat() {
   echo -e "$(tput setaf 1)sudo$(tput sgr0) → $(fc -ln -1)"

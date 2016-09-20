@@ -98,6 +98,15 @@ function! AirlineThemePatch(palette)
 
     " patch theme for hybrid colors
     if g:airline_theme == 'tomorrow' && g:colors_name == 'hybrid'
+      let a:palette.normal.airline_a[2] = '0'
+      let a:palette.normal.airline_z[2] = '0'
+      let a:palette.insert.airline_a[2] = '0'
+      let a:palette.insert.airline_z[2] = '0'
+      let a:palette.visual.airline_a[2] = '0'
+      let a:palette.visual.airline_z[2] = '0'
+      let a:palette.replace.airline_a[2] = '0'
+      let a:palette.replace.airline_z[2] = '0'
+
       for l:colors in values(a:palette.inactive)
         let l:colors[2] = '243'
         let l:colors[3] = '235'

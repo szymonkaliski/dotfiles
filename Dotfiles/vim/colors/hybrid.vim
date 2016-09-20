@@ -435,6 +435,8 @@ exe "hi! luaTable" .s:fmt_none .s:fg_blue .s:bg_none
 exe "hi! jsArrowFunction"        .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsBraces"               .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsBrackets"             .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsClassFuncName"        .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsClassBraces"          .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsDestructuringBraces"  .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsDomElemAttrs"         .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! jsFuncArgDestructuring" .s:fmt_none .s:fg_blue       .s:bg_none

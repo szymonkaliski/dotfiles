@@ -143,6 +143,9 @@ set background=dark
 " hybrid
 colorscheme hybrid
 
+" nvim fix for flickering on start
+hi Normal ctermbg=NONE
+
 " indentation
 filetype plugin indent on
 set tabstop=2
@@ -177,8 +180,8 @@ set complete-=i
 " nice format options
 set formatoptions=tcqn21j
 
-" hidden chars style, disabled by default
-set nolist
+" chars style
+set list
 set listchars=tab:▸\ ,trail:∙
 
 " buffers/tabs settings

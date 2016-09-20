@@ -1,9 +1,6 @@
-// Netable differences vs. the default firmware for the ErgoDox EZ:
-// 1. The Cmd key is now on the right side, making Cmd+Space easier.
-// 2. The media keys work on OSX (But not on Windows).
-#include "ergodox.h"
-#include "debug.h"
 #include "action_layer.h"
+#include "debug.h"
+#include "ergodox.h"
 
 enum {
   L_BASE,
@@ -12,7 +9,6 @@ enum {
 };
 
 enum {
-  M_ULTRA,
   M_ESC,
   M_TMUX_L,
   M_TMUX_R
@@ -25,11 +21,13 @@ enum {
   F_CTL
 };
 
+#define ULTRA (MOD_LCTL | MOD_LALT | MOD_LGUI)
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Keymap 0: Basic layer
  *
  * ,--------------------------------------------------.           ,--------------------------------------------------.
- * |   =+   |   1  |   2  |   3  |   4  |   5  | Esc  |           | Esc  |   6  |   7  |   8  |   9  |   0  |   -_   |
+ * |   =+   |   1  |   2  |   3  |   4  |   5  |      |           |      |   6  |   7  |   8  |   9  |   0  |   -_   |
  * |--------+------+------+------+------+-------------|           |------+------+------+------+------+------+--------|
  * | Tab    |   Q  |   W  |   E  |   R  |   T  |  L2  |           |  L2  |   Y  |   U  |   I  |   O  |   P  |   \|   |
  * |--------+------+------+------+------+------|      |           |      |------+------+------+------+------+--------|
@@ -37,10 +35,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|  L1  |           |  L1  |------+------+------+------+------+--------|
  * | LShift |   Z  |   X  |   C  |   V  |   B  |      |           |      |   N  |   M  |  <,  |  >.  |   ?/ | RShift |
  * `--------+------+------+------+------+-------------'           `-------------+------+------+------+------+--------'
- *   | LAlt |      |      |   [  |   ]  |                                       |      |      |      |      | RAlt |
+ *   | LAlt |      |      |   [  |   ]  |                                       | Left |  Up  | Down | Right| RAlt |
  *   `----------------------------------'                                       `----------------------------------'
  *                                        ,-------------.       ,-------------.
- *                                        |Copy  |Paste |       |      |      |
+ *                                        |Copy  |Paste |       |      | Esc  |
  *                                 ,------|------|------|       |------+------+------.
  *                                 |      |      |      |       |      |      |      |
  *                                 |Backsp|Ultra |------|       |------|Enter |Space |
@@ -50,24 +48,24 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [L_BASE] = KEYMAP(
 // left hand
-    KC_EQL,   KC_1,  KC_2,   KC_3,    KC_4,    KC_5,       M(M_ESC),
+    KC_EQL,   KC_1,  KC_2,   KC_3,    KC_4,    KC_5,       KC_NO,
     KC_TAB,   KC_Q,  KC_W,   KC_E,    KC_R,    KC_T,       OSL(L_MDIA),
     F(F_CTL), KC_A,  KC_S,   KC_D,    KC_F,    KC_G,
     F(F_SFT), KC_Z,  KC_X,   KC_C,    KC_V,    KC_B,       OSL(L_SYMB),
     F(F_ALT), KC_NO, KC_NO,  KC_LBRC, KC_RBRC,
-                                               LGUI(KC_C), LGUI(KC_V),
-                                                           KC_NO,
-                                      KC_BSPC, M(M_ULTRA), F(F_GUI),
+                                                   LGUI(KC_C), LGUI(KC_V),
+                                                               KC_NO,
+                                          KC_BSPC, OSM(ULTRA), F(F_GUI),
 
 // right hand
-    M(M_ESC),    KC_6,   KC_7,  KC_8,    KC_9,    KC_0,     KC_MINS,
-    OSL(L_MDIA), KC_Y,   KC_U,  KC_I,    KC_O,    KC_P,     KC_BSLS,
-                 KC_H,   KC_J,  KC_K,    KC_L,    KC_SCLN,  KC_QUOT,
-    OSL(L_SYMB), KC_N,   KC_M,  KC_COMM, KC_DOT,  KC_SLSH,  F(F_SFT),
-                         KC_NO, KC_NO,   KC_NO,   KC_NO,    F(F_ALT),
-    KC_NO,      KC_NO,
+    KC_NO,       KC_6,   KC_7,    KC_8,    KC_9,   KC_0,     KC_MINS,
+    OSL(L_MDIA), KC_Y,   KC_U,    KC_I,    KC_O,   KC_P,     KC_BSLS,
+                 KC_H,   KC_J,    KC_K,    KC_L,   KC_SCLN,  KC_QUOT,
+    OSL(L_SYMB), KC_N,   KC_M,    KC_COMM, KC_DOT, KC_SLSH,  F(F_SFT),
+                         KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, F(F_ALT),
+    KC_NO,       M(M_ESC),
     KC_NO,
-    F(F_GUI),   KC_ENTER, KC_SPACE
+    F(F_GUI),    KC_ENTER, KC_SPACE
 ),
 
 /* Keymap 1: Symbol Layer
@@ -87,7 +85,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                        |      |      |       |      |      |
  *                                 ,------|------|------|       |------+------+------.
  *                                 |      |      |      |       |      |      |      |
- *                                 |      |      |------|       |------|      |      |
+ *                                 |Delete|      |------|       |------|      |      |
  *                                 |      |      |      |       |      |      |      |
  *                                 `--------------------'       `--------------------'
  */
@@ -101,7 +99,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
                                         KC_TRNS, KC_TRNS,
                                                  KC_TRNS,
-                               KC_TRNS, KC_TRNS, KC_TRNS,
+                               KC_DEL,  KC_TRNS, KC_TRNS,
 
 // right hand
     KC_TRNS, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_TRNS,
@@ -117,7 +115,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Keymap 2: Media and arrow keys
  *
  * ,--------------------------------------------------.           ,--------------------------------------------------.
- * |        | F14  | F15  |      |      |      |      |           |      | Prev | Play | Next |VolDn |VolUp |  Mute  |
+ * |        | F14  | F15  |      |      |      |Power |           |      | Prev | Play | Next |VolDn |VolUp |  Mute  |
  * |--------+------+------+------+------+-------------|           |------+------+------+------+------+------+--------|
  * |        |      |      |CTRL+L|CTRL+R|      |      |           |      |      |      |      |      |      |        |
  * |--------+------+------+------+------+------|      |           |      |------+------+------+------+------+--------|
@@ -131,21 +129,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                                        |      |      |       |      |      |
  *                                 ,------|------|------|       |------+------+------.
  *                                 |      |      |      |       |      |      |      |
- *                                 |      |      |------|       |------|      |      |
+ *                                 |Delete|      |------|       |------|      |      |
  *                                 |      |      |      |       |      |      |      |
  *                                 `--------------------'       `--------------------'
  */
 
 [L_MDIA] = KEYMAP(
 // left hand - f14/f15 act as brightness controls
-    KC_TRNS, KC_F14,  KC_F15,  KC_TRNS,       KC_TRNS,        KC_TRNS, KC_TRNS,
+    KC_TRNS, KC_F14,  KC_F15,  KC_TRNS,       KC_TRNS,        KC_TRNS, KC_POWER,
     KC_TRNS, KC_TRNS, KC_TRNS, LCTL(KC_LEFT), LCTL(KC_RIGHT), KC_TRNS, KC_TRNS,
     KC_TRNS, KC_TRNS, KC_TRNS, LGUI(KC_LCBR), LGUI(KC_RCBR),  KC_TRNS,
     KC_TRNS, KC_TRNS, KC_TRNS, M(M_TMUX_L),   M(M_TMUX_R),    KC_TRNS, KC_TRNS,
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,       KC_TRNS,
                                               KC_TRNS, KC_TRNS,
                                                        KC_TRNS,
-                               KC_TRNS,       KC_TRNS, KC_TRNS,
+                               KC_DEL,        KC_TRNS, KC_TRNS,
 // right hand
     KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_VOLD,  KC_VOLU, KC_MUTE,
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,  KC_TRNS, KC_TRNS,
@@ -160,12 +158,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 const uint16_t PROGMEM fn_actions[] = {
-  [L_SYMB] = ACTION_LAYER_TAP_TOGGLE(L_SYMB),
-  [L_MDIA] = ACTION_LAYER_TAP_TOGGLE(L_MDIA),
-  [F_SFT]  = ACTION_MODS_ONESHOT(MOD_LSFT),
-  [F_GUI]  = ACTION_MODS_ONESHOT(MOD_LGUI),
-  [F_ALT]  = ACTION_MODS_ONESHOT(MOD_LALT),
-  [F_CTL]  = ACTION_MODS_ONESHOT(MOD_LCTL)
+  [F_SFT] = ACTION_MODS_ONESHOT(MOD_LSFT),
+  [F_GUI] = ACTION_MODS_ONESHOT(MOD_LGUI),
+  [F_ALT] = ACTION_MODS_ONESHOT(MOD_LALT),
+  [F_CTL] = ACTION_MODS_ONESHOT(MOD_LCTL)
 };
 
 const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
@@ -184,12 +180,6 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
         unregister_code(KC_ESC);
       }
       break;
-
-    // "ultra" key - like hyper/meh but also easy to click on macbook keyboard so I can have the same modifier in HS
-    case M_ULTRA:
-      return record->event.pressed ?
-        MACRO(D(LCTL), D(LALT), D(LGUI), END) :
-        MACRO(U(LCTL), U(LALT), U(LGUI), END);
 
     // TMUX left pane - ctrl+a+[
     case M_TMUX_L:

@@ -1,3 +1,7 @@
+if has('mac')
+  let g:slimux_tmux_path = '/usr/local/bin/tmux'
+endif
+
 let g:slimux_select_from_current_window = has('gui') ? 0 : 1
 let g:slimux_restore_selection_after_visual = 1
 

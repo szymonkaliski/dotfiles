@@ -75,23 +75,23 @@ module.start = function()
   hs.grid.setGrid(w .. 'x' .. h).setMargins({ m, m })
 
   hs.fnutils.each({
-    { key = 'h', fn = hs.grid.pushWindowLeft       },
-    { key = 'j', fn = hs.grid.pushWindowDown       },
-    { key = 'k', fn = hs.grid.pushWindowUp         },
-    { key = 'l', fn = hs.grid.pushWindowRight      },
+    { key = 'h', fn = hs.grid.pushWindowLeft                               },
+    { key = 'j', fn = hs.grid.pushWindowDown                               },
+    { key = 'k', fn = hs.grid.pushWindowUp                                 },
+    { key = 'l', fn = hs.grid.pushWindowRight                              },
 
-    { key = '[', fn = hs.grid.pushWindowNextScreen },
-    { key = ']', fn = hs.grid.pushWindowPrevScreen },
+    { key = '[', fn = hs.grid.pushWindowNextScreen                         },
+    { key = ']', fn = hs.grid.pushWindowPrevScreen                         },
 
-    { key = ',', fn = hs.grid.resizeWindowThinner  },
-    { key = '.', fn = hs.grid.resizeWindowWider    },
+    { key = ',', fn = hs.grid.resizeWindowThinner                          },
+    { key = '.', fn = hs.grid.resizeWindowWider                            },
 
-    { key = '=', fn = hs.grid.resizeWindowTaller   },
-    { key = '-', fn = hs.grid.resizeWindowShorter  },
+    { key = '=', fn = hs.grid.resizeWindowTaller                           },
+    { key = '-', fn = hs.grid.resizeWindowShorter                          },
 
-    { key = 'z', fn = hs.grid.maximizeWindow       },
-    { key = 'f', fn = hs.grid.maximizeWindow       },
-    { key = 's', fn = grid.swapScreens             }
+    { key = 'z', fn = hs.grid.maximizeWindow                               },
+    { key = 'f', fn = window.fullscreen, args = { allowFullscreen = true } },
+    { key = 's', fn = grid.swapScreens                                     }
   }, function(object)
     bind(object.key, doWin(object.fn, object.args), { shouldRepeat = true })
   end)
