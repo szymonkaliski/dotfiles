@@ -62,16 +62,8 @@ let g:airline#extensions#default#section_truncate_width = {
 
 " extensions
 function! s:AirlineInit()
-  if has('mac')
-    let g:airline_section_y = airline#section#create(['hunks'])
-
-    if has('nvim')
-      let g:airline_section_warning = '%{AirlineNeomakeStatus()}'
-    else
-      let g:airline_extensions = g:airline_extensions + ['syntastic']
-      let g:airline_section_warning = '%{airline#extensions#syntastic#get_warnings()}'
-    endif
-  endif
+  let g:airline_section_y = airline#section#create(['hunks'])
+  let g:airline_section_warning = '%{AirlineNeomakeStatus()}'
 endfunction
 
 " theme patching

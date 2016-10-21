@@ -7,8 +7,10 @@ Plug 'airblade/vim-rooter'
 Plug 'ajh17/VimCompletesMe'
 Plug 'chaoren/vim-wordmotion'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'junegunn/vim-slash'
 Plug 'justinmk/vim-dirvish'
 Plug 'matchit.zip'
+Plug 'neomake/neomake'
 Plug 'pbrisbin/vim-mkdir'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
@@ -35,9 +37,7 @@ Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterO
 " loading based on system and vim version
 Plug 'airblade/vim-gitgutter',             { 'on': [] } " only on mac
 Plug 'bfredl/nvim-miniyank',               { 'on': [] } " only in nvim
-Plug 'neomake/neomake',                    { 'on': [] } " only in nvim
 Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
-Plug 'scrooloose/syntastic',               { 'on': [] } " only in vanilla vim on mac
 Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein do npm install, cljsbuild once plugin' } " only in nvim
 Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
 
@@ -79,12 +79,10 @@ endif
 
 if has('mac')
   call plug#load('vim-gitgutter')
+endif
 
-  if has('nvim')
-    call plug#load('neomake', 'nvim-miniyank')
-  else
-    call plug#load('syntastic')
-  endif
+if has('nvim')
+  call plug#load('nvim-miniyank')
 endif
 
 " viminfo - more v:oldfiles, register lines
@@ -326,10 +324,6 @@ nnoremap <expr> j (v:count ? 'j' : 'gj')
 nnoremap <expr> } foldclosed(search('^$', 'Wn'))  == -1 ? '}' : '}j}'
 nnoremap <expr> { foldclosed(search('^$', 'Wnb')) == -1 ? '{' : '{k{'
 
-" don't move on * and #
-nnoremap <silent> * :let star_view=winsaveview()<cr>*:call winrestview(star_view)<cr>
-nnoremap <silent> # :let hash_view=winsaveview()<cr>*:call winrestview(hash_view)<cr>
-
 " dont loose selection on indenting
 xnoremap > >gv
 xnoremap < <gv
@@ -365,10 +359,6 @@ if has('mac')
   nnoremap <leader>ot :e ~/Documents/Dropbox/Tasks/Todo.taskpaper<cr>
   nnoremap <leader>oh :e ~/.hammerspoon/init.lua<cr>
 endif
-
-" select in visual mode, star, and don't move unles n/N/...
-xnoremap * :<c-u>let star_view=winsaveview()<cr>:<c-u>call VisualSearch('/')<cr>/<c-r>=@/<cr><cr>:call winrestview(star_view)<cr>
-xnoremap # :<c-u>let hash_view=winsaveview()<cr>:<c-u>call VisualSearch('?')<cr>?<c-r>=@/<cr><cr>:call winrestview(hash_view)<cr>
 
 " replace current word
 nnoremap <leader>r :<c-u>let replace_view=winsaveview()<cr>/\<<c-r><c-w>\><cr>:redraw!<cr>:call winrestview(replace_view)<cr>:%s//

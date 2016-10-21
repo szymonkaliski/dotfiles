@@ -1,3 +1,5 @@
+# path
+
 if [ -d $HOME/Documents/Code/Scripts ]; then
   export PATH="$HOME/Documents/Code/Scripts:$PATH"
 elif [ -d $HOME/Documents/Scripts ]; then
@@ -32,4 +34,15 @@ if [ -d /usr/local/share/npm/bin ]; then
   export PATH="$PATH:/usr/local/share/npm/bin"
 fi
 
-typeset -gU path # clean paths
+# go
+
+if [ -d $HOME/Documents/Code/Go ]; then
+  export GOPATH="$HOME/Documents/Code/Go"
+elif [ -d $HOME/Documents/Go ]; then
+  export GOPATH="$HOME/Documents/Go"
+fi
+export GOBIN=$GOPATH/bin
+
+# clean paths
+
+typeset -gU path

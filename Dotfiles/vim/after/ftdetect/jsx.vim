@@ -1,3 +1,3 @@
-au BufNewFile,BufRead *.jsx 
-      \ setlocal filetype=javascript | 
+au BufNewFile,BufRead *.jsx
+      \ setlocal filetype=javascript |
       \ setlocal syntax=javascript.jsx

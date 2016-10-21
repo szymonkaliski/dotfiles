@@ -1,6 +1,7 @@
 #include "action_layer.h"
 #include "debug.h"
 #include "ergodox.h"
+#include "version.h"
 
 enum {
   L_BASE,
@@ -27,7 +28,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Keymap 0: Basic layer
  *
  * ,--------------------------------------------------.           ,--------------------------------------------------.
- * |   =+   |   1  |   2  |   3  |   4  |   5  |      |           |      |   6  |   7  |   8  |   9  |   0  |   -_   |
+ * |   =+   |   1  |   2  |   3  |   4  |   5  |  Esc |           |  Esc |   6  |   7  |   8  |   9  |   0  |   -_   |
  * |--------+------+------+------+------+-------------|           |------+------+------+------+------+------+--------|
  * | Tab    |   Q  |   W  |   E  |   R  |   T  |  L2  |           |  L2  |   Y  |   U  |   I  |   O  |   P  |   \|   |
  * |--------+------+------+------+------+------|      |           |      |------+------+------+------+------+--------|
@@ -35,10 +36,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |--------+------+------+------+------+------|  L1  |           |  L1  |------+------+------+------+------+--------|
  * | LShift |   Z  |   X  |   C  |   V  |   B  |      |           |      |   N  |   M  |  <,  |  >.  |   ?/ | RShift |
  * `--------+------+------+------+------+-------------'           `-------------+------+------+------+------+--------'
- *   | LAlt |      |      |   [  |   ]  |                                       | Left |  Up  | Down | Right| RAlt |
+ *   | LAlt | Copy |Paste |   [  |   ]  |                                       | Left |  Up  | Down | Right| RAlt |
  *   `----------------------------------'                                       `----------------------------------'
  *                                        ,-------------.       ,-------------.
- *                                        |Copy  |Paste |       |      | Esc  |
+ *                                        |      |      |       |      |      |
  *                                 ,------|------|------|       |------+------+------.
  *                                 |      |      |      |       |      |      |      |
  *                                 |Backsp|Ultra |------|       |------|Enter |Space |
@@ -48,22 +49,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [L_BASE] = KEYMAP(
 // left hand
-    KC_EQL,   KC_1,  KC_2,   KC_3,    KC_4,    KC_5,       KC_NO,
-    KC_TAB,   KC_Q,  KC_W,   KC_E,    KC_R,    KC_T,       OSL(L_MDIA),
-    F(F_CTL), KC_A,  KC_S,   KC_D,    KC_F,    KC_G,
-    F(F_SFT), KC_Z,  KC_X,   KC_C,    KC_V,    KC_B,       OSL(L_SYMB),
-    F(F_ALT), KC_NO, KC_NO,  KC_LBRC, KC_RBRC,
-                                                   LGUI(KC_C), LGUI(KC_V),
+    KC_EQL,   KC_1,       KC_2,       KC_3,    KC_4,    KC_5,  M(M_ESC),
+    KC_TAB,   KC_Q,       KC_W,       KC_E,    KC_R,    KC_T,  OSL(L_MDIA),
+    F(F_CTL), KC_A,       KC_S,       KC_D,    KC_F,    KC_G,
+    F(F_SFT), KC_Z,       KC_X,       KC_C,    KC_V,    KC_B,  OSL(L_SYMB),
+    F(F_ALT), LGUI(KC_C), LGUI(KC_V), KC_LBRC, KC_RBRC,
+                                                        KC_NO, KC_NO,
                                                                KC_NO,
                                           KC_BSPC, OSM(ULTRA), F(F_GUI),
 
 // right hand
-    KC_NO,       KC_6,   KC_7,    KC_8,    KC_9,   KC_0,     KC_MINS,
+    M(M_ESC),    KC_6,   KC_7,    KC_8,    KC_9,   KC_0,     KC_MINS,
     OSL(L_MDIA), KC_Y,   KC_U,    KC_I,    KC_O,   KC_P,     KC_BSLS,
                  KC_H,   KC_J,    KC_K,    KC_L,   KC_SCLN,  KC_QUOT,
     OSL(L_SYMB), KC_N,   KC_M,    KC_COMM, KC_DOT, KC_SLSH,  F(F_SFT),
                          KC_LEFT, KC_DOWN, KC_UP,  KC_RIGHT, F(F_ALT),
-    KC_NO,       M(M_ESC),
+    KC_NO,       KC_NO,
     KC_NO,
     F(F_GUI),    KC_ENTER, KC_SPACE
 ),

@@ -193,3 +193,11 @@ recompile() {
 
 # load zmv only when needed
 mmv() { autoload -U zmv; noglob zmv -W $@ }
+
+# re-run command if failed
+retry() {
+  until $@; do
+    sleep 1
+    echo -e "$(tput setaf 1)retrying $@$(tput sgr0)"
+  done
+}

@@ -7,7 +7,6 @@ local cache  = {
 local module = { cache = cache }
 
 local scriptsPath = os.getenv('HOME') .. '/Documents/Code/Scripts/'
-local notify      = require('utils.controlplane.notify')
 
 local stopMountTasks = function()
   for _, task in pairs(cache.tasks) do

@@ -1,7 +1,3 @@
-if !(has('mac') && has('nvim'))
-  finish
-endif
-
 augroup neomake_plugin
   au!
 

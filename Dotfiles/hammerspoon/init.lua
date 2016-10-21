@@ -1,5 +1,6 @@
 bindings                     = require('bindings')
 controlplane                 = require('utils.controlplane')
+menus                        = require('utils.menus')
 notify                       = require('utils.notify')
 spaces                       = require('utils.spaces')
 watchers                     = require('utils.watchers')
@@ -21,9 +22,11 @@ hs.hints.showTitleThresh     = 0
 hs.hints.hintChars           = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'Z', 'X', 'C' }
 
 -- controlplane
-controlplane.enabled         = { 'automount', 'bluetooth', 'displays', 'persistvpn' }
+controlplane.enabled         = { 'automount', 'bluetooth', 'displays' }
 controlplane.trustedNetworks = { 'Skynet', 'Skynet 5G' }
-controlplane.vpns            = { 'VPN PIA', 'VPN STL' }
+
+-- menus
+menus.enabled                = { 'caffeine' }
 
 -- notifications
 notify.enabled               = { 'battery', 'online', 'wifi' }
@@ -36,6 +39,7 @@ watchers.urlPreference       = { 'Safari', 'Google Chrome' }
 hs.fnutils.each({
   bindings,
   controlplane,
+  menus,
   notify,
   watchers
 }, function(module) module.start() end)
@@ -49,6 +53,7 @@ hs.shutdownCallback = function()
   hs.fnutils.each({
     bindings,
     controlplane,
+    menus,
     notify,
     watchers
   }, function(module) module.stop() end)

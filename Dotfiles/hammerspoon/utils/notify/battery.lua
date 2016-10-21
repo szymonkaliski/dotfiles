@@ -10,6 +10,7 @@ local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/battery.png'
 local stringifyMinutes = function(minutes)
   local hours   = math.floor(minutes / 60)
   local minutes = minutes % 60
+
   return string.format('%02d', hours) .. ':' .. string.format('%02d', minutes)
 end
 

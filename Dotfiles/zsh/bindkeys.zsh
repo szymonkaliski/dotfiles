@@ -23,3 +23,15 @@ esac
 autoload -z edit-command-line
 zle -N edit-command-line
 bindkey "^X^E" edit-command-line
+
+# ctrl-z for fg/bg switch
+function fg-bg() {
+  if [[ $#BUFFER -eq 0 ]]; then
+    fg
+  else
+    zle push-input
+  fi
+}
+
+zle -N fg-bg
+bindkey '^Z' fg-bg
