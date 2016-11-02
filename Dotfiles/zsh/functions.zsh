@@ -65,7 +65,7 @@ npm-account() {
 
 # sudo previous command
 sudothat() {
-  echo -e "$(tput setaf 1)sudo$(tput sgr0) → $(fc -ln -1)"
+  echo -e "$(tput setaf 1)sudo:$(tput sgr0) $(fc -ln -1)"
   eval "sudo $(fc -ln -1)"
 }
 
@@ -192,12 +192,16 @@ recompile() {
 }
 
 # load zmv only when needed
-mmv() { autoload -U zmv; noglob zmv -W $@ }
+mmv() {
+  autoload -U zmv
+  noglob zmv -W $@
+}
 
 # re-run command if failed
 retry() {
   until $@; do
     sleep 1
-    echo -e "$(tput setaf 1)retrying $@$(tput sgr0)"
+    echo -e "$(tput setaf 1)retrying:$(tput sgr0) $@"
   done
 }
+compctl -f -x "c[-1,retry]" -c -- retry

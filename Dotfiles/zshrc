@@ -2,8 +2,8 @@ files=(
   options
   path
   terminfo
-  completion
   colors
+  completion
   vim
   prompt
   locale
