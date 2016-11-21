@@ -53,12 +53,12 @@ let g:airline#extensions#tabline#right_alt_sep = ''
 let g:airline#extensions#tabline#close_symbol = '✕'
 
 " truncating
-let g:airline#extensions#default#section_truncate_width = {
-      \ 'b': 100,
-      \ 'x': 60,
-      \ 'y': 60,
-      \ 'z': 50
-      \ }
+" let g:airline#extensions#default#section_truncate_width = {
+"       \ 'b': 100,
+"       \ 'x': 60,
+"       \ 'y': 60,
+"       \ 'z': 50
+"       \ }
 
 " extensions
 function! s:AirlineInit()

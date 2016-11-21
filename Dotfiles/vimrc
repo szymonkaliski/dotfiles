@@ -384,8 +384,13 @@ nnoremap <leader>p "+p<cr>
 nnoremap <silent> <leader>k :KillWhitespace<cr>
 
 " nice grep
-nnoremap <leader>G :Grep<cr>
-xnoremap <leader>G :GrepVisual<cr>
+nnoremap <leader>g :Grep<space>
+xnoremap <leader>g :GrepVisual<cr>
+
+" notes
+if isdirectory($HOME . '/Documents/Dropbox/Notes')
+  nnoremap <leader>n :Note<space>
+endif
 
 " clean current search and quickhl
 nmap <silent> <leader>c :nohlsearch<cr>:redraw!<cr>

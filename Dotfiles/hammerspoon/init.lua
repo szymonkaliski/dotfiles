@@ -2,7 +2,6 @@ bindings                     = require('bindings')
 controlplane                 = require('utils.controlplane')
 menus                        = require('utils.menus')
 notify                       = require('utils.notify')
-spaces                       = require('utils.spaces')
 watchers                     = require('utils.watchers')
 window                       = require('ext.window')
 

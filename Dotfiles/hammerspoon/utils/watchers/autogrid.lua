@@ -17,7 +17,6 @@ local snapWindow = function(win)
 end
 
 module.start = function(_)
-
   cache.filter = hs.window.filter.new(nil)
 
   cache.filter:subscribe({

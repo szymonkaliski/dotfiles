@@ -201,7 +201,7 @@ mmv() {
 retry() {
   until $@; do
     sleep 1
-    echo -e "$(tput setaf 1)retrying:$(tput sgr0) $@"
+    echo -e "\n$(tput setaf 1)retrying:$(tput sgr0) $@"
   done
 }
 compctl -f -x "c[-1,retry]" -c -- retry

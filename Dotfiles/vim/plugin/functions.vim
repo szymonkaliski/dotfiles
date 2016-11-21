@@ -117,10 +117,17 @@ function! GrepHandler(text)
   exe 'silent! /' . a:text
   redraw!
   copen
+  exe 'silent! /' . a:text
 endfunction
 
-function! s:Grep()
-  let l:input = input('Grep for: ')
+function! s:Grep(...)
+  let l:input = ''
+
+  if a:0 > 0
+    let l:input = a:1
+  else
+    let l:input = input('Grep for: ')
+  endif
 
   if len(l:input) > 0
     call GrepHandler(l:input)
@@ -141,8 +148,8 @@ function! s:GrepVisual()
   end
 endfunction
 
-command!        Grep       :call <sid>Grep()
-command! -range GrepVisual :call <sid>GrepVisual()
+command! -nargs=? Grep       :call <sid>Grep(<f-args>)
+command! -range   GrepVisual :call <sid>GrepVisual()
 
 " code TODO / FIXME in cwindow
 function! s:Todo() abort
@@ -242,3 +249,15 @@ function! s:Today()
 endfunction
 
 command! Today call <sid>Today()
+
+" Add new note
+function! s:Note(name)
+  let l:path = '~/Documents/Dropbox/Notes/' . fnameescape(a:name) . '.txt'
+  exe ':e! ' . l:path
+endfunction
+
+function! s:CompleteNotes(A, L, P)
+  return system('cd ~/Documents/Dropbox/Notes/ && ls *.txt | sed "s/.txt//"')
+endfunction
+
+command! -nargs=1 -complete=custom,<sid>CompleteNotes Note call <sid>Note(<f-args>)
