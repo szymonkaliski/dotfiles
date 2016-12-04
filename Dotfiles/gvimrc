@@ -20,7 +20,7 @@ set guifont=Menlo:h11
 set gcr=n:blinkon0
 
 " default window size
-set lines=72 columns=160
+set lines=64 columns=132
 
 " disable printing from menu
 macmenu &File.Print key=<nop>

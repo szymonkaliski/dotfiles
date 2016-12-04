@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+today() {
+  icalBuddy -ea -b '' eventsToday \
+    | awk '!(NR%2){print$0" "p}{p=$0}' \
+    | cut -d ' ' -f5- \
+    | cut -d '(' -f1
+}
+
+add() {
+  osascript - "$2" "$3" "$4" << END
+on run argv
+  set calendarName to "Tracking"
+  set theSummary to item 1 of argv
+  set startDate to item 2 of argv
+  set endDate to item 3 of argv
+
+  set startDate to date startDate
+  set endDate to date endDate
+
+  tell application "Calendar"
+    tell (first calendar whose name is calendarName)
+      make new event at end of events with properties {summary:theSummary, start date:startDate, end date:endDate}
+    end tell
+  end tell
+end run
+END
+}
+
+usage() {
+  echo "Easily create tracking info, usage:"
+  echo
+  echo "  track list"
+  echo "  track add 'Workflow @personal @work @language(osascript)' '16:00' '17:00'"
+  echo
+  exit 0
+}
+
+main() {
+  if [ -z "$1" ]; then
+    usage
+  fi
+
+  case "$1" in
+    "today" | "list")
+      today
+      ;;
+    "add")
+      add "$@" > /dev/null &
+      ;;
+    --help | -help | -h)
+      usage
+      ;;
+    *)
+      usage
+      ;;
+  esac
+  shift
+}
+
+main "$@"

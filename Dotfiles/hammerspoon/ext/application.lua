@@ -17,14 +17,18 @@ end
 
 -- force application launch or focus
 module.forceLaunchOrFocus = function(appName)
-  -- first focus with hammerspoon
+  local appInstance  = hs.application.get(appName)
+  local isRunning    = appInstance and appInstance:isRunning()
+  local focusTimeout = isRunning and 0.1 or 1.5
+
+  -- first focus/launch with hammerspoon
   hs.application.launchOrFocus(appName)
 
   -- clear timer if exists
   if cache.launchTimer then cache.launchTimer:stop() end
 
-  -- wait 1s for window to appear and try hard to show the window
-  cache.launchTimer = hs.timer.doAfter(1.0, function()
+  -- wait for window to appear and try hard to show the window
+  cache.launchTimer = hs.timer.doAfter(focusTimeout, function()
     local frontmostApp     = hs.application.frontmostApplication()
     local frontmostWindows = hs.fnutils.filter(frontmostApp:allWindows(), function(win) return win:isStandard() end)
 

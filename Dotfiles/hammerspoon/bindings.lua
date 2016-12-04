@@ -112,9 +112,9 @@ module.start = function()
   end)
 
   hs.fnutils.each({
-    { key = 'return', apps = { 'iTerm2', 'Terminal'         } },
-    { key = 'space',  apps = { 'Safari', 'Google Chrome'    } },
-    { key = '`',      apps = { 'Finder'                     } }
+    { key = 'return', apps = { 'iTerm2'                  } },
+    { key = 'space',  apps = { 'Safari', 'Google Chrome' } },
+    { key = '`',      apps = { 'Finder'                  } }
   }, function(object)
     bind(object.key, function() smartLaunchOrFocus(object.apps) end)
   end)

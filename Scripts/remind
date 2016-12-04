@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
-# easily create reminders:
-# remind "do something" "today" "17:00"
+if [ $# -eq 0 ]; then
+  echo "Easily create reminders, usage:"
+  echo
+  echo "  remind 'buy milk' 'today' '17:00'"
+  echo
+  exit 0
+fi
 
 osascript - "$1" "$2" "$3" << END
 on run argv

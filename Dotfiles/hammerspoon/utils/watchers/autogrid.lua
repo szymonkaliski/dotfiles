@@ -1,3 +1,5 @@
+local noAnim = require('ext.utils').noAnim
+
 local cache  = {}
 local module = { cache = cache }
 
@@ -12,7 +14,7 @@ local snapWindow = function(win)
     and frame.w > smallWin.w
     and frame.h > smallWin.h
   then
-    hs.grid.snap(win)
+    noAnim(function() hs.grid.snap(win) end)
   end
 end
 
@@ -21,8 +23,6 @@ module.start = function(_)
 
   cache.filter:subscribe({
     hs.window.filter.windowCreated,
-    hs.window.filter.windowVisible,
-    hs.window.filter.windowOnScreen,
     hs.window.filter.windowMoved
   }, snapWindow)
 

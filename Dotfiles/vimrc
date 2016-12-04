@@ -156,7 +156,7 @@ set autoindent
 set breakindent
 
 " leader
-let mapleader="\<Space>"
+let mapleader="\<space>"
 
 " additional settings
 set backspace=indent,eol,start

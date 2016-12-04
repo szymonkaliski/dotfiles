@@ -44,7 +44,7 @@ module.switchToIndex = function(targetIdx)
   local screenSpaces  = screenSpaces(currentScreen)
 
   -- gain focus on the screen
-  local changedFocus = focusScreen(currentScreen)
+  local changedFocus  = focusScreen(currentScreen)
 
   -- grab index of currently active space
   local activeIdx     = activeSpaceIndex(screenSpaces)
@@ -66,7 +66,9 @@ module.switchToIndex = function(targetIdx)
     local eventDirection = targetIdx > activeIdx and 'right' or 'left'
 
     for _ = 1, eventCount do
-      hs.eventtap.keyStroke({ 'ctrl' }, eventDirection)
+      -- not using keyStroke because it's slow now
+      hs.eventtap.event.newKeyEvent({ 'ctrl' }, eventDirection, true):post()
+      hs.eventtap.event.newKeyEvent({ 'ctrl' }, eventDirection, false):post()
     end
 
     waitForAnimation(targetSpace, changedFocus, mousePosition)
@@ -84,6 +86,7 @@ module.switchInDirection = function(direction)
 end
 
 -- taps to ctrl + 1-9 overriding default functionality
+-- allowing me to switch to fullscreen apps as if they were just normal spaces
 module.start = function()
   cache.eventtap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
     local keyCode   = event:getKeyCode()

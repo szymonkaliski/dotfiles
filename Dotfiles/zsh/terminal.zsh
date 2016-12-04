@@ -27,19 +27,21 @@ esac
 
 # use proper cursor with iTerm
 if [ "$TERM_PROGRAM" = "iTerm.app" ]; then
-  function zle-keymap-select zle-line-init {
-    if [[ $TMUX != "" ]]; then
-      case $KEYMAP in
-        vicmd)      print -n -- "\033Ptmux;\033\E]50;CursorShape=0\C-G\033\\";;
-        viins|main) print -n -- "\033Ptmux;\033\E]50;CursorShape=1\C-G\033\\";;
-      esac
-    else
-      case $KEYMAP in
-        vicmd)      print -n -- "\E]50;CursorShape=0\C-G";;
-        viins|main) print -n -- "\E]50;CursorShape=1\C-G";;
-      esac
-    fi
-  }
+  # function zle-keymap-select zle-line-init {
+  #   if [[ $TMUX != "" ]]; then
+  #     case $KEYMAP in
+  #       vicmd)      print -n -- "\033Ptmux;\033\E]50;CursorShape=0\C-G\033\\";;
+  #       viins|main) print -n -- "\033Ptmux;\033\E]50;CursorShape=1\C-G\033\\";;
+  #     esac
+  #   else
+  #     case $KEYMAP in
+  #       vicmd)      print -n -- "\E]50;CursorShape=0\C-G";;
+  #       viins|main) print -n -- "\E]50;CursorShape=1\C-G";;
+  #     esac
+  #   fi
+  # }
+  # zle -N zle-line-init
+  # zle -N zle-keymap-select
 
   function zle-line-finish {
     if [[ $TMUX != "" ]]; then
@@ -48,8 +50,5 @@ if [ "$TERM_PROGRAM" = "iTerm.app" ]; then
       print -n -- "\E]50;CursorShape=0\C-G"
     fi
   }
-
-  zle -N zle-line-init
   zle -N zle-line-finish
-  zle -N zle-keymap-select
 fi
