@@ -68,12 +68,6 @@ module.start = function()
     end
   end
 
-  local w = 16
-  local h = 12
-  local m = 4
-
-  hs.grid.setGrid(w .. 'x' .. h).setMargins({ m, m })
-
   hs.fnutils.each({
     { key = 'h', fn = hs.grid.pushWindowLeft                               },
     { key = 'j', fn = hs.grid.pushWindowDown                               },
@@ -91,7 +85,9 @@ module.start = function()
 
     { key = 'z', fn = hs.grid.maximizeWindow                               },
     { key = 'f', fn = window.fullscreen, args = { allowFullscreen = true } },
-    { key = 's', fn = grid.swapScreens                                     }
+
+    { key = 's', fn = grid.swapScreens                                     },
+    { key = 'g', fn = grid.toggleGrid                                      }
   }, function(object)
     bind(object.key, doWin(object.fn, object.args), { shouldRepeat = true })
   end)

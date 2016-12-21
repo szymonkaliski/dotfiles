@@ -11,13 +11,12 @@ alias cleartmp="sudo rm -rfv /private/var/tmp/Xcode/ /private/var/tmp/Processing
 alias flush="dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
 alias purge="sudo purge"
 
-alias appsonnetwork="sudo lsof -P -i -n | tail -n+2 | cut -f 1 -d ' ' | uniq | sort --ignore-case"
 alias localip="ipconfig getifaddr en1"
-alias openedports="sudo lsof -i -P | grep -i 'listen'"
+alias opened-ports="sudo lsof -i -P | grep -i 'listen'"
 alias stroke="/System/Library/CoreServices/Applications/Network\ Utility.app/Contents/Resources/stroke"
 alias airport="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
 
-alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
+alias chrome-kill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 
 alias clout="fc -e - | pbcopy"
 alias cpwd='echo -n \"$(pwd | tr -d "\n")\" | pbcopy'

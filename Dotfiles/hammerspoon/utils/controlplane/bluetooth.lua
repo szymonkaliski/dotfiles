@@ -12,7 +12,7 @@ local screenWatcher = function()
   end
 
   -- wait time before turning bluetooth on/off, hopefully will fix problems with bluetooth adapter and mouse
-  local timeout = 2
+  local timeout = 5
 
   cache.timer = hs.timer.doAfter(timeout, function()
     -- turn on only when using with thunderbolt display

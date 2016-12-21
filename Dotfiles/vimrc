@@ -4,11 +4,11 @@ call plug#begin('~/.vim/plugged')
 Plug 'Konfekt/FastFold'
 Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
-Plug 'ajh17/VimCompletesMe'
 Plug 'chaoren/vim-wordmotion'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'junegunn/vim-slash'
 Plug 'justinmk/vim-dirvish'
+Plug 'lifepillar/vim-mucomplete'
 Plug 'matchit.zip'
 Plug 'neomake/neomake'
 Plug 'pbrisbin/vim-mkdir'
@@ -121,7 +121,7 @@ set updatetime=250
 set noeb vb t_vb=
 
 " disable startup message
-set shortmess+=I
+set shortmess+=Ic
 
 " command window height
 set cmdwinheight=3
@@ -229,7 +229,7 @@ set wildmode=full
 
 " insert completion height and options
 set pumheight=10
-set completeopt=menu
+set completeopt=menu,menuone
 
 " open splits to the right and bottom
 set splitright

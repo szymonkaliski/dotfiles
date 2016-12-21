@@ -1,3 +1,7 @@
+# fake prompt when loading
+printf "~ > "
+
+# load files
 files=(
   options
   path
@@ -24,7 +28,7 @@ for file in $files; do
 done
 
 if [ "$(uname)" = "Darwin" ]; then
-  source ~/.zsh/nvm.zsh;
+  source ~/.zsh/nvm.zsh
   source ~/.zsh/darwin.zsh;
 fi
 
@@ -36,6 +40,5 @@ if [ -d ~/Documents/Dropbox/Notes ]; then
   source ~/.zsh/notes.zsh
 fi
 
-if [ -d /usr/local/opt/nvm/ ]; then
-  source ~/.zsh/nvm.zsh
-fi
+# clear after ready
+sleep 0.03 && clear

@@ -1,3 +1,7 @@
+-- override stuff
+require('overrides').init()
+
+-- requires
 bindings                     = require('bindings')
 controlplane                 = require('utils.controlplane')
 notify                       = require('utils.notify')

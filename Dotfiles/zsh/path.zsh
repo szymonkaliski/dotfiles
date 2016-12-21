@@ -43,6 +43,13 @@ elif [ -d $HOME/Documents/Go ]; then
 fi
 export GOBIN=$GOPATH/bin
 
+# append latest nvm node to PATH
+
+if [ -d $HOME/.nvm ]; then
+  local LATEST_NODE=$(/bin/ls ~/.nvm/versions/node/ | /usr/bin/tail -1)
+  export PATH="$HOME/.nvm/versions/node/$LATEST_NODE/bin:$PATH"
+fi
+
 # clean paths
 
 typeset -gU path

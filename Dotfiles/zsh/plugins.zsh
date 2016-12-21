@@ -17,7 +17,7 @@ fi
 if [ -f ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
   source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-  ZSH_HIGHLIGHT_HIGHLIGHTERS=(main) # pattern
+  ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 
   ZSH_HIGHLIGHT_STYLES[precommand]='fg=magenta'
   ZSH_HIGHLIGHT_STYLES[commandseparator]='fg=yellow'

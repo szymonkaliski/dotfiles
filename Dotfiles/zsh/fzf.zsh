@@ -1,10 +1,10 @@
 export FZF_DEFAULT_COMMAND="ag -l -g ''"
 export FZF_DEFAULT_OPTS="--inline-info --ansi --cycle
-                          --history=$HOME/.fzfhistory
-                          --history-size=10000
-                          --tiebreak=length
-                          --color=bg+:0,hl:110,hl+:110
-                          --color=prompt:110,marker:110,pointer:110,spinner:110,info:110"
+                         --history=$HOME/.fzfhistory
+                         --history-size=10000
+                         --tiebreak=length
+                         --color=bg+:0,hl:110,hl+:110
+                         --color=prompt:110,marker:110,pointer:110,spinner:110,info:110"
 
 # z with fzf
 j() {

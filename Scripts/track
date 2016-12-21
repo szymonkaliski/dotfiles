@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
 today() {
-  icalBuddy -ea -b '' eventsToday \
+  icalBuddy -ea -b '- ' -ic 'Tracking' eventsToday \
+    | grep '^-\ ' -C1 \
+    | grep -v '\-\-' \
+    | grep -v 'notes:' \
+    | grep -v 'attendees:' \
+    | grep -v 'location:' \
+    | uniq \
     | awk '!(NR%2){print$0" "p}{p=$0}' \
     | cut -d ' ' -f5- \
-    | cut -d '(' -f1
+    | sed 's/ (Tracking)//'
 }
 
 add() {

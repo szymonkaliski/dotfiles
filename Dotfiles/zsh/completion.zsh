@@ -10,7 +10,7 @@ if [ -d ~/.zsh/completion ]; then
   export FPATH="~/.zsh/completion:$FPATH"
 fi
 
-typeset -gU fpath    # clean paths
+typeset -gU fpath    # clean fpaths
 autoload -z compinit # load completions
 compinit -C          # without securiy checks
 
