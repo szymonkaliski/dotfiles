@@ -1,4 +1,4 @@
-augroup quickfix
+augroup auto_quickfix
   au!
 
   " automatically open quickfix / loclist

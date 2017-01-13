@@ -84,9 +84,6 @@ module.start = function()
     { key = '-', fn = hs.grid.resizeWindowShorter                          },
 
     { key = 'z', fn = hs.grid.maximizeWindow                               },
-    { key = 'f', fn = window.fullscreen, args = { allowFullscreen = true } },
-
-    { key = 's', fn = grid.swapScreens                                     },
     { key = 'g', fn = grid.toggleGrid                                      }
   }, function(object)
     bind(object.key, doWin(object.fn, object.args), { shouldRepeat = true })
@@ -110,7 +107,7 @@ module.start = function()
   hs.fnutils.each({
     { key = 'return', apps = { 'iTerm2'                  } },
     { key = 'space',  apps = { 'Safari', 'Google Chrome' } },
-    { key = '`',      apps = { 'Finder'                  } }
+    { key = 'f',      apps = { 'Finder'                  } }
   }, function(object)
     bind(object.key, function() smartLaunchOrFocus(object.apps) end)
   end)

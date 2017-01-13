@@ -1,4 +1,4 @@
-function! GoyoBefore()
+function! goyo#before()
   if !has('gui')
     set showtabline=0
   endif
@@ -9,10 +9,9 @@ function! GoyoBefore()
   endif
 
   set scrolloff=999
-  Limelight
 endfunction
 
-function! GoyoAfter()
+function! goyo#after()
   if !has('gui')
     set showtabline=2
   endif
@@ -23,10 +22,9 @@ function! GoyoAfter()
   endif
 
   set scrolloff=3
-  Limelight!
 endfunction
 
-let g:goyo_callbacks = [ function('GoyoBefore'), function('GoyoAfter') ]
+let g:goyo_callbacks = [ function('goyo#before'), function('goyo#after') ]
 let g:goyo_width = 120
 
 command! Zen :Goyo

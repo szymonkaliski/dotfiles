@@ -6,10 +6,10 @@ Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
 Plug 'chaoren/vim-wordmotion'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'editorconfig/editorconfig-vim'
 Plug 'junegunn/vim-slash'
 Plug 'justinmk/vim-dirvish'
 Plug 'lifepillar/vim-mucomplete'
-Plug 'matchit.zip'
 Plug 'neomake/neomake'
 Plug 'pbrisbin/vim-mkdir'
 Plug 'tpope/vim-repeat'
@@ -25,7 +25,6 @@ Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>
 Plug 'duff/vim-scratch',                   { 'on': 'Scratch' }
 Plug 'epeli/slimux',                       { 'on': [ 'SlimuxREPL', 'SlimuxREPLSendSelection', 'SlimuxREPLSendBuffer', 'SlimuxREPLSendLine', 'SlimuxREPLSendParagraph', 'SlimuxGlobalConfigure' ] }
 Plug 'junegunn/goyo.vim',                  { 'on': 'Goyo' }
-Plug 'junegunn/limelight.vim',             { 'on': 'Limelight' }
 Plug 'junegunn/vim-easy-align',            { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
 Plug 'mbbill/undotree',                    { 'on': 'UndotreeToggle' }
 Plug 'mhinz/vim-sayonara',                 { 'on': 'Sayonara' }
@@ -50,6 +49,7 @@ Plug 'elzr/vim-json',                      { 'for': 'json' }
 Plug 'groenewege/vim-less',                { 'for': 'less' }
 Plug 'kchmck/vim-coffee-script',           { 'for': 'coffee' }
 Plug 'keith/swift.vim',                    { 'for': 'swift' }
+Plug 'ternjs/tern_for_vim',                { 'for': 'javascript', 'do': 'npm install' }
 Plug 'moll/vim-node',                      { 'for': 'javascript'  }
 Plug 'mustache/vim-mustache-handlebars',   { 'for': [ 'handlebars', 'mustache' ] }
 Plug 'mxw/vim-jsx',                        { 'for': 'javascript' }
@@ -229,7 +229,7 @@ set wildmode=full
 
 " insert completion height and options
 set pumheight=10
-set completeopt=menu,menuone
+set completeopt=menu,menuone,noinsert,noselect
 
 " open splits to the right and bottom
 set splitright
@@ -252,6 +252,7 @@ set foldenable
 set foldmethod=syntax
 set foldlevelstart=99
 set foldcolumn=0
+set foldtext=foldtext#foldtext()
 
 " terminal
 if has('nvim')
@@ -271,10 +272,6 @@ map <tab> %
 
 " so you can gf to non-existing (new) files
 map gf :e <cfile><cr>
-
-" search for currently selected text from visual mode
-vnoremap / "vy/<c-r>v<cr>
-vnoremap ? "vy?<c-r>v<cr>
 
 " c-a / c-e everywhere
 inoremap <c-a> <c-o>0
@@ -328,7 +325,7 @@ nnoremap <expr> { foldclosed(search('^$', 'Wnb')) == -1 ? '{' : '{k{'
 xnoremap > >gv
 xnoremap < <gv
 
-" dot works in visual selection mode!
+" dot in visual mode
 xnoremap . :norm .<cr>
 
 " Y yanks to the end of the line
@@ -345,9 +342,6 @@ xnoremap L g_
 " split line
 nnoremap S i<cr><esc>^mwgk:silent! s/\v +$//<cr>:noh<cr>
 
-" run make
-nnoremap R :wa<cr>:silent make!<cr>:redraw!<cr>
-
 " open common files
 nnoremap <leader>ov :e ~/.vimrc<cr>
 nnoremap <leader>og :e ~/.gvimrc<cr>
@@ -360,9 +354,13 @@ if has('mac')
   nnoremap <leader>oh :e ~/.hammerspoon/init.lua<cr>
 endif
 
-" replace current word
+" simpler visual search (requires vim-plug for * in visual mode)
+xmap / *
+xmap ? #
+
+" replace current word (requires vim-plug for * in visual mode)
 nnoremap <leader>r :<c-u>let replace_view=winsaveview()<cr>/\<<c-r><c-w>\><cr>:redraw!<cr>:call winrestview(replace_view)<cr>:%s//
-xnoremap <leader>r :<c-u>let replace_view=winsaveview()<cr>:<c-u>call VisualSearch('/')<cr>/<c-r>=@/<cr><cr>:call winrestview(replace_view)<cr>:redraw!<cr>:%s//
+xmap     <leader>r *:redraw!<cr>:%s//
 
 " buffers
 nnoremap gb         :bnext<cr>
@@ -373,12 +371,6 @@ nnoremap <leader>bb :b#<cr>
 " new buffer / tab
 nnoremap <leader>B :enew<cr>
 nnoremap <leader>T :tabnew<cr>
-
-" yank whole buffer
-nnoremap <leader>ya :let yank_view=winsaveview()<cr>ggyG<cr>:call winrestview(yank_view)<cr>
-
-" paste from system clipboard
-nnoremap <leader>p "+p<cr>
 
 " kill whitespace
 nnoremap <silent> <leader>k :KillWhitespace<cr>
@@ -399,9 +391,13 @@ nmap <silent> <leader>C <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
 " aligns
 nnoremap <leader>= :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
 
-" folds
+" folds (zf - [f]ocus - close everything but current)
 nnoremap zf mzzMzv`zzt
 nnoremap <leader><leader> za
 
 " zoom window
 nnoremap <silent> <c-w>z :ZoomToggle<cr>
+
+" duplicate line and comment (requires vim-commentary)
+nmap <leader>cc yygccp
+

@@ -3,8 +3,7 @@ local template = require('ext.template');
 local module   = {}
 
 -- watch for http and https events and open in currently running browser instead of default one
--- click with 'cmd' to open in background
--- change default system browser to Hammerspoon for it to work (maybe not required with setDefaultHandler in here?)
+-- click with 'cmd' to open and focus, otherwise opens in background
 module.start = function()
   hs.urlevent.setDefaultHandler('http')
 

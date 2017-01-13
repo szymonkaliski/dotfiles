@@ -10,7 +10,7 @@ augroup END
 
 " nice airline integration
 
-function! AirlineNeomakeStatus()
+function! neomake#airline_status()
   let total = 0
 
   for v in values(neomake#statusline#LoclistCounts())
@@ -30,7 +30,7 @@ endfunction
 
 " custom makers
 
-function! SetWarningType(entry)
+function! neomake#set_warning_type(entry)
   let a:entry.type = 'W'
 endfunction
 
@@ -39,17 +39,17 @@ let g:neomake_clojure_kibit_maker = {
       \ 'args':          [ 'kibit' ],
       \ 'errorformat':   '%IAt %f:%l:,%C%m,%-G%.%#',
       \ 'buffer_output': 1,
-      \ 'postprocess':   function('SetWarningType')
+      \ 'postprocess':   function('neomake#set_warning_type')
       \ }
 
 let g:neomake_javascript_standard_maker = {
       \ 'errorformat': '  %f:%l:%c: %m',
-      \ 'postprocess': function('SetWarningType')
+      \ 'postprocess': function('neomake#set_warning_type')
       \  }
 
 let g:neomake_javascript_semistandard_maker = {
       \ 'errorformat': '  %f:%l:%c: %m',
-      \ 'postprocess': function('SetWarningType')
+      \ 'postprocess': function('neomake#set_warning_type')
       \  }
 
 " js (favour local npm installed checkers)

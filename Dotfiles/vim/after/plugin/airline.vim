@@ -1,14 +1,14 @@
 augroup airline_plugin
   au!
 
-  au User AirlineAfterInit call <sid>AirlineInit()
+  au User AirlineAfterInit call airline#init()
 augroup END
 
 " theme
 let g:airline_theme = 'tomorrow'
 
 " patch function
-let g:airline_theme_patch_func = 'AirlineThemePatch'
+let g:airline_theme_patch_func = 'airline#theme_patch'
 
 " default extensions
 let g:airline_extensions = ['quickfix', 'tabline']
@@ -19,7 +19,7 @@ if has('mac')
 endif
 
 " initial sections
-let g:airline_section_b = '%{WindowTitleFilePath()}'
+let g:airline_section_b = '%{utils#buffer_name()}'
 let g:airline_section_c = ''
 let g:airline_section_x = ''
 let g:airline_section_y = ''
@@ -61,13 +61,13 @@ let g:airline#extensions#default#section_truncate_width = {
       \ }
 
 " extensions
-function! s:AirlineInit()
+function! airline#init()
   let g:airline_section_y = airline#section#create(['hunks'])
-  let g:airline_section_warning = '%{AirlineNeomakeStatus()}'
+  let g:airline_section_warning = '%{neomake#airline_status()}'
 endfunction
 
 " theme patching
-function! AirlineThemePatch(palette)
+function! airline#theme_patch(palette)
   if g:airline_theme == 'tomorrow' || g:airline_theme == 'solarized'
     let l:palettes = [ a:palette.normal, a:palette.insert, a:palette.replace, a:palette.visual, a:palette.accents ]
 

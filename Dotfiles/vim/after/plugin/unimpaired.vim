@@ -1,4 +1,4 @@
-function! s:GoPrevious(prev, last)
+function! s:go_previous(prev, last)
   try
     exe a:prev
   catch
@@ -6,7 +6,7 @@ function! s:GoPrevious(prev, last)
   endtry
 endfunction
 
-function! s:GoNext(next, first)
+function! s:go_next(next, first)
   try
     exe a:next
   catch
@@ -15,10 +15,10 @@ function! s:GoNext(next, first)
 endfunction
 
 " lists
-nnoremap ]l :call <sid>GoPrevious('lnext', 'lfirst')<cr>zz
-nnoremap [l :call <sid>GoNext('lprev', 'llast')<cr>zz
-nnoremap ]c :call <sid>GoPrevious('cnext', 'cfirst')<cr>zz
-nnoremap [c :call <sid>GoNext('cprev', 'clast')<cr>zz
+nnoremap ]l :call <sid>go_previous('lnext', 'lfirst')<cr>zz
+nnoremap [l :call <sid>go_next('lprev', 'llast')<cr>zz
+nnoremap ]c :call <sid>go_previous('cnext', 'cfirst')<cr>zz
+nnoremap [c :call <sid>go_next('cprev', 'clast')<cr>zz
 
 " tabs, not tags
 nnoremap ]t :tabn<cr>

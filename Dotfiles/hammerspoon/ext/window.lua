@@ -74,7 +74,7 @@ end
 module.cycleWindows = function(win, appWindowsOnly)
   local allWindows = appWindowsOnly and win:application():allWindows() or hs.window.allWindows()
 
-  --  we only care about standard windows
+  -- we only care about standard windows
   local windows = hs.fnutils.filter(allWindows, function(win) return win:isStandard() end)
 
   -- get id based of appname and window id

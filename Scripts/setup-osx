@@ -5,7 +5,7 @@
 # defaults write -g ApplePressAndHoldEnabled -bool false
 
 # set the icon size of Dock items
-defaults write com.apple.dock tilesize -int 48
+defaults write com.apple.dock tilesize -int 44
 
 # lock Dock size
 defaults write com.apple.dock size-immutable -bool yes

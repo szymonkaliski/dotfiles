@@ -1,6 +1,4 @@
-let s:is_nvim = has('nvim')
-
-if s:is_nvim
+if has('nvim')
   " no delimitmate when I have parinfer
   let b:loaded_delimitMate = 1
 end

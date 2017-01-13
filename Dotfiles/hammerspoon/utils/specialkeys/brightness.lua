@@ -1,28 +1,27 @@
 local module        = {}
 local brightnessMod = 5
 
+-- override brightness buttons so they set the same brightness for multiple displays at once
+-- tested only on ergodox with custom QMK config
+-- this doesn't work with apple wirless keyboard last time I checked
+
+local KEYCODE_BRIGHTNESS_UP   = 113
+local KEYCODE_BRIGHTNESS_DOWN = 107
+
 module.shouldProcessEvent = function(event)
-  local systemKey = event:systemKey()
+  local keyCode = event:getKeyCode()
 
-  if not next(systemKey) then return false end
-
-  return hs.fnutils.some({ 'BRIGHTNESS_UP', 'BRIGHTNESS_DOWN' }, function(key)
-    return key == systemKey.key
-  end)
+  return keyCode == KEYCODE_BRIGHTNESS_UP or keyCode == KEYCODE_BRIGHTNESS_DOWN
 end
 
--- NOTE: this doesn't work with apple wirless keyboard
 module.processEvent = function(event)
-  local systemKey = event:systemKey()
+  local keyCode = event:getKeyCode()
 
-  -- ignore keyup
-  if not systemKey.down then return true end
-
-  if systemKey.key == 'BRIGHTNESS_UP' then
+  if keyCode == KEYCODE_BRIGHTNESS_UP then
     hs.brightness.set(math.min(100, hs.brightness.get() + brightnessMod))
   end
 
-  if systemKey.key == 'BRIGHTNESS_DOWN' then
+  if keyCode == KEYCODE_BRIGHTNESS_DOWN then
     hs.brightness.set(math.max(0, hs.brightness.get() - brightnessMod))
   end
 

@@ -2,7 +2,7 @@ if has('gui')
   finish
 endif
 
-function! s:BuffersList()
+function! fzf#buffers_list()
   let l:all = range(0, bufnr('$'))
   let l:list = []
 
@@ -16,48 +16,11 @@ function! s:BuffersList()
   return list
 endfunction
 
-function! s:RecentFiles()
+function! fzf#recent_files()
   return filter(v:oldfiles, 'filereadable(glob(v:val))')
 endfunction
 
-function! s:AgSearchInput()
-  let l:input = input('Grep for: ')
-
-  if len(l:input) > 0
-    return s:AgSearchHandler(l:input)
-  else
-    return ''
-  endif
-endfunction
-
-function! s:AgSearchVisual()
-  let [l:lnum1, l:col1] = getpos("'<")[1:2]
-  let [l:lnum2, l:col2] = getpos("'>")[1:2]
-  let l:lines = getline(l:lnum1, l:lnum2)
-  let l:lines[-1] = l:lines[-1][: l:col2 - (&selection == 'inclusive' ? 1 : 2)]
-  let l:lines[0] = l:lines[0][l:col1 - 1:]
-
-  let l:selection = join(l:lines, '\n')
-
-  return s:AgSearchHandler(l:selection)
-endfunction
-
-function! s:AgSearchHandler(search)
-  return 'ag --smart-case --nogroup --color --column "' . a:search . '"'
-endfunction
-
-function! s:AgHandler(e)
-  let l:keys = split(a:e, ':')
-  let l:line = l:keys[1]
-  let l:col  = l:keys[2]
-  let l:file = escape(l:keys[0], ' ')
-
-  exe 'e ' . l:file
-  call cursor(l:line, l:col)
-  silent! normal! zozz
-endfunction
-
-function! s:BuffersLines()
+function! fzf#buffers_lines()
   let res = []
 
   for b in filter(range(1, bufnr('$')), 'buflisted(v:val)')
@@ -67,19 +30,14 @@ function! s:BuffersLines()
   return res
 endfunction
 
-function! s:BuffersLinesOpen(l)
+function! fzf#buffers_lines_open(l)
   let keys = split(a:l, ':')
   exe 'buffer ' . keys[0]
   exe keys[1]
   silent! normal! zozz
 endfunction
 
-function! s:LineAppend(e)
-  exe 'normal! o ' . a:e
-endfunction
-
 let s:fzf_default_opt = { 'window': 'enew' }
-" let s:fzf_default_opt = { 'down': '20%' }
 
 command! FZFFiles call fzf#run(extend(s:fzf_default_opt, {
       \ 'source':  'ag -l -g ""',
@@ -88,79 +46,33 @@ command! FZFFiles call fzf#run(extend(s:fzf_default_opt, {
       \ }))
 
 command! FZFBuffers call fzf#run(extend(s:fzf_default_opt, {
-      \ 'source':  s:BuffersList(),
+      \ 'source':  fzf#buffers_list(),
       \ 'sink':    'e',
       \ 'options': '--reverse --no-sort --prompt="buffers > "'
       \ }))
 
 command! FZFMru call fzf#run(extend(s:fzf_default_opt, {
-      \ 'source':  s:RecentFiles(),
+      \ 'source':  fzf#recent_files(),
       \ 'sink':    'e',
       \ 'options': '--reverse --multi --exit-0 --no-sort --prompt="mru > "'
       \ }))
 
-command! FZFAgInput call fzf#run(extend(s:fzf_default_opt, {
-      \ 'source':  s:AgSearchInput(),
-      \ 'sink':    function('<sid>AgHandler'),
-      \ 'options': '--reverse --ansi --multi --exit-0 --prompt="grep > "'
-      \ }))
-
-command! -range FZFAgVisual call fzf#run(extend(s:fzf_default_opt, {
-      \ 'source':  s:AgSearchVisual(),
-      \ 'sink':    function('<sid>AgHandler'),
-      \ 'options': '--reverse --ansi --multi --exit-0 --prompt="grep > "'
-      \ }))
-
 command! FZFLines call fzf#run(extend(s:fzf_default_opt, {
-      \ 'source':  s:BuffersLines(),
-      \ 'sink':    function('<sid>BuffersLinesOpen'),
+      \ 'source':  fzf#buffers_lines(),
+      \ 'sink':    function('fzf#buffers_lines_open'),
       \ 'options': '--reverse --no-sort --exit-0 --nth=3.. --prompt="lines > "'
       \ }))
 
 nnoremap <silent> <c-p>      :FZFFiles<cr>
 nnoremap <silent> <c-b>      :FZFBuffers<cr>
 
-nnoremap <silent> <leader>fe :FZFFiles<cr>
-nnoremap <silent> <leader>fb :FZFBuffers<cr>
 nnoremap <silent> <leader>fl :FZFLines<cr>
 nnoremap <silent> <leader>fh :FZFMru<cr>
-
-nnoremap <silent> <leader>fg :FZFAgInput<cr>
-xnoremap <silent> <leader>fg :FZFAgVisual<cr>
-
-if isdirectory($HOME . '/Documents/Dropbox/Notes')
-  command! FZFNotes call fzf#run(extend(s:fzf_default_opt, {
-        \ 'source':  'find ~/Documents/Dropbox/Notes -iname "*.txt" | cut -d "/" -f7 | sed "s/\.txt$//"',
-        \ 'sink':    function('s:OpenNote'),
-        \ 'options': '--reverse --multi --prompt="notes > "'
-        \ }))
-
-  function! s:OpenNote(e)
-    exe 'e ~/Documents/Dropbox/Notes/' . escape(a:e, ' ') . '.txt'
-  endfunction
-
-  nnoremap <silent> <leader>fn :FZFNotes<cr>
-endif
-
-if isdirectory($HOME . '/Documents/Dropbox/Tasks')
-  command! FZFTasks call fzf#run(extend(s:fzf_default_opt, {
-        \ 'source':  'find ~/Documents/Dropbox/Tasks -iname "*.taskpaper" | cut -d "/" -f7 | sed "s/\.taskpaper$//"',
-        \ 'sink':    function('<sid>OpenTask'),
-        \ 'options': '--reverse --multi --prompt="tasks > "'
-        \ }))
-
-  function! s:OpenTask(e)
-    exe 'e ~/Documents/Dropbox/Tasks/' . escape(a:e, ' ') . '.taskpaper'
-  endfunction
-
-  nnoremap <silent> <leader>ft :FZFTasks<cr>
-endif
 
 if has('nvim')
   augroup fzf_plugin
     au!
 
-    " au FileType fzf tnoremap <Esc> <c-c>
     au FileType fzf tnoremap <Esc> <c-\><c-n>:Sayonara!<cr>
   augroup END
 endif

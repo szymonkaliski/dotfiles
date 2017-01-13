@@ -6,7 +6,7 @@ alias la="LC_COLLATE=C ls --color=always --group-directories-first --classify --
 
 alias rm="rm -iv"
 alias mv="mv -iv"
-alias cp="cp -iv"
+alias cp="cp -iv -R"
 
 alias back="cd - > /dev/null"
 alias jumps="j | cut -b12- | tail -10"
