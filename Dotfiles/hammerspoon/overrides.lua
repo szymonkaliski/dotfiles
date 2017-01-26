@@ -20,9 +20,10 @@ module.init = function()
       or title == 'Song Info'
       or title == 'Quick Look'
       or app   == 'Tweetbot'
+      or app   == 'Max'
+      or app   == 'Finder'
   end
 
-  -- local gridMargin = 8
   local gridMargin = 16
 
   hs.grid.setGrid('16x12').setMargins({ gridMargin, gridMargin })
@@ -51,15 +52,16 @@ module.init = function()
     }
 
     local frameMarginX = 0
-    local frameMarginY = 0
+    -- local frameMarginY = 0
 
     -- multiple fixes for non-resizable windows
     -- basically center them in grid
     -- and "snap" when near edges
     if not win:isResizable() then
-      local widthDiv   = floor(winFrame.w / cellW + 0.5)
+      local widthDiv   = floor(winFrame.w / cellW + 0.0)
       local frameWidth = widthDiv * cellW
-      frameMarginX     = (frameWidth - winFrame.w) / 2
+
+      frameMarginX     = (frameWidth - winFrame.w) / 2 - margins.w / 2
       frame.w          = winFrame.w
 
       -- local heightDiv   = floor(winFrame.h / cellH + 0.5)
@@ -84,18 +86,22 @@ module.init = function()
 
     if cell.w < screenGrid.w and cell.w % 1 == 0 then
       if cell.x ~= 0 then
-        frame.w = frame.w + margins.w / 2
+        if win:isResizable() then
+          frame.w = frame.w + margins.w / 2
+        end
         frame.x = frame.x - margins.w / 2
       end
 
       if cell.x + cell.w ~= screenGrid.w then
-        frame.w = frame.w + margins.w / 2
+        if win:isResizable() then
+          frame.w = frame.w + margins.w / 2
+        end
       end
     end
 
     -- snap to edges
     -- or add margins if exist
-    local maxMargin = 30
+    local maxMargin = gridMargin * 2
 
     if cell.x ~= 0 and frame.x - screenRect.x + frame.w > screenRect.w - maxMargin then
       frame.x = screenRect.x + screenRect.w - margins.w - frame.w
@@ -114,7 +120,8 @@ module.init = function()
     --   win:application():name(),
     --   win:isResizable(),
     --   hs.inspect(frame),
-    --   hs.inspect(winFrame)
+    --   hs.inspect(winFrame),
+    --   frameMarginX
     -- )
 
     -- don't set frame if nothing has changed!
@@ -124,7 +131,7 @@ module.init = function()
       winFrame.y ~= frame.y or
       winFrame.h ~= frame.h or
       winFrame.w ~= frame.w then
-      win:setFrameInScreenBounds(frame)
+      win:setFrame(frame)
     end
 
     return grid

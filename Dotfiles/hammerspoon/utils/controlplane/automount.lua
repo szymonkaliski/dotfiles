@@ -1,3 +1,5 @@
+local log = hs.logger.new('automount', 'debug')
+
 local cache  = {
   powerSource = hs.battery.powerSource(),
   watchers    = {},
@@ -7,6 +9,11 @@ local cache  = {
 local module = { cache = cache }
 
 local scriptsPath = os.getenv('HOME') .. '/Documents/Code/Scripts/'
+
+local logTask = function(exitCode, stdOut, stdErr)
+  log.d(stdOut)
+  log.d(stdErr)
+end
 
 local stopMountTasks = function()
   for _, task in pairs(cache.tasks) do
@@ -21,12 +28,12 @@ local runMountTask = function(script, callback)
   cache.tasks[script]:start()
 end
 
-local umountAll = function(callback)
-  runMountTask('umount-all')
+local umountAll = function()
+  runMountTask('umount-all', logTask)
 end
 
-local mountAll = function(callback)
-  runMountTask('mount-all')
+local mountAll = function()
+  runMountTask('mount-all', logTask)
 end
 
 local batteryWatcher = function()

@@ -1,12 +1,15 @@
 alias sudo="sudo "
 
-alias ls="LC_COLLATE=C ls --color=always --group-directories-first --classify --human-readable"
-alias ll="LC_COLLATE=C ls --color=always --group-directories-first --classify --human-readable -l"
-alias la="LC_COLLATE=C ls --color=always --group-directories-first --classify --human-readable -l --almost-all"
+alias ls="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable"
+alias ll="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable -l"
+alias la="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable -l --almost-all"
 
 alias rm="rm -iv"
 alias mv="mv -iv"
 alias cp="cp -iv -R"
+
+# custom terminfo fix
+alias ssh="TERM=xterm-256color ssh"
 
 alias back="cd - > /dev/null"
 alias jumps="j | cut -b12- | tail -10"

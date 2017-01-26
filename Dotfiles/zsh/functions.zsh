@@ -205,3 +205,22 @@ retry() {
   done
 }
 compctl -f -x "c[-1,retry]" -c -- retry
+
+# simple timer with argument in second
+timer() {
+  local start=$(($(date +%s) + $1));
+
+  while [ "$start" -ge $(date +%s) ]; do
+    echo -ne "$(date -u --date @$(($start - $(date +%s))) +%H:%M:%S)\r";
+    sleep 0.1
+  done
+}
+
+# simple stopwatch
+stopwatch() {
+  local start=$(date +%s);
+  while true; do
+    echo -ne "$(date -u --date @$(($(date +%s) - $start)) +%H:%M:%S)\r";
+    sleep 0.1
+  done
+}

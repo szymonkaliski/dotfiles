@@ -5,14 +5,14 @@ require('overrides').init()
 bindings                     = require('bindings')
 controlplane                 = require('utils.controlplane')
 notify                       = require('utils.notify')
-specialkeys                  = require('utils.specialkeys')
 watchers                     = require('utils.watchers')
 window                       = require('ext.window')
 
 -- extensions
 window.fixEnabled            = false
 window.fullFrame             = true
-window.highlightEnabled      = false
+window.highlightBorder       = false
+window.highlightMouseCenter  = true
 window.historyLimit          = 50
 window.margin                = 6
 
@@ -25,14 +25,12 @@ hs.hints.showTitleThresh     = 0
 hs.hints.hintChars           = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E', 'R', 'Z', 'X', 'C' }
 
 -- controlplane
-controlplane.enabled         = { 'automount', 'bluetooth', 'displays' }
+controlplane.enabled         = { 'automount', 'bluetooth', 'displays', 'persistvpn' }
 controlplane.trustedNetworks = { 'Skynet', 'Skynet 5G' }
+controlplane.persistVPN      = 'PIA'
 
 -- notifications
 notify.enabled               = { 'battery', 'online', 'wifi' }
-
--- special keys
-specialkeys.enabled          = { 'brightness' }
 
 -- watchers
 watchers.enabled             = { 'autogrid', 'application', 'reload', 'terms', 'urlevent' }
@@ -43,7 +41,6 @@ hs.fnutils.each({
   bindings,
   controlplane,
   notify,
-  specialkeys,
   watchers
 }, function(module) module.start() end)
 
@@ -57,7 +54,6 @@ hs.shutdownCallback = function()
     bindings,
     controlplane,
     notify,
-    specialkeys,
     watchers
   }, function(module) module.stop() end)
 end

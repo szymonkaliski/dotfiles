@@ -22,57 +22,65 @@ local getHighlightWindowColor = function()
 end
 
 module.highlightWindow = function()
-  if not window.highlightEnabled then return end
-
-  local borderWidth   = 6
-  local fadeTime      = 0.25
-  local stickTime     = 0.5
   local focusedWindow = hs.window.focusedWindow()
 
-  if not cache.borderDrawing then
-    cache.borderDrawing = hs.drawing.rectangle({ x = 0, y = 0, w = 0, h = 0 })
-      :setFill(nil)
-      :setStroke(true)
-      :setStrokeWidth(borderWidth)
-      :setStrokeColor(getHighlightWindowColor())
-      :setAlpha(0.75)
+  if window.highlightMouseCenter then
+    local frameCenter = hs.geometry.getcenter(focusedWindow:frame())
+
+    hs.mouse.setAbsolutePosition(frameCenter)
   end
 
-  if not focusedWindow then
-    cache.borderDrawing:delete()
-    cache.borderDrawing = nil
+  if window.highlightBorder then
+    local borderWidth = 6
+    local fadeTime    = 0.5
+    local stickTime   = 1.0
+    local distance    = 4
 
-    return
+    if not cache.borderDrawing then
+      cache.borderDrawing = hs.drawing.rectangle({ x = 0, y = 0, w = 0, h = 0 })
+        :setFill(nil)
+        :setStroke(true)
+        :setStrokeWidth(borderWidth)
+        :setStrokeColor(getHighlightWindowColor())
+        :setAlpha(0.75)
+    end
+
+    if not focusedWindow then
+      cache.borderDrawing:delete()
+      cache.borderDrawing = nil
+
+      return
+    end
+
+    local isFullScreen = focusedWindow:isFullScreen()
+    local frame        = focusedWindow:frame()
+
+    if isFullScreen then
+      cache.borderDrawing
+        :setFrame(frame)
+        :setRoundedRectRadii(0, 0)
+    else
+      cache.borderDrawing
+        :setFrame({
+          x = frame.x - borderWidth / 2 - distance / 2,
+          y = frame.y - borderWidth / 2 - distance / 2,
+          w = frame.w + borderWidth + distance,
+          h = frame.h + borderWidth + distance
+        })
+        :setRoundedRectRadii(borderWidth, borderWidth)
+    end
+
+    cache.borderDrawing:show(fadeTime)
+
+    if cache.borderDrawingFadeOut then
+      cache.borderDrawingFadeOut:stop()
+    end
+
+    cache.borderDrawingFadeOut = hs.timer.doAfter(stickTime, function()
+      cache.borderDrawing:hide(fadeTime)
+      cache.borderDrawingFadeOut = nil
+    end)
   end
-
-  local isFullScreen = focusedWindow:isFullScreen()
-  local frame        = focusedWindow:frame()
-
-  if isFullScreen then
-    cache.borderDrawing
-      :setFrame(frame)
-      :setRoundedRectRadii(0, 0)
-  else
-    cache.borderDrawing
-      :setFrame({
-        x = frame.x - borderWidth / 2 - 1,
-        y = frame.y - borderWidth / 2 - 1,
-        w = frame.w + borderWidth + 2,
-        h = frame.h + borderWidth + 2
-      })
-      :setRoundedRectRadii(borderWidth, borderWidth)
-  end
-
-  cache.borderDrawing:show(fadeTime)
-
-  if cache.borderDrawingFadeOut then
-    cache.borderDrawingFadeOut:stop()
-  end
-
-  cache.borderDrawingFadeOut = hs.timer.doAfter(stickTime, function()
-    cache.borderDrawing:hide(fadeTime)
-    cache.borderDrawingFadeOut = nil
-  end)
 end
 
 return module

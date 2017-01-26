@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-grep "pex-sys" $@ -q && plask $@ || node $@

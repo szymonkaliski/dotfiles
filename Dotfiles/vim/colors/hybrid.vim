@@ -294,7 +294,8 @@ exe "hi! DiffDelete"    .s:fg_background  .s:bg_red         .s:fmt_none
 exe "hi! DiffText"      .s:fg_background  .s:bg_blue        .s:fmt_none
 exe "hi! ErrorMsg"      .s:fg_background  .s:bg_red         .s:fmt_stnd
 exe "hi! VertSplit"     .s:fg_window      .s:bg_none        .s:fmt_none
-exe "hi! Folded"        .s:fg_comment     .s:bg_line        .s:fmt_none
+" exe "hi! Folded"        .s:fg_comment     .s:bg_line        .s:fmt_none
+exe "hi! Folded"        .s:fg_comment     .s:bg_line        .s:fmt_ital
 exe "hi! FoldColumn"    .s:fg_none        .s:bg_darkcolumn  .s:fmt_none
 exe "hi! SignColumn"    .s:fg_none        .s:bg_darkcolumn  .s:fmt_none
 "		Incsearch"
@@ -339,7 +340,8 @@ endif
 "}}}
 " Generic Syntax Highlighting: (see :help group-name)"{{{
 " ----------------------------------------------------------------------------
-exe "hi! Comment"         .s:fg_comment     .s:bg_none        .s:fmt_none
+" exe "hi! Comment"         .s:fg_comment     .s:bg_none        .s:fmt_none
+exe "hi! Comment"         .s:fg_comment     .s:bg_none        .s:fmt_ital
 
 exe "hi! Constant"        .s:fg_red         .s:bg_none        .s:fmt_none
 exe "hi! String"          .s:fg_green       .s:bg_none        .s:fmt_none
@@ -395,7 +397,7 @@ exe "hi! qfLineNr"        .s:fg_yellow      .s:bg_none        .s:fmt_none
 "}}}
 " vim syntax highlighting {{{
 
-exe "hi! vimCommentString"   .s:fmt_none .s:fg_purple  .s:bg_none
+exe "hi! vimCommentString"   .s:fmt_ital .s:fg_purple  .s:bg_none
 exe "hi! vimCommand"         .s:fmt_none .s:fg_blue    .s:bg_none
 exe "hi! vimCmdSep"          .s:fmt_none .s:fg_blue    .s:bg_none
 exe "hi! vimFunc"            .s:fmt_none .s:fg_blue    .s:bg_none
@@ -459,11 +461,13 @@ exe "hi! jsObjectBraces"         .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsObjectFuncName"       .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! jsParens"               .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsPrototype"            .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsRepeatBraces"         .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsStorageClass"         .s:fmt_none .s:fg_purple     .s:bg_none
 exe "hi! jsSuper"                .s:fmt_none .s:fg_purple     .s:bg_none
 exe "hi! jsTemplateBraces"       .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsTemplateVar"          .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! jsThis"                 .s:fmt_none .s:fg_purple     .s:bg_none
+exe "hi! jsTryCatchBraces"       .s:fmt_none .s:fg_blue       .s:bg_none
 
 " }}}
 " yaml syntax highlighting {{{

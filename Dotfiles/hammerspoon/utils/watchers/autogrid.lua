@@ -4,8 +4,8 @@ local cache  = {}
 local module = { cache = cache }
 
 local snapWindow = function(win)
-  local smallWin = { w = 300, h = 300 }
-  local frame    = win:frame()
+  local smallWin = { w = 200, h = 200 }
+  local frame = win:frame()
 
   if
     win:isStandard()
@@ -13,6 +13,7 @@ local snapWindow = function(win)
     and not win:isFullScreen()
     and frame.w > smallWin.w
     and frame.h > smallWin.h
+    and win:application():name() ~= 'iBooks' -- book opening animation breaks everything
   then
     noAnim(function() hs.grid.snap(win) end)
   end

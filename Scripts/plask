@@ -21,4 +21,4 @@ if [[ ${MULTI} ]]; then
   killall Plask > /dev/null 2>&1
 fi
 
-$PLASK ${argv[0]}
+$PLASK "${argv[0]}"

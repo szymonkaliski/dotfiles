@@ -34,7 +34,7 @@ sudo pmset -a sms 0 &> /dev/null
 # sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist > /dev/null 2>&1
 
 # enable trim 10.10.4+
-read -p "Enble trim? (y/n) " RESP
+read -r -p "Enble trim? (y/n) " RESP
 if [ "$RESP" = "y" ]; then
   sudo trimforce enable
 fi

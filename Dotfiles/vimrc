@@ -12,6 +12,7 @@ Plug 'justinmk/vim-dirvish'
 Plug 'lifepillar/vim-mucomplete'
 Plug 'neomake/neomake'
 Plug 'pbrisbin/vim-mkdir'
+Plug 'prabirshrestha/async.vim'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
@@ -242,6 +243,9 @@ set fillchars=fold:\ ,vert:│
 set grepprg=ag\ --vimgrep\ $*
 set grepformat=%f:%l:%c:%m
 
+" tags
+set tags=./tags,./.tags,tags,.tags
+
 " set path
 if has('mac')
   let $PATH='/usr/local/bin:' . $PATH . ':/Users/Szymon/Documents/Code/Scripts'
@@ -378,6 +382,10 @@ nnoremap <silent> <leader>k :KillWhitespace<cr>
 " nice grep
 nnoremap <leader>g :Grep<space>
 xnoremap <leader>g :GrepVisual<cr>
+
+" nice tag
+nnoremap <space>t g<c-]>
+xnoremap <space>t g<c-]>
 
 " notes
 if isdirectory($HOME . '/Documents/Dropbox/Notes')

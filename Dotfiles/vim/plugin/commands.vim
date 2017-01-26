@@ -2,6 +2,7 @@
 command! KillWhitespace :call utils#kill_whitespace()
 command! ShowSyntax :call utils#show_syntax()
 command! Rename :call utils#rename_file()
+command! Remove :call utils#remove_file()
 command! ZoomToggle call utils#zoom_split()
 
 " open multiple files

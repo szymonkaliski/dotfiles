@@ -2,8 +2,10 @@ TERM putty
 TERM screen
 TERM screen-256color
 TERM screen-256color-bce
+TERM screen-256color-italic
 TERM xterm
 TERM xterm-256color
+TERM xterm-256color-italic
 
 # attribute codes:
 # 00=none 01=bold 04=underscore 05=blink 07=reverse 08=concealed

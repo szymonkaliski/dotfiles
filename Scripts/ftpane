@@ -4,14 +4,14 @@ PANES=$(tmux list-panes -a -F '#S;[#I:#P];#T')
 
 if [[ ! -z $TMUX ]]; then
   CURRENT=$(tmux display-message -p "#I:#P")
-  PANES=$(echo "$PANES" | grep -v $CURRENT)
+  PANES=$(echo "$PANES" | grep -v "$CURRENT")
 fi
 
-TARGET=$(echo "$PANES" | column -t -s ";" | sort | fzf --tac --no-sort --select-1 --exit-0 --query="$1" --prompt="pane > ") || exit 0
+TARGET=$(echo "$PANES" | column -t -s ";" | sort | fzf --tac --no-sort --select-1 --exit-0 --query="$1" --prompt="tmux > " --reverse) || exit 0
 
-TARGET_SESSION=$(echo $TARGET | cut -d " " -f1)
-TARGET_WINDOW=$(echo $TARGET | cut -d "[" -f2 | awk 'BEGIN{FS=":|-"} {print $1}')
-TARGET_PANE=$(echo $TARGET | cut -d "[" -f2 | awk 'BEGIN{FS=":|-"} {print $2}' | cut -c 1)
+TARGET_SESSION=$(echo "$TARGET" | cut -d " " -f1)
+TARGET_WINDOW=$(echo "$TARGET" | cut -d "[" -f2 | awk 'BEGIN{FS=":|-"} {print $1}')
+TARGET_PANE=$(echo "$TARGET" | cut -d "[" -f2 | awk 'BEGIN{FS=":|-"} {print $2}' | cut -c 1)
 
 if [ -z "$TMUX" ]; then
   tmux attach-session -t "$TARGET_SESSION" \; select-pane -t "$TARGET_WINDOW.$TARGET_PANE"

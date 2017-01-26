@@ -6,8 +6,10 @@ compctl -f \
 alias run="open -a"
 alias qopen="qlmanage -p "$@" >& /dev/null"
 
-alias clearlogs="sudo rm -rfv /private/var/log/asl/*.asl"
-alias cleartmp="sudo rm -rfv /private/var/tmp/Xcode/ /private/var/tmp/Processing/"
+alias clear-logs="sudo rm -rfv /private/var/log/asl/*.asl"
+alias clear-tmp="sudo rm -rfv /private/var/tmp/Xcode/ /private/var/tmp/Processing/"
+alias clear-dsstore="sudo find . -name '.DS_Store' -depth -exec rm {} \;"
+
 alias flush="dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
 alias purge="sudo purge"
 

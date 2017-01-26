@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+// simple script for counting "worked days", used only in vim
+
+var stdin = process.openStdin();
+var data  = '';
+
+stdin.on('data', function(chunk) { data += chunk; });
+
+stdin.on('end', function() {
+  var counted = data.split('\n').reduce(function(memo, day) {
+    var num = day.split(': ')[1];
+
+    if (!num) {
+      num = 0;
+    }
+    else if (num.indexOf('/') > 0) {
+      var a = parseFloat(num.split('/')[0]);
+      var b = parseFloat(num.split('/')[1]);
+
+      num = a / b;
+    }
+    else {
+      num = parseFloat(num);
+    }
+
+    return memo + num;
+  }, 0);
+
+  console.log(counted.toFixed(2));
+});

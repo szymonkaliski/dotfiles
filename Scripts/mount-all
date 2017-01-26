@@ -1,3 +1,14 @@
 #!/usr/bin/env bash
 
-/usr/sbin/diskutil list | awk '/Apple_HFS/ {print $NF}' | xargs -I{} /usr/sbin/diskutil mount {} > /dev/null 2>&1
+diskutil list | awk '/Apple_HFS/ { print $NF }' | xargs -I{} diskutil mount {} > /dev/null 2>&1
+
+# Backup HD is FileVaulted, so we need to unlock it if we are mounting it
+# "security" finds password in Keychain so it's secure, and no need to type it in
+BACKUP_VOLUME_NAME="Backup HD"
+BACKUP_VOLUME_UUID=$(diskutil cs list 2> /dev/null | grep -B6 "$BACKUP_VOLUME_NAME" | grep "Logical Volume" | tail -1 | awk '{ print $NF }')
+
+if [[ $BACKUP_VOLUME_UUID ]]; then
+  (security find-generic-password -w -l "$BACKUP_VOLUME_NAME" | diskutil coreStorage unlockVolume "$BACKUP_VOLUME_UUID" -stdinpassphrase) && sleep 2s && diskutil mount "$BACKUP_VOLUME_UUID"
+else
+  echo "$BACKUP_VOLUME_NAME not found"
+fi

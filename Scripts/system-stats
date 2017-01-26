@@ -3,7 +3,7 @@
 
 UPTIME="$(uptime)"
 
-UP=$(echo $UPTIME | \
+UP=$(echo "$UPTIME" | \
 awk '{
   sub(/.*up[ ]+/,"",$0)
   sub(/,[ ]+[0-9]+ user.*/,"",$0)
@@ -15,7 +15,7 @@ MSG="uptime: $(tput setaf 4)$UP$(tput sgr0)"
 # PS=$(ps h -d | wc -l)
 # MSG="$MSG, processes: $(tput setaf 1)$PS$(tput sgr0)"
 
-LOAD=$(echo $UPTIME | sed 's/.*load average: //' | awk -F\, '{print $2}')
+LOAD=$(echo "$UPTIME" | sed 's/.*load average: //' | awk -F\, '{print $2}')
 MSG="$MSG, load:$(tput setaf 5)$LOAD$(tput sgr0)"
 
 if hash screen 2> /dev/null; then
@@ -26,7 +26,7 @@ if hash screen 2> /dev/null; then
 fi
 
 if hash tmux 2> /dev/null; then
-  TMUX=$(tmux ls 2> /dev/null | grep window | wc -l)
+  TMUX=$(tmux ls 2> /dev/null | grep -c window)
   if [ "$TMUX" != "0" ]; then
     MSG="$MSG, tmuxes: $(tput setaf 2)$TMUX$(tput sgr0)"
   fi
@@ -45,4 +45,4 @@ if [ "$(uname)" = "Darwin" ]; then
   fi
 fi
 
-echo $MSG
+echo "$MSG"
