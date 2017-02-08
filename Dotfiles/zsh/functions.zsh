@@ -224,3 +224,8 @@ stopwatch() {
     sleep 0.1
   done
 }
+
+# add to drafts on OSX
+draft() {
+  echo "\n$@\n" >> $HOME/Documents/Dropbox/Notes/drafts.txt
+}

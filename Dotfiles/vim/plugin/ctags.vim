@@ -1,8 +1,10 @@
+" don't load this for now, not using tags that much
+finish
+
 augroup async_ctags
   au!
 
-  au VimEnter *.js,*.jsx Ctags
-  au BufWritePost *.js,*.jsx Ctags
+  au VimEnter,BufWritePost *.js,*.jsx Ctags
 augroup END
 
 command! Ctags call ctags#run_async()

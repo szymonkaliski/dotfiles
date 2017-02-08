@@ -1,3 +1,7 @@
+if !utils#plug_loaded("neomake")
+  finish
+endif
+
 augroup neomake_plugin
   au!
 

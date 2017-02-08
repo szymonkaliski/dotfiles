@@ -1,3 +1,4 @@
-let g:qfenter_vopen_map = [ '<leader>v' ]
-let g:qfenter_hopen_map = [ '<leader>s' ]
-let g:qfenter_topen_map = [ '<leader>t' ]
+let g:qfenter_open_map  = [ '<CR>' ]
+let g:qfenter_vopen_map = []
+let g:qfenter_hopen_map = []
+let g:qfenter_topen_map = []

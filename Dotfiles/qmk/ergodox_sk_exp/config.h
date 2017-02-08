@@ -3,8 +3,8 @@
 
 #include "../../config.h"
 
-#define PREVENT_STUCK_MODIFIERS
-#define ONESHOT_TAP_TOGGLE 2
-#define ONESHOT_TIMEOUT 1000
+#define TAPPING_TERM 160         // taping timeout for keys that convert to other keys if you hold them
+#define IGNORE_MOD_TAP_INTERRUPT // this makes it possible to do rolling with keys that convert to other keys on hold
+#define PREVENT_STUCK_MODIFIERS  // prevent modifiers for getting stuck when switching layers
 
 #endif

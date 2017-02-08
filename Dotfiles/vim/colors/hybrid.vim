@@ -464,6 +464,7 @@ exe "hi! jsPrototype"            .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsRepeatBraces"         .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsStorageClass"         .s:fmt_none .s:fg_purple     .s:bg_none
 exe "hi! jsSuper"                .s:fmt_none .s:fg_purple     .s:bg_none
+exe "hi! jsSwitchBraces"         .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsTemplateBraces"       .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsTemplateVar"          .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! jsThis"                 .s:fmt_none .s:fg_purple     .s:bg_none
@@ -580,6 +581,12 @@ exe "hi! SyntasticError"   .s:fg_red .s:bg_darkred .s:fmt_none
 
 exe "hi! NeomakeWarning" .s:fg_red .s:bg_darkred .s:fmt_none
 exe "hi! NeomakeError"   .s:fg_red .s:bg_darkred .s:fmt_none
+
+" }}}
+" ale highlighting {{{
+
+exe "hi! ALEWarningSign" .s:fg_orange .s:bg_none .s:fmt_none
+exe "hi! ALEErrorSign"   .s:fg_red    .s:bg_none .s:fmt_none
 
 " }}}
 " nerdtree highlighting {{{

@@ -30,7 +30,7 @@ fi
 
 # taskpaper related
 if [ -d ~/Documents/Dropbox/Tasks/ ]; then
-  alias tasks="node ~/Documents/Projects/Archive/TaskPaperNext/app.js --path ~/Documents/Dropbox/Tasks/Todo.taskpaper"
+  alias tasks="node ~/Documents/Code/JavaScript/TaskPaperNext/app.js --path ~/Documents/Dropbox/Tasks/Todo.taskpaper"
 fi
 
 # man in preview

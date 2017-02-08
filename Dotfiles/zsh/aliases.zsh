@@ -56,4 +56,4 @@ alias -g P="; pushover-terminal"
 #   $ find . -name "foo*py"
 #   ./qwe/rty/foobar.py
 #   $ git log ^
-alias -g ^='$(fc -e - 2> /dev/null)'
+alias -g ^="$(fc -e - 2> /dev/null)"

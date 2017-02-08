@@ -82,7 +82,14 @@ let g:airline_mode_map = {
 " extensions
 function! airline#init()
   let g:airline_section_y = airline#section#create(['hunks'])
-  let g:airline_section_warning = '%{neomake#airline_status()}'
+
+  if utils#plug_loaded("neomake")
+    let g:airline_section_warning = '%{neomake#airline_status()}'
+  endif
+
+  if utils#plug_loaded("ale")
+    let g:airline_section_warning = '%{ale#statusline#Status()}'
+  endif
 endfunction
 
 " theme patching
