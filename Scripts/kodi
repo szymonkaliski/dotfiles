@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# should contain KODI_URL=http://host:port/jsonrpc
+source ~/.kodirc
+
+post() {
+  curl -s -i -X POST -H "Content-Type: application/json" -d "$1" "$KODI_URL" > /dev/null
+}
+
+usage() {
+  echo "Simple remote control for kodi"
+  echo
+  echo "  play"
+  echo "  pause"
+  echo "  stop"
+  echo
+  exit 0
+}
+
+main() {
+  if [ -z "$1" ]; then
+    usage
+  fi
+
+  case "$1" in
+    "play")
+      post '{"jsonrpc":"2.0","method":"Player.PlayPause","params":{"playerid":1},"id":1}'
+      ;;
+    "pause")
+      post '{"jsonrpc":"2.0","method":"Player.PlayPause","params":{"playerid":1},"id":1}'
+      ;;
+    "stop")
+      post '{"jsonrpc":"2.0","method":"Player.Stop","params":{"playerid":1},"id":1}'
+      ;;
+  esac
+  shift
+}
+
+main "$@"

@@ -85,10 +85,10 @@ module.cycleWindows = function(win, appWindowsOnly)
 
   if #windows == 1 then
     -- if we have only one window - focus it
-    windows[1]:focus()
+    windows[1]:raise():focus()
   elseif #windows > 1 then
     -- if there are more than one, sort them first by id
-    table.sort(windows, function(a, b) return getId(a) < getId(b) end)
+    table.sort(windows, function(a, b) return getId(a) > getId(b) end)
 
     -- check if one of them is active
     local activeWindowIndex = hs.fnutils.indexOf(windows, win)
@@ -99,10 +99,10 @@ module.cycleWindows = function(win, appWindowsOnly)
 
       if activeWindowIndex > #windows then activeWindowIndex = 1 end
 
-      windows[activeWindowIndex]:focus()
+      windows[activeWindowIndex]:raise():focus()
     else
       -- otherwise focus first one
-      windows[1]:focus()
+      windows[1]:raise():focus()
     end
   end
 

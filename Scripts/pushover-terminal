@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # get $TOKEN and $USER
-source ~/.pushover
+source ~/.pushoverrc
 
 case $1 in
   -h|--high)
@@ -18,7 +18,8 @@ if [ "$#" -ne 0 ]; then
   MESSAGE="$@"
 fi
 
-curl -s \
+curl \
+  -s \
   -F "priority=$PRIORITY" \
   -F "token=$TOKEN" \
   -F "user=$USER" \

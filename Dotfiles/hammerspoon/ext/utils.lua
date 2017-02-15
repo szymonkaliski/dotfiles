@@ -10,4 +10,14 @@ module.noAnim = function(callback)
   hs.window.animationDuration = lastAnimDuration
 end
 
+-- run cmd and return it's output
+module.capture = function(cmd)
+  local handle = io.popen(cmd)
+  local result = handle:read('*a')
+
+  handle:close()
+
+  return result
+end
+
 return module

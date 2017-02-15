@@ -229,3 +229,8 @@ stopwatch() {
 draft() {
   echo "\n$@\n" >> $HOME/Documents/Dropbox/Notes/drafts.txt
 }
+
+# faster youtbe-dl --batch-file
+parallel-youtube-dl() {
+  cat "$@" | sort | uniq | parallel -u --progress "youtube-dl --newline {}"
+}

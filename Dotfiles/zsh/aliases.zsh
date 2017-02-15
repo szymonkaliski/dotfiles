@@ -15,6 +15,7 @@ alias back="cd - > /dev/null"
 alias jumps="j | cut -b12- | tail -10"
 alias dirs="dirs -v"
 alias mkdir="mkdir -p"
+alias cdtemp="cd $(mktemp -d)"
 
 alias df="df -h"
 alias du="du -sh"
@@ -48,8 +49,10 @@ alias -g L="| less"
 alias -g S="| sort"
 alias -g B="> /dev/null 2>&1 &"
 
+# [N]otify
 alias -g N="; notify-terminal"
-alias -g P="; pushover-terminal"
+# [P]ush
+alias -g P="; ifttt-notify-terminal"
 
 # execute last command and use its output
 # stolen from https://github.com/narfdotpl/dotfiles/blob/master/home/.zshrc

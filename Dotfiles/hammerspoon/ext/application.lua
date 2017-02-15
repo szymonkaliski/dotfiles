@@ -71,7 +71,7 @@ module.smartLaunchOrFocus = function(launchApps)
     end)
 
     -- sort by id, so windows don't jump randomly every time
-    table.sort(standardWindows, function(a, b) return a:id() < b:id() end)
+    table.sort(standardWindows, function(a, b) return a:id() > b:id() end)
 
     -- concat with all running windows
     hs.fnutils.concat(runningWindows, standardWindows);
@@ -89,13 +89,13 @@ module.smartLaunchOrFocus = function(launchApps)
 
     if not currentIndex then
       -- if none of them is selected focus the first one
-      runningWindows[1]:focus()
+      runningWindows[1]:raise():focus()
     else
       -- otherwise cycle through all the windows
       local newIndex = currentIndex + 1
       if newIndex > #runningWindows then newIndex = 1 end
 
-      runningWindows[newIndex]:focus()
+      runningWindows[newIndex]:raise():focus()
     end
 
     highlightWindow()

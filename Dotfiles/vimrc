@@ -408,4 +408,4 @@ nnoremap <silent> <c-w>z :ZoomToggle<cr>
 
 " duplicate line and comment (requires vim-commentary)
 nmap <leader>cc yygccp
-
+xmap <leader>cc m'ygvgc''jp

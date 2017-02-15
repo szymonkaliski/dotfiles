@@ -24,7 +24,7 @@ module.init = function()
       or app   == 'Finder'
   end
 
-  local gridMargin = 16
+  local gridMargin = 10
 
   hs.grid.setGrid('16x12').setMargins({ gridMargin, gridMargin })
 

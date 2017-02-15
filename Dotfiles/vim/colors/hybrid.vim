@@ -585,8 +585,10 @@ exe "hi! NeomakeError"   .s:fg_red .s:bg_darkred .s:fmt_none
 " }}}
 " ale highlighting {{{
 
-exe "hi! ALEWarningSign" .s:fg_orange .s:bg_none .s:fmt_none
-exe "hi! ALEErrorSign"   .s:fg_red    .s:bg_none .s:fmt_none
+exe "hi! ALEWarningSign" .s:fg_orange .s:bg_none    .s:fmt_none
+exe "hi! ALEErrorSign"   .s:fg_red    .s:bg_none    .s:fmt_none
+exe "hi! ALEWarning"     .s:fg_red    .s:bg_darkred .s:fmt_none
+exe "hi! ALEError"       .s:fg_red    .s:bg_darkred .s:fmt_none
 
 " }}}
 " nerdtree highlighting {{{

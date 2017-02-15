@@ -1,0 +1,36 @@
+kwmc config padding 10 10 10 10
+kwmc config gap 10 10
+kwmc config tiling bsp
+kwmc config lock-to-container on
+kwmc config cycle-focus on
+kwmc config float-non-resizable on
+
+kwmc config focus-follows-mouse off
+kwmc config standby-on-float off
+kwmc config center-on-float off
+kwmc config mouse-follows-focus on
+kwmc config mouse-drag off
+
+kwmc config split-ratio 0.5
+kwmc config spawn right
+
+kwmc config border focused off
+kwmc config border marked off
+
+# float
+kwmc rule properties={float="true"} owner="AppCleaner"
+kwmc rule properties={float="true"} owner="Archive Utility"
+kwmc rule properties={float="true"} owner="Finder" name="Copy"
+kwmc rule properties={float="true"} owner="Finder" name="Move"
+kwmc rule properties={float="true"} owner="Finder" role="AXDialog"
+kwmc rule properties={float="true"} owner="Messages"
+kwmc rule properties={float="true"} owner="Reminders"
+kwmc rule properties={float="true"} owner="System Preferences"
+kwmc rule properties={float="true"} owner="The Unarchiver"
+kwmc rule properties={float="true"} owner="Transmission"
+kwmc rule properties={float="true"} owner="Tweetbot"
+kwmc rule properties={float="true"} role="AXDialog"
+
+# tile
+kwmc rule properties={role="AXWindow"} owner="Accessibility Inspector"
+# kwmc rule properties={role="AXWindow"} owner="Hammerspoon"
