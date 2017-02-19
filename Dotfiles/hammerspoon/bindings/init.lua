@@ -2,9 +2,9 @@ local cache  = {}
 local module = { cache = cache }
 
 -- modifiers in use:
--- cltr+alt: move focus
--- ctrl+shift: change things
--- ultra: custom bindings
+-- * cltr+alt: move focus between windows
+-- * ctrl+shift: do things to windows
+-- * ultra: custom/global bindings
 
 module.start = function()
   require('bindings.global').start()

@@ -4,7 +4,7 @@ local module   = { cache = cache }
 local log      = hs.logger.new('kwm', 'debug');
 local KWM_PATH = os.getenv('HOME') .. '/Documents/Code/Utils/kwm/bin/'
 
-function startKwm()
+local startKwm = function()
   cache.kwm = hs.task.new(KWM_PATH .. 'kwm', function(exitCode)
     if exitCode ~= 0 then
       log.d('KWM exit code: ' .. exitCode)
@@ -19,28 +19,28 @@ function startKwm()
   end):start()
 end
 
-function stopKwm()
+local stopKwm = function()
   if cache.kwm then
     cache.kwm:terminate()
   end
 end
 
-function restartKwm()
+local restartKwm = function()
   stopKwm()
   startKwm()
 end
 
-function kwmcExec(cmd)
+local kwmcExec = function (cm)
   local args = hs.fnutils.split(cmd, ' ', nil, true)
   hs.task.new(KWM_PATH .. 'kwmc', nil, args):start()
 end
 
-function kwmc(cmd)
+local kwmc = function (cm)
   return function() kwmcExec(cmd) end
 end
 
 -- resize like vim does
-function kwmSmartResize(resize)
+local kwmSmartResize = function(resize)
   local window = hs.window.frontmostWindow()
   local others = window:otherWindowsSameScreen()
 

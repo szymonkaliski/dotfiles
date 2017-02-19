@@ -26,7 +26,10 @@ module.init = function()
 
   local gridMargin = 10
 
-  hs.grid.setGrid('16x12').setMargins({ gridMargin, gridMargin })
+  hs.grid.setGrid('32x18', '2560x1440') -- cell: 80 x 80
+  hs.grid.setGrid('21x13', '1680x1050') -- cell: 80 x ~81
+
+  hs.grid.setMargins({ gridMargin, gridMargin })
 
   hs.grid.set = function(win, cell, screen)
     local min, max, floor = math.min, math.max, math.floor

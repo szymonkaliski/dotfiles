@@ -10,25 +10,22 @@ module.start = function()
   local ultra = { 'ctrl', 'alt', 'cmd' }
 
   -- ctrl + tab as alternative to cmd + tab
-  -- I use it much more than cmd + tab
   hs.hotkey.bind({ 'ctrl' }, 'tab', window.windowHints)
 
   -- ctrl + enter = escape
-  -- escape is always hard to click...
-  -- I have capslock mapped to control with OSX preferences so I can easily escape with homerow
-  -- also helps to think ctrl + enter - done insterting with vim
+  -- on macbook I have capslock mapped to control with OSX preferences so I can easily escape with homerow
+  -- helps to think ctrl + enter = done insterting with vim
   hs.hotkey.bind({ 'ctrl' }, 'return', function()
     hs.eventtap.event.newKeyEvent({}, 'escape', true):post()
     hs.eventtap.event.newKeyEvent({}, 'escape', false):post()
   end)
 
-  -- force paste
-  -- sometimes cmd + v is blocked
+  -- force paste (sometimes cmd + v is blocked)
   hs.hotkey.bind({ 'cmd', 'shift' }, 'v', function()
     hs.eventtap.keyStrokes(hs.pasteboard.getContents())
   end)
 
-  -- system utils
+  -- other things
   hs.fnutils.each({
     { key = 'g',      fn = grid.toggleGrid      },
     { key = '/',      fn = system.toggleConsole },
@@ -38,7 +35,7 @@ module.start = function()
     hs.hotkey.bind(ultra, object.key, object.fn)
   end)
 
-  -- apps
+  -- smart apps
   hs.fnutils.each({
     { key = 'return', apps = { 'iTerm2'                  } },
     { key = 'space',  apps = { 'Safari', 'Google Chrome' } },

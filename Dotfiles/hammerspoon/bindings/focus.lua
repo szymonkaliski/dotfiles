@@ -6,9 +6,10 @@ local cache = {
 
 local module = { cache = cache }
 
-function focusAndHighlight(direction)
+local focusAndHighlight = function(cmd)
   return function()
-    cache.focusFilter[direction](cache.focusFilter)
+    cache.focusFilter[cmd](cache.focusFilter, nil, false, true)
+
     highlightWindow()
   end
 end
@@ -19,12 +20,12 @@ module.start = function()
   end
 
   hs.fnutils.each({
-    { key = 'h', dir = 'focusWindowWest'  },
-    { key = 'j', dir = 'focusWindowSouth' },
-    { key = 'k', dir = 'focusWindowNorth' },
-    { key = 'l', dir = 'focusWindowEast'  }
+    { key = 'h', cmd = 'focusWindowWest'  },
+    { key = 'j', cmd = 'focusWindowSouth' },
+    { key = 'k', cmd = 'focusWindowNorth' },
+    { key = 'l', cmd = 'focusWindowEast'  }
   }, function(object)
-    bind({ 'ctrl', 'alt' }, object.key, focusAndHighlight(object.dir))
+    bind({ 'ctrl', 'alt' }, object.key, focusAndHighlight(object.cmd))
   end)
 end
 

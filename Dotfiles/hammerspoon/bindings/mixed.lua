@@ -1,50 +1,55 @@
-local capture  = require('ext.utils').capture
-local cache    = {}
-local module   = { cache = cache }
+local capture    = require('ext.utils').capture
+local cache      = {}
+local module     = { cache = cache }
 
-local log      = hs.logger.new('kwm', 'debug');
-local KWM_PATH = os.getenv('HOME') .. '/Documents/Code/Utils/kwm/bin/'
+local log        = hs.logger.new('kwm', 'debug');
 
-function capitalize(str)
+local KWM_PATH   = os.getenv('HOME') .. '/Documents/Code/Utils/kwm/bin/'
+local IMAGE_PATH = os.getenv('HOME') .. '/.hammerspoon/assets/modal.png'
+
+local notify = function(text)
+  hs.notify.new({
+    title        = 'KWM',
+    subTitle     = text,
+    contentImage = IMAGE_PATH
+  }):send()
+end
+
+local capitalize = function(str)
   return str:gsub("^%l", string.upper)
 end
 
-function startKwm()
+local startKwm = function()
   cache.kwm = hs.task.new(KWM_PATH .. 'kwm', function(exitCode)
     if exitCode ~= 0 then
-      log.d('KWM exit code: ' .. exitCode)
-
-      hs.notify.new({
-        title    = 'KWM crashed, restarting',
-        subTitle = 'Exit code: ' .. exitCode
-      }):send()
-
+      log.d('KWM crashed [' .. exitCode .. ']')
+      notify('Crashed, restarting [' .. exitCode .. ']')
       restartKwm()
     end
   end):start()
 end
 
-function stopKwm()
+local stopKwm = function()
   if cache.kwm then
     cache.kwm:terminate()
   end
 end
 
-function restartKwm()
+local restartKwm = function()
   stopKwm()
   startKwm()
 end
 
-function kwmcExec(cmd)
+local kwmcExec = function(cmd)
   local args = hs.fnutils.split(cmd, ' ', nil, true)
   hs.task.new(KWM_PATH .. 'kwmc', nil, args):start()
 end
 
-function kwmc(cmd)
+local kwmc = function(cmd)
   return function() kwmcExec(cmd) end
 end
 
-function isFloating()
+local isFloating = function()
   if hs.window.frontmostWindow():application():name() == 'Hammerspoon' then
     return true
   end
@@ -56,7 +61,7 @@ function isFloating()
 end
 
 -- resize like vim does, works with grid and kwm
-function smartResize(resize)
+local smartResize = function(resize)
   if isFloating() then
     hs.grid['resizeWindow' .. capitalize(resize)](hs.window.frontmostWindow())
   else
@@ -83,12 +88,20 @@ function smartResize(resize)
       action = 'reduce'
     end
 
-    kwmcExec('window -c ' .. action .. ' 0.025 ' .. direction)
+    local gridSize = hs.grid.getGrid(window:screen())
+    local stepSize = {
+      thinner = 1 / gridSize.w,
+      wider   = 1 / gridSize.w,
+      taller  = 1 / gridSize.h,
+      shorter = 1 / gridSize.h
+    }
+
+    kwmcExec('window -c ' .. action .. ' ' .. stepSize[resize] .. ' ' .. direction)
   end
 end
 
 -- smart movement grid/kwm depending if window is floating
-function smartMove(direction)
+local smartMove = function(direction)
   local directionMap = {
     left  = 'west',
     down  = 'south',
@@ -104,11 +117,11 @@ function smartMove(direction)
 end
 
 -- smart throw to screen, works with kwm/grid
-function smartThrowToScreen(direction)
+local smartThrowToScreen = function(direction)
   if isFloating() then
     hs.grid['pushWindow' .. capitalize(direction) .. 'Screen'](hs.window.frontmostWindow())
   else
-    kwmcExec('display -m ' .. direction)
+    kwmcExec('window -m display ' .. direction)
   end
 end
 
@@ -136,15 +149,6 @@ module.start = function()
   end)
 
   hs.fnutils.each({
-    { key = 'r', cmd = 'tree rotate 180'             }, -- rotate tree
-    { key = 'z', cmd = 'window -z fullscreen'        }, -- temporary fullscreen window
-    { key = 'f', cmd = 'window -t focused'           }, -- make window floating
-    { key = 't', cmd = 'window -c split-mode toggle' }  -- toggle split horizontal/vertical
-  }, function(obj)
-    bind({ 'ctrl', 'shift' }, obj.key, kwmc(obj.cmd))
-  end)
-
-  hs.fnutils.each({
     { key = ',', dir = 'thinner' },
     { key = '.', dir = 'wider'   },
     { key = '-', dir = 'shorter' },
@@ -153,17 +157,33 @@ module.start = function()
     bind({ 'ctrl', 'shift' }, obj.key, function() smartResize(obj.dir) end)
   end)
 
-  local modes = hs.fnutils.cycle({ 'monocle', 'float', 'bsp' })
+  hs.fnutils.each({
+    { key = 'r', cmd = 'tree rotate 180'             }, -- rotate tree
+    { key = 'z', cmd = 'window -z fullscreen'        }, -- temporary fullscreen window
+    { key = 'f', cmd = 'window -t focused'           }, -- make window floating
+    { key = 't', cmd = 'window -c split-mode toggle' }  -- toggle split horizontal/vertical
+  }, function(obj)
+    bind({ 'ctrl', 'shift' }, obj.key, kwmc(obj.cmd))
+  end)
+
+  local modes = hs.fnutils.cycle({ 'monocle', 'bsp' })  -- there's also "float" but I only use it on per-window basis (ctrl-shift-f)
 
   bind({ 'ctrl', 'shift' }, 'm', function()
     local mode = modes()
 
-    hs.notify.new({
-      title    = 'KWM mode changed',
-      subTitle = string.upper(mode)
-    }):send()
-
+    notify('Mode changed: ' .. string.upper(mode))
     kwmcExec('space -t ' .. mode)
+  end)
+
+  bind({ 'ctrl', 'shift' }, 'b', function() hs.window.focusedWindow():sendToBack() end)
+
+  bind({ 'ctrl', 'shift' }, 'c', function()
+    if isFloating() then
+      local win = hs.window.focusedWindow()
+
+      win:centerOnScreen()
+      hs.grid.snap(win)
+    end
   end)
 end
 

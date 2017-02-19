@@ -14,11 +14,13 @@ local getOSXAppearance = function()
   return res
 end
 
+cache.osxApperance = getOSXAppearance()
+
 local getHighlightWindowColor = function()
   local blueColor = { red = 50 / 255, green = 138 / 255, blue = 215 / 255, alpha = 1.0 }
   local grayColor = { red = 143 / 255, green = 143 / 255, blue = 143 / 255, alpha = 1.0 }
 
-  return getOSXAppearance() == 'graphite' and grayColor or blueColor
+  return cache.osxApperance == 'graphite' and grayColor or blueColor
 end
 
 module.highlightWindow = function()
@@ -31,10 +33,12 @@ module.highlightWindow = function()
   end
 
   if window.highlightBorder then
-    local borderWidth = 6
+    local borderWidth = 4
+    local roundRadix  = 8
     local fadeTime    = 0.5
-    local stickTime   = 1.0
-    local distance    = 4
+    local stickTime   = 0.5
+    local distance    = 2
+    local alpha       = 0.8
 
     if not cache.borderDrawing then
       cache.borderDrawing = hs.drawing.rectangle({ x = 0, y = 0, w = 0, h = 0 })
@@ -42,7 +46,7 @@ module.highlightWindow = function()
         :setStroke(true)
         :setStrokeWidth(borderWidth)
         :setStrokeColor(getHighlightWindowColor())
-        :setAlpha(0.75)
+        :setAlpha(alpha)
     end
 
     if not focusedWindow then
@@ -67,7 +71,7 @@ module.highlightWindow = function()
           w = frame.w + borderWidth + distance,
           h = frame.h + borderWidth + distance
         })
-        :setRoundedRectRadii(borderWidth, borderWidth)
+        :setRoundedRectRadii(roundRadix, roundRadix)
     end
 
     cache.borderDrawing:show(fadeTime)
