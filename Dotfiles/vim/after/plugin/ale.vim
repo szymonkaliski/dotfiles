@@ -8,3 +8,4 @@ let g:ale_set_signs = 0
 
 nmap <silent> [a <Plug>(ale_previous_wrap)
 nmap <silent> ]a <Plug>(ale_next_wrap)
+nnoremap coa :ALEToggle<cr>:echom g:ale_enabled ? "ALE: Enabled" : "ALE: Disabled"<cr>

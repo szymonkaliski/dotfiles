@@ -26,8 +26,8 @@ return hs.battery.watcher.new(function()
 
   if isCharged ~= cache.batteryCharged and batteryPercentage == 100 and powerSource == 'AC Power' then
     hs.notify.new({
-      title        = 'Battery Status',
-      subTitle     = 'Charged completely!',
+      title        = 'Power Status',
+      subTitle     = 'Battery: Charged',
       contentImage = imagePath
     }):send()
 
@@ -36,8 +36,8 @@ return hs.battery.watcher.new(function()
 
   if powerSource ~= cache.powerSource then
     hs.notify.new({
-      title        = 'Power Source Status',
-      subTitle     = 'Current source: ' .. powerSource,
+      title        = 'Power Status',
+      subTitle     = 'Source: ' .. powerSource,
       contentImage = imagePath
     }):send()
 

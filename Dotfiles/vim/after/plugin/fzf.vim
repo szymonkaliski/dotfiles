@@ -40,7 +40,7 @@ endfunction
 let s:fzf_default_opt = { 'window': 'enew' }
 
 command! FZFFiles call fzf#run(extend(s:fzf_default_opt, {
-      \ 'source':  'ag -l -g ""',
+      \ 'source':  'rg --files --hidden --follow',
       \ 'sink':    'e',
       \ 'options': '--reverse --multi --exit-0 --prompt="files > "'
       \ }))

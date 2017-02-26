@@ -18,13 +18,13 @@ local screenWatcher = function()
     -- turn on only when using with thunderbolt display
     if isThunderboltConnected and not bluetooth.power() then
       bluetooth.power(true)
-      notify('Bluetooth on')
+      notify('Bluetooth: On')
     end
 
     -- turn off otherwise
     if not isThunderboltConnected and bluetooth.power() then
       bluetooth.power(false)
-      notify('Bluetooth off')
+      notify('Bluetooth: Off')
     end
   end)
 end

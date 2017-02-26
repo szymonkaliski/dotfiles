@@ -231,6 +231,6 @@ draft() {
 }
 
 # faster youtbe-dl --batch-file
-parallel-youtube-dl() {
-  cat "$@" | sort | uniq | parallel -u --progress "youtube-dl --newline {}"
+youtube-dl-parallel() {
+  cat "$@" | sort | uniq | parallel -u -j 64 --progress --eta "youtube-dl --newline {}"
 }

@@ -8,6 +8,9 @@ bindkey "^R"    history-incremental-search-backward
 bindkey "^[[A"  history-beginning-search-backward
 bindkey "^[[B"  history-beginning-search-forward
 
+bindkey -M vicmd "L" end-of-line
+bindkey -M vicmd "H" beginning-of-line
+
 case $TERM in
   *xterm*|urxvt|(u|dt|k|E)term)
     bindkey "^[[H" beginning-of-line

@@ -27,9 +27,10 @@ module.start = function()
 
   -- other things
   hs.fnutils.each({
-    { key = 'g',      fn = grid.toggleGrid      },
     { key = '/',      fn = system.toggleConsole },
+    { key = 'd',      fn = system.toggleDND     },
     { key = 'escape', fn = system.displaySleep  },
+    { key = 'g',      fn = grid.toggleGrid      },
     { key = 'tab',    fn = window.windowHints   }
   }, function(object)
     hs.hotkey.bind(ultra, object.key, object.fn)

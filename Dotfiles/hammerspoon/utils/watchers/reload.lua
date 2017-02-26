@@ -12,7 +12,7 @@ return hs.pathwatcher.new(os.getenv('HOME') .. '/.hammerspoon/', function(files)
 
     hs.notify.new({
       title    = 'Hammerspoon',
-      subTitle = 'Reloaded!'
+      subTitle = 'Reloaded'
     }):send()
   end
 end)

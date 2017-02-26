@@ -8,7 +8,7 @@ alias qopen="qlmanage -p "$@" >& /dev/null"
 
 alias clear-logs="sudo rm -rfv /private/var/log/asl/*.asl"
 alias clear-tmp="sudo rm -rfv /private/var/tmp/Xcode/ /private/var/tmp/Processing/"
-alias clear-dsstore="sudo find . -name '.DS_Store' -depth -exec rm {} \;"
+alias clear-dsstore="find . -name '.DS_Store' -depth -exec rm {} \;"
 
 alias flush="dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
 alias purge="sudo purge"
@@ -21,7 +21,12 @@ alias airport="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/C
 alias chrome-kill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 
 alias clout="fc -e - | pbcopy"
-alias cpwd='echo -n \"$(pwd | tr -d "\n")\" | pbcopy'
+alias cpwd="echo -n \"$(pwd | tr -d "\n")\" | pbcopy"
+
+alias dnd="/usr/local/bin/hs -c \"require('ext.system').toggleDND()\" > /dev/null 2>&1"
+
+alias hs="/usr/local/bin/hs"
+alias kwmc="$HOME/Documents/Code/Utils/kwm/bin/kwmc"
 
 # nice markdown files in cli using markdown-pdf from npm
 if hash markdown-pdf 2> /dev/null; then
@@ -33,18 +38,12 @@ if [ -d ~/Documents/Dropbox/Tasks/ ]; then
   alias tasks="node ~/Documents/Code/JavaScript/TaskPaperNext/app.js --path ~/Documents/Dropbox/Tasks/Todo.taskpaper"
 fi
 
-# man in preview
-pman() {
-  man -t $1 | open -f -a Preview;
-}
-compdef _man pman=man
-
 # cd to currently open dir in finder
 cdf() {
-  local finder_dir="$(osascript -e 'try' \
+  local dir="$(osascript -e 'try' \
     -e 'tell application "Finder" to get POSIX path of (target of front Finder window as text)' \
     -e 'end try')"
-  cd "$finder_dir"
+  cd "$dir"
 }
 
 # shorter open

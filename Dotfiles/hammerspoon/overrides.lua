@@ -26,8 +26,11 @@ module.init = function()
 
   local gridMargin = 10
 
-  hs.grid.setGrid('32x18', '2560x1440') -- cell: 80 x 80
-  hs.grid.setGrid('21x13', '1680x1050') -- cell: 80 x ~81
+  -- hs.grid.setGrid('32x18', '2560x1440') -- cell: 80 x 80
+  -- hs.grid.setGrid('21x13', '1680x1050') -- cell: 80 x ~81
+
+  hs.grid.setGrid('16x9', '2560x1440') -- cell: 160 x 160
+  hs.grid.setGrid('10x6', '1680x1050') -- cell: 168 x 175
 
   hs.grid.setMargins({ gridMargin, gridMargin })
 

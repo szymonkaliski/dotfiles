@@ -439,18 +439,21 @@ exe "hi! jsBraces"               .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsBrackets"             .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsClassBraces"          .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsClassFuncName"        .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsClassKeyword"         .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsClassMethodType"      .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsClassDefinition"      .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsDecorator"            .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsDecoratorFunction"    .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsDestructuringBraces"  .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsDomElemAttrs"         .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! jsExportDefault"        .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsExtendsKeyword"       .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsFuncArgDestructuring" .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsFuncAssignObjChain"   .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsFuncBraces"           .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsFuncName"             .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsFuncName"             .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsFuncParens"           .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsFunction"             .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsFunction"             .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! jsGlobalNodeObjects"    .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsGlobalObjects"        .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! jsHtmlElemAttrs"        .s:fmt_none .s:fg_foreground .s:bg_none
@@ -465,10 +468,20 @@ exe "hi! jsRepeatBraces"         .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsStorageClass"         .s:fmt_none .s:fg_purple     .s:bg_none
 exe "hi! jsSuper"                .s:fmt_none .s:fg_purple     .s:bg_none
 exe "hi! jsSwitchBraces"         .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsTemplateBraces"       .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsTemplateBraces"       .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! jsTemplateVar"          .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! jsThis"                 .s:fmt_none .s:fg_purple     .s:bg_none
 exe "hi! jsTryCatchBraces"       .s:fmt_none .s:fg_blue       .s:bg_none
+
+" }}}
+" jsx syntax highlighting {{{
+
+exe "hi! jsxCloseTag"    .s:fmt_none .s:fg_blue .s:bg_none
+exe "hi! jsxCloseString" .s:fmt_none .s:fg_blue .s:bg_none
+exe "hi! jsxAttrib"      .s:fmt_none .s:fg_blue .s:bg_none
+exe "hi! jsxTag"         .s:fmt_none .s:fg_blue .s:bg_none
+exe "hi! jsxEscapeTag"   .s:fmt_none .s:fg_blue .s:bg_none
+exe "hi! jsxRegion"      .s:fmt_none .s:fg_blue .s:bg_none
 
 " }}}
 " yaml syntax highlighting {{{

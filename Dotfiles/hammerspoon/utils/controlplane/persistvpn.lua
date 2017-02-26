@@ -35,7 +35,7 @@ local connectVPN = function()
       cache.connecting = false
     end)
 
-    notify('Connecting to VPN...')
+    notify('VPN: Connecting...')
   end
 end
 
@@ -51,7 +51,7 @@ local disconnectVPN = function(name)
 
     cache.connecting = false
 
-    notify('Disconnecting from VPN...')
+    notify('VPN: Disconnecting...')
   end
 end
 

@@ -51,9 +51,9 @@ Plug 'groenewege/vim-less',                { 'for': 'less' }
 Plug 'kchmck/vim-coffee-script',           { 'for': 'coffee' }
 Plug 'keith/swift.vim',                    { 'for': 'swift' }
 Plug 'ternjs/tern_for_vim',                { 'for': 'javascript', 'do': 'npm install' }
-Plug 'moll/vim-node',                      { 'for': 'javascript'  }
+Plug 'moll/vim-node',                      { 'for': 'javascript' }
 Plug 'mustache/vim-mustache-handlebars',   { 'for': [ 'handlebars', 'mustache' ] }
-Plug 'mxw/vim-jsx',                        { 'for': 'javascript' }
+Plug 'MaxMEllon/vim-jsx-pretty',           { 'for': 'javascript' }
 Plug 'nelstrom/vim-markdown-folding',      { 'for': 'markdown' }
 Plug 'octol/vim-cpp-enhanced-highlight',   { 'for': [ 'cpp', 'c' ] }
 Plug 'othree/html5.vim',                   { 'for': 'html' }
@@ -240,7 +240,7 @@ set splitbelow
 set fillchars=fold:\ ,vert:│
 
 " grep
-set grepprg=ag\ --vimgrep\ $*
+set grepprg=rg\ --smart-case\ --vimgrep\ $*
 set grepformat=%f:%l:%c:%m
 
 " tags

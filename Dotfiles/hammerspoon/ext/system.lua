@@ -12,7 +12,7 @@ module.toggleNotificationCenter = function()
   ]])
 end
 
-module.toggleDoNotDisturb = function()
+module.toggleDND = function()
   local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/notification-center.png'
 
   -- check if enabled
@@ -26,7 +26,7 @@ module.toggleDoNotDisturb = function()
     end tell
   ]])
 
-  local isEnabled = string.match(res, 'Do Not Disturb')
+  local isEnabled = string.match(res[1], 'Do Not Disturb')
   local afterTime = isEnabled and 0.0 or 2.0
 
   -- is not enabled, will be enabled

@@ -1,8 +1,8 @@
-export FZF_DEFAULT_COMMAND="ag -l -g ''"
+export FZF_DEFAULT_COMMAND="rg --files --hidden --follow"
 export FZF_DEFAULT_OPTS="--inline-info --ansi --cycle
                          --history=$HOME/.fzfhistory
                          --history-size=10000
-                         --tiebreak=length
+                         --tiebreak=end,length
                          --color=bg+:0,hl:110,hl+:110
                          --color=prompt:110,marker:110,pointer:110,spinner:110,info:110"
 
@@ -44,7 +44,7 @@ fl() {
 # checkout git commit
 fcom() {
   local commits=$(git ls --reverse)
-  local commit=$(echo "$commits" | fzf --tac +s +m -e)
+  local commit=$(echo "$commits" | fzf --tac --no-sort --exact)
 
   git checkout $(echo "$commit" | sed "s/ .*//")
 }
@@ -52,7 +52,7 @@ fcom() {
 # checkout git branch (including remote)
 fbr() {
   local branches=$(git branch --all | grep -v HEAD)
-  local branch=$(echo "$branches" | fzf -d $(( 2 + $(wc -l <<< "$branches") )) +m)
+  local branch=$(echo "$branches" | fzf --delimiter $((2 + $(wc -l <<< "$branches"))))
 
   git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
 }

@@ -19,11 +19,14 @@ local capitalize = function(str)
   return str:gsub("^%l", string.upper)
 end
 
+local restartKwm
+
 local startKwm = function()
   cache.kwm = hs.task.new(KWM_PATH .. 'kwm', function(exitCode)
     if exitCode ~= 0 then
       log.d('KWM crashed [' .. exitCode .. ']')
       notify('Crashed, restarting [' .. exitCode .. ']')
+
       restartKwm()
     end
   end):start()
@@ -35,7 +38,7 @@ local stopKwm = function()
   end
 end
 
-local restartKwm = function()
+restartKwm = function()
   stopKwm()
   startKwm()
 end
@@ -132,6 +135,7 @@ module.start = function()
     hs.hotkey.bind(mod, key, fn, nil, fn)
   end
 
+  -- move windows
   hs.fnutils.each({
     { key = 'h', dir = 'left'  },
     { key = 'j', dir = 'down'  },
@@ -141,6 +145,7 @@ module.start = function()
     bind({ 'ctrl', 'shift' }, obj.key, function() smartMove(obj.dir) end)
   end)
 
+  -- throw between screens
   hs.fnutils.each({
     { key = ']', dir = 'prev' },
     { key = '[', dir = 'next' },
@@ -148,6 +153,7 @@ module.start = function()
     bind({ 'ctrl', 'shift' }, obj.key, function() smartThrowToScreen(obj.dir) end)
   end)
 
+  -- resize windows
   hs.fnutils.each({
     { key = ',', dir = 'thinner' },
     { key = '.', dir = 'wider'   },
@@ -159,8 +165,7 @@ module.start = function()
 
   hs.fnutils.each({
     { key = 'r', cmd = 'tree rotate 180'             }, -- rotate tree
-    { key = 'z', cmd = 'window -z fullscreen'        }, -- temporary fullscreen window
-    { key = 'f', cmd = 'window -t focused'           }, -- make window floating
+    { key = 'f', cmd = 'window -t focused'           }, -- toggle window floating
     { key = 't', cmd = 'window -c split-mode toggle' }  -- toggle split horizontal/vertical
   }, function(obj)
     bind({ 'ctrl', 'shift' }, obj.key, kwmc(obj.cmd))
@@ -168,6 +173,7 @@ module.start = function()
 
   local modes = hs.fnutils.cycle({ 'monocle', 'bsp' })  -- there's also "float" but I only use it on per-window basis (ctrl-shift-f)
 
+  -- toggle modes
   bind({ 'ctrl', 'shift' }, 'm', function()
     local mode = modes()
 
@@ -175,14 +181,25 @@ module.start = function()
     kwmcExec('space -t ' .. mode)
   end)
 
-  bind({ 'ctrl', 'shift' }, 'b', function() hs.window.focusedWindow():sendToBack() end)
+  -- send to back
+  bind({ 'ctrl', 'shift' }, 'b', function()
+    hs.window.frontmostWindow():sendToBack()
+  end)
 
+  -- center window
   bind({ 'ctrl', 'shift' }, 'c', function()
     if isFloating() then
-      local win = hs.window.focusedWindow()
+      hs.window.frontmostWindow():centerOnScreen()
+      hs.grid.snap(hs.window.frontmostWindow())
+    end
+  end)
 
-      win:centerOnScreen()
-      hs.grid.snap(win)
+  -- zoom window
+  bind({ 'ctrl', 'shift' }, 'z', function()
+    if isFloating() then
+      hs.grid.maximizeWindow()
+    else
+      kwmcExec('window -z fullscreen')
     end
   end)
 end

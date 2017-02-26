@@ -10,6 +10,7 @@ alias cp="cp -iv -R"
 
 # custom terminfo fix
 alias ssh="TERM=xterm-256color ssh"
+alias sudo="TERM=xterm-256color sudo"
 
 alias back="cd - > /dev/null"
 alias jumps="j | cut -b12- | tail -10"
@@ -19,7 +20,8 @@ alias cdtemp="cd $(mktemp -d)"
 
 alias df="df -h"
 alias du="du -sh"
-alias ag="ag --smart-case"
+
+alias rg="rg --smart-case"
 
 alias grep="egrep --color=auto"
 alias less="less -i --tabs=2 -r"
@@ -41,18 +43,16 @@ alias tl="tmux ls | sed 's/:/;/' | sed 's/\[.*\]//g' | column -t -s ';'"
 
 alias today="$EDITOR +Today"
 
-alias -g C="| wc -l"
-alias -g G="| egrep -i --color=auto"
-alias -g H="| head"
-alias -g T="| tail"
-alias -g L="| less"
-alias -g S="| sort"
-alias -g B="> /dev/null 2>&1 &"
-
-# [N]otify
-alias -g N="; notify-terminal"
-# [P]ush
-alias -g P="; ifttt-notify-terminal"
+alias -g C="| wc -l"                 # [C]ount
+alias -g G="| egrep -i --color=auto" # [G]rep
+alias -g H="| head"                  # [H]ead
+alias -g T="| tail"                  # [T]ail
+alias -g L="| less"                  # [L]ess
+alias -g S="| sort"                  # [S]ort
+alias -g Y="| pbcopy"                # [Y]ank
+alias -g B="> /dev/null 2>&1 &"      # [B]lank
+alias -g N="; notify-terminal"       # [N]otify
+alias -g P="; ifttt-notify-terminal" # [P]ush
 
 # execute last command and use its output
 # stolen from https://github.com/narfdotpl/dotfiles/blob/master/home/.zshrc

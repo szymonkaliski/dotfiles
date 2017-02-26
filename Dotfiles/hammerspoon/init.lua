@@ -1,4 +1,5 @@
 -- override stuff
+require('console').init()
 require('overrides').init()
 
 -- requires

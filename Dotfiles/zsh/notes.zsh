@@ -1,9 +1,7 @@
 # search for notes and display
 ns() {
   if [ "$#" -eq 0 ]; then
-    for f in ~/Documents/Dropbox/Notes/*.txt; do
-      basename $f .txt
-    done
+    (cd ~/Documents/Dropbox/Notes/ && ls -1 | grep txt | sed 's/.txt$//')
   else
     if [ -n "$(find ~/Documents/Dropbox/Notes -iname "*$@*")" ]; then
       if [ -t 1 ]; then

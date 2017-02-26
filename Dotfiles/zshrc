@@ -1,5 +1,5 @@
-# fake prompt when loading
-printf "~ > "
+# # fake prompt when loading
+# printf "~ > "
 
 # load files
 files=(
@@ -40,5 +40,5 @@ if [ -d ~/Documents/Dropbox/Notes ]; then
   source ~/.zsh/notes.zsh
 fi
 
-# clear after ready
-clear
+# # clear after ready
+# clear
