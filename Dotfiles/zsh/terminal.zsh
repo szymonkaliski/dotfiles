@@ -26,7 +26,7 @@ case $TERM in
 esac
 
 # change cursor with iTerm
-if [ "$TERM_PROGRAM" = "iTerm.app" ]; then
+if [ "$TERM_PROGRAM" = "iTerm.app" -o "$TERM_PROGRAM" = "Hyper" ]; then
   function zle-keymap-select zle-line-init {
     if [[ $TMUX != "" ]]; then
       case $KEYMAP in

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # mostly stolen from: https://github.com/mathiasbynens/dotfiles/blob/master/.osx
 
-# # disable press-and-hold
-# defaults write -g ApplePressAndHoldEnabled -bool false
+# disable press-and-hold
+defaults write -g ApplePressAndHoldEnabled -bool false
 
 # set the icon size of Dock items
 defaults write com.apple.dock tilesize -int 44
@@ -27,16 +27,13 @@ hash tmutil &> /dev/null && sudo tmutil disablelocal
 # disable Sudden Motion Sensor (default - 1)
 sudo pmset -a sms 0 &> /dev/null
 
-# # decrese standby delay to 20 minutes
-# sudo pmset -a standbydelay 1200
-
-# # enable locate command
-# sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist > /dev/null 2>&1
-
 # enable trim 10.10.4+
-read -r -p "Enble trim? (y/n) " RESP
-if [ "$RESP" = "y" ]; then
-  sudo trimforce enable
+if system_profiler SPSerialATADataType | grep 'TRIM' | grep -q 'No'; then
+  read -r -p "Enble trim? (y/n) " RESP
+
+  if [ "$RESP" = "y" ]; then
+    sudo trimforce enable
+  fi
 fi
 
 # kill affected apps

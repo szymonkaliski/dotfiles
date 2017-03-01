@@ -1,7 +1,3 @@
-if !($TERM_PROGRAM == 'iTerm.app')
-  finish
-end
-
 if has('nvim')
   let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 elseif ($TMUX != '')

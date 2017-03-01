@@ -9,8 +9,10 @@ alias mv="mv -iv"
 alias cp="cp -iv -R"
 
 # custom terminfo fix
-alias ssh="TERM=xterm-256color ssh"
-alias sudo="TERM=xterm-256color sudo"
+if [ ! $TERM = "xterm-256color" ]; then
+  alias ssh="TERM=xterm-256color ssh"
+  alias sudo="TERM=xterm-256color sudo"
+fi
 
 alias back="cd - > /dev/null"
 alias jumps="j | cut -b12- | tail -10"

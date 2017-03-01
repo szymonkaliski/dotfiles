@@ -26,6 +26,8 @@ end
 module.highlightWindow = function()
   local focusedWindow = hs.window.focusedWindow()
 
+  if not focusedWindow then return end
+
   if window.highlightMouseCenter then
     local frameCenter = hs.geometry.getcenter(focusedWindow:frame())
 

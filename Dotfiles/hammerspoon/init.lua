@@ -12,7 +12,7 @@ window                      = require('ext.window')
 -- extensions
 window.fixEnabled           = false
 window.fullFrame            = true
-window.highlightBorder      = true
+window.highlightBorder      = false
 window.highlightMouseCenter = true
 window.historyLimit         = 50
 window.margin               = 6
@@ -36,7 +36,7 @@ controlplane.persistVPN     = 'PIA'
 notify.enabled              = { 'battery', 'wifi' }
 
 -- watchers
-watchers.enabled            = { 'application', 'reload', 'urlevent' }
+watchers.enabled            = { 'application', 'urlevent' }
 watchers.urlPreference      = { 'Safari', 'Google Chrome' }
 
 -- start modules

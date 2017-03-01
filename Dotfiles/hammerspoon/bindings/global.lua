@@ -31,6 +31,7 @@ module.start = function()
     { key = 'd',      fn = system.toggleDND     },
     { key = 'escape', fn = system.displaySleep  },
     { key = 'g',      fn = grid.toggleGrid      },
+    { key = 'r',      fn = hs.reload            },
     { key = 'tab',    fn = window.windowHints   }
   }, function(object)
     hs.hotkey.bind(ultra, object.key, object.fn)
@@ -38,7 +39,7 @@ module.start = function()
 
   -- smart apps
   hs.fnutils.each({
-    { key = 'return', apps = { 'iTerm2'                  } },
+    { key = 'return', apps = { 'Hyper', 'iTerm2'         } },
     { key = 'space',  apps = { 'Safari', 'Google Chrome' } },
   }, function(object)
     hs.hotkey.bind(ultra, object.key, function() smartLaunchOrFocus(object.apps) end)

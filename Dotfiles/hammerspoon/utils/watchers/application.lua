@@ -1,15 +1,21 @@
 local application = require('ext.application')
 
-return hs.application.watcher.new(function(name, event, app)
-  if event == hs.application.watcher.activated then
-    if hs.fnutils.some({ 'Safari', 'Google Chrome' }, function(appName) return appName == name end) then
-      application.askBeforeQuitting(name, { enabled = true })
-    end
-  end
+local cache  = {}
+local module = { cache = cache }
 
-  if event == hs.application.watcher.deactivated or event == hs.application.watcher.terminated then
-    if hs.fnutils.some({ 'Safari', 'Google Chrome' }, function(appName) return appName == name end) then
-      application.askBeforeQuitting(name, { enabled = false })
-    end
-  end
-end)
+module.start = function(_)
+  cache.filter = hs.window.filter.new({ 'Safari', 'Google Chrome' })
+
+  cache.filter:subscribe({
+    hs.window.filter.windowFocused,
+    hs.window.filter.windowUnfocused
+  }, function(_, appName, event)
+    application.askBeforeQuitting(appName, { enabled = (event == "windowFocused") })
+  end);
+end
+
+module.stop = function()
+  cache.filter:unsubscribe()
+end
+
+return module
