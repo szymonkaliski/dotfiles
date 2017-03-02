@@ -1,9 +1,11 @@
-local module = {}
+local reloadHS = require('ext.system').reloadHS
+
+local module   = {}
 
 module.init = function()
   -- some global functions for console
   inspect = hs.inspect
-  reload  = hs.reload
+  reload  = reloadHS
 
   dumpWindows = function()
     hs.fnutils.each(hs.window.allWindows(), function(win)

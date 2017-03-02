@@ -36,7 +36,7 @@ controlplane.persistVPN     = 'PIA'
 notify.enabled              = { 'battery', 'wifi' }
 
 -- watchers
-watchers.enabled            = { 'application', 'urlevent' }
+watchers.enabled            = { 'application', 'urlevent', 'highlight' }
 watchers.urlPreference      = { 'Safari', 'Google Chrome' }
 
 -- start modules

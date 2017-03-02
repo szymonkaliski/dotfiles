@@ -76,5 +76,14 @@ module.displaySleep = function()
   hs.task.new('/usr/bin/pmset', nil, { 'displaysleepnow' }):start()
 end
 
+module.reloadHS = function()
+  hs.reload()
+
+  hs.notify.new({
+    title    = 'Hammerspoon',
+    subTitle = 'Reloaded'
+  }):send()
+end
+
 return module
 

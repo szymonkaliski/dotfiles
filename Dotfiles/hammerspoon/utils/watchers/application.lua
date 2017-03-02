@@ -3,7 +3,7 @@ local application = require('ext.application')
 local cache  = {}
 local module = { cache = cache }
 
-module.start = function(_)
+module.start = function()
   cache.filter = hs.window.filter.new({ 'Safari', 'Google Chrome' })
 
   cache.filter:subscribe({
@@ -11,7 +11,7 @@ module.start = function(_)
     hs.window.filter.windowUnfocused
   }, function(_, appName, event)
     application.askBeforeQuitting(appName, { enabled = (event == "windowFocused") })
-  end);
+  end)
 end
 
 module.stop = function()

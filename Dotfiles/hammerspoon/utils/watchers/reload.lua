@@ -1,3 +1,5 @@
+local reloadHS = require('ext.system').reloadHS
+
 return hs.pathwatcher.new(os.getenv('HOME') .. '/.hammerspoon/', function(files)
   local shouldReload = false
 
@@ -8,11 +10,6 @@ return hs.pathwatcher.new(os.getenv('HOME') .. '/.hammerspoon/', function(files)
   end
 
   if shouldReload then
-    hs.reload()
-
-    hs.notify.new({
-      title    = 'Hammerspoon',
-      subTitle = 'Reloaded'
-    }):send()
+    reloadHS()
   end
 end)
