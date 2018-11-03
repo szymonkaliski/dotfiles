@@ -5,6 +5,9 @@ else
 fi
 
 export HOMEBREW_NO_EMOJI=1
+export HOMEBREW_NO_ANALYTICS=1
+export HOMEBREW_NO_INSECURE_REDIRECT=1
+
 export MOSH_TITLE_NOPREFIX=1
 
 # if [ -d /usr/local/include/ni2 ]; then

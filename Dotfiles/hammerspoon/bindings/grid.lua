@@ -1,36 +1,24 @@
-local module = {}
-local window = require('ext.window')
+local window          = require('ext.window')
+local highlightWindow = require('ext.drawing').highlightWindow
 
--- simple unpack clone
-local unpack = function(t, i)
-  i = i or 1
-  if t[i] ~= nil then
-    return t[i], unpack(t, i + 1)
-  end
-end
+local module = {}
 
 -- apply function to a window with optional params, saving it's position for restore
-local doWin = function(fn, options)
+local doWin = function(fn)
   return function()
     local win = hs.window.frontmostWindow()
 
-    local allowFullscreen = options and options.allowFullscreen
-
-    if win and (allowFullscreen or not win:isFullScreen()) then
-      -- persist position only if we are not already undo/redo/saving
-      if fn ~= window.persistPosition then
-        window.persistPosition(win, 'save')
-      end
-
-      -- finally call function on window with arguments
-      fn(win, options)
+    if win and not win:isFullScreen() then
+      window.persistPosition(win, 'save')
+      fn(win)
+      highlightWindow(win)
     end
   end
 end
 
 module.start = function()
-  local bind = function(mod, key, fn)
-    hs.hotkey.bind(mod, key, fn, nil, fn)
+  local bind = function(key, fn)
+    hs.hotkey.bind({ 'ctrl', 'shift' }, key, fn, nil, fn)
   end
 
   hs.fnutils.each({
@@ -49,32 +37,13 @@ module.start = function()
     { key = '-', fn = hs.grid.resizeWindowShorter  },
 
     { key = 'z', fn = hs.grid.maximizeWindow       },
+    { key = 'c', fn = hs.grid.center               },
   }, function(object)
-    bind({ 'ctrl', 'shift' }, object.key, doWin(object.fn))
+    bind(object.key, doWin(object.fn))
   end)
 
-  -- hs.fnutils.each({
-  --   { key = 'u', fn = window.persistPosition, args = 'undo' },
-  --   { key = 'r', fn = window.persistPosition, args = 'redo' }
-  -- }, function(object)
-  --   bind(object.key, doWin(object.fn, object.args))
-  -- end)
-
-  hs.fnutils.each({
-    { key = '1', geom = { x = 0, y = 0, w = 16, h = 12 } },
-    { key = '2', geom = { x = 1, y = 0, w = 14, h = 12 } },
-    { key = '3', geom = { x = 2, y = 0, w = 12, h = 12 } },
-    { key = '4', geom = { x = 3, y = 1, w = 10, h = 10 } },
-    { key = '5', geom = { x = 4, y = 2, w = 8,  h = 8  } },
-
-    { key = '6', geom = { x = 0, y = 0, w = 8, h = 12 } },
-    { key = '7', geom = { x = 8, y = 0, w = 8, h = 12 } },
-
-    { key = '8', geom = { x = 0, y = 2, w = 8, h = 8 } },
-    { key = '9', geom = { x = 8, y = 2, w = 8, h = 8 } }
-  }, function(object)
-    bind({ 'ctrl', 'shift' }, object.key, doWin(hs.grid.set, object.geom))
-  end)
+  bind('u', function() window.persistPosition(hs.window.frontmostWindow(), 'undo') end)
+  bind('r', function() window.persistPosition(hs.window.frontmostWindow(), 'redo') end)
 end
 
 module.stop = function()

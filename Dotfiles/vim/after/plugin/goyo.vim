@@ -13,7 +13,7 @@ endfunction
 
 function! goyo#after()
   if !has('gui')
-    set showtabline=2
+    set showtabline=1
   endif
 
   if ($TMUX != '')

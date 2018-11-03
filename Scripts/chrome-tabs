@@ -1,0 +1,18 @@
+#!/usr/bin/env osascript
+
+set urls to ""
+
+tell application "Google Chrome"
+  set windowList to every window
+
+  repeat with chromeWindow in windowList
+    set tabList to every tab in chromeWindow
+
+    repeat with chromeTab in tabList
+      set tabUrl to the URL of chromeTab
+      set urls to urls & tabUrl & "\n"
+    end repeat
+  end repeat
+end tell
+
+return urls

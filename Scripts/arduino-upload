@@ -1,0 +1,10 @@
+#!/usr/bin/env osascript
+
+if application "Arduino" is not running then
+	tell application "Arduino" to activate
+	delay 30
+end if
+
+tell application "System Events" to tell process "Arduino"
+	click menu item "Upload" of menu 1 of menu bar item "Sketch" of menu bar 1
+end tell

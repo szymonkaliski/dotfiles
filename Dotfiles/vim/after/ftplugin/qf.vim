@@ -1,1 +1,1 @@
-setlocal cursorline
+" setlocal cursorline

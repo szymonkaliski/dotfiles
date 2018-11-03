@@ -1,10 +1,11 @@
 [user]
   name = Szymon Kaliski
-  email = kaliskiszymon@gmail.com
+  email = hi@szymonkaliski.com
 [core]
   quotepath = false
   pager = less -x2
   safecrlf = false
+  excludesfile = /Users/szymon/.gitignore_global
 [system]
   untrackedCache = true
 [diff]
@@ -15,13 +16,16 @@
   color = true
 [status]
   color = true
+  showUntrackedFiles = all
+[merge]
+  conflictstyle = diff3
 [alias]
   this  = !git init && git add . && git commit -m \"initial commit\"
   amend = !git log -n 1 --pretty=tformat:%s%n%n%b | git commit -F - --amend
   edit  = !$EDITOR $(git ls-files -m)
 
+  ci = !git add -A && git commit -am
   cm = commit -m
-  ci = commit -am
   st = status -sb
   di = diff --minimal
   ds = diff --minimal --staged
@@ -29,6 +33,11 @@
   ls = log --pretty=format:"%C(yellow)%h%x09%C(green)%cr%x09%C(reset)%s\\%C(magenta)%d\\ %C(blue)[%cn]" --decorate
   ll = log --pretty=format:"%C(yellow)%h%x09%C(green)%cd%x09%C(reset)%s\\%C(magenta)%d\\ %C(blue)[%cn]" --decorate --numstat
 [push]
-  default = tracking
+  default = current
 [rere]
   enabled = true
+[filter "lfs"]
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+  clean = git-lfs clean -- %f

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+WINDOWS=$(tmux list-windows -F '#I: #T')
+TARGET=$(echo "$WINDOWS" | fzf --no-sort --exit-0 --query="$1" --prompt="win > " --reverse) || exit 0
+
+if [ -z "$TMUX" ]; then
+  exit 0
+else
+  TARGET_WINDOW=$(echo "$TARGET" | cut -d ':' -f1)
+  tmux select-window -t "$TARGET_WINDOW"
+fi

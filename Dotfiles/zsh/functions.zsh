@@ -71,7 +71,7 @@ sudothat() {
 
 # grep with vim
 vigrep() {
-  $EDITOR -c "call GrepHandler(\"$@\")"
+  $EDITOR -c "Grep \"$@\""
 }
 
 # history
@@ -117,7 +117,7 @@ name() {
 }
 
 # simple httpserver
-httpserver() {
+serve() {
   local port="3000"
 
   if [ "$#" -ne 0 ]; then
@@ -126,6 +126,8 @@ httpserver() {
 
   if hash http-server 2> /dev/null; then
     http-server -p $port -c-1
+  elif hash caddy 2> /dev/null; then
+    caddy -port "$port" browse
   else
     local command=""
     if [ "$(uname)" = "Darwin" ]; then
@@ -139,9 +141,16 @@ httpserver() {
 }
 
 # simple find functions
-fn() { find . -iname "*$@*" 2>/dev/null         }
-fd() { find . -iname "*$@*" -type d 2>/dev/null }
-ff() { find . -iname "*$@*" -type f 2>/dev/null }
+if hash fd 2> /dev/null; then
+  alias fn="$(which fd) --hidden"
+
+  alias fd="fn --type directory"
+  alias ff="fn --type file"
+else
+  fn() { find . -iname "*$@*" 2>/dev/null         }
+  fd() { find . -iname "*$@*" -type d 2>/dev/null }
+  ff() { find . -iname "*$@*" -type f 2>/dev/null }
+fi
 
 # extract archives
 extract() {
@@ -182,18 +191,20 @@ sanitize() {
 }
 
 # recompile zsh
-recompile() {
+zsh-recompile() {
   autoload -Uz zrecompile
 
-  [ -f ~/.zshrc ]             && zrecompile -q -p ~/.zshrc     > /dev/null 2>&1
-  [ -f ~/.zcompdump ]         && zrecompile -q -p ~/.zcompdump > /dev/null 2>&1
-  [ -f ~/.zshrc.zwc.old ]     && rm -f ~/.zshrc.zwc.old        > /dev/null 2>&1
-  [ -f ~/.zcompdump.zwc.old ] && rm -f ~/.zcompdump.zwc.old    > /dev/null 2>&1
+  [ -f ~/.zshrc ] && zrecompile -p ~/.zshrc
+  [ -f ~/.zcompdump ] && zrecompile -p ~/.zcompdump
+
+  for f in ~/.zsh/*.zsh; do
+    zrecompile -p $f
+  done
 }
 
 # load zmv only when needed
 mmv() {
-  autoload -U zmv
+  autoload -Uz zmv
   noglob zmv -W $@
 }
 
@@ -201,14 +212,24 @@ mmv() {
 retry() {
   until $@; do
     sleep 1
-    echo -e "\n$(tput setaf 1)retrying:$(tput sgr0) $@"
+    echo -e "\n[$(date +'%T')] $(tput setaf 1)retrying:$(tput sgr0) $@\n"
   done
 }
 compctl -f -x "c[-1,retry]" -c -- retry
 
-# simple timer with argument in second
+# re-run command every second
+repeatedly() {
+  while true; do
+    echo -e "[$(date +'%T')] $(tput setaf 1)running:$(tput sgr0) $@\n"
+    $@
+    echo
+    sleep 1
+  done
+}
+compctl -f -x "c[-1,retry]" -c -- repeatedly
+
 timer() {
-  local start=$(($(date +%s) + $1));
+  local start=$(($(date +%s) + $(seconds $1)));
 
   while [ "$start" -ge $(date +%s) ]; do
     echo -ne "$(date -u --date @$(($start - $(date +%s))) +%H:%M:%S)\r";
@@ -216,7 +237,6 @@ timer() {
   done
 }
 
-# simple stopwatch
 stopwatch() {
   local start=$(date +%s);
   while true; do
@@ -225,12 +245,57 @@ stopwatch() {
   done
 }
 
-# add to drafts on OSX
 draft() {
-  echo "\n$@\n" >> $HOME/Documents/Dropbox/Notes/drafts.txt
+  local draftfile=$HOME/Documents/Dropbox/Notes/drafts.txt
+  if [ "$#" -eq 0 ]; then
+    cat $draftfile
+  else
+    echo "\n$@\n" >> $draftfile
+  fi
 }
 
 # faster youtbe-dl --batch-file
-youtube-dl-parallel() {
-  cat "$@" | sort | uniq | parallel -u -j 64 --progress --eta "youtube-dl --newline {}"
+parallel-youtube-dl() {
+  cat "$@" | sort | uniq | parallel -u -j 16 --progress --eta "youtube-dl --newline {}"
+}
+
+# useful if there's a lot of files, but they download slowly
+parallel-wget() {
+  cat "$@" | sort | uniq | parallel -u -j 16 --progress --eta "wget -c {}"
+}
+
+# check if website is up
+is-up() {
+  if curl --silent http://downforeveryoneorjustme.com/"$1" | grep -q "just you"; then
+    echo "$1 is up"
+  else
+    echo "$1 is down"
+  fi
+}
+
+alias timestamp="date +%Y%m%d-%H%M"
+
+# edit temporary/timestamped file
+temp() {
+  local EXT="md"
+
+  if [ "$#" -ne 0 ]; then
+    local EXT="$1"
+  fi
+
+  v "$(timestamp).$EXT"
+}
+
+
+# nnn
+n() {
+  local TMPFILE=$(mktemp)
+  local COPIER="echo -n $1 | pbcopy"
+
+  NNN_TMPFILE=$TMPFILE NNN_COPIER=$COPIER nnn "$@"
+
+  if [ -f $TMPFILE ]; then
+    source $TMPFILE
+    /bin/rm $TMPFILE
+  fi
 }

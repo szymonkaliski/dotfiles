@@ -1,16 +1,15 @@
-local cache      = { shouldConnect = hs.settings.get('vpnShouldConnect') or false }
-local module     = { cache = cache }
+local log     = hs.logger.new('persistvpn', 'debug')
 
-local keys       = require('ext.table').keys
-local notify     = require('utils.controlplane.notify')
+local cache   = { shouldConnect = hs.settings.get('vpnShouldConnect') or false }
+local module  = { cache = cache }
 
-local iconOff    = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-off.png'
-local iconOn     = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-on.png'
+local keys    = require('ext.table').keys
+local notify  = require('utils.controlplane.notify')
 
-local CONFIG_KEY = "State:/Network/Global/Proxies"
-local TIMEOUT    = 5
+local ICON_OFF = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-off.png'
+local ICON_ON  = os.getenv('HOME') .. '/.hammerspoon/assets/vpn-on.png'
 
-local openVPNSettings = function(name)
+local openVPNSettings = function()
   hs.applescript.applescript([[
     tell application "System Preferences"
       activate
@@ -20,103 +19,93 @@ local openVPNSettings = function(name)
 end
 
 local connectVPN = function()
-  if not cache.connecting then
-    hs.applescript.applescript([[
-      tell application "System Events"
-        tell current location of network preferences
-          connect the service "]] .. controlplane.persistVPN .. [["
-        end tell
+  hs.applescript.applescript([[
+    tell application "System Events"
+      tell current location of network preferences
+        connect the service "]] .. controlplane.persistVPN .. [["
       end tell
-    ]])
+    end tell
+  ]])
 
-    -- give VPN some time to connect
-    cache.connecting = true
-    hs.timer.doAfter(TIMEOUT, function()
-      cache.connecting = false
-    end)
-
-    notify('VPN: Connecting...')
-  end
+  notify('VPN: Connecting...')
 end
 
-local disconnectVPN = function(name)
-  if cache.connected then
-    hs.applescript.applescript([[
-      tell application "System Events"
-        tell current location of network preferences
-          disconnect the service "]] .. controlplane.persistVPN .. [["
-        end tell
+local disconnectVPN = function()
+  hs.applescript.applescript([[
+    tell application "System Events"
+      tell current location of network preferences
+        disconnect the service "]] .. controlplane.persistVPN .. [["
       end tell
-    ]])
+    end tell
+  ]])
 
-    cache.connecting = false
-
-    notify('VPN: Disconnecting...')
-  end
+  notify('VPN: Disconnecting...')
 end
 
-local toggleVPN = function()
-  cache.shouldConnect = not cache.connected
+module.toggleVPN = function()
+  cache.shouldConnect = not cache.shouldConnect
+
+  log.d('toggling; connected:', cache.connected, 'shouldConnect:', cache.shouldConnect)
 
   if cache.connected then
     disconnectVPN()
   else
     connectVPN()
   end
+
+  module.updateMenuItem()
 end
 
-local updateMenuItem = function()
+module.updateMenuItem = function()
   local headerText = cache.connected and 'VPN: Connected' or 'VPN: Disconnected'
+  local actionText = cache.connected and 'Disconnect' or 'Connect'
 
   cache.menuItem
     :setMenu({
       { title = headerText, disabled = true },
-      { title = cache.connected and 'Disconnect' or 'Connect', fn = toggleVPN },
+      { title = actionText, fn = module.toggleVPN },
       { title = '-' },
       { title = 'Open VPN Preferences...', fn = openVPNSettings }
     })
-    :setIcon(cache.connected and iconOn or iconOff)
+    :setIcon(cache.connected and ICON_ON or ICON_OFF)
 end
 
-local updateConfiguration = function(_, _)
-  local contents         = cache.configuration:contents(CONFIG_KEY)[CONFIG_KEY]
-  local hasConfiguration = #keys(contents) > 0
+local updateConfiguration = function(_, _, _, _, vpnConfiguration)
+  local hasConfiguration = #keys(vpnConfiguration) > 0
+  cache.connected = hasConfiguration and vpnConfiguration['__SCOPED__']['ppp0'] ~= nil or false
 
-  if hasConfiguration then
-    cache.connected = contents["__SCOPED__"]["ppp0"] ~= nil
+  log.d('updated configuration; connected:', cache.connected, 'shouldConnect:', cache.shouldConnect)
 
-    if cache.connected and not cache.shouldConnect then
-      disconnectVPN()
-    end
-
-    if not cache.connected and cache.shouldConnect then
-      connectVPN()
-    end
-  else
-    cache.connected = false
+  if cache.connected and not cache.shouldConnect then
+    disconnectVPN()
   end
 
-  updateMenuItem()
+  if not cache.connected and cache.shouldConnect then
+    connectVPN()
+  end
+
+  if cache.connected == cache.shouldConnect then
+    -- equals when done connecting/disconnecting, flush DNS info to be safe
+    hs.task.new('/usr/bin/dscacheutil', nil, { '-flushcache' }):start()
+    notify('VPN: ' .. (cache.connected and 'Connected' or 'Disconnected'))
+  end
+
+  module.updateMenuItem()
 end
 
 module.start = function()
-  cache.menuItem      = hs.menubar.new()
-  cache.configuration = hs.network.configuration.open()
+  cache.menuItem = hs.menubar.new()
 
-  cache.configuration
-    :monitorKeys({ CONFIG_KEY })
-    :setCallback(updateConfiguration)
-    :start()
+  cache.watcher = hs.watchable.watch('status.vpnConfiguration', updateConfiguration)
 
-  -- begin with setting up config
-  updateConfiguration()
+  module.updateMenuItem()
 end
 
 module.stop = function()
-  cache.configuration:stop()
-
   -- store last vpn settings
   hs.settings.set('vpnShouldConnect', cache.shouldConnect)
+
+  cache.watcher:release()
 end
 
 return module

@@ -1,93 +1,101 @@
 call plug#begin('~/.vim/plugged')
+call plugutils#load()
 
 " always load
 Plug 'Konfekt/FastFold'
-Plug 'Raimondi/delimitMate'
 Plug 'airblade/vim-rooter'
-Plug 'chaoren/vim-wordmotion'
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'editorconfig/editorconfig-vim'
+Plug 'itchyny/lightline.vim' | Plug 'daviesjamie/vim-base16-lightline'
+Plug 'itchyny/vim-qfedit'
 Plug 'junegunn/vim-slash'
 Plug 'justinmk/vim-dirvish'
-Plug 'lifepillar/vim-mucomplete'
-Plug 'pbrisbin/vim-mkdir'
-Plug 'tpope/vim-abolish'
-Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-unimpaired'
-Plug 'vim-airline/vim-airline' | Plug 'vim-airline/vim-airline-themes'
-Plug 'w0rp/ale'
-Plug 'wellle/targets.vim'
-Plug 'yssl/QFEnter'
+Plug 'chriskempson/base16-vim'
+
+" deferred
+DeferPlug 'Raimondi/delimitMate'
+DeferPlug 'chaoren/vim-wordmotion'
+DeferPlug 'pbrisbin/vim-mkdir'
+DeferPlug 'tpope/vim-abolish'
+DeferPlug 'tpope/vim-repeat'
+DeferPlug 'tpope/vim-surround'
+DeferPlug 'tpope/vim-unimpaired'
+DeferPlug 'vim-scripts/matchit.zip'
+DeferPlug 'w0rp/ale',
+DeferPlug 'yssl/QFEnter'
+
+" " snippets
+" Plug 'Shougo/neosnippet.vim'
+" Plug 'Shougo/neosnippet-snippets'
+
+" completion
+" Plug 'prabirshrestha/asyncomplete-buffer.vim' " slows down large files
+" Plug 'prabirshrestha/asyncomplete-neosnippet.vim'
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/asyncomplete-file.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'yami-beta/asyncomplete-omni.vim'
 
 " on demand loading
-Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>SortMotion', '<Plug>SortLines' ] }
+Plug 'chilicuil/sprunge.vim',              { 'on': [ 'Sprunge', 'IX' ] }
+Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>SortLines' ] }
 Plug 'duff/vim-scratch',                   { 'on': 'Scratch' }
 Plug 'epeli/slimux',                       { 'on': [ 'SlimuxREPL', 'SlimuxREPLSendSelection', 'SlimuxREPLSendBuffer', 'SlimuxREPLSendLine', 'SlimuxREPLSendParagraph', 'SlimuxGlobalConfigure' ] }
 Plug 'junegunn/goyo.vim',                  { 'on': 'Goyo' }
 Plug 'junegunn/vim-easy-align',            { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
 Plug 'mbbill/undotree',                    { 'on': 'UndotreeToggle' }
+Plug 'mhinz/vim-grepper',                  { 'on': [ 'Grepper', 'GrepperRg', '<Plug>(GrepperOperator)' ] }
 Plug 'mhinz/vim-sayonara',                 { 'on': 'Sayonara' }
 Plug 'rhysd/clever-f.vim',                 { 'on': '<Plug>(clever-f-' }
-Plug 't9md/vim-quickhl',                   { 'on': [ '<Plug>(quickhl-manual-' ] }
+Plug 't9md/vim-quickhl',                   { 'on': '<Plug>(quickhl-manual-' }
 Plug 'tpope/vim-commentary',               { 'on': '<Plug>Commentary' }
 Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterOperator', '<Plug>ReplaceWithRegisterLine', '<Plug>ReplaceWithRegisterVisual' ] }
 
-" loading based on system and vim version
-Plug 'airblade/vim-gitgutter',             { 'on': [] } " only on mac
-Plug 'bfredl/nvim-miniyank',               { 'on': [] } " only in nvim
-Plug 'neovim/node-host',                   { 'on': [], 'do': 'npm install' } " only in nvim
-Plug 'snoe/nvim-parinfer.js',              { 'on': [], 'do': 'lein do npm install, cljsbuild once plugin' } " only in nvim
-Plug 'tmux-plugins/vim-tmux-focus-events', { 'on': [] } " only in tmux
+" conditional loads
+Plug 'bfredl/nvim-miniyank',               Cond(has('nvim'))
+Plug 'neovim/node-host',                   Cond(executable('npm'), { 'on': [], 'do': 'npm install' })
+Plug 'tmux-plugins/vim-tmux-focus-events', Cond($TMUX != '')
 
 " filetype based plugins
-Plug 'b4winckler/vim-objc',                { 'for': 'objc' }
-Plug 'briancollins/vim-jst',               { 'for': 'jst' }
+" Plug 'Quramy/vim-js-pretty-template',      { 'for': 'javascript' }
+" Plug 'pangloss/vim-javascript',            { 'for': [ 'javascript', 'html' ] }
 Plug 'cespare/vim-toml',                   { 'for': 'toml' }
 Plug 'davidoc/taskpaper.vim',              { 'for': 'taskpaper' }
+Plug 'digitaltoad/vim-pug',                { 'for': 'pug' }
 Plug 'elzr/vim-json',                      { 'for': 'json' }
+Plug 'eraserhd/parinfer-rust',             { 'for': 'clojure', 'do': 'cargo build --release'}
 Plug 'groenewege/vim-less',                { 'for': 'less' }
-Plug 'kchmck/vim-coffee-script',           { 'for': 'coffee' }
+Plug 'itchyny/vim-haskell-indent',         { 'for': 'haskell' }
 Plug 'keith/swift.vim',                    { 'for': 'swift' }
-Plug 'ternjs/tern_for_vim',                { 'for': 'javascript', 'do': 'npm install' }
+Plug 'leafgarland/typescript-vim',         { 'for': [ 'typescript', 'typescript.tsx', 'markdown' ] }
 Plug 'moll/vim-node',                      { 'for': 'javascript' }
-Plug 'mustache/vim-mustache-handlebars',   { 'for': [ 'handlebars', 'mustache' ] }
-Plug 'MaxMEllon/vim-jsx-pretty',           { 'for': 'javascript' }
 Plug 'nelstrom/vim-markdown-folding',      { 'for': 'markdown' }
+Plug 'neoclide/vim-jsx-improve',           { 'for': [ 'javascript', 'html', 'markdown' ] }
 Plug 'octol/vim-cpp-enhanced-highlight',   { 'for': [ 'cpp', 'c' ] }
 Plug 'othree/html5.vim',                   { 'for': 'html' }
-Plug 'pangloss/vim-javascript',            { 'for': [ 'javascript', 'html' ] }
 Plug 'sophacles/vim-processing',           { 'for': 'processing' }
 Plug 'sudar/vim-arduino-syntax',           { 'for': 'arduino' }
-Plug 'tikhomirov/vim-glsl',                { 'for': 'glsl' }
+Plug 'tasn/vim-tsx',                       { 'for': [ 'markdown', 'typescript.tsx' ] }
+Plug 'tikhomirov/vim-glsl',                { 'for': [ 'javascript', 'glsl', 'markdown' ] }
 Plug 'tpope/vim-markdown',                 { 'for': 'markdown' }
 Plug 'vim-scripts/ck.vim',                 { 'for': 'ck' }
 
 " smart FZF loading
 let g:fzfdir = globpath('/usr/local/Cellar/fzf/', '*', 1, 1)
-let g:fzfdir = g:fzfdir + globpath('/usr/share/vim/vimfiles/plugin',' fzf.vim', 1, 1)
+if isdirectory(expand('~/Documents/Apps/fzf/'))
+  let g:fzfdir = g:fzfdir + [expand('~/Documents/Apps/fzf/')]
+endif
 
-if len(g:fzfdir) == 1
+if len(g:fzfdir) >= 1
   Plug g:fzfdir[0]
 endif
 
 call plug#end()
 
-if ($TMUX != '')
-  call plug#load('vim-tmux-focus-events')
-endif
-
-if has('mac')
-  call plug#load('vim-gitgutter')
-endif
-
-if has('nvim')
-  call plug#load('nvim-miniyank')
-endif
-
 " viminfo - more v:oldfiles, register lines
-set viminfo='1000,<100,s10,
+set viminfo=!,'100,<100,s10,h
 
 " encoding
 set encoding=utf-8
@@ -102,7 +110,7 @@ set autoread
 " show long lines
 set display+=lastline
 
-" redraw only when needed and fast tty
+" redraw only when needed and fast tty - potentially problematic with tmux
 set lazyredraw
 
 " fast tty / timeouts
@@ -128,22 +136,108 @@ set shortmess+=Ic
 set cmdwinheight=3
 
 " syntax coloring
-syntax enable
-
-" update syntax highlighting for more lines increased scrolling performance
-syntax sync minlines=256
+if !exists("g:syntax_on")
+  syntax enable
+endif
 
 " don't syntax highlight long lines
 set synmaxcol=1024
 
-" color theme
-set background=dark
+function! s:base16_customize() abort
+  call Base16hi("Comment",                      g:base16_gui03, "",             g:base16_cterm03, "",               "italic",  "")
+  call Base16hi("Conditional",                  g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("Constant",                     g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("Delimiter",                    g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("Function",                     g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("Identifier",                   g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("IncSearch",                    g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, "none",    "")
+  call Base16hi("Keyword",                      g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("Label",                        g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("NonText",                      g:base16_gui00, "",             g:base16_cterm00, "",               "",        "")
+  call Base16hi("Operator",                     g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("Repeat",                       g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("Search",                       g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, "none",    "")
+  call Base16hi("Special",                      g:base16_gui08, "",             g:base16_cterm08, "",               "",        "")
+  call Base16hi("SpecialChar",                  g:base16_gui0C, "",             g:base16_cterm0C, "",               "",        "")
+  call Base16hi("Statement",                    g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("StatusLine",                   g:base16_gui05, g:base16_gui01, g:base16_cterm05, g:base16_cterm01, "none",    "")
+  call Base16hi("StatusLineNC",                 g:base16_gui04, g:base16_gui01, g:base16_cterm04, g:base16_cterm01, "",        "")
+  call Base16hi("StorageClass",                 g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("Structure",                    g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("Substitute",                   g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, "none",    "")
+  call Base16hi("Todo",                         g:base16_gui0F, g:base16_gui01, g:base16_cterm0F, g:base16_cterm01, "reverse", "")
+  call Base16hi("Type",                         g:base16_gui08, "",             g:base16_cterm08, "",               "",        "")
+  call Base16hi("Typedef",                      g:base16_gui08, "",             g:base16_cterm08, "",               "",        "")
+  call Base16hi("VertSplit",                    g:base16_gui01, g:base16_gui00, g:base16_cterm01, g:base16_cterm00, "none",    "")
+  call Base16hi("Wildmenu",                     g:base16_gui00, g:base16_gui03, g:base16_cterm00, g:base16_cterm03, "",        "")
 
-" hybrid
-colorscheme hybrid
+  call Base16hi("SpellBad",                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
+  call Base16hi("SpellCap",                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
+  call Base16hi("SpellLocal",                   g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
+  call Base16hi("SpellRare",                    g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
 
-" nvim fix for flickering on start
-hi Normal ctermbg=NONE
+  call Base16hi("ALEError",                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
+  call Base16hi("ALEErrorSign",                 g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
+  call Base16hi("ALEWarning",                   g:base16_gui0A, g:base16_gui01, g:base16_cterm0A, g:base16_cterm01, "reverse", "")
+  call Base16hi("ALEWarningSign",               g:base16_gui0A, g:base16_gui01, g:base16_cterm0A, g:base16_cterm01, "reverse", "")
+
+  call Base16hi("CleverFDefaultLabel",          g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, "none",    "")
+
+  call Base16hi("cPreCondit",                   g:base16_gui08, "",             g:base16_cterm08, "",               "",        "")
+  call Base16hi("clojureAnonArg",               g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("clojureDefine",                g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("clojureDispatch",              g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("clojureMacro",                 g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("clojureSpecial",               g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("clojureVarArg",                g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("cssClassName",                 g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("htmlArg",                      g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+  call Base16hi("htmlBold",                     g:base16_gui05, "",             g:base16_cterm05, "",               "bold",    "")
+  call Base16hi("htmlLink",                     g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("htmlSpecialTagName",           g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsArrowFunction",              g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsBuiltins",                   g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsClassDefinition",            g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+  call Base16hi("jsClassMethodType",            g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsDecorator",                  g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsFuncName",                   g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+  call Base16hi("jsFunction",                   g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsGlobalNodeObjects",          g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsGlobalObjects",              g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsReturn",                     g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsThis",                       g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsonQuote",                    g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("jsxAttrib",                    g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+  call Base16hi("luaConstant",                  g:base16_gui09, "",             g:base16_cterm09, "",               "",        "")
+  call Base16hi("markdownCode",                 g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("markdownItalic",               g:base16_gui05, "",             g:base16_cterm05, "",               "italic",  "")
+  call Base16hi("markdownListMarker",           g:base16_gui03, "",             g:base16_cterm03, "",               "",        "")
+  call Base16hi("markdownUrl",                  g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
+  call Base16hi("rustFuncName",                 g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+  call Base16hi("taskpaperContext",             g:base16_gui03, "",             g:base16_cterm03, "",               "",        "")
+  call Base16hi("taskpaperDone",                g:base16_gui02, "",             g:base16_cterm02, "",               "",        "")
+  call Base16hi("typescriptEndColons",          g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+  call Base16hi("typescriptGlobalObjects",      g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+  call Base16hi("typescriptHtmlElemProperties", g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+  call Base16hi("typescriptHtmlEvents",         g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+  call Base16hi("xmlAttrib",                    g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+
+  " nvim fix for flickering on start
+  hi Normal ctermbg=NONE
+endfunction
+
+augroup base16_colorscheme
+  au!
+  au ColorScheme * call s:base16_customize()
+augroup END
+
+let base16colorspace=256
+
+if filereadable(expand("~/.vimrc_background"))
+  source ~/.vimrc_background
+else
+  colorscheme base16-default-dark
+endif
 
 " indentation
 filetype plugin indent on
@@ -154,6 +248,8 @@ set expandtab
 
 set shiftround
 set autoindent
+set smartindent
+set cindent
 set breakindent
 
 " leader
@@ -164,7 +260,7 @@ set backspace=indent,eol,start
 set nonumber
 set linebreak
 set ruler
-set virtualedit=block
+" set virtualedit=all
 
 set sidescroll=1
 set sidescrolloff=6
@@ -179,24 +275,28 @@ set complete-=i
 " nice format options
 set formatoptions=tcqn21j
 
-" chars style
-set list
+" chars style, hidden by default
 set listchars=tab:▸\ ,trail:∙
+set nolist
 
 " buffers/tabs settings
 " set switchbuf=useopen,split
 set switchbuf=useopen
 set hidden
 
-" no backups or swapfiles, with centralized and persistent undo history
+" no backups or swapfiles, with centralized and persistent undo/view history
 set nobackup
 set noswapfile
 set undofile
 set undodir=~/.vim/undo//
+set viewdir=~/.vim/view//
 
-" create undodir if needed
+" create dirs if needed
 if !isdirectory(&undodir)
   call mkdir(&undodir, "p")
+endif
+if !isdirectory(&viewdir)
+  call mkdir(&viewdir, "p")
 endif
 
 " fix for node fs.watch
@@ -214,11 +314,15 @@ set smartcase
 set incsearch
 set gdefault
 
+if has('nvim')
+  set inccommand=nosplit
+endif
+
 " always display statusline
 set laststatus=2
 
 " always display tabline
-set showtabline=2
+set showtabline=1
 
 " don't show current mode/cmd
 set noshowmode
@@ -236,6 +340,12 @@ set completeopt=menu,menuone,noinsert,noselect
 set splitright
 set splitbelow
 
+" guicursor without blink
+set guicursor=a:blinkon0
+
+" cursor line
+" set cursorline
+
 " fillchars with nice utf8 vert split, and no fold char
 set fillchars=fold:\ ,vert:│
 
@@ -246,10 +356,10 @@ set grepformat=%f:%l:%c:%m
 " tags
 set tags=./tags,./.tags,tags,.tags
 
-" set path
-if has('mac')
-  let $PATH='/usr/local/bin:' . $PATH . ':/Users/Szymon/Documents/Code/Scripts'
-endif
+" " set path
+" if has('mac')
+"   let $PATH='/usr/local/bin:' . $PATH . ':/Users/Szymon/Documents/Code/Scripts'
+" endif
 
 " code folding
 set foldenable
@@ -258,12 +368,26 @@ set foldlevelstart=99
 set foldcolumn=0
 set foldtext=foldtext#foldtext()
 
-" terminal
-if has('nvim')
-  tnoremap <esc> <c-\><c-n>
-  tnoremap <leader><esc> <esc>
-  let g:terminal_scrollback_buffer_size = 5000
+" yes mouse
+set mouse=a
+
+" python on osx
+if has('mac')
+  let g:loaded_python_provider = 1 " disable python 2
+  let g:python_host_skip_check = 1
+  let g:python_host_prog = '/usr/local/bin/python'
+
+  " let g:loaded_python3_provider = 1 " disable python 3
+  let g:python3_host_skip_check = 1
+  let g:python3_host_prog = '/usr/local/bin/python3'
 endif
+
+" disable ruby
+let g:loaded_ruby_provider = 1
+
+" no bells
+set belloff=all
+set noerrorbells
 
 " re-source vimrc
 nnoremap <leader>sv :ReloadSettings<cr>
@@ -274,14 +398,18 @@ cnoremap %% <c-r>=fnameescape(expand('%:~:h'))<cr>/
 " tab as %
 map <tab> %
 
+" HS rebinds ctrl-i to F6, and here we bind it back,
+" because ctrl-i is tab in terminal
+nnoremap <F6> <c-i>
+
 " so you can gf to non-existing (new) files
 map gf :e <cfile><cr>
 
-" c-a / c-e everywhere
-inoremap <c-a> <c-o>0
-inoremap <c-e> <c-o>$
-cnoremap <c-a> <home>
-cnoremap <c-e> <end>
+" " c-a / c-e everywhere
+" inoremap <c-a> <c-o>0
+" inoremap <c-e> <c-o>$
+" cnoremap <c-a> <home>
+" cnoremap <c-e> <end>
 
 " force proper movement
 nnoremap <left>  <nop>
@@ -379,10 +507,6 @@ nnoremap <leader>T :tabnew<cr>
 " kill whitespace
 nnoremap <silent> <leader>k :KillWhitespace<cr>
 
-" nice grep
-nnoremap <leader>g :Grep<space>
-xnoremap <leader>g :GrepVisual<cr>
-
 " nice tag
 nnoremap <space>t g<c-]>
 xnoremap <space>t g<c-]>
@@ -399,8 +523,7 @@ nmap <silent> <leader>C <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
 " aligns
 nnoremap <leader>= :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
 
-" folds (zf - [f]ocus - close everything but current)
-nnoremap zf mzzMzv`zzt
+" leader leader folds
 nnoremap <leader><leader> za
 
 " zoom window

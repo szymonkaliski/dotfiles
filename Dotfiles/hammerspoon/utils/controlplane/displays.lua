@@ -1,21 +1,21 @@
 local cache  = {}
 local module = { cache = cache }
+local log    = hs.logger.new('control:displays', 'debug');
 
 -- laptop screen should always be primary one
-local screenWatcher = function()
-  local laptopDisplay = hs.screen.findByName('Color LCD')
-  if laptopDisplay then laptopDisplay:setPrimary() end
+local screenWatcher = function(_, _, _, wasLaptopScreenConnected, isLaptopScreenConnected)
+  if not wasLaptopScreenConnected and isLaptopScreenConnected then
+    log.d('setting laptop screen as primary')
+    hs.screen.findByName('Color LCD'):setPrimary()
+  end
 end
 
 module.start = function()
-  cache.watcher = hs.screen.watcher.new(screenWatcher):start()
-
-  -- setup on start
-  screenWatcher()
+  cache.watcher = hs.watchable.watch('status.isLaptopScreenConnected', screenWatcher)
 end
 
 module.stop = function()
-  if cache.watcher then cache.watcher:stop() end
+  cache.watcher:release()
 end
 
 return module

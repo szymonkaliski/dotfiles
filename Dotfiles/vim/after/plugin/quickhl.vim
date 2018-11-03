@@ -1,11 +1,10 @@
 let g:quickhl_manual_colors = [
-      \ "gui=bold ctermbg=110 ctermfg=0",
-      \ "gui=bold ctermbg=109 ctermfg=0",
-      \ "gui=bold ctermbg=143 ctermfg=0",
-      \ "gui=bold ctermbg=221 ctermfg=0",
-      \ "gui=bold ctermbg=173 ctermfg=0",
-      \ "gui=bold ctermbg=139 ctermfg=0",
-      \ "gui=bold ctermbg=167 ctermfg=0"
+      \ "gui=bold ctermbg=" . g:base16_cterm0D . " ctermfg=0",
+      \ "gui=bold ctermbg=" . g:base16_cterm0E . " ctermfg=0",
+      \ "gui=bold ctermbg=" . g:base16_cterm0C . " ctermfg=0",
+      \ "gui=bold ctermbg=" . g:base16_cterm0A . " ctermfg=0",
+      \ "gui=bold ctermbg=" . g:base16_cterm0B . " ctermfg=0",
+      \ "gui=bold ctermbg=" . g:base16_cterm08 . " ctermfg=0"
       \ ]
 
 nmap <leader>h <Plug>(quickhl-manual-this)

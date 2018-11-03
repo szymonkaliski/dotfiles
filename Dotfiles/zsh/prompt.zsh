@@ -1,19 +1,7 @@
-autoload -Uz vcs_info
-
-zstyle ":vcs_info:*" enable git
-zstyle ":vcs_info:*" check-for-changes true
-zstyle ":vcs_info:*" stagedstr "%{$fg[red]%}"
-zstyle ":vcs_info:*" unstagedstr "%{$fg[red]%}"
-zstyle ":vcs_info:*" branchformat "%r"
-zstyle ":vcs_info:*" actionformats "%{$fg[green]%}%b %{$fg[yellow]%}%u%c"
-zstyle ":vcs_info:*" formats "%{$fg[green]%}%b %{$fg[yellow]%}%u%c"
-
-local VCS='$vcs_info_msg_0_'
-
 if [ "$(uname)" = "Darwin" ]; then
   PROMPTCOLOR=blue
-elif [ "$(hostname)" = "Disa" ]; then
-  PROMPTCOLOR=yellow
+elif [ "$(hostname)" = "Stelis" ]; then
+  PROMPTCOLOR=cyan
 else
   PROMPTCOLOR=magenta
 fi
@@ -22,8 +10,60 @@ if [ "$(whoami)" = "root" ]; then
   PROMPTCOLOR=red
 fi
 
-PROMPT="%{$fg[$PROMPTCOLOR]%}%50<...<%3~%{$reset_color%} $VCS> %{$reset_color%}"
-RPROMPT="%(?,,%{$fg[red]%}✕%{$reset_color%})"
-PROMPT2="%{$fg[yellow]%}%_%{$reset_color%} > "
-SPROMPT="correct '%R' to '%r' ? ([Y]es/[N]o/[E]dit/[A]bort) "
+prompt_pwd() {
+  print -n "%{$fg[$PROMPTCOLOR]%}"
+  print -n "%50<...<%3~"
+}
 
+prompt_arrow() {
+  # first space here is non-breaking, so we can search for it with tmux easily
+  print "%{$reset_color%} > "
+}
+
+# https://medium.com/@henrebotha/how-to-write-an-asynchronous-zsh-prompt-b53e81720d32
+# https://github.com/rswiernik/dotfiles/blob/0d35f288b124e53b126fa2e0977b072e4968e591/.config/rzsh/plugins/prompts.zsh
+
+ZSH_MAIN_PROMPT="$(prompt_arrow)"
+
+git_status() {
+  cd "$1"
+
+  if ! git rev-parse --is-inside-work-tree &> /dev/null; then
+    prompt_arrow
+    exit
+  fi
+
+  git_status=$(git status --porcelain)
+  git_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null) || git_branch=""
+
+  if [ -z $git_status ]; then
+    branch_color="%{$fg[green]%}"
+  else
+    branch_color="%{$fg[red]%}"
+  fi
+
+  print -n " $branch_color$git_branch"
+  prompt_arrow
+}
+
+git_prompt_callback() {
+  # on completion set main prompt part, and reset prompt to reload
+  ZSH_MAIN_PROMPT="$3"
+  zle reset-prompt
+}
+
+git_prompt_async() {
+  async_job git_prompt_worker git_status "$(pwd)"
+}
+
+# run async prompt generation before each command
+add-zsh-hook precmd git_prompt_async
+
+# async_init assumed from plugins.zsh
+async_start_worker git_prompt_worker -n
+async_register_callback git_prompt_worker git_prompt_callback
+
+# single-quote comments are important here!
+PROMPT='$(prompt_pwd)$ZSH_MAIN_PROMPT'
+PROMPT2='%{$fg[yellow]%}%_%{$reset_color%} > '
+SPROMPT="correct "%R" to "%r' ? ([Y]es/[N]o/[E]dit/[A]bort) '

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+sprunge() {
+  if [ -t 0 ]; then
+    local filename="$*"
+
+    if [ "$filename" ]; then
+      curl -F 'sprunge=<-' http://sprunge.us < "$filename"
+      return
+    else
+      echo "Nothing to do, exiting."
+    fi
+  else
+    curl -F 'sprunge=<-' http://sprunge.us
+  fi
+}
+
+sprunge "$*"

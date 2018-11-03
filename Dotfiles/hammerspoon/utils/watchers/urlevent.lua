@@ -1,15 +1,14 @@
-local keys     = require('ext.table').keys
-local template = require('ext.template');
+local template = require('ext.template')
 local module   = {}
 
 -- watch for http and https events and open in currently running browser instead of default one
--- click with 'cmd' to open and focus, otherwise opens in background
+-- click with 'cmd' to open in background, otherwise opens with focus
 module.start = function()
   hs.urlevent.setDefaultHandler('http')
 
   hs.urlevent.httpCallback = function(_, _, _, fullURL)
     local modifiers          = hs.eventtap.checkKeyboardModifiers()
-    local shouldFocusBrowser = modifiers['cmd'] == true
+    local shouldFocusBrowser = not modifiers['cmd']
 
     local runningBrowser = hs.fnutils.find(watchers.urlPreference, function(browserName)
       return hs.application.get(browserName) ~= nil

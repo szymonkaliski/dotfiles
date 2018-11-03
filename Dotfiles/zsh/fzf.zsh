@@ -1,15 +1,16 @@
-export FZF_DEFAULT_COMMAND="rg --files --hidden --follow"
-export FZF_DEFAULT_OPTS="--inline-info --ansi --cycle
+export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --no-messages"
+export FZF_DEFAULT_OPTS="--inline-info --cycle
                          --history=$HOME/.fzfhistory
-                         --history-size=10000
+                         --history-size=1000
                          --tiebreak=end,length
-                         --color=bg+:0,hl:110,hl+:110
-                         --color=prompt:110,marker:110,pointer:110,spinner:110,info:110"
+                         --no-bold
+                         --color=fg+:007,bg+:018,hl:016,hl+:016
+                         --color=prompt:008,marker:008,pointer:008,spinner:018,info:008"
 
 # z with fzf
 j() {
   if [[ -z "$*" ]]; then
-    cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf --no-sort --tac --prompt='jump > ' --reverse)"
+    cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf --tac --prompt='jump > ' --reverse)"
   else
     _z "$@"
   fi
@@ -17,12 +18,24 @@ j() {
 
 # edit files in editor
 fe() {
-  fzf --multi --select-1 --exit-0 --query="$1" --prompt="files > " --reverse | tr "\n" "\0" | xargs -0 -o vim
+  # local preview="highlight --config-file=$HOME/.highlight/hybrid-bw.theme -q -t 2 --force -O xterm256 {}"
+  local preview=""
+
+  fzf --multi --select-1 --exit-0 --query="$1" --prompt="files > " --reverse --preview=$preview | tr "\n" "\0" | xargs -0 -o vim
 }
 
 # cd to directory
 fcd() {
-  local dir="$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --reverse)"
+  # local preview="tree -aC --dirsfirst {}"
+  local preview=""
+  local dir=""
+
+  if hash blsd 2> /dev/null; then
+    dir="$(blsd | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --reverse --preview=$preview)"
+  else
+    dir="$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --reverse --preview=$preview)"
+  fi
+
   [ -n "$dir" ] && cd "$dir"
 }
 
@@ -36,17 +49,14 @@ fkill() {
   ps -ef | sed 1d | fzf --multi --query="$1" --prompt="kill > " --reverse | awk '{ print $2 }' | xargs kill -${1:-9}
 }
 
-# find any file on disk
-fl() {
-  locate / | fzf --reverse --prompt='locate > '
-}
-
 # checkout git commit
 fcom() {
-  local commits=$(git ls --reverse)
+  local commits=$(git log --pretty=format:"%h%x09 %cr%x09 %s" --decorate --reverse)
   local commit=$(echo "$commits" | fzf --tac --no-sort --exact)
 
-  git checkout $(echo "$commit" | sed "s/ .*//")
+  if [ ! -z $commit ]; then
+    git checkout $(echo "$commit" | cut -d " " -f1)
+  fi
 }
 
 # checkout git branch (including remote)

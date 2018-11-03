@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
+
 # mostly stolen from: https://github.com/mathiasbynens/dotfiles/blob/master/.osx
 
-# disable press-and-hold
-defaults write -g ApplePressAndHoldEnabled -bool false
+# # disable press-and-hold
+# defaults write -g ApplePressAndHoldEnabled -bool false
 
 # set the icon size of Dock items
 defaults write com.apple.dock tilesize -int 44
 
 # lock Dock size
-defaults write com.apple.dock size-immutable -bool yes
+defaults write com.apple.dock size-immutable -bool true
+
+# font smoothing (0-3, 3 is default)
+# go back to defaults: defaults delete NSGlobalDomain AppleFontSmoothing
+# defaults write NSGlobalDomain AppleFontSmoothing -int 1
 
 # expand save panel by default
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
@@ -21,8 +26,8 @@ defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
 # save to disk (not to iCloud) by default
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
-# disable local Time Machine backups
-hash tmutil &> /dev/null && sudo tmutil disablelocal
+# save screenshots in Dropbox
+defaults write com.apple.screencapture location ~/Documents/Dropbox/Screenshots/
 
 # disable Sudden Motion Sensor (default - 1)
 sudo pmset -a sms 0 &> /dev/null

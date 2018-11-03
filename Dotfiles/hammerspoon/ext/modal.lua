@@ -1,23 +1,25 @@
 -- Modal class with smart autoexit timeout
 
-local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/modal.png'
+local IMAGE_PATH = os.getenv('HOME') .. '/.hammerspoon/assets/modal.png'
 
 local Modal = {}
 
 function Modal:new(opts)
   local obj = {
-    exitTimeout = 5,
+    exitTimeout = opts.timeout or 5,
     exitTimer   = nil,
     modal       = hs.hotkey.modal.new(opts.mod, opts.key)
   }
 
   function obj.modal:entered()
-    obj.exitTimer = hs.timer.doAfter(obj.exitTimeout, function() obj.modal:exit() end)
+    if obj.exitTimeout > 0 then
+      obj.exitTimer = hs.timer.doAfter(obj.exitTimeout, function() obj.modal:exit() end)
+    end
 
     hs.notify.new({
       title        = opts.name,
       subTitle     = 'Entered',
-      contentImage = imagePath
+      contentImage = IMAGE_PATH
     }):send()
   end
 
@@ -25,7 +27,7 @@ function Modal:new(opts)
     hs.notify.new({
       title        = opts.name,
       subTitle     = 'Exited',
-      contentImage = imagePath
+      contentImage = IMAGE_PATH
     }):send()
   end
 
@@ -37,7 +39,10 @@ end
 
 function Modal:updateTimeout()
   if self.exitTimer then self.exitTimer:stop() end
-  self.exitTimer = hs.timer.doAfter(self.exitTimeout, function() self.modal:exit() end)
+
+  if self.exitTimeout > 0 then
+    self.exitTimer = hs.timer.doAfter(self.exitTimeout, function() self.modal:exit() end)
+  end
 end
 
 function Modal:bind(mod, key, pressedFn, releasedFn)

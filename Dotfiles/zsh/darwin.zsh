@@ -13,7 +13,7 @@ alias clear-dsstore="find . -name '.DS_Store' -depth -exec rm {} \;"
 alias flush="dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
 alias purge="sudo purge"
 
-alias localip="ipconfig getifaddr en1"
+alias localip="ipconfig getifaddr en0"
 alias opened-ports="sudo lsof -i -P | grep -i 'listen'"
 alias stroke="/System/Library/CoreServices/Applications/Network\ Utility.app/Contents/Resources/stroke"
 alias airport="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport"
@@ -21,21 +21,33 @@ alias airport="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/C
 alias chrome-kill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 
 alias clout="fc -e - | pbcopy"
-alias cpwd="echo -n \"$(pwd | tr -d "\n")\" | pbcopy"
+alias cpwd="pwd | pbcopy"
 
-alias dnd="/usr/local/bin/hs -c \"require('ext.system').toggleDND()\" > /dev/null 2>&1"
+# fix for xterm-256color-italic on osx
+alias ssh="TERM=xterm-256color ssh"
 
+# fixes for processess getting stuck
+alias fix-camera="sudo killall VDCAssistant"
+alias fix-icloud="sudo killall cloudd bird"
+
+# ethereum
+alias geth="$HOME/Library/Application\ Support/Ethereum\ Wallet/binaries/Geth/unpacked/geth"
+
+# hammerspoon
 alias hs="/usr/local/bin/hs"
-alias kwmc="$HOME/Documents/Code/Utils/kwm/bin/kwmc"
 
 # nice markdown files in cli using markdown-pdf from npm
 if hash markdown-pdf 2> /dev/null; then
   alias markdown-pdf-nice="markdown-pdf --css-path ~/Documents/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
 fi
 
-# taskpaper related
+# local projects
+# alias timav="(cd $HOME/Documents/Projects/Timav && NODE_ENV=production npm start) > /dev/null &"
+alias neutron="~/Documents/Projects/neutron/node_modules/.bin/electron ~/Documents/Projects/neutron/src/index.js"
+
+# taskpaper
 if [ -d ~/Documents/Dropbox/Tasks/ ]; then
-  alias tasks="node ~/Documents/Code/JavaScript/TaskPaperNext/app.js --path ~/Documents/Dropbox/Tasks/Todo.taskpaper"
+  alias tasks="node ~/Documents/Projects/taskpaper-next/app.js --path ~/Documents/Dropbox/Tasks/Todo.taskpaper"
 fi
 
 # cd to currently open dir in finder

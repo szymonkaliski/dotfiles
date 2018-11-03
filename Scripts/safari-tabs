@@ -1,0 +1,17 @@
+#!/usr/bin/env osascript
+
+set urls to ""
+
+tell application "Safari"
+  repeat with safariWindow in windows
+    set tabList to every tab of safariWindow
+
+    repeat with safariTab in tabList
+      set tabUrl to the URL of safariTab
+      set urls to urls & tabUrl & "\n"
+    end repeat
+  end repeat
+end tell
+
+return urls
+

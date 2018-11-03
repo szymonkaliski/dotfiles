@@ -52,7 +52,10 @@
 "}}}
 " Initialisation:"{{{
 " ----------------------------------------------------------------------------
-if !has("gui_running") && &t_Co < 256
+
+let s:has_gui = has("gui_running") || has("gui_vimr")
+
+if !s:has_gui && &t_Co < 256
   finish
 endif
 
@@ -76,7 +79,7 @@ let colors_name = "hybrid"
 "}}}
 " GUI And Cterm Palettes:"{{{
 " ----------------------------------------------------------------------------
-if has("gui_running")
+if s:has_gui
   let s:vmode      = "gui"
   let s:background = "#1d1f21"
   let s:foreground = "#c5c8c6"
@@ -230,7 +233,7 @@ exe "let s:fmt_stnd      = ' ".s:vmode."=NONE".s:s.      " term=NONE".s:s    ."'
 exe "let s:fmt_revr      = ' ".s:vmode."=NONE".s:r.      " term=NONE".s:r    ."'"
 exe "let s:fmt_revb      = ' ".s:vmode."=NONE".s:r.s:b.  " term=NONE".s:r.s:b."'"
 
-if has("gui_running")
+if s:has_gui
   exe "let s:sp_none       = ' guisp=".s:none      ."'"
   exe "let s:sp_foreground = ' guisp=".s:foreground."'"
   exe "let s:sp_background = ' guisp=".s:background."'"
@@ -315,6 +318,7 @@ exe "hi! Question"      .s:fg_green       .s:bg_none        .s:fmt_none
 " exe "hi! Search"        .s:fg_background  .s:bg_yellow      .s:fmt_none
 exe "hi! Search"        .s:fg_yellow      .s:bg_none        .s:fmt_revr
 exe "hi! SpecialKey"    .s:fg_selection   .s:bg_none        .s:fmt_none
+exe "hi! Whitespace"    .s:fg_selection   .s:bg_none        .s:fmt_none
 exe "hi! SpellCap"      .s:fg_blue        .s:bg_darkblue    .s:fmt_none
 exe "hi! SpellLocal"    .s:fg_aqua        .s:bg_darkcyan    .s:fmt_none
 exe "hi! SpellBad"      .s:fg_red         .s:bg_darkred     .s:fmt_none
@@ -350,7 +354,7 @@ exe "hi! Number"          .s:fg_aqua        .s:bg_none        .s:fmt_none
 exe "hi! Float"           .s:fg_aqua        .s:bg_none        .s:fmt_none
 exe "hi! Boolean"         .s:fg_red         .s:bg_none        .s:fmt_none
 
-exe "hi! Identifier"      .s:fg_purple      .s:bg_none        .s:fmt_none
+exe "hi! Identifier"      .s:fg_blue        .s:bg_none        .s:fmt_none
 exe "hi! Function"        .s:fg_blue        .s:bg_none        .s:fmt_none
 
 exe "hi! Statement"       .s:fg_blue        .s:bg_none        .s:fmt_none
@@ -394,10 +398,13 @@ exe "hi! qfLineNr"        .s:fg_yellow      .s:bg_none        .s:fmt_none
 "   qfLineNr"
 "   qfError"
 
+" Quickfix line
+exe "hi! QuickFixLine"  .s:fg_none        .s:bg_line        .s:fmt_none
+
 "}}}
 " vim syntax highlighting {{{
 
-exe "hi! vimCommentString"   .s:fmt_ital .s:fg_purple  .s:bg_none
+" exe "hi! vimCommentString"   .s:fmt_ital .s:fg_purple  .s:bg_none
 exe "hi! vimCommand"         .s:fmt_none .s:fg_blue    .s:bg_none
 exe "hi! vimCmdSep"          .s:fmt_none .s:fg_blue    .s:bg_none
 exe "hi! vimFunc"            .s:fmt_none .s:fg_blue    .s:bg_none
@@ -430,48 +437,98 @@ exe "hi! netrwTreeBar"  .s:fmt_none .s:fg_line   .s:bg_none
 " lua syntax highlight {{{
 
 exe "hi! luaTable" .s:fmt_none .s:fg_blue .s:bg_none
+exe "hi! luaFunc"  .s:fmt_none .s:fg_blue .s:bg_none
 
 " }}}
 " javascript syntax highlighting {{{
 
-exe "hi! jsArrowFunction"        .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsBraces"               .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsBrackets"             .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsClassBraces"          .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsClassFuncName"        .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsClassKeyword"         .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsClassMethodType"      .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsClassDefinition"      .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsDecorator"            .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsDecoratorFunction"    .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsDestructuringBraces"  .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsDomElemAttrs"         .s:fmt_none .s:fg_foreground .s:bg_none
-exe "hi! jsExportDefault"        .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsExtendsKeyword"       .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsFuncArgDestructuring" .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsFuncAssignObjChain"   .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsFuncBraces"           .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsFuncName"             .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsFuncParens"           .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsFunction"             .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsGlobalNodeObjects"    .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsGlobalObjects"        .s:fmt_none .s:fg_foreground .s:bg_none
-exe "hi! jsHtmlElemAttrs"        .s:fmt_none .s:fg_foreground .s:bg_none
-exe "hi! jsHtmlEvents"           .s:fmt_none .s:fg_foreground .s:bg_none
-exe "hi! jsIfElseBraces"         .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsNumber"               .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsObjectBraces"         .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsObjectFuncName"       .s:fmt_none .s:fg_foreground .s:bg_none
-exe "hi! jsParens"               .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsPrototype"            .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! jsRepeatBraces"         .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsStorageClass"         .s:fmt_none .s:fg_purple     .s:bg_none
-exe "hi! jsSuper"                .s:fmt_none .s:fg_purple     .s:bg_none
-exe "hi! jsSwitchBraces"         .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsTemplateBraces"       .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! jsTemplateVar"          .s:fmt_none .s:fg_foreground .s:bg_none
-exe "hi! jsThis"                 .s:fmt_none .s:fg_purple     .s:bg_none
-exe "hi! jsTryCatchBraces"       .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! EcmaScriptTemplateStrings" .s:fmt_none .s:fg_green      .s:bg_none
+exe "hi! jsArrowFunction"           .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsBraces"                  .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsBrackets"                .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsClassBraces"             .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsClassDefinition"         .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsClassFuncName"           .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsClassKeyword"            .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsClassMethodType"         .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsDecorator"               .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsDecoratorFunction"       .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsDestructuringBraces"     .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsDomElemAttrs"            .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! jsExportDefault"           .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsExtendsKeyword"          .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsFuncArgDestructuring"    .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsFuncAssignObjChain"      .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsFuncBraces"              .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsFuncName"                .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! jsFuncParens"              .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsFunction"                .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsGlobalNodeObjects"       .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsGlobalObjects"           .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! jsHtmlElemAttrs"           .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! jsHtmlEvents"              .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! jsIfElseBraces"            .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsNumber"                  .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsObjectBraces"            .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsObjectFuncName"          .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! jsParens"                  .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsPrototype"               .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! jsRepeatBraces"            .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsStorageClass"            .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsSuper"                   .s:fmt_none .s:fg_purple     .s:bg_none
+exe "hi! jsSwitchBraces"            .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsTaggedTemplate"          .s:fmt_none .s:fg_green      .s:bg_none
+exe "hi! jsTemplateBraces"          .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! jsTemplateVar"             .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! jsThis"                    .s:fmt_none .s:fg_purple     .s:bg_none
+exe "hi! jsTryCatchBraces"          .s:fmt_none .s:fg_blue       .s:bg_none
+
+" }}}
+" typescript syntax highlighting {{{
+
+exe "hi! typescriptAccessibilityModifier" .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptAliasDeclaration"      .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! typescriptAliasKeyword"          .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptAmbientDeclaration"    .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptArrayMethod"           .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptArrowFunc"             .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! typescriptArrowFuncArg"          .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptBOMHistoryProp"        .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptBOMWindowMethod"       .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptBOMWindowProp"         .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptBrowserObjects"        .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptCall"                  .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptClassExtends"          .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptClassKeyword"          .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptClassStatic"           .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptConsoleStaticMethod"   .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptDOMDocMethod"          .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptDOMElemProp"           .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptDOMEventProp"          .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptDefault"               .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptDeprecated"            .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptES6SetMethod"          .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptEndColons"             .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptExport"                .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptFuncKeyword"           .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! typescriptGlobal"                .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptGlobalObjects"         .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptHTMLElemProperties"    .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptHeadersMethod"         .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptIdentifier"            .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! typescriptImport"                .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptImportDef"             .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptInterfaceExtends"      .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptInterfaceKeyword"      .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! typescriptLogicSymbols"          .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! typescriptObjectLabel"           .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptOpSymbols"             .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! typescriptOperator"              .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptPropertySignature"     .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! typescriptReserved"              .s:fmt_none .s:fg_blue       .s:bg_none
+exe "hi! typescriptTemplateTag"           .s:fmt_none .s:fg_green      .s:bg_none
+exe "hi! typescriptTypeParameter"         .s:fmt_none .s:fg_red        .s:bg_none
+exe "hi! typescriptTypeReference"         .s:fmt_none .s:fg_red        .s:bg_none
 
 " }}}
 " jsx syntax highlighting {{{
@@ -496,22 +553,23 @@ exe "hi! yamlInteger"           .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! jsonBraces" .s:fmt_none .s:fg_blue .s:bg_none
 
 " }}}
-" css / less highlighting {{{
+" css / less / sass highlighting {{{
 
 exe "hi! cssAttr"            .s:fmt_none .s:fg_red        .s:bg_none
-exe "hi! cssBoxAttr"         .s:fmt_none .s:fg_red        .s:bg_none
-exe "hi! cssPositioningAttr" .s:fmt_none .s:fg_red        .s:bg_none
+exe "hi! cssBoxAttr"         .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! cssColor"           .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! cssPositioningAttr" .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! cssProp"            .s:fmt_none .s:fg_foreground .s:bg_none
 exe "hi! cssPseudoClassId"   .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! cssColor"           .s:fmt_none .s:fg_aqua       .s:bg_none
-exe "hi! cssValueNumber"     .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! cssUIAttr"          .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! cssValueNumber"     .s:fmt_none .s:fg_aqua       .s:bg_none
 exe "hi! lessAmpersandChar"  .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! lessClass"          .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! lessMixinChar"      .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! lessDefinition"     .s:fmt_none .s:fg_red        .s:bg_none
+exe "hi! lessMixinChar"      .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! lessVariable"       .s:fmt_none .s:fg_green      .s:bg_none
 exe "hi! lessVariableValue"  .s:fmt_none .s:fg_aqua       .s:bg_none
+exe "hi! sassClass"          .s:fmt_none .s:fg_blue       .s:bg_none
 
 " }}}
 " html highlighting {{{
@@ -522,7 +580,7 @@ exe "hi! htmlEndTag" .s:fmt_none .s:fg_blue .s:bg_none
 " xml highlighting {{{
 
 exe "hi! xmlEndTag" .s:fmt_none .s:fg_blue       .s:bg_none
-exe "hi! xmlAttrib" .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! xmlAttrib" .s:fmt_none .s:fg_blue       .s:bg_none
 exe "hi! xmlEqual"  .s:fmt_none .s:fg_foreground .s:bg_none
 
 " }}}
@@ -543,6 +601,16 @@ exe "hi! markdownH4"               .s:fmt_none .s:fg_blue    .s:bg_none
 exe "hi! markdownHeadingDelimiter" .s:fmt_none .s:fg_comment .s:bg_none
 exe "hi! markdownUrl"              .s:fmt_none .s:fg_comment .s:bg_none
 exe "hi! markdownCodeDelimiter"    .s:fmt_none .s:fg_red     .s:bg_none
+
+exe "hi! htmlH1"                   .s:fmt_none .s:fg_blue    .s:bg_none
+exe "hi! htmlH2"                   .s:fmt_none .s:fg_blue    .s:bg_none
+exe "hi! htmlH3"                   .s:fmt_none .s:fg_blue    .s:bg_none
+exe "hi! htmlH4"                   .s:fmt_none .s:fg_blue    .s:bg_none
+exe "hi! mkdListItem"              .s:fmt_none .s:fg_blue    .s:bg_none
+exe "hi! mkdCode"                  .s:fmt_none .s:fg_red     .s:bg_none
+exe "hi! mkdCodeStart"             .s:fmt_none .s:fg_red     .s:bg_none
+exe "hi! mkdCodeEnd"               .s:fmt_none .s:fg_red     .s:bg_none
+exe "hi! mkdUrl"                   .s:fmt_none .s:fg_comment .s:bg_none
 
 " }}}
 " clojure highlighting {{{
@@ -571,6 +639,24 @@ exe "hi! pythonStatement" .s:fmt_none .s:fg_aqua .s:bg_none
 exe "hi! cCustomFunc" .s:fmt_none .s:fg_foreground .s:bg_none
 
 " }}}
+" haskell highlighting {{{
+
+exe "hi! hsStructure" .s:fmt_none .s:fg_blue .s:bg_none
+exe "hi! hsImport"    .s:fmt_none .s:fg_blue .s:bg_none
+exe "hi! hsTypedef"   .s:fmt_none .s:fg_blue .s:bg_none
+
+" }}}
+" glsl highlighting {{{
+
+exe "hi! glslSwizzle"         .s:fmt_none .s:fg_foreground .s:bg_none
+exe "hi! glslBuiltinFunction" .s:fmt_none .s:fg_foreground .s:bg_none
+
+" }}}
+" reason/rust(?) highlighting {{{
+
+exe "hi! rustConditional" .s:fmt_none .s:fg_blue .s:bg_none
+
+" }}}
 " clever-f highlighting {{{
 
 " exe "hi! CleverFDefaultLabel" .s:fg_green .s:bg_none .s:fmt_revr
@@ -582,18 +668,6 @@ exe "hi! CleverFDefaultLabel" .s:fg_yellow .s:bg_none .s:fmt_revr
 
 exe "hi! plug1"    .s:fmt_none .s:fg_blue .s:bg_none
 exe "hi! plugDash" .s:fmt_none .s:fg_blue .s:bg_none
-
-" }}}
-" syntastic highlighting {{{
-
-exe "hi! SyntasticWarning" .s:fg_red .s:bg_darkred .s:fmt_none
-exe "hi! SyntasticError"   .s:fg_red .s:bg_darkred .s:fmt_none
-
-" }}}
-" neomake highlighting {{{
-
-exe "hi! NeomakeWarning" .s:fg_red .s:bg_darkred .s:fmt_none
-exe "hi! NeomakeError"   .s:fg_red .s:bg_darkred .s:fmt_none
 
 " }}}
 " ale highlighting {{{

@@ -6,5 +6,5 @@ iabbrev <silent> ifdate <c-r>=strftime('%Y-%m-%d %H:%M')<cr>
 augroup ft_abbrev
   au!
 
-  au FileType javascript,html call abbrevs#spaceless_iabbrev('clog', 'console.log')
+  au FileType javascript,typescript,html call abbrevs#spaceless_iabbrev('clog', 'console.log')
 augroup END

@@ -10,7 +10,7 @@ local spaces           = require('hs._asm.undocumented.spaces')
 local cache  = {}
 local module = { cache = cache }
 
-local waitForAnimation = function(targetSpace, changedFocus, mousePosition)
+local waitForSpaceAnimation = function(targetSpace, changedFocus, mousePosition)
   if cache.waiting then return end
 
   cache.changeStart = hs.timer.secondsSinceEpoch()
@@ -41,13 +41,13 @@ module.switchToIndex = function(targetIdx)
 
   -- grab spaces for screen with active window
   local currentScreen = activeScreen()
-  local screenSpaces  = screenSpaces(currentScreen)
+  local currentScreenSpaces  = screenSpaces(currentScreen)
 
   -- gain focus on the screen
   local changedFocus  = focusScreen(currentScreen)
 
   -- grab index of currently active space
-  local activeIdx     = activeSpaceIndex(screenSpaces)
+  local activeIdx     = activeSpaceIndex(currentScreenSpaces)
   local targetSpace   = spaceFromIndex(targetIdx)
 
   -- check if we really can send the keystrokes
@@ -55,7 +55,7 @@ module.switchToIndex = function(targetIdx)
     not cache.switching,
     targetSpace,
     activeIdx ~= targetIdx,
-    targetIdx <= #screenSpaces,
+    targetIdx <= #currentScreenSpaces,
     targetIdx >= 1
   }, function(test) return test end)
 
@@ -71,7 +71,7 @@ module.switchToIndex = function(targetIdx)
       hs.eventtap.event.newKeyEvent({ 'ctrl' }, eventDirection, false):post()
     end
 
-    waitForAnimation(targetSpace, changedFocus, mousePosition)
+    waitForSpaceAnimation(targetSpace, changedFocus, mousePosition)
   end
 end
 
@@ -82,7 +82,7 @@ module.switchInDirection = function(direction)
 
   -- gain focus on the screen
   local changedFocus = focusScreen(currentScreen)
-  waitForAnimation(targetSpace, changedFocus, mousePosition)
+  waitForSpaceAnimation(targetSpace, changedFocus, mousePosition)
 end
 
 -- taps to ctrl + 1-9 overriding default functionality

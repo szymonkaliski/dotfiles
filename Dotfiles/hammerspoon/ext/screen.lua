@@ -3,19 +3,19 @@ local module = {}
 -- grabs screen with active window, unless it's Finder's desktop
 -- then we use mouse position
 module.activeScreen = function()
-  local mousePoint   = hs.geometry.point(hs.mouse.getAbsolutePosition())
   local activeWindow = hs.window.focusedWindow()
 
   if activeWindow and activeWindow:role() ~= 'AXScrollArea' then
     return activeWindow:screen()
   else
-    return hs.fnutils.find(hs.screen.allScreens(), function(screen)
-      return mousePoint:inside(screen:frame())
-    end)
+    return hs.mouse.getCurrentScreen()
   end
 end
 
-module.focusScreen = function(screen)
+-- focus screen quitely - with mouse in corner
+module.quietFocusScreen = function(screen)
+  screen = screen or hs.mouse.getCurrentScreen()
+
   local frame         = screen:frame()
   local mousePosition = hs.mouse.getAbsolutePosition()
 
@@ -31,8 +31,21 @@ module.focusScreen = function(screen)
 
   hs.mouse.setAbsolutePosition(newMousePosition)
   hs.timer.usleep(1000)
+end
 
-  return true
+-- focus screen centering mouse
+module.focusScreen = function(screen)
+  screen = screen or hs.mouse.getCurrentScreen()
+
+  local frame = screen:fullFrame()
+
+  local mousePosition = {
+    x = frame.x + frame.w / 2,
+    y = frame.y + frame.h / 2
+  }
+
+  -- click center of the screen to bring focus to desktop
+  hs.eventtap.leftClick(mousePosition)
 end
 
 return module

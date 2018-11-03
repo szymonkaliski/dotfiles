@@ -19,10 +19,6 @@ command! SpaceToTab :setlocal noexpandtab | %retab!
 command! SpellPL :setlocal spelllang=pl | setlocal spell
 command! SpellEN :setlocal spelllang=en | setlocal spell
 
-" grepping
-command! -nargs=? Grep       :call grep#grep(<f-args>)
-command! -range   GrepVisual :call grep#grep_visual()
-
 " code TODO / FIXME in cwindow
 command! Todo :call utils#find_todo()
 
@@ -35,18 +31,57 @@ command! -range=% -nargs=0 CountWorkedDays :<line1>,<line2>call workcount#days()
 command! -range=% -nargs=0 CountWorkedHours :<line1>,<line2>call workcount#hours()
 
 " notes handling
-command! -nargs=1 -complete=custom,notes#complete_notes Note call notes#note(<f-args>)
+command! -nargs=? -complete=custom,notes#complete_notes Note call notes#note(<f-args>)
 
-" Today view - taskpaper + drafts in split,
-" folds open on @today and last section of drafts
+" today view
 function! s:show_today()
+  " e ~/Documents/Dropbox/Notes/drafts.txt
+
   e ~/Documents/Dropbox/Tasks/Todo.taskpaper
+  " tabe ~/Documents/Dropbox/Tasks/Todo.taskpaper
   norm zM
-  %g/\v^(.*\@today)&(.*\@done)@!/foldopen!
-  norm gg
+  %g/\v^(.*\@today)&(.*\@done)@!/:normal zv
+
   vsp ~/Documents/Dropbox/Notes/drafts.txt
-  " silent! norm zMGzazz
+  " norm zMGzazz
+
+  tabe ~/Documents/Dropbox/Tasks/Work/Work.taskpaper
+  norm zR
+
+  tabe ~/Documents/Dropbox/Notes/ideas.txt
+
+  norm gt0
   redraw!
 endfunction
 
 command! Today call <sid>show_today()
+
+command! PlugUp :PlugUpdate | PlugUpgrade
+
+" copy full file path (to system clipboard)
+command! CPWD :let @+ = expand("%:p")
+
+" redirect vim command output to scratch buffer
+function! Redir(cmd)
+  for win in range(1, winnr('$'))
+    if getwinvar(win, 'scratch')
+      execute win . 'windo close'
+    endif
+  endfor
+
+  if a:cmd =~ '^!'
+    execute "let output = system('" . substitute(a:cmd, '^!', '', '') . "')"
+  else
+    redir => output
+    execute a:cmd
+    redir END
+  endif
+
+  vnew
+
+  let w:scratch = 1
+  setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
+  call setline(1, split(output, "\n"))
+endfunction
+
+command! -nargs=1 -complete=command Redir silent call Redir(<f-args>)

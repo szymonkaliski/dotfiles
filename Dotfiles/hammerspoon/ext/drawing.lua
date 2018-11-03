@@ -1,4 +1,4 @@
-local cache  = {}
+local cache  = { borderDrawings = {}, borderDrawingFadeOuts = {} }
 local module = { cache = cache }
 
 -- returns 'graphite' or 'aqua'
@@ -14,6 +14,7 @@ local getOSXAppearance = function()
   return res
 end
 
+-- get appearance on start
 cache.osxApperance = getOSXAppearance()
 
 module.getHighlightWindowColor = function()
@@ -23,16 +24,24 @@ module.getHighlightWindowColor = function()
   return cache.osxApperance == 'graphite' and grayColor or blueColor
 end
 
-module.drawBorder = function(opts)
+module.drawBorder = function()
   local focusedWindow = hs.window.focusedWindow()
 
-  local alpha         = 0.8
-  local borderWidth   = 4
-  local distance      = 2
-  local roundRadix    = 8
+  if not focusedWindow or focusedWindow:role() ~= "AXWindow" then
+    if cache.borderDrawing then
+      cache.borderDrawing:hide()
+    end
 
-  local fadeTime      = opts and opts.fadeTime or 0.5
-  local showTime      = opts and opts.showTime or 0.0
+    return
+  end
+
+  local alpha       = 0.6
+  local borderWidth = 4
+  local distance    = 4
+  local roundRadix  = 6
+
+  local isFullScreen = focusedWindow:isFullScreen()
+  local frame        = focusedWindow:frame()
 
   if not cache.borderDrawing then
     cache.borderDrawing = hs.drawing.rectangle({ x = 0, y = 0, w = 0, h = 0 })
@@ -40,18 +49,10 @@ module.drawBorder = function(opts)
       :setStroke(true)
       :setStrokeWidth(borderWidth)
       :setStrokeColor(module.getHighlightWindowColor())
-      :setBehaviorByLabels({ 'moveToActiveSpace' })
-      :setLevel(hs.drawing.windowLevels.floating)
+      :setBehaviorByLabels({ 'moveToActiveSpace', 'transient' })
+      :setLevel(hs.drawing.windowLevels.normal)
       :setAlpha(alpha)
   end
-
-  if not focusedWindow then
-    cache.borderDrawing:hide(fadeTime)
-    return
-  end
-
-  local isFullScreen = focusedWindow:isFullScreen()
-  local frame        = focusedWindow:frame()
 
   if isFullScreen then
     cache.borderDrawing
@@ -60,42 +61,29 @@ module.drawBorder = function(opts)
   else
     cache.borderDrawing
       :setFrame({
-        x = frame.x - borderWidth / 2 - distance / 2,
-        y = frame.y - borderWidth / 2 - distance / 2,
-        w = frame.w + borderWidth + distance,
-        h = frame.h + borderWidth + distance
+        x = frame.x - distance / 2,
+        y = frame.y - distance / 2,
+        w = frame.w + distance,
+        h = frame.h + distance
       })
       :setRoundedRectRadii(roundRadix, roundRadix)
   end
 
-  cache.borderDrawing:show(fadeTime)
-
-  if showTime > 0 then
-    if cache.borderDrawingFadeOut then
-      cache.borderDrawingFadeOut:stop()
-    end
-
-    cache.borderDrawingFadeOut = hs.timer.doAfter(showTime, function()
-      cache.borderDrawing:hide(fadeTime)
-      cache.borderDrawingFadeOut = nil
-    end)
-  end
+  cache.borderDrawing:show()
 end
 
-module.highlightWindow = function()
-  local focusedWindow = hs.window.focusedWindow()
+module.highlightWindow = function(win)
+  if window.highlightBorder then
+    module.drawBorder()
+  end
 
-  if not focusedWindow then return end
+  if window.highlightMouse then
+    local focusedWindow = win or hs.window.focusedWindow()
+    if not focusedWindow or focusedWindow:role() ~= "AXWindow" then return end
 
-  if window.highlightMouseCenter then
     local frameCenter = hs.geometry.getcenter(focusedWindow:frame())
 
     hs.mouse.setAbsolutePosition(frameCenter)
-  end
-
-  -- TODO: test if this still works
-  if window.highlightBorder then
-    module.drawBorder({ fadeTime = 0.5, showTime = 0.5 })
   end
 end
 

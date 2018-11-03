@@ -1,18 +1,13 @@
-local log = hs.logger.new('automount', 'debug')
+local log    = hs.logger.new('automount', 'debug')
 
-local cache  = {
-  powerSource = hs.battery.powerSource(),
-  watchers    = {},
-  tasks       = {}
-}
-
+local cache  = { watchers = {}, tasks = {} }
 local module = { cache = cache }
 
-local scriptsPath = os.getenv('HOME') .. '/Documents/Code/Scripts/'
+local SCRIPTS_PATH  = os.getenv('HOME') .. '/Documents/Code/Scripts/'
+local MOUNT_TIMEOUT = 5
 
-local logTask = function(exitCode, stdOut, stdErr)
-  log.d(stdOut)
-  log.d(stdErr)
+local logTask = function(_, stdOut, stdErr)
+  log.d("\n", stdOut, stdErr)
 end
 
 local stopMountTasks = function()
@@ -24,55 +19,89 @@ end
 local runMountTask = function(script, callback)
   stopMountTasks()
 
-  cache.tasks[script] = hs.task.new(scriptsPath .. script, callback)
+  cache.tasks[script] = hs.task.new(SCRIPTS_PATH .. script, callback)
   cache.tasks[script]:start()
 end
 
-local umountAll = function()
-  runMountTask('umount-all', logTask)
+-- local
+
+local umountLocal = function()
+  log.d('umount-local triggered')
+
+  if cache.timer then cache.timer:stop() end
+
+  runMountTask('umount-local', logTask)
 end
 
-local mountAll = function()
-  runMountTask('mount-all', logTask)
+local mountLocal = function()
+  log.d('mount-local triggered')
+
+  cache.timer = hs.timer.doAfter(MOUNT_TIMEOUT, function()
+    log.d('mount-local starting')
+    runMountTask('mount-local', logTask)
+  end)
 end
 
-local batteryWatcher = function()
-  local powerSource = hs.battery.powerSource()
+-- remote
 
-  if cache.powerSource ~= powerSource then
+local umountRemote = function()
+  log.d('umount-remote triggered')
+
+  runMountTask('umount-remote', logTask)
+end
+
+local mountRemote = function()
+  log.d('mount-remote triggered')
+
+  runMountTask('mount-remote', logTask)
+end
+
+-- watchers
+
+local batteryWatcher = function(_, _, _, prevPowerSource, powerSource)
+  if prevPowerSource ~= powerSource then
     if powerSource == 'Battery Power' then
-      umountAll()
+      umountLocal()
     end
 
     if powerSource == 'AC Power' then
-      mountAll()
+      mountLocal()
     end
   end
-
-  cache.powerSource = powerSource
 end
 
-local sleepWatcher = function(event)
+local sleepWatcher = function(_, _, _, _, event)
   if event == hs.caffeinate.watcher.systemWillSleep or event == hs.caffeinate.watcher.systemWillPowerOff then
-    umountAll()
+    umountLocal()
   end
 
   if event == hs.caffeinate.watcher.systemDidWake then
-    mountAll()
+    mountLocal()
   end
 end
 
+local wifiWatcher = function(_, _, _, _, currentNetwork)
+  if currentNetwork == 'Skynet 5G' then
+    mountRemote()
+  else
+    umountRemote()
+  end
+end
+
+-- module
+
 module.start = function()
-  cache.watchers.battery = hs.battery.watcher.new(batteryWatcher):start()
-  cache.watchers.sleep   = hs.caffeinate.watcher.new(sleepWatcher):start()
+  cache.watcherBattery = hs.watchable.watch('status.battery.powerSource', batteryWatcher)
+  cache.watcherSleep   = hs.watchable.watch('status.sleepEvent',          sleepWatcher)
+  cache.watcherWifi    = hs.watchable.watch('status.currentNetwork',      wifiWatcher)
 end
 
 module.stop = function()
-  hs.fnutils.each(cache.watchers, function(watcher)
-    watcher:stop()
-  end)
-
   stopMountTasks()
+
+  cache.watcherBattery:release()
+  cache.watcherSleep:release()
+  cache.watcherWifi:release()
 end
 
 return module

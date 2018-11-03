@@ -4,7 +4,7 @@
 source ~/.iftttrc
 
 TRIGGER="notify"
-MESSAGE="$@"
+MESSAGE="$*"
 
 curl \
   -s \

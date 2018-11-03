@@ -19,7 +19,7 @@ LOAD=$(echo "$UPTIME" | sed 's/.*load average: //' | awk -F\, '{print $2}')
 MSG="$MSG, load:$(tput setaf 5)$LOAD$(tput sgr0)"
 
 if hash screen 2> /dev/null; then
-  SCREEN=$(screen -ls | egrep '\(*\)' | wc -l)
+  SCREEN=$(screen -ls | grep -E '\(*\)' -c)
   if [ "$SCREEN" != "0" ]; then
     MSG="$MSG, screens: $(tput setaf 2)$SCREEN$(tput sgr0)"
   fi

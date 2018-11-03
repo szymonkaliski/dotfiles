@@ -7,7 +7,7 @@ if [[ ! -z $TMUX ]]; then
   PANES=$(echo "$PANES" | grep -v "$CURRENT")
 fi
 
-TARGET=$(echo "$PANES" | column -t -s ";" | sort | fzf --tac --no-sort --select-1 --exit-0 --query="$1" --prompt="tmux > " --reverse) || exit 0
+TARGET=$(echo "$PANES" | column -t -s ";" | sort | fzf --no-sort --select-1 --exit-0 --query="$1" --prompt="tmux > " --reverse) || exit 0
 
 TARGET_SESSION=$(echo "$TARGET" | cut -d " " -f1)
 TARGET_WINDOW=$(echo "$TARGET" | cut -d "[" -f2 | awk 'BEGIN{FS=":|-"} {print $1}')

@@ -1,11 +1,22 @@
 #!/usr/bin/env bash
 
-# dirty hack to move back to my current fullscreen terminal,
-# instead of focusing first space where arduino app appears,
-# requires HammerSpoon with IPC installed
-if [ -x /usr/local/bin/hs ]; then
-  dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  bash "$dir"/osx-stay-on-space 1.0
+# ignore the stupid splashscreen if we have HammerSpoon
+if [ -e /usr/local/bin/hs ]; then
+  PREV_WINDOW_ID=$(/usr/local/bin/hs -c "hs.window.focusedWindow():id()")
+  (sleep 0.5 && /usr/local/bin/hs -c "hs.window.find($PREV_WINDOW_ID):raise():focus()") > /dev/null &
 fi
 
 /Applications/Arduino.app/Contents/MacOS/Arduino "$@"
+
+# This compiles but doesn't upload...
+#
+# /Applications/Arduino.app/Contents/Java/arduino-builder \
+#   -compile \
+#   -verbose \
+#   -hardware /Applications/Arduino.app/Contents/Java/hardware \
+#   -hardware "$HOME"/Documents/Code/Arduino/hardware \
+#   -tools /Applications/Arduino.app/Contents/Java/tools-builder \
+#   -tools /Applications/Arduino.app/Contents/Java/hardware/tools \
+#   -libraries "$HOME"/Documents/Code/Arduino/libraries \
+#   -fqbn "arduino:avr:uno" \
+#   "$1"

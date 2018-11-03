@@ -1,0 +1,8 @@
+#!/usr/bin/env osascript
+
+tell application "Finder"
+  try
+    eject "TimeMachine"
+    eject "Data"
+  end try
+end tell

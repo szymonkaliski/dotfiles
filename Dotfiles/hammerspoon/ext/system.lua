@@ -1,6 +1,7 @@
 local module = {}
 
 local activateFrontmost = require('ext.application').activateFrontmost
+local bluetooth         = require('hs._asm.undocumented.bluetooth')
 
 -- show notification center
 -- NOTE: you can do that from Settings > Keyboard > Mission Control
@@ -12,9 +13,7 @@ module.toggleNotificationCenter = function()
   ]])
 end
 
-module.toggleDND = function()
-  local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/notification-center.png'
-
+module.isDNDEnabled = function()
   -- check if enabled
   local _, res = hs.applescript.applescript([[
     tell application "System Events"
@@ -27,7 +26,14 @@ module.toggleDND = function()
   ]])
 
   local isEnabled = string.match(res[1], 'Do Not Disturb')
-  local afterTime = isEnabled and 0.0 or 2.0
+  return isEnabled
+end
+
+module.toggleDND = function()
+  local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/notification-center.png'
+
+  local isEnabled = module.isDNDEnabled()
+  local afterTime = isEnabled and 0.0 or 4.0
 
   -- is not enabled, will be enabled
   if not isEnabled then
@@ -65,13 +71,39 @@ module.toggleDND = function()
   end)
 end
 
--- toggle hammerspoon console and refocus last window
+module.toggleBluetooth = function()
+  local newStatus = not bluetooth.power()
+
+  bluetooth.power(newStatus)
+
+  local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/bluetooth.png'
+
+  hs.notify.new({
+    title        = 'Bluetooth',
+    subTitle     = 'Power: ' .. (newStatus and 'On' or 'Off'),
+    contentImage = imagePath
+  }):send()
+end
+
+module.toggleWiFi = function()
+  local newStatus = not hs.wifi.interfaceDetails().power
+
+  hs.wifi.setPower(newStatus)
+
+  local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/airport.png'
+
+  hs.notify.new({
+    title        = 'Wi-Fi',
+    subTitle     = 'Power: ' .. (newStatus and 'On' or 'Off'),
+    contentImage = imagePath
+  }):send()
+end
+
 module.toggleConsole = function()
   hs.toggleConsole()
   activateFrontmost()
 end
 
--- sleep the display
 module.displaySleep = function()
   hs.task.new('/usr/bin/pmset', nil, { 'displaysleepnow' }):start()
 end

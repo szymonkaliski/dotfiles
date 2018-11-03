@@ -1,8 +1,4 @@
-augroup dirvish_plugin
-  au!
-
-  au BufEnter dirvish dirvish#sort()
-augroup END
+let g:dirvish_mode = ':sort ,^.*[\/],'
 
 function! dirvish#get_current_path()
   let l:path = expand('%:~:h')
@@ -14,15 +10,7 @@ function! dirvish#get_current_path()
   return l:path . '/'
 endfunction
 
-function! dirvish#sort()
-  if &filetype == 'dirvish'
-    setlocal modifiable
-    sort r /[^\/]$/
-    " setlocal nomodifiable
-  endif
-endfunction
-
-command! DirvishCurrentPath call dirvish#open(dirvish#get_current_path()) | call dirvish#sort()
-command! DirvishSort        call dirvish#sort()
-
+command! DirvishCurrentPath call dirvish#open(dirvish#get_current_path())
 nnoremap <silent> <c-f> :<c-u>DirvishCurrentPath<cr>
+
+silent! nunmap -

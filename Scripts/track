@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source ~/.iftttrc
+
 today() {
   icalBuddy -ea -b '- ' -ic 'Tracking' eventsToday \
     | grep '^-\ ' -C1 \
@@ -13,7 +15,25 @@ today() {
     | sed 's/ (Tracking)//'
 }
 
-add() {
+now() {
+  icalBuddy -ea -b '- ' -ic 'Tracking' eventsNow \
+    | grep '^-\ ' -C1 \
+    | cut -d ' ' -f2- \
+    | sed 's/ (Tracking)//' \
+    | head -1
+}
+
+gcal-add() {
+  # using ifttt applet: webhook with event name = $TRIGGER to Quick add event in google calendar, quick add text is {{value1}}
+
+  TRIGGER="google_calendar_quickadd"
+
+  curl -X POST -H "Content-Type: application/json" -d "{\"value1\":\"$2 $3-$4\"}" "https://maker.ifttt.com/trigger/$TRIGGER/with/key/$TOKEN" > /dev/null 2>&1
+}
+
+ical-add() {
+  # slow...
+
   osascript - "$2" "$3" "$4" << END
 on run argv
   set calendarName to "Tracking"
@@ -33,11 +53,32 @@ end run
 END
 }
 
+ical-mark() {
+  # slow...
+
+  osascript - "$2" "$3" << END
+on run argv
+  set calendarName to "Tracking"
+  set theSummary to item 1 of argv
+  set theDescription to item 2 of argv
+  set startDate to (current date)
+
+  tell application "Calendar"
+    tell (first calendar whose name is calendarName)
+      make new event at end of events with properties {summary:theSummary, start date:startDate, description:theDescription, allday event:true}
+    end tell
+  end tell
+end run
+END
+}
+
 usage() {
   echo "Easily create tracking info, usage:"
   echo
   echo "  track list"
+  echo "  track now"
   echo "  track add 'Workflow @personal @work @language(osascript)' '16:00' '17:00'"
+  echo "  track mark 'Timav' 'released 0.0.1'"
   echo
   exit 0
 }
@@ -51,8 +92,20 @@ main() {
     "today" | "list")
       today
       ;;
+    "now")
+      now
+      ;;
     "add")
-      add "$@" > /dev/null &
+      ical-add "$@" > /dev/null &
+      ;;
+    "mark")
+      ical-mark "$@" > /dev/null &
+      ;;
+    "add-gcal")
+      gcal-add "$@"
+      ;;
+    "add-ical")
+      ical-add "$@" > /dev/null &
       ;;
     --help | -help | -h)
       usage

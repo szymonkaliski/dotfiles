@@ -1,25 +1,22 @@
+local forceFocus      = require('ext.window').forceFocus
 local highlightWindow = require('ext.drawing').highlightWindow
 local template        = require('ext.template')
 local log             = hs.logger.new('application', 'debug')
 
-local cache = {
-  bindings    = {},
-  launchTimer = nil
-}
-
+local cache  = { launchTimer = nil }
 local module = { cache = cache }
 
 -- activate frontmost window if exists
 module.activateFrontmost = function()
   local frontmostWindow = hs.window.frontmostWindow()
-  if frontmostWindow then frontmostWindow:focus() end
+  if frontmostWindow then frontmostWindow:raise():focus() end
 end
 
 -- force application launch or focus
 module.forceLaunchOrFocus = function(appName)
   local appInstance  = hs.application.get(appName)
   local isRunning    = appInstance and appInstance:isRunning()
-  local focusTimeout = isRunning and 0.1 or 1.5
+  local focusTimeout = isRunning and 0.05 or 1.5
 
   -- first focus/launch with hammerspoon
   hs.application.launchOrFocus(appName)
@@ -39,8 +36,11 @@ module.forceLaunchOrFocus = function(appName)
     end
 
     if #frontmostWindows == 0 then
-      -- check if there's app name in window menu (Calendar, Messages, etc...)
-      if frontmostApp:findMenuItem({ 'Window', appName }) then
+      if appName == 'Hyper' then
+        -- otherwise some other Hyper window gets focused
+        hs.eventtap.keyStroke({ 'cmd' }, 'n')
+      elseif frontmostApp:findMenuItem({ 'Window', appName }) then
+        -- check if there's app name in window menu (Calendar, Messages, etc...)
         -- select it, usually moves to space with this window
         frontmostApp:selectMenuItem({ 'Window', appName })
       else
@@ -54,7 +54,6 @@ end
 -- smart app launch or focus or cycle windows
 module.smartLaunchOrFocus = function(launchApps)
   local frontmostWindow = hs.window.frontmostWindow()
-  local runningApps     = hs.application.runningApplications()
   local runningWindows  = {}
 
   launchApps = type(launchApps) == 'table' and launchApps or { launchApps }
@@ -82,20 +81,20 @@ module.smartLaunchOrFocus = function(launchApps)
     module.forceLaunchOrFocus(launchApps[1])
   elseif #runningWindows == 0 then
     -- if some apps are running, but no windows - force create one
-    module.forceLaunchOrFocus(runningApps[1]:title())
+    module.forceLaunchOrFocus(runningApps[1]:name())
   else
     -- check if one of windows is already focused
     local currentIndex = hs.fnutils.indexOf(runningWindows, frontmostWindow)
 
     if not currentIndex then
       -- if none of them is selected focus the first one
-      runningWindows[1]:raise():focus()
+      forceFocus(runningWindows[1])
     else
       -- otherwise cycle through all the windows
       local newIndex = currentIndex + 1
       if newIndex > #runningWindows then newIndex = 1 end
 
-      runningWindows[newIndex]:raise():focus()
+      forceFocus(runningWindows[newIndex])
     end
 
     highlightWindow()
@@ -111,31 +110,6 @@ module.allWindowsCount = function(appName)
   ]], { APP_NAME = appName }))
 
   return tonumber(result) or 0
-end
-
--- ask before quitting app when there are multiple windows
-module.askBeforeQuitting = function(appName, options)
-  local enabled = options.enabled or false
-
-  if not enabled and cache.bindings[appName] then
-    cache.bindings[appName]:disable()
-    return
-  end
-
-  if cache.bindings[appName] then
-    cache.bindings[appName]:enable()
-  else
-    cache.bindings[appName] = hs.hotkey.bind({ 'cmd' }, 'q', function()
-      local windowsCount = module.allWindowsCount(appName)
-
-      if windowsCount > 1 then
-        -- for some reason this is way more responsive that calling to hs.applescript...
-        hs.task.new(os.getenv('HOME') .. '/.hammerspoon/assets/ask-to-quit.scpt', nil, { appName }):start()
-      else
-        hs.application.find(appName):kill()
-      end
-    end)
-  end
 end
 
 return module

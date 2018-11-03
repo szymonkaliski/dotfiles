@@ -1,20 +1,26 @@
-local cache = {
-  network = hs.wifi.currentNetwork()
-}
+local cache  = {}
+local module = { cache = cache }
 
-local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/airport.png'
+local IMAGE_PATH = os.getenv('HOME') .. '/.hammerspoon/assets/airport.png'
 
-return hs.wifi.watcher.new(function()
-  local network  = hs.wifi.currentNetwork()
+local notifyWifi = function(_, _, _, prevNetwork, network)
   local subTitle = network and 'Network: ' .. network or 'Disconnected'
 
-  if cache.network ~= network then
+  if prevNetwork ~= network then
     hs.notify.new({
       title        = 'Wi-Fi Status',
       subTitle     = subTitle,
-      contentImage = imagePath
+      contentImage = IMAGE_PATH
     }):send()
-
-    cache.network = network
   end
-end)
+end
+
+module.start = function()
+  cache.watcher = hs.watchable.watch('status.currentNetwork', notifyWifi)
+end
+
+module.stop = function()
+  cache.watcher:release()
+end
+
+return module

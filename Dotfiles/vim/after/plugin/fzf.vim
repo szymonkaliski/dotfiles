@@ -1,6 +1,14 @@
-if has('gui')
-  finish
-endif
+augroup fzf_plugin
+  au!
+
+  au FileType fzf tnoremap <Esc> <c-\><c-n>:Sayonara!<cr>
+augroup END
+
+let s:fzf_default_opt = { 'window': 'enew' }
+" let s:fzf_preview_opt = ' --preview="highlight --config-file=$HOME/.highlight/hybrid-bw.theme -q -t 2 --force -O xterm256 {}"'
+let s:fzf_preview_opt = ''
+
+let s:rg_globs = "-g '!*.{png,jpg,jpeg,mp4,mkv,obj,ttf,sketch,zip}' -g '!.DS_Store'"
 
 function! fzf#buffers_list()
   let l:all = range(0, bufnr('$'))
@@ -17,7 +25,10 @@ function! fzf#buffers_list()
 endfunction
 
 function! fzf#recent_files()
-  return filter(v:oldfiles, 'filereadable(glob(v:val))')
+  " checking if each file is readable slows this down
+  " return filter(v:oldfiles, 'filereadable(glob(v:val))')
+
+  return v:oldfiles
 endfunction
 
 function! fzf#buffers_lines()
@@ -37,24 +48,37 @@ function! fzf#buffers_lines_open(l)
   silent! normal! zozz
 endfunction
 
-let s:fzf_default_opt = { 'window': 'enew' }
+function! s:fzf_dir_files()
+  call fzf#run(extend(s:fzf_default_opt, {
+        \ 'source':   'rg --files --hidden --follow --no-messages ' . s:rg_globs,
+        \ 'sink':    'e',
+        \ 'dir':     dirvish#get_current_path(),
+        \ 'options': '--reverse --multi --exit-0 --prompt="files > "' . s:fzf_preview_opt
+        \ }))
+endfunction
 
-command! FZFFiles call fzf#run(extend(s:fzf_default_opt, {
-      \ 'source':  'rg --files --hidden --follow',
-      \ 'sink':    'e',
-      \ 'options': '--reverse --multi --exit-0 --prompt="files > "'
-      \ }))
+function! s:fzf_files()
+  call fzf#run(extend(s:fzf_default_opt, {
+        \ 'source':   'rg --files --hidden --follow --no-messages ' . s:rg_globs,
+        \ 'sink':    'e',
+        \ 'dir':     getcwd(),
+        \ 'options': '--reverse --multi --exit-0 --prompt="files > "' . s:fzf_preview_opt
+        \ }))
+endfunction
+
+command! FZFFiles    call <sid>fzf_files()
+command! FZFDirFiles call <sid>fzf_dir_files()
 
 command! FZFBuffers call fzf#run(extend(s:fzf_default_opt, {
       \ 'source':  fzf#buffers_list(),
       \ 'sink':    'e',
-      \ 'options': '--reverse --no-sort --prompt="buffers > "'
+      \ 'options': '--reverse --no-sort --prompt="buffers > "' . s:fzf_preview_opt
       \ }))
 
 command! FZFMru call fzf#run(extend(s:fzf_default_opt, {
       \ 'source':  fzf#recent_files(),
       \ 'sink':    'e',
-      \ 'options': '--reverse --multi --exit-0 --no-sort --prompt="mru > "'
+      \ 'options': '--reverse --multi --exit-0 --no-sort --prompt="mru > "' . s:fzf_preview_opt
       \ }))
 
 command! FZFLines call fzf#run(extend(s:fzf_default_opt, {
@@ -68,11 +92,3 @@ nnoremap <silent> <c-b>      :FZFBuffers<cr>
 
 nnoremap <silent> <leader>fl :FZFLines<cr>
 nnoremap <silent> <leader>fh :FZFMru<cr>
-
-if has('nvim')
-  augroup fzf_plugin
-    au!
-
-    au FileType fzf tnoremap <Esc> <c-\><c-n>:Sayonara!<cr>
-  augroup END
-endif

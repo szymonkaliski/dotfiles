@@ -7,17 +7,16 @@ local module = { cache = cache }
 -- * ultra: custom/global bindings
 
 module.start = function()
-  require('bindings.global').start()
-  require('bindings.focus').start()
-
-  require('bindings.' .. bindings.mode).start()
+  hs.fnutils.each(bindings.enabled, function(binding)
+    cache[binding] = require('bindings.' .. binding)
+    cache[binding].start()
+  end)
 end
 
 module.stop = function()
-  require('bindings.global').stop()
-  require('bindings.focus').stop()
-
-  require('bindings.' .. bindings.mode).stop()
+  hs.fnutils.each(cache, function(binding)
+    binding.stop()
+  end)
 end
 
 return module

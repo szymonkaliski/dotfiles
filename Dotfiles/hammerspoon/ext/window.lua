@@ -1,91 +1,74 @@
-local focusScreen          = require('ext.screen').focusScreen
-local highlightWindow      = require('ext.drawing').highlightWindow
-local isSpaceFullscreenApp = require('ext.spaces').isSpaceFullscreenApp
-local spaceInDirection     = require('ext.spaces').spaceInDirection
-local spaces               = require('hs._asm.undocumented.spaces')
+local focusScreen     = require('ext.screen').focusScreen
+local highlightWindow = require('ext.drawing').highlightWindow
 
-local cache  = {
-  mousePosition   = nil,
+local cache = {
   windowPositions = hs.settings.get('windowPositions') or {}
 }
 
 local module = { cache = cache }
 
--- fullscreen toggle
-module.fullscreen = function(win)
-  win:setFullScreen(not win:isFullscreen())
-end
-
--- move window to another space
-module.moveToSpace = function(win, direction)
-  local clickPoint  = win:zoomButtonRect()
-  local sleepTime   = 1000
-  local targetSpace = spaceInDirection(direction)
-
-  -- check if all conditions are ok to move the window
-  local shouldMoveWindow = hs.fnutils.every({
-    clickPoint ~= nil,
-    targetSpace ~= nil,
-    not isSpaceFullscreenApp(targetSpace),
-    not cache.movingWindowToSpace
-  }, function(test) return test end)
-
-  if not shouldMoveWindow then return end
-
-  cache.movingWindowToSpace = true
-
-  cache.mousePosition = cache.mousePosition or hs.mouse.getAbsolutePosition()
-
-  clickPoint.x = clickPoint.x + clickPoint.w + 5
-  clickPoint.y = clickPoint.y + clickPoint.h / 2
-
-  -- fix for Chrome UI
-  if win:application():title() == 'Google Chrome' then
-    clickPoint.y = clickPoint.y - clickPoint.h
-  end
-
-  -- focus screen before switching window
-  focusScreen(win:screen())
-
-  hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseDown, clickPoint):post()
-  hs.timer.usleep(sleepTime)
-
-  hs.eventtap.keyStroke({ 'ctrl' }, direction == 'east' and 'right' or 'left')
-
-  hs.timer.waitUntil(
-    function()
-      return spaces.activeSpace() == targetSpace
-    end,
-    function()
-      hs.eventtap.event.newMouseEvent(hs.eventtap.event.types.leftMouseUp, clickPoint):post()
-
-      -- resetting mouse after small timeout is needed for focusing screen to work properly
-      hs.mouse.setAbsolutePosition(cache.mousePosition)
-      cache.mousePosition = nil
-
-      -- reset cache
-      cache.movingWindowToSpace = false
-    end,
-    0.01 -- check every 1/100 of a second
-  )
+module.forceFocus = function(win)
+  -- -- activate the app - flickers...
+  -- win:application():activate()
+  -- then focus the window
+  win:raise():focus()
+  -- then higlight if needed
+  highlightWindow()
 end
 
 -- cycle application windows
-module.cycleWindows = function(win, appWindowsOnly)
+module.cycleWindows = function(direction, appWindowsOnly, screenWindowsOnly)
+  direction = direction or "next"
+
+  local win = hs.window.focusedWindow()
+
+  -- try to find window based on mouse screen if there's no window focused
+  if appWindowsOnly and not win then
+    local mouseScreen = hs.mouse.getCurrentScreen()
+
+    local screenWindows = hs.fnutils.filter(hs.window.allWindows(), function(testWin)
+      return testWin:screen():id() == mouseScreen:id()
+    end)
+
+    -- if there's no windows, just focus the screen
+    if #screenWindows == 0 then
+      focusScreen(mouseScreen)
+      return
+    end
+
+    win = screenWindows[1]
+  end
+
   local allWindows = appWindowsOnly and win:application():allWindows() or hs.window.allWindows()
 
   -- we only care about standard windows
-  local windows = hs.fnutils.filter(allWindows, function(win) return win:isStandard() end)
+  local windows = hs.fnutils.filter(allWindows, function(testWin)
+    return testWin ~= nil and testWin:isStandard()
+  end)
+
+  -- filter for only current-screen windows if we want it to
+  if screenWindowsOnly then
+    local screenId = (win and win:screen() or hs.mouse.getCurrentScreen()):id()
+
+    windows = hs.fnutils.filter(windows, function(testWin)
+      return testWin:screen():id() == screenId
+    end)
+  end
 
   -- get id based of appname and window id
   -- this basically makes sorting windows bit saner
-  local getId = function(win)
-    return win:application():bundleID() .. '-' .. win:id()
+  local getId = function(testWin)
+    local application = testWin:application()
+    local appId = application and application:bundleID() or "unknown-app"
+
+    return appId .. '-' .. testWin:id()
   end
 
-  if #windows == 1 then
+  if #windows == 0 then
+    focusScreen()
+  elseif #windows == 1 then
     -- if we have only one window - focus it
-    windows[1]:raise():focus()
+    module.forceFocus(windows[1])
   elseif #windows > 1 then
     -- if there are more than one, sort them first by id
     table.sort(windows, function(a, b) return getId(a) > getId(b) end)
@@ -94,18 +77,22 @@ module.cycleWindows = function(win, appWindowsOnly)
     local activeWindowIndex = hs.fnutils.indexOf(windows, win)
 
     if activeWindowIndex then
-      -- if it is, then focus next one
-      activeWindowIndex = activeWindowIndex + 1
+      if direction == "next" then
+        activeWindowIndex = activeWindowIndex + 1
+        if activeWindowIndex > #windows then activeWindowIndex = 1 end
+      else
+        activeWindowIndex = activeWindowIndex - 1
+        if activeWindowIndex < 1 then activeWindowIndex = #windows end
+      end
 
-      if activeWindowIndex > #windows then activeWindowIndex = 1 end
-
-      windows[activeWindowIndex]:raise():focus()
+      module.forceFocus(windows[activeWindowIndex])
     else
       -- otherwise focus first one
-      windows[1]:raise():focus()
+      module.forceFocus(windows[1])
     end
   end
 
+  -- higlight when done
   highlightWindow()
 end
 
@@ -132,8 +119,8 @@ module.persistPosition = function(win, option)
   local frames      = windowPositions[appId] and windowPositions[appId].frames or {}
 
   -- check if given frame differs frome last one in array
-  local framesDiffer = function(frame, frames)
-    return frames and (#frames == 0 or not frame:equals(frames[#frames]))
+  local framesDiffer = function(testFrame, testFrames)
+    return testFrame and (#testFrames == 0 or not testFrame:equals(testFrames[#testFrames]))
   end
 
   -- remove first element if we hit history limit (adjusting index if needed)

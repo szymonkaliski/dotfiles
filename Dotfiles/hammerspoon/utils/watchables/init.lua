@@ -1,0 +1,84 @@
+local status = hs.watchable.new('status')
+local log    = hs.logger.new('watchables', 'debug')
+
+local cache  = { status = status }
+local module = { cache = cache }
+
+-- local VPN_CONFIG_KEY  = "State:/Network/Global/Proxies"
+-- local NETWORK_SHARING = "com.apple.NetworkSharing"
+
+local updateBattery = function()
+  status.battery = {
+    isCharged     = hs.battery.isCharged(),
+    percentage    = hs.battery.percentage(),
+    powerSource   = hs.battery.powerSource()
+  }
+end
+
+local updateScreen = function()
+  status.connectedScreens        = #hs.screen.allScreens()
+  status.isThunderboltConnected  = hs.screen.findByName('Thunderbolt Display') ~= nil
+  status.isLaptopScreenConnected = hs.screen.findByName('Color LCD') ~= nil
+
+  log.d('updated screens:', status.connectedScreens)
+end
+
+-- local updateNetwork = function()
+--   status.networkSharing   = cache.configuration:contents(NETWORK_SHARING)[NETWORK_SHARING]
+--   status.vpnConfiguration = cache.configuration:contents(VPN_CONFIG_KEY)[VPN_CONFIG_KEY]
+
+--   log.d('updated network config')
+-- end
+
+local updateWiFi = function()
+  status.currentNetwork = hs.wifi.currentNetwork()
+
+  log.d('updated wifi:', status.currentNetwork)
+end
+
+local updateSleep = function(event)
+  status.sleepEvent = event
+
+  log.d('updated sleep:', status.sleepEvent)
+end
+
+local updateUSB = function()
+  status.isErgodoxAttached = hs.fnutils.find(hs.usb.attachedDevices(), function(device)
+    return device.productName == 'ErgoDox EZ'
+  end) ~= nil
+
+  log.d('updated ergodox:', status.isErgodoxAttached)
+end
+
+module.start = function()
+  -- open network config for vpn watching
+  cache.configuration = hs.network.configuration.open()
+
+  -- start watchers
+  cache.watchers = {
+    battery = hs.battery.watcher.new(updateBattery):start(),
+    screen  = hs.screen.watcher.new(updateScreen):start(),
+    sleep   = hs.caffeinate.watcher.new(updateSleep):start(),
+    usb     = hs.usb.watcher.new(updateUSB):start(),
+    -- network = cache.configuration:monitorKeys({ VPN_CONFIG_KEY, NETWORK_SHARING }):setCallback(updateNetwork):start(),
+    wifi    = hs.wifi.watcher.new(updateWiFi):start(),
+  }
+
+  -- setup on start
+  updateBattery()
+  updateScreen()
+  updateSleep()
+  updateUSB()
+  -- updateNetwork()
+  updateWiFi()
+end
+
+module.stop = function()
+  hs.fnutils.each(cache.watchers, function(watcher)
+    watcher:stop()
+  end)
+
+  cache.configuration:stop()
+end
+
+return module

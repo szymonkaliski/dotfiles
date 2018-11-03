@@ -4,14 +4,10 @@ local module = { cache = cache }
 local bluetooth = require('hs._asm.undocumented.bluetooth')
 local notify    = require('utils.controlplane.notify')
 
-local screenWatcher = function()
-  local isThunderboltConnected = hs.screen.findByName('Thunderbolt Display')
+local screenWatcher = function(_, _, _, _, isThunderboltConnected)
+  if cache.timer then cache.timer:stop() end
 
-  if cache.timer then
-    cache.timer:stop()
-  end
-
-  -- wait time before turning bluetooth on/off, hopefully will fix problems with bluetooth adapter and mouse
+  -- wait time before turning bluetooth on/off, fixes problems with bluetooth adapter plugged in thunderbolt
   local timeout = 5
 
   cache.timer = hs.timer.doAfter(timeout, function()
@@ -30,14 +26,11 @@ local screenWatcher = function()
 end
 
 module.start = function()
-  cache.watcher = hs.screen.watcher.new(screenWatcher):start()
-
-  -- setup on start
-  screenWatcher()
+  cache.watcher = hs.watchable.watch('status.isThunderboltConnected', screenWatcher)
 end
 
 module.stop = function()
-  if cache.watcher then cache.watcher:stop() end
+  cache.watcher:release()
 end
 
 return module

@@ -1,0 +1,7 @@
+#!/usr/bin/env /usr/local/bin/hs
+
+local system = require('ext.system')
+
+if system.isDNDEnabled() then
+  system.toggleDND()
+end

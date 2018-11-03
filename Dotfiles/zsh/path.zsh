@@ -1,4 +1,4 @@
-# path
+export PATH="/usr/local/bin:/usr/bin:/bin/:/usr/sbin:/sbin"
 
 if [ -d $HOME/Documents/Code/Scripts ]; then
   export PATH="$HOME/Documents/Code/Scripts:$PATH"
@@ -8,48 +8,51 @@ fi
 
 if [ -d $HOME/Documents/Code/Bin ]; then
   export PATH="$HOME/Documents/Code/Bin:$PATH"
+elif [ -d $HOME/Documents/Bin ]; then
+  export PATH="$HOME/Documents/Bin:$PATH"
 fi
 
-if [ -d /usr/local/bin ]; then
-  export PATH="/usr/local/bin:$PATH"
-fi
-
-if [ -d /usr/local/sbin ]; then
-  export PATH="/usr/local/sbin:$PATH"
-fi
-
-if [ -d /sbin ]; then
-  export PATH="/sbin:$PATH"
-fi
-
-if [ -d /usr/sbin ]; then
-  export PATH="/usr/sbin:$PATH"
-fi
-
+# brew coreutils
 if [ -d /usr/local/opt/coreutils/libexec/gnubin ]; then
   export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-fi
-
-if [ -d /usr/local/share/npm/bin ]; then
-  export PATH="$PATH:/usr/local/share/npm/bin"
+  export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
 fi
 
 # go
-
 if [ -d $HOME/Documents/Code/Go ]; then
   export GOPATH="$HOME/Documents/Code/Go"
-elif [ -d $HOME/Documents/Go ]; then
-  export GOPATH="$HOME/Documents/Go"
+  export GOBIN="$GOPATH/bin"
+  export PATH="$GOBIN:$PATH"
 fi
-export GOBIN=$GOPATH/bin
 
-# append latest nvm node to PATH
+# lua
+if [ -d $HOME/.luarocks/bin ]; then
+  export PATH="$HOME/.luarocks/bin:$PATH"
+fi
 
+# haskell
+if [ -d $HOME/.cabal/bin ]; then
+  export PATH="$HOME/.cabal/bin:$PATH"
+fi
+
+# node
 if [ -d $HOME/.nvm ]; then
-  local LATEST_NODE=$(/bin/ls ~/.nvm/versions/node/ | /usr/bin/tail -1)
+  local LATEST_NODE=$(ls ~/.nvm/versions/node/ | sort -V | tail -1)
   export PATH="$HOME/.nvm/versions/node/$LATEST_NODE/bin:$PATH"
 fi
 
-# clean paths
+# rust
+if [ -d $HOME/.cargo ]; then
+  export PATH="$HOME/.cargo/bin:$PATH"
+fi
 
+# android
+if [ -d $HOME/Library/Android ]; then
+  export ANDROID_HOME=$HOME/Library/Android/sdk
+  export PATH=$PATH:$ANDROID_HOME/tools
+  export PATH=$PATH:$ANDROID_HOME/tools/bin
+  export PATH=$PATH:$ANDROID_HOME/platform-tools
+fi
+
+# clean paths
 typeset -gU path

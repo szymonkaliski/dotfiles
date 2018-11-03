@@ -1,47 +1,46 @@
 -- initial status
-local cache = {
+local cache  = {
   batteryCharged    = hs.battery.isCharged(),
   batteryPercentage = hs.battery.percentage(),
   powerSource       = hs.battery.powerSource()
 }
 
-local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/battery.png'
+local module = { cache = cache }
 
-local stringifyMinutes = function(minutes)
-  local hours   = math.floor(minutes / 60)
-  local minutes = minutes % 60
+local IMAGE_PATH = os.getenv('HOME') .. '/.hammerspoon/assets/battery.png'
 
-  return string.format('%02d', hours) .. ':' .. string.format('%02d', minutes)
-end
-
-return hs.battery.watcher.new(function()
-  local batteryPercentage = hs.battery.percentage()
-  local isCharged         = hs.battery.isCharged()
-  local powerSource       = hs.battery.powerSource()
-  local timeRemaining     = hs.battery.timeRemaining()
-
-  if batteryPercentage < 100 then
+local notifyBattery = function(_, _, _, _, status)
+  if status.percentage < 100 then
     cache.batteryCharged = false
   end
 
-  if isCharged ~= cache.batteryCharged and batteryPercentage == 100 and powerSource == 'AC Power' then
+  if status.isCharged ~= cache.batteryCharged and status.percentage == 100 and status.powerSource == 'AC Power' then
     hs.notify.new({
       title        = 'Power Status',
       subTitle     = 'Battery: Charged',
-      contentImage = imagePath
+      contentImage = IMAGE_PATH
     }):send()
 
     cache.batteryCharged = true
   end
 
-  if powerSource ~= cache.powerSource then
+  if status.powerSource ~= cache.powerSource then
     hs.notify.new({
       title        = 'Power Status',
-      subTitle     = 'Source: ' .. powerSource,
-      contentImage = imagePath
+      subTitle     = 'Source: ' .. status.powerSource,
+      contentImage = IMAGE_PATH
     }):send()
 
-    cache.powerSource = powerSource
+    cache.powerSource = status.powerSource
   end
-end)
+end
 
+module.start = function()
+  cache.watcher = hs.watchable.watch('status.battery', notifyBattery)
+end
+
+module.stop = function()
+  cache.watcher:release()
+end
+
+return module

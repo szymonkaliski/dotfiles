@@ -1,5 +1,3 @@
-" main settings {{{
-
 " no bells
 set vb t_vb=
 
@@ -24,14 +22,3 @@ set lines=64 columns=132
 
 " disable printing from menu
 macmenu &File.Print key=<nop>
-
-" }}}
-" custom commands {{{
-
-function! Terminal()
-  execute "silent !" . "open -a Terminal '" . getcwd() . "'"
-endfun
-
-command! Terminal :call Terminal()
-
-" }}}

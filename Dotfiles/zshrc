@@ -1,6 +1,3 @@
-# # fake prompt when loading
-# printf "~ > "
-
 # load files
 files=(
   options
@@ -9,36 +6,27 @@ files=(
   colors
   completion
   vim
-  prompt
   locale
   exports
   aliases
   functions
-  fzf
   history
   bindkeys
   terminal
+  reporttime
+  direnv
   plugins
-  # locale
-  # rbenv
+  prompt
+  fzf
 )
+
+if [ "$(uname)" = "Darwin" ]; then
+  source ~/.zsh/darwin.zsh
+elif [ "$(uname)" = "Linux" ]; then
+  source ~/.zsh/linux.zsh;
+fi
 
 for file in $files; do
   source ~/.zsh/$file.zsh
 done
 
-if [ "$(uname)" = "Darwin" ]; then
-  source ~/.zsh/nvm.zsh
-  source ~/.zsh/darwin.zsh;
-fi
-
-if [ "$(uname)" = "Linux" ]; then
-  source ~/.zsh/linux.zsh;
-fi
-
-if [ -d ~/Documents/Dropbox/Notes ]; then
-  source ~/.zsh/notes.zsh
-fi
-
-# # clear after ready
-# clear

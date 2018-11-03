@@ -13,6 +13,7 @@ Dotfiles/vim/backup/
 Dotfiles/vim/plugged/
 Dotfiles/vim/spell/
 Dotfiles/vim/undo/
+Dotfiles/vim/view/
 Dotfiles/vim/.init.vim-rplugin~
 
 # lein

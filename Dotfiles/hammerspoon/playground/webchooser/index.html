@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/photon/0.1.2-alpha/css/photon.min.css">
+
+    <style type="text/css">
+      .window {
+        width: 320px;
+      }
+      .app {
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="window">
+      <div class="window-content">
+        <div class="app" />
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      const ListItem = ({ title, body, active }) => {
+        return React.DOM.li(
+          { className: `list-group-item ${active ? "active" : ""}` },
+          React.DOM.div(
+            { className: "media-body" },
+            React.DOM.strong(null, title),
+            React.DOM.p(null, body)
+          )
+        );
+      };
+
+      const App = () => {
+        return React.DOM.ul(
+          { className: "list-group" },
+          React.DOM.li(
+            { className: "list-group-header" },
+            React.DOM.input({
+              className: "form-control",
+              type: "text"
+            })
+          ),
+          [
+            ["test", "some text", true],
+            ["test 2", "some other text", false]
+          ].map(([title, body, active]) => ListItem({ title, body, active }))
+        );
+      };
+
+      ReactDOM.render(React.createElement(App), document.querySelector(".app"));
+    </script>
+  </body>
+</html>

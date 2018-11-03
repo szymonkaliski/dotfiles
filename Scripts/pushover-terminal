@@ -15,7 +15,7 @@ esac
 
 MESSAGE="notification!"
 if [ "$#" -ne 0 ]; then
-  MESSAGE="$@"
+  MESSAGE="$*"
 fi
 
 curl \
