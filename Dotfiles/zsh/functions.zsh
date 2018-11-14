@@ -273,20 +273,6 @@ is-up() {
   fi
 }
 
-alias timestamp="date +%Y%m%d-%H%M"
-
-# edit temporary/timestamped file
-temp() {
-  local EXT="md"
-
-  if [ "$#" -ne 0 ]; then
-    local EXT="$1"
-  fi
-
-  v "$(timestamp).$EXT"
-}
-
-
 # nnn
 n() {
   local TMPFILE=$(mktemp)

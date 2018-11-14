@@ -11,7 +11,7 @@ case $1 in
     EXT=".MJPEG.avi"
     ;;
   h264)
-    OPTIONS="-qscale 1 -vcodec libx264"
+    OPTIONS="-qscale 1 -vcodec libx264 -max_muxing_queue_size 1024"
     EXT=".H264.mp4"
     ;;
   gif)

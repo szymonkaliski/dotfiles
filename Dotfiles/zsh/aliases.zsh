@@ -39,6 +39,9 @@ alias tl="tmux ls | sed 's/:/;/' | sed 's/\[.*\]//g' | column -t -s ';' | sed 's
 
 alias today="$EDITOR +Today"
 
+alias timestamp="date +%Y%m%d-%H%M"
+alias datestamp="date +%Y-%m-%d"
+
 alias -g C="| wc -l"                 # [C]ount
 alias -g G="| egrep -i --color=auto" # [G]rep
 alias -g H="| head"                  # [H]ead
