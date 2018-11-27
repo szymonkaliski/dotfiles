@@ -32,17 +32,18 @@ if [ -d ~/.zsh/plugins/base16-shell/ ]; then
   base16() {
     pushd $BASE16_SHELL/scripts > /dev/null
 
-    local theme=$(find . | sed -e 's/\.\/base16\-//g' | cut -d '.' -f1 | sort | fzf --reverse --no-sort --prompt='base16 > ')
+    local THEME=$(find . | sed -e 's/\.\/base16\-//g' | cut -d '.' -f1 | sort | fzf --reverse --no-sort --prompt='theme > ')
 
-    if [ ! -z $theme ]; then
-      local filename="base16-$theme.sh"
-
-      echo "switching theme to: $theme"
+    if [ ! -z $THEME ]; then
+      local FILENAME="base16-$THEME.sh"
 
       rm ~/.base16_theme > /dev/null
-      ln -s $BASE16_SHELL/scripts/$filename ~/.base16_theme
+      ln -s $BASE16_SHELL/scripts/$FILENAME ~/.base16_theme
+      echo -e "colorscheme base16-$THEME" > ~/.vimrc_background
 
       base16-load
+
+      echo "Switched theme to: $THEME"
     fi
 
     popd > /dev/null
@@ -51,16 +52,16 @@ if [ -d ~/.zsh/plugins/base16-shell/ ]; then
   base16-load() {
     source ~/.base16_theme
 
-    export BASE16_THEME="$(basename $(realpath ~/.base16_theme))"
+    export BASE16_THEME="$(basename $(realpath ~/.base16_theme) .sh)"
 
     if [ ! -z $TMUX ]; then
-      tmux set-environment -g BASE16_THEME "$BASE16_THEME"
+      tmux set-environment BASE16_THEME "$BASE16_THEME"
     fi
   }
 
   # source only if we don't have BASE16_THEME set
   if [ -f ~/.base16_theme ]; then
-    local CURRENT_BASE16_THEME="$(basename $(realpath ~/.base16_theme))"
+    local CURRENT_BASE16_THEME="$(basename $(realpath ~/.base16_theme) .sh)"
 
     if [ -z $BASE16_THEME ] || [ $CURRENT_BASE16_THEME != $BASE16_THEME ]; then
       base16-load

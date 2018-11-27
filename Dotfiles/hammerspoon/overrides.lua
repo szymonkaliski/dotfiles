@@ -17,6 +17,8 @@ module.init = function()
   -- hs.grid.setGrid('16x9',  '2560x1440') -- cell: 160 x 160
   -- hs.grid.setGrid('9x16',  '1440x2560') -- cell: 160 x 160
 
+  hs.grid.setGrid('18x32') -- default
+
   hs.grid.setGrid('24x15', '1680x1050') -- cell: 70 x 70
   hs.grid.setGrid('32x18', '1920x1080') -- cell: 60 x 60
   hs.grid.setGrid('32x18', '2560x1440') -- cell: 80 x 80

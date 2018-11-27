@@ -5,28 +5,22 @@ window:
   dimensions:
     columns: 80
     lines: 24
-
   padding:
     x: 12
     y: 12
-
-  decorations:
-    true
+  dynamic_padding: true
+  decorations: full
 
 tabspaces: 2
 
 font:
   normal:
     family: SF Mono
-    style: Regular
-
   bold:
     family: SF Mono
-    style: Bold
-
+    style: Regular
   italic:
     family: SF Mono
-    style: Italic
 
   size: 11.0
 
@@ -40,11 +34,9 @@ font:
     x: 0
     y: 1
 
-  use_thin_strokes: true
+  use_thin_strokes: false
 
 render_timer: false
-
-custom_cursor_colors: false
 
 visual_bell:
   duration: 0
@@ -66,10 +58,10 @@ mouse:
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>"
 
-hide_cursor_when_typing: false
-
 # values: Block, Underline, Beam
-cursor_style: Block
+cursor:
+  style: Block
+  unfocused_hollow: true
 
 # live config reload
 live_config_reload: true

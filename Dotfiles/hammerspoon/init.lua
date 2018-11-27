@@ -55,7 +55,7 @@ for screen, position in pairs(hs.screen.screenPositions()) do
   if position.x == 0  then rightScreen = screen end
 end
 
-local displayLayouts = { ['Color LCD'] = 'monocle' }
+local displayLayouts = { ['Color LCD'] = 'cards' }
 
 if leftScreen  then displayLayouts[leftScreen:id()]  = 'equal-right' end
 if rightScreen then displayLayouts[rightScreen:id()] = 'equal-left'  end

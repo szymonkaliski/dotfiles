@@ -4,13 +4,14 @@ call plugutils#load()
 " always load
 Plug 'Konfekt/FastFold'
 Plug 'airblade/vim-rooter'
+Plug 'bfredl/nvim-miniyank'
+Plug 'chriskempson/base16-vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'itchyny/lightline.vim' | Plug 'daviesjamie/vim-base16-lightline'
 Plug 'itchyny/vim-qfedit'
 Plug 'junegunn/vim-slash'
 Plug 'justinmk/vim-dirvish'
 Plug 'tpope/vim-sleuth'
-Plug 'chriskempson/base16-vim'
 
 " deferred
 DeferPlug 'Raimondi/delimitMate'
@@ -24,13 +25,7 @@ DeferPlug 'vim-scripts/matchit.zip'
 DeferPlug 'w0rp/ale',
 DeferPlug 'yssl/QFEnter'
 
-" " snippets
-" Plug 'Shougo/neosnippet.vim'
-" Plug 'Shougo/neosnippet-snippets'
-
 " completion
-" Plug 'prabirshrestha/asyncomplete-buffer.vim' " slows down large files
-" Plug 'prabirshrestha/asyncomplete-neosnippet.vim'
 Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/asyncomplete-file.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
@@ -54,13 +49,9 @@ Plug 'tpope/vim-commentary',               { 'on': '<Plug>Commentary' }
 Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterOperator', '<Plug>ReplaceWithRegisterLine', '<Plug>ReplaceWithRegisterVisual' ] }
 
 " conditional loads
-Plug 'bfredl/nvim-miniyank',               Cond(has('nvim'))
-Plug 'neovim/node-host',                   Cond(executable('npm'), { 'on': [], 'do': 'npm install' })
 Plug 'tmux-plugins/vim-tmux-focus-events', Cond($TMUX != '')
 
 " filetype based plugins
-" Plug 'Quramy/vim-js-pretty-template',      { 'for': 'javascript' }
-" Plug 'pangloss/vim-javascript',            { 'for': [ 'javascript', 'html' ] }
 Plug 'cespare/vim-toml',                   { 'for': 'toml' }
 Plug 'davidoc/taskpaper.vim',              { 'for': 'taskpaper' }
 Plug 'digitaltoad/vim-pug',                { 'for': 'pug' }

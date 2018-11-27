@@ -23,6 +23,10 @@ now() {
     | head -1
 }
 
+gcalcli-add() {
+  gcalcli quick --calendar 'Tracking' "$2"
+}
+
 gcal-add() {
   # using ifttt applet: webhook with event name = $TRIGGER to Quick add event in google calendar, quick add text is {{value1}}
 
@@ -77,8 +81,7 @@ usage() {
   echo
   echo "  track list"
   echo "  track now"
-  echo "  track add 'Workflow @personal @work @language(osascript)' '16:00' '17:00'"
-  echo "  track mark 'Timav' 'released 0.0.1'"
+  echo "  track add 'Workflow @personal @work @language(osascript) 16:00-17:00'"
   echo
   exit 0
 }
@@ -96,16 +99,7 @@ main() {
       now
       ;;
     "add")
-      ical-add "$@" > /dev/null &
-      ;;
-    "mark")
-      ical-mark "$@" > /dev/null &
-      ;;
-    "add-gcal")
-      gcal-add "$@"
-      ;;
-    "add-ical")
-      ical-add "$@" > /dev/null &
+      gcalcli-add "$@" > /dev/null &
       ;;
     --help | -help | -h)
       usage

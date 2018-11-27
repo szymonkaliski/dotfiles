@@ -14,19 +14,8 @@ module.toggleNotificationCenter = function()
 end
 
 module.isDNDEnabled = function()
-  -- check if enabled
-  local _, res = hs.applescript.applescript([[
-    tell application "System Events"
-      tell application process "SystemUIServer"
-        tell (every menu bar whose title of menu bar item 1 contains "Notification")
-          return title of (1st menu bar item whose title contains "Notification")
-        end tell
-      end tell
-    end tell
-  ]])
-
-  local isEnabled = string.match(res[1], 'Do Not Disturb')
-  return isEnabled
+  local _, _, _, rc = hs.execute('do-not-disturb status | grep -q "on"', true)
+  return rc == 0
 end
 
 module.toggleDND = function()
@@ -46,19 +35,7 @@ module.toggleDND = function()
 
   -- toggle, wait a bit if we've send notification
   hs.timer.doAfter(afterTime, function()
-    hs.applescript.applescript([[
-      tell application "System Events"
-        option key down
-
-        tell application process "SystemUIServer"
-          tell (every menu bar whose title of menu bar item 1 contains "Notification")
-            click (1st menu bar item whose title contains "Notification")
-          end tell
-        end tell
-
-        option key up
-      end tell
-    ]])
+    hs.execute('do-not-disturb ' .. (isEnabled == true and 'off' or 'on'), true)
 
     -- is enabled, was disabled
     if isEnabled then
@@ -100,12 +77,21 @@ module.toggleWiFi = function()
 end
 
 module.toggleConsole = function()
+  hs.console.darkMode(module.isDarkModeEnabled())
   hs.toggleConsole()
   activateFrontmost()
 end
 
 module.displaySleep = function()
   hs.task.new('/usr/bin/pmset', nil, { 'displaysleepnow' }):start()
+end
+
+module.isDarkModeEnabled = function()
+  local _, res = hs.osascript.javascript([[
+    Application("System Events").appearancePreferences.darkMode()
+  ]])
+
+  return res
 end
 
 module.reloadHS = function()
