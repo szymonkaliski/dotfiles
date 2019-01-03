@@ -3,6 +3,7 @@ call plugutils#load()
 
 " always load
 Plug 'Konfekt/FastFold'
+Plug 'RRethy/vim-illuminate'
 Plug 'airblade/vim-rooter'
 Plug 'bfredl/nvim-miniyank'
 Plug 'chriskempson/base16-vim'
@@ -127,7 +128,7 @@ set shortmess+=Ic
 set cmdwinheight=3
 
 " syntax coloring
-if !exists("g:syntax_on")
+if !exists('g:syntax_on')
   syntax enable
 endif
 
@@ -135,83 +136,83 @@ endif
 set synmaxcol=1024
 
 function! s:base16_customize() abort
-  call Base16hi("Comment",                      g:base16_gui03, "",             g:base16_cterm03, "",               "italic",  "")
-  call Base16hi("Conditional",                  g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("Constant",                     g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("Delimiter",                    g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("Function",                     g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("Identifier",                   g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("IncSearch",                    g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, "none",    "")
-  call Base16hi("Keyword",                      g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("Label",                        g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("NonText",                      g:base16_gui00, "",             g:base16_cterm00, "",               "",        "")
-  call Base16hi("Operator",                     g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("Repeat",                       g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("Search",                       g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, "none",    "")
-  call Base16hi("Special",                      g:base16_gui08, "",             g:base16_cterm08, "",               "",        "")
-  call Base16hi("SpecialChar",                  g:base16_gui0C, "",             g:base16_cterm0C, "",               "",        "")
-  call Base16hi("Statement",                    g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("StatusLine",                   g:base16_gui05, g:base16_gui01, g:base16_cterm05, g:base16_cterm01, "none",    "")
-  call Base16hi("StatusLineNC",                 g:base16_gui04, g:base16_gui01, g:base16_cterm04, g:base16_cterm01, "",        "")
-  call Base16hi("StorageClass",                 g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("Structure",                    g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("Substitute",                   g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, "none",    "")
-  call Base16hi("Todo",                         g:base16_gui0F, g:base16_gui01, g:base16_cterm0F, g:base16_cterm01, "reverse", "")
-  call Base16hi("Type",                         g:base16_gui08, "",             g:base16_cterm08, "",               "",        "")
-  call Base16hi("Typedef",                      g:base16_gui08, "",             g:base16_cterm08, "",               "",        "")
-  call Base16hi("VertSplit",                    g:base16_gui01, g:base16_gui00, g:base16_cterm01, g:base16_cterm00, "none",    "")
-  call Base16hi("Wildmenu",                     g:base16_gui00, g:base16_gui03, g:base16_cterm00, g:base16_cterm03, "",        "")
+  call Base16hi('Comment',                      g:base16_gui03, '',             g:base16_cterm03, '',               'italic',  '')
+  call Base16hi('Conditional',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('Constant',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('Delimiter',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('Function',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('Identifier',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('IncSearch',                    g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, 'none',    '')
+  call Base16hi('Keyword',                      g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('Label',                        g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('NonText',                      g:base16_gui00, '',             g:base16_cterm00, '',               '',        '')
+  call Base16hi('Operator',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('Repeat',                       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('Search',                       g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, 'none',    '')
+  call Base16hi('Special',                      g:base16_gui08, '',             g:base16_cterm08, '',               '',        '')
+  call Base16hi('SpecialChar',                  g:base16_gui0C, '',             g:base16_cterm0C, '',               '',        '')
+  call Base16hi('Statement',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('StatusLine',                   g:base16_gui05, g:base16_gui01, g:base16_cterm05, g:base16_cterm01, 'none',    '')
+  call Base16hi('StatusLineNC',                 g:base16_gui04, g:base16_gui01, g:base16_cterm04, g:base16_cterm01, '',        '')
+  call Base16hi('StorageClass',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('Structure',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('Substitute',                   g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, 'none',    '')
+  call Base16hi('Todo',                         g:base16_gui0F, g:base16_gui01, g:base16_cterm0F, g:base16_cterm01, 'reverse', '')
+  call Base16hi('Type',                         g:base16_gui08, '',             g:base16_cterm08, '',               '',        '')
+  call Base16hi('Typedef',                      g:base16_gui08, '',             g:base16_cterm08, '',               '',        '')
+  call Base16hi('VertSplit',                    g:base16_gui01, g:base16_gui00, g:base16_cterm01, g:base16_cterm00, 'none',    '')
+  call Base16hi('Wildmenu',                     g:base16_gui00, g:base16_gui03, g:base16_cterm00, g:base16_cterm03, '',        '')
 
-  call Base16hi("SpellBad",                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
-  call Base16hi("SpellCap",                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
-  call Base16hi("SpellLocal",                   g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
-  call Base16hi("SpellRare",                    g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
+  call Base16hi('SpellBad',                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
+  call Base16hi('SpellCap',                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
+  call Base16hi('SpellLocal',                   g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
+  call Base16hi('SpellRare',                    g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
 
-  call Base16hi("ALEError",                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
-  call Base16hi("ALEErrorSign",                 g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, "reverse", "")
-  call Base16hi("ALEWarning",                   g:base16_gui0A, g:base16_gui01, g:base16_cterm0A, g:base16_cterm01, "reverse", "")
-  call Base16hi("ALEWarningSign",               g:base16_gui0A, g:base16_gui01, g:base16_cterm0A, g:base16_cterm01, "reverse", "")
+  call Base16hi('ALEError',                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
+  call Base16hi('ALEErrorSign',                 g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
+  call Base16hi('ALEWarning',                   g:base16_gui0A, g:base16_gui01, g:base16_cterm0A, g:base16_cterm01, 'reverse', '')
+  call Base16hi('ALEWarningSign',               g:base16_gui0A, g:base16_gui01, g:base16_cterm0A, g:base16_cterm01, 'reverse', '')
 
-  call Base16hi("CleverFDefaultLabel",          g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, "none",    "")
+  call Base16hi('CleverFDefaultLabel',          g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, 'none',    '')
 
-  call Base16hi("cPreCondit",                   g:base16_gui08, "",             g:base16_cterm08, "",               "",        "")
-  call Base16hi("clojureAnonArg",               g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("clojureDefine",                g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("clojureDispatch",              g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("clojureMacro",                 g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("clojureSpecial",               g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("clojureVarArg",                g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("cssClassName",                 g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("htmlArg",                      g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
-  call Base16hi("htmlBold",                     g:base16_gui05, "",             g:base16_cterm05, "",               "bold",    "")
-  call Base16hi("htmlLink",                     g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("htmlSpecialTagName",           g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsArrowFunction",              g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsBuiltins",                   g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsClassDefinition",            g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
-  call Base16hi("jsClassMethodType",            g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsDecorator",                  g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsFuncName",                   g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
-  call Base16hi("jsFunction",                   g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsGlobalNodeObjects",          g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsGlobalObjects",              g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsReturn",                     g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsThis",                       g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsonQuote",                    g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("jsxAttrib",                    g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
-  call Base16hi("luaConstant",                  g:base16_gui09, "",             g:base16_cterm09, "",               "",        "")
-  call Base16hi("markdownCode",                 g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("markdownItalic",               g:base16_gui05, "",             g:base16_cterm05, "",               "italic",  "")
-  call Base16hi("markdownListMarker",           g:base16_gui03, "",             g:base16_cterm03, "",               "",        "")
-  call Base16hi("markdownUrl",                  g:base16_gui0D, "",             g:base16_cterm0D, "",               "",        "")
-  call Base16hi("rustFuncName",                 g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
-  call Base16hi("taskpaperContext",             g:base16_gui03, "",             g:base16_cterm03, "",               "",        "")
-  call Base16hi("taskpaperDone",                g:base16_gui02, "",             g:base16_cterm02, "",               "",        "")
-  call Base16hi("typescriptEndColons",          g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
-  call Base16hi("typescriptGlobalObjects",      g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
-  call Base16hi("typescriptHtmlElemProperties", g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
-  call Base16hi("typescriptHtmlEvents",         g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
-  call Base16hi("xmlAttrib",                    g:base16_gui05, "",             g:base16_cterm05, "",               "",        "")
+  call Base16hi('cPreCondit',                   g:base16_gui08, '',             g:base16_cterm08, '',               '',        '')
+  call Base16hi('clojureAnonArg',               g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('clojureDefine',                g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('clojureDispatch',              g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('clojureMacro',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('clojureSpecial',               g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('clojureVarArg',                g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('cssClassName',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('htmlArg',                      g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
+  call Base16hi('htmlBold',                     g:base16_gui05, '',             g:base16_cterm05, '',               'bold',    '')
+  call Base16hi('htmlLink',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('htmlSpecialTagName',           g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsArrowFunction',              g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsBuiltins',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsClassDefinition',            g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
+  call Base16hi('jsClassMethodType',            g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsDecorator',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsFuncName',                   g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
+  call Base16hi('jsFunction',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsGlobalNodeObjects',          g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsGlobalObjects',              g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsReturn',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsThis',                       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsonQuote',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('jsxAttrib',                    g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
+  call Base16hi('luaConstant',                  g:base16_gui09, '',             g:base16_cterm09, '',               '',        '')
+  call Base16hi('markdownCode',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('markdownItalic',               g:base16_gui05, '',             g:base16_cterm05, '',               'italic',  '')
+  call Base16hi('markdownListMarker',           g:base16_gui03, '',             g:base16_cterm03, '',               '',        '')
+  call Base16hi('markdownUrl',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call Base16hi('rustFuncName',                 g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
+  call Base16hi('taskpaperContext',             g:base16_gui03, '',             g:base16_cterm03, '',               '',        '')
+  call Base16hi('taskpaperDone',                g:base16_gui02, '',             g:base16_cterm02, '',               '',        '')
+  call Base16hi('typescriptEndColons',          g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
+  call Base16hi('typescriptGlobalObjects',      g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
+  call Base16hi('typescriptHtmlElemProperties', g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
+  call Base16hi('typescriptHtmlEvents',         g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
+  call Base16hi('xmlAttrib',                    g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
 
   " nvim fix for flickering on start
   hi Normal ctermbg=NONE
@@ -224,7 +225,7 @@ augroup END
 
 let base16colorspace=256
 
-if filereadable(expand("~/.vimrc_background"))
+if filereadable(expand('~/.vimrc_background'))
   source ~/.vimrc_background
 else
   colorscheme base16-default-dark
@@ -284,10 +285,11 @@ set viewdir=~/.vim/view//
 
 " create dirs if needed
 if !isdirectory(&undodir)
-  call mkdir(&undodir, "p")
+  call mkdir(&undodir, 'p')
 endif
+
 if !isdirectory(&viewdir)
-  call mkdir(&viewdir, "p")
+  call mkdir(&viewdir, 'p')
 endif
 
 " fix for node fs.watch
@@ -519,6 +521,9 @@ nnoremap <leader><leader> za
 
 " zoom window
 nnoremap <silent> <c-w>z :ZoomToggle<cr>
+
+" make
+nnoremap <silent>m :make<cr>
 
 " duplicate line and comment (requires vim-commentary)
 nmap <leader>cc yygccp

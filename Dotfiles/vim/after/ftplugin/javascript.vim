@@ -1,5 +1,6 @@
 setlocal foldmethod=syntax
 setlocal suffixesadd=.js,.jsx
+setlocal makeprg=node\ %
 
 function! s:log(name)
   call append(".", "console.log(\"" . a:name . ":\", " . a:name . ");")

@@ -278,7 +278,7 @@ n() {
   local TMPFILE=$(mktemp)
   local COPIER="echo -n $1 | pbcopy"
 
-  NNN_TMPFILE=$TMPFILE NNN_COPIER=$COPIER nnn "$@"
+  NNN_TMPFILE=$TMPFILE NNN_COPIER=$COPIER NNN_USE_EDITOR=1 nnn "$@"
 
   if [ -f $TMPFILE ]; then
     source $TMPFILE

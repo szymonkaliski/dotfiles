@@ -62,7 +62,7 @@ function! s:ale_load()
   nmap <silent> ]a <Plug>(ale_next_wrap)
 
   nnoremap <leader>p :ALEFix<cr>
-  nnoremap coa :ALEToggle<cr>:echom g:ale_enabled ? "ALE: Enabled" : "ALE: Disabled"<cr>
+  nnoremap coa :ALEToggle<cr>:echom g:ale_enabled ? 'ALE: Enabled' : 'ALE: Disabled'<cr>
 
   let g:ale_completion_enabled = 0
 

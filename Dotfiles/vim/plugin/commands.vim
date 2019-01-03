@@ -59,7 +59,7 @@ command! Today call <sid>show_today()
 command! PlugUp :PlugUpdate | PlugUpgrade
 
 " copy full file path (to system clipboard)
-command! CPWD :let @+ = expand("%:p")
+command! CPWD :let @+ = expand('%:p')
 
 " redirect vim command output to scratch buffer
 function! Redir(cmd)
@@ -81,7 +81,7 @@ function! Redir(cmd)
 
   let w:scratch = 1
   setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
-  call setline(1, split(output, "\n"))
+  call setline(1, split(output, '\n'))
 endfunction
 
 command! -nargs=1 -complete=command Redir silent call Redir(<f-args>)

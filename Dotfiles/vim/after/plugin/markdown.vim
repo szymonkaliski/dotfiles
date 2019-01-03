@@ -19,5 +19,6 @@ let g:markdown_fenced_languages = [
       \ 'sql',
       \ 'ts=typescript.tsx',
       \ 'typescript=typescript.tsx',
-      \ 'vim'
+      \ 'vim',
+      \ 'yaml'
       \ ]

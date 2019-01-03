@@ -13,7 +13,9 @@ local getConnectedName = function()
 end
 
 local disconnectVPN = function(connectionName)
-  hs.applescript.applescript([[tell application "Viscosity" to disconnect "]] .. connectionName .. [["]])
+  hs.applescript.applescript([[
+    tell application "Viscosity" to disconnect "]] .. connectionName .. [["
+  ]])
 end
 
 local connectVPN = function(connectionName)
@@ -22,11 +24,17 @@ local connectVPN = function(connectionName)
     return
   end
 
-  hs.applescript.applescript([[tell application "Viscosity" to connect "]] .. connectionName .. [["]])
+  hs.applescript.applescript([[
+    tell application "Viscosity" to connect "]] .. connectionName .. [["
+  ]])
 end
 
 module.start = function()
   cache.prevConnectedName = getConnectedName()
+
+  if cache.prevConnectedName == nil then
+    cache.prevConnectedName = hs.settings.get('viscosityPrevConnected')
+  end
 
   hs.hotkey.bind({ 'cmd', 'alt', 'ctrl' }, 'v', function()
     local connectedName = getConnectedName()
@@ -42,6 +50,7 @@ module.start = function()
 end
 
 module.stop = function()
+  hs.settings.set('viscosityPrevConnected', cache.prevConnectedName)
 end
 
 return module
