@@ -24,6 +24,11 @@ fe() {
   fzf --multi --select-1 --exit-0 --query="$1" --prompt="files > " --reverse --preview=$preview | tr "\n" "\0" | xargs -0 -o vim
 }
 
+# open file
+fo() {
+  open $(fzf --select-1 --exit-0 --query="$1" --prompt="open > " --reverse)
+}
+
 # cd to directory
 fcd() {
   # local preview="tree -aC --dirsfirst {}"

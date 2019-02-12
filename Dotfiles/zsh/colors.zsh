@@ -32,7 +32,7 @@ if [ -d ~/.zsh/plugins/base16-shell/ ]; then
   base16() {
     pushd $BASE16_SHELL/scripts > /dev/null
 
-    local THEME=$(find . | sed -e 's/\.\/base16\-//g' | cut -d '.' -f1 | sort | fzf --reverse --no-sort --prompt='theme > ')
+    local THEME=$(find . | sed -e 's/\.\/base16\-//g' | cut -d '.' -f1 | sort | fzf --reverse --no-sort --prompt='theme > ' --select-1 --query="$1")
 
     if [ ! -z $THEME ]; then
       local FILENAME="base16-$THEME.sh"

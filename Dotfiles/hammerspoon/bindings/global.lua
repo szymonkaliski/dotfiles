@@ -22,14 +22,13 @@ module.start = function()
 
   -- toggles
   hs.fnutils.each({
-    -- { key = 'c', fn = toggleCaffeine      },
-    -- { key = 'v', fn = toggleVPN           },
     { key = '/', fn = system.toggleConsole   },
     { key = 'b', fn = system.toggleBluetooth },
     { key = 'd', fn = system.toggleDND       },
     { key = 'g', fn = grid.toggleGrid        },
     { key = 'q', fn = system.displaySleep    },
     { key = 'r', fn = system.reloadHS        },
+    { key = 't', fn = system.toggleTheme     },
     { key = 'w', fn = system.toggleWiFi      },
   }, function(object)
     hs.hotkey.bind(ultra, object.key, object.fn)

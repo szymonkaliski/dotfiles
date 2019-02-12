@@ -80,14 +80,16 @@ function! s:ale_load()
         \ }
 
   let g:ale_fixers = {
+        \ 'arduino': [ 'clang-format' ],
         \ 'cpp': [ 'clang-format' ],
         \ 'css': [ 'prettier' ],
         \ 'go': [ 'goimports', 'gofmt' ],
         \ 'html': [ 'prettier' ],
         \ 'json': [ 'prettier' ],
         \ 'less': [ 'prettier' ],
+        \ 'processing': [ { buffer, lines -> { 'command': 'astyle --style=java --mode=java -s2 -p -H -U -j -v -n -N' } } ],
         \ 'rust': [ 'rustfmt' ],
         \ 'scss': [ 'prettier' ],
-        \ 'typescript': [ 'prettier' ]
+        \ 'typescript': [ 'prettier' ],
         \ }
 endfunction

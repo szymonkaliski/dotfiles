@@ -2,6 +2,7 @@ local highlightWindow = require('ext.drawing').highlightWindow
 local capitalize      = require('ext.utils').capitalize
 
 local module = {}
+local hhtwm  = wm.cache.hhtwm
 
 local move = function(dir)
   local win = hs.window.frontmostWindow()

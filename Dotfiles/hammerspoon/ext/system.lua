@@ -94,6 +94,22 @@ module.isDarkModeEnabled = function()
   return res
 end
 
+module.toggleTheme = function()
+  hs.osascript.javascript([[
+    var systemEvents = Application("System Events")
+    var alfredApp = Application("Alfred 3")
+
+    ObjC.import("stdlib")
+
+    var isDark = systemEvents.appearancePreferences.darkMode()
+    systemEvents.appearancePreferences.darkMode = !isDark
+
+    if (alfredApp) {
+      alfredApp.setTheme("Mojave " + isDark ? "Light" : "Dark")
+    }
+  ]])
+end
+
 module.reloadHS = function()
   hs.reload()
 

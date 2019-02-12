@@ -26,7 +26,7 @@ module.cycleWindows = function(direction, appWindowsOnly, screenWindowsOnly)
   if appWindowsOnly and not win then
     local mouseScreen = hs.mouse.getCurrentScreen()
 
-    local screenWindows = hs.fnutils.filter(hs.window.allWindows(), function(testWin)
+    local screenWindows = hs.fnutils.filter(hs.window.visibleWindows(), function(testWin)
       return testWin:screen():id() == mouseScreen:id()
     end)
 
@@ -41,9 +41,9 @@ module.cycleWindows = function(direction, appWindowsOnly, screenWindowsOnly)
 
   local allWindows = appWindowsOnly and win:application():allWindows() or hs.window.allWindows()
 
-  -- we only care about standard windows
+  -- we only care about standard and visible windows
   local windows = hs.fnutils.filter(allWindows, function(testWin)
-    return testWin ~= nil and testWin:isStandard()
+    return testWin ~= nil and testWin:isStandard() and testWin:isVisible()
   end)
 
   -- filter for only current-screen windows if we want it to
@@ -98,6 +98,7 @@ end
 
 -- show hints with highlight
 module.windowHints = function()
+  hs.hints.iconAlpha = 1.0
   hs.hints.windowHints(nil, highlightWindow)
 end
 

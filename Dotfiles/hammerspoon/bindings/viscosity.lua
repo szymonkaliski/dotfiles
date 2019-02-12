@@ -29,6 +29,18 @@ local connectVPN = function(connectionName)
   ]])
 end
 
+module.toggleVPN = function()
+  local connectedName = getConnectedName()
+
+  if connectedName then
+    disconnectVPN(connectedName)
+  else
+    connectVPN(cache.prevConnectedName)
+  end
+
+  cache.prevConnectedName = connectedName
+end
+
 module.start = function()
   cache.prevConnectedName = getConnectedName()
 
@@ -36,17 +48,7 @@ module.start = function()
     cache.prevConnectedName = hs.settings.get('viscosityPrevConnected')
   end
 
-  hs.hotkey.bind({ 'cmd', 'alt', 'ctrl' }, 'v', function()
-    local connectedName = getConnectedName()
-
-    if connectedName then
-      disconnectVPN(connectedName)
-    else
-      connectVPN(cache.prevConnectedName)
-    end
-
-    cache.prevConnectedName = connectedName
-  end)
+  hs.hotkey.bind({ 'cmd', 'alt', 'ctrl' }, 'v', module.toggleVPN)
 end
 
 module.stop = function()
