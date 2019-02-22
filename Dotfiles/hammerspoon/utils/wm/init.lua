@@ -36,6 +36,7 @@ module.start = function()
 
   local filters = {
     { app = 'AppCleaner', tile = false                                },
+    { app = 'Application Loader', tile = true                         },
     { app = 'Archive Utility', tile = false                           },
     { app = 'DiskImages UI Agent', tile = false                       },
     { app = 'FaceTime', tile = false                                  },

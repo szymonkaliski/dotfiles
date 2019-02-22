@@ -96,16 +96,16 @@ end
 
 module.toggleTheme = function()
   hs.osascript.javascript([[
-    var systemEvents = Application("System Events")
-    var alfredApp = Application("Alfred 3")
+    var systemEvents = Application("System Events");
+    var alfredApp = Application("Alfred 3");
 
-    ObjC.import("stdlib")
+    ObjC.import("stdlib");
 
-    var isDark = systemEvents.appearancePreferences.darkMode()
-    systemEvents.appearancePreferences.darkMode = !isDark
+    var isDark = systemEvents.appearancePreferences.darkMode();
+    systemEvents.appearancePreferences.darkMode = !isDark;
 
     if (alfredApp) {
-      alfredApp.setTheme("Mojave " + isDark ? "Light" : "Dark")
+      alfredApp.setTheme("Mojave " + (isDark ? "Light" : "Dark"));
     }
   ]])
 end

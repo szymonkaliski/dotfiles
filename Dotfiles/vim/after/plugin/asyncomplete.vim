@@ -20,30 +20,23 @@ function! s:asyncomplete_load()
 
   inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-  " call asyncomplete#register_source(asyncomplete#sources#buffer#get_source_options({
-	" \ 'name': 'buffer',
-	" \ 'whitelist': [ '*' ],
-	" \ 'priority': 0,
-	" \ 'completor': function('asyncomplete#sources#buffer#completor'),
-	" \ }))
+  call asyncomplete#register_source(asyncomplete#sources#buffer#get_source_options({
+	\ 'name': 'buffer',
+	\ 'whitelist': ['*'],
+	\ 'priority': 1,
+	\ 'completor': function('asyncomplete#sources#buffer#completor'),
+	\ }))
 
   call asyncomplete#register_source(asyncomplete#sources#file#get_source_options({
 	\ 'name': 'file',
-	\ 'whitelist': [ '*' ],
-	\ 'priority': 1,
+	\ 'whitelist': ['*'],
+	\ 'priority': 2,
 	\ 'completor': function('asyncomplete#sources#file#completor')
 	\ }))
 
-  " call asyncomplete#register_source(asyncomplete#sources#neosnippet#get_source_options({
-	" \ 'name': 'neosnippet',
-	" \ 'whitelist': ['*'],
-	" \ 'priority': 2,
-	" \ 'completor': function('asyncomplete#sources#neosnippet#completor'),
-	" \ }))
-
   call asyncomplete#register_source(asyncomplete#sources#omni#get_source_options({
 	\ 'name': 'omni',
-	\ 'whitelist': [ '*' ],
+	\ 'whitelist': ['*'],
 	\ 'priority': 3,
 	\ 'completor': function('asyncomplete#sources#omni#completor')
 	\  }))
