@@ -36,7 +36,7 @@ module.start = function()
 
   -- apps
   hs.fnutils.each({
-    { key = 'return', apps = { 'iTerm2'                  } },
+    { key = 'return', apps = { 'kitty'                   } },
     { key = 'space',  apps = { 'Safari', 'Google Chrome' } },
     { key = ',',      apps = { 'System Preferences'      } }
   }, function(object)

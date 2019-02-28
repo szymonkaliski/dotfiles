@@ -6,6 +6,7 @@ local module = { cache = cache }
 local screenWatcher = function(_, _, _, prevScreenCount, screenCount)
   if prevScreenCount ~= nil and prevScreenCount ~= screenCount then
     hhtwm.displayLayouts = calculateDisplayLayouts()
+    hhtwm.resetLayouts()
     hhtwm.tile()
   end
 end

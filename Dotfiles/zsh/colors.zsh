@@ -29,10 +29,18 @@ fi
 if [ -d ~/.zsh/plugins/base16-shell/ ]; then
   export BASE16_SHELL=~/.zsh/plugins/base16-shell/
 
-  base16() {
-    pushd $BASE16_SHELL/scripts > /dev/null
+  base16-load() {
+    source ~/.base16_theme
 
-    local THEME=$(find . | sed -e 's/\.\/base16\-//g' | cut -d '.' -f1 | sort | fzf --reverse --no-sort --prompt='theme > ' --select-1 --query="$1")
+    export BASE16_THEME="$(basename $(realpath ~/.base16_theme) .sh)"
+
+    if [ ! -z $TMUX ]; then
+      tmux set-environment BASE16_THEME "$BASE16_THEME"
+    fi
+  }
+
+  base16() {
+    local THEME=$1
 
     if [ ! -z $THEME ]; then
       local FILENAME="base16-$THEME.sh"
@@ -42,20 +50,6 @@ if [ -d ~/.zsh/plugins/base16-shell/ ]; then
       echo -e "colorscheme base16-$THEME" > ~/.vimrc_background
 
       base16-load
-
-      echo "Switched theme to: $THEME"
-    fi
-
-    popd > /dev/null
-  }
-
-  base16-load() {
-    source ~/.base16_theme
-
-    export BASE16_THEME="$(basename $(realpath ~/.base16_theme) .sh)"
-
-    if [ ! -z $TMUX ]; then
-      tmux set-environment BASE16_THEME "$BASE16_THEME"
     fi
   }
 
@@ -67,5 +61,8 @@ if [ -d ~/.zsh/plugins/base16-shell/ ]; then
       base16-load
     fi
   fi
+
+  # tab completion!
+  compctl -s "$(find $BASE16_SHELL/scripts/ | sed 's/^.*base16-\(.*\).sh/\1/' | cut -d '.' -f1)" base16
 fi
 
