@@ -24,6 +24,8 @@ module.init = function()
   hs.grid.setGrid('32x18', '2560x1440') -- cell: 80 x 80
   hs.grid.setGrid('18x32', '1440x2560') -- cell: 80 x 80
 
+  hs.grid.setGrid('48x20', '3840x1600') -- cell: 60 x 60
+
   hs.grid.setMargins({ gridMargin, gridMargin })
   hs.grid.getMargins = function() return { gridMargin, gridMargin } end
 

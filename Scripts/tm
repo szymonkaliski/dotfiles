@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+setup_session() {
+  local basedir=$1
+  local title=$2
+
+  # if [ -d "$basedir"/Code ]; then
+  #   tmux send-keys -t "$title" " cd Code; clear" "C-m"
+  # fi
+}
+
+get_basedir() {
+  if [[ ${PWD##*/} == "Code" ]]; then
+    dirname "$PWD"
+  else
+    echo "$PWD"
+  fi
+}
+
+get_title() {
+  if [ "$#" -ne 0 ]; then
+    echo "$1"
+    return
+  fi
+
+  if [[ $PWD == "$HOME" ]]; then
+    echo "home"
+    return
+  fi
+
+  local dir=""
+
+  if [[ ${PWD##*/} == "Code" ]]; then
+    basedir=$(get_basedir)
+    dir=$(basename "$basedir")
+  else
+    dir=${PWD##*/}
+  fi
+
+  echo "$dir" | tr "[:upper:]" "[:lower:]" | sed "s/^[0-9][0-9][0-9][0-9]\ \-\ //g" | sed "s/[\ |\.]/\-/g"
+}
+
+get_session() {
+  local title=$1
+  local target_session=""
+
+  if tmux has-session -t "$title" > /dev/null 2>&1; then
+    target_session=$title
+  else
+    for session in $(tmux ls 2> /dev/null | cut -d: -f1); do
+      if [[ $session =~ $title ]]; then
+        target_session=$session
+        break
+      fi
+    done
+  fi
+
+  echo "$target_session"
+}
+
+run() {
+  local title
+  local basedir
+  local session
+
+  title=$(get_title "$@")
+  basedir=$(get_basedir)
+  session=$(get_session "$title")
+
+  if [[ $session != "" ]] && [ -z "$TMUX" ]; then
+    tmux attach -t "$session"
+    return
+  fi
+
+  if [[ $session != "" ]] && [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session"
+    return
+  fi
+
+  if [[ $session == "" ]] && [ -z "$TMUX" ]; then
+    tmux new-session -d -s "$title"
+    setup_session "$basedir" "$title"
+    tmux attach -t "$title"
+    return
+  fi
+
+  if [[ $session == "" ]] && [ -n "$TMUX" ]; then
+    TMUX=$(tmux new-session -d -s "$title")
+    setup_session "$basedir" "$title"
+    tmux switch-client -t "$title"
+    return
+  fi
+}
+
+run "$@"

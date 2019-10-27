@@ -26,36 +26,7 @@ command! Todo :call utils#find_todo()
 command! SaveSession :call session#save()
 command! LoadSession :call session#load()
 
-" counting days/hours in logs
-command! -range=% -nargs=0 CountWorkedDays :<line1>,<line2>call workcount#days()
-command! -range=% -nargs=0 CountWorkedHours :<line1>,<line2>call workcount#hours()
-
-" notes handling
-command! -nargs=? -complete=custom,notes#complete_notes Note call notes#note(<f-args>)
-
-" today view
-function! s:show_today()
-  " e ~/Documents/Dropbox/Notes/drafts.txt
-
-  e ~/Documents/Dropbox/Tasks/Todo.taskpaper
-  " tabe ~/Documents/Dropbox/Tasks/Todo.taskpaper
-  norm zM
-  %g/\v^(.*\@today)&(.*\@done)@!/:normal zv
-
-  vsp ~/Documents/Dropbox/Notes/drafts.txt
-  " norm zMGzazz
-
-  tabe ~/Documents/Dropbox/Tasks/Work/Work.taskpaper
-  norm zR
-
-  tabe ~/Documents/Dropbox/Notes/ideas.txt
-
-  norm gt0
-  redraw!
-endfunction
-
-command! Today call <sid>show_today()
-
+" plug
 command! PlugUp :PlugUpdate | PlugUpgrade
 
 " copy full file path (to system clipboard)

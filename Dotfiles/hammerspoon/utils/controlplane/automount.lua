@@ -1,6 +1,6 @@
 local log    = hs.logger.new('automount', 'debug')
 
-local cache  = { watchers = {}, tasks = {} }
+local cache  = { tasks = {} }
 local module = { cache = cache }
 
 local SCRIPTS_PATH  = os.getenv('HOME') .. '/Documents/Code/Scripts/'
@@ -81,7 +81,7 @@ local sleepWatcher = function(_, _, _, _, event)
 end
 
 local wifiWatcher = function(_, _, _, _, currentNetwork)
-  if currentNetwork == 'Skynet 5G' then
+  if currentNetwork == config.network.home then
     mountRemote()
   else
     umountRemote()

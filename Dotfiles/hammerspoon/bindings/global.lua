@@ -26,6 +26,7 @@ module.start = function()
     { key = 'b', fn = system.toggleBluetooth },
     { key = 'd', fn = system.toggleDND       },
     { key = 'g', fn = grid.toggleGrid        },
+    { key = 'l', fn = wm.cycleLayout         },
     { key = 'q', fn = system.displaySleep    },
     { key = 'r', fn = system.reloadHS        },
     { key = 't', fn = system.toggleTheme     },
@@ -36,16 +37,11 @@ module.start = function()
 
   -- apps
   hs.fnutils.each({
-    { key = 'return', apps = { 'kitty'                   } },
-    { key = 'space',  apps = { 'Safari', 'Google Chrome' } },
-    { key = ',',      apps = { 'System Preferences'      } }
+    { key = 'return', apps = config.apps.terms        },
+    { key = 'space',  apps = config.apps.browsers     },
+    { key = ',',      apps = { 'System Preferences' } }
   }, function(object)
     hs.hotkey.bind(ultra, object.key, function() smartLaunchOrFocus(object.apps) end)
-  end)
-
-  -- mindmapping my[s]elf
-  hs.hotkey.bind(ultra, 's', function()
-    hs.execute('open /Users/szymon/Library/Mobile\\ Documents/W6L39UYL6Z~com~mindnode~MindNode/Documents/Self.mindnode')
   end)
 end
 

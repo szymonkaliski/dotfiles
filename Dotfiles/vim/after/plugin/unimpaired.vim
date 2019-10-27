@@ -34,6 +34,10 @@ function! s:unimpaired_load()
   xmap [e <Plug>unimpairedMoveSelectionUpgv
   xmap ]e <Plug>unimpairedMoveSelectionDowngv
 
+  " ale
+  nmap <silent> [a <Plug>(ale_previous_wrap)
+  nmap <silent> ]a <Plug>(ale_next_wrap)
+
   " unused
   unmap [A
   unmap ]A

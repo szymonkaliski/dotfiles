@@ -24,4 +24,18 @@ module.uniq = function(T)
   return results
 end
 
+module.equal = function(a, b)
+  if #a ~= #b then
+    return false
+  end
+
+  for i, _ in ipairs(a) do
+    if b[i] ~= a[i] then
+      return false
+    end
+  end
+
+  return true
+end
+
 return module

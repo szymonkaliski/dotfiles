@@ -16,6 +16,7 @@ module.init = function()
         app              = win:application():name(),
         role             = win:role(),
         subrole          = win:subrole(),
+        frame            = win:frame(),
         buttonZoom       = axuiWindowElement(win):attributeValue('AXZoomButton'),
         buttonFullScreen = axuiWindowElement(win):attributeValue('AXFullScreenButton'),
         isResizable      = axuiWindowElement(win):isAttributeSettable('AXSize')

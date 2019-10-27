@@ -2,7 +2,6 @@
 
 tell application "Finder"
   try
-    eject "TimeMachine"
     eject "Data"
   end try
 end tell

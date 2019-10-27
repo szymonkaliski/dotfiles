@@ -28,56 +28,56 @@ module.drawBorder = function()
   local focusedWindow = hs.window.focusedWindow()
 
   if not focusedWindow or focusedWindow:role() ~= "AXWindow" then
-    if cache.borderDrawing then
-      cache.borderDrawing:hide()
+    if cache.borderCanvas then
+      cache.borderCanvas:hide(0.5)
     end
 
     return
   end
 
   local alpha       = 0.6
-  local borderWidth = 4
-  local distance    = 4
-  local roundRadix  = 6
+  local borderWidth = 2
+  local distance    = 6
+  local roundRadius = 12
 
   local isFullScreen = focusedWindow:isFullScreen()
   local frame        = focusedWindow:frame()
 
-  if not cache.borderDrawing then
-    cache.borderDrawing = hs.drawing.rectangle({ x = 0, y = 0, w = 0, h = 0 })
-      :setFill(nil)
-      :setStroke(true)
-      :setStrokeWidth(borderWidth)
-      :setStrokeColor(module.getHighlightWindowColor())
-      :setBehaviorByLabels({ 'moveToActiveSpace', 'transient' })
-      :setLevel(hs.drawing.windowLevels.normal)
-      :setAlpha(alpha)
+  if not cache.borderCanvas then
+    cache.borderCanvas = hs.canvas.new({ x = 0, y = 0, w = 0, h = 0 })
+      :level(hs.canvas.windowLevels.overlay)
+      :behavior({ hs.canvas.windowBehaviors.transient, hs.canvas.windowBehaviors.moveToActiveSpace })
+      :alpha(alpha)
   end
 
   if isFullScreen then
-    cache.borderDrawing
-      :setFrame(frame)
-      :setRoundedRectRadii(0, 0)
+    cache.borderCanvas:frame(frame)
   else
-    cache.borderDrawing
-      :setFrame({
+    cache.borderCanvas:frame({
         x = frame.x - distance / 2,
         y = frame.y - distance / 2,
         w = frame.w + distance,
         h = frame.h + distance
       })
-      :setRoundedRectRadii(roundRadix, roundRadix)
   end
 
-  cache.borderDrawing:show()
+  cache.borderCanvas[1] = {
+    type             = 'rectangle',
+    action           = 'stroke',
+    strokeColor      = module.getHighlightWindowColor(),
+    strokeWidth      = borderWidth,
+    roundedRectRadii = { xRadius = roundRadius, yRadius = roundRadius }
+  }
+
+  cache.borderCanvas:show()
 end
 
 module.highlightWindow = function(win)
-  if window.highlightBorder then
-    module.drawBorder()
+  if config.window.highlightBorder then
+    module.drawBorder(0.5)
   end
 
-  if window.highlightMouse then
+  if config.window.highlightMouse then
     local focusedWindow = win or hs.window.focusedWindow()
     if not focusedWindow or focusedWindow:role() ~= "AXWindow" then return end
 

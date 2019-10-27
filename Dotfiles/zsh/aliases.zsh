@@ -42,6 +42,9 @@ alias today="$EDITOR +Today"
 alias timestamp="date +%Y%m%d-%H%M"
 alias datestamp="date +%Y-%m-%d"
 
+alias kitty="/Applications/kitty.app/Contents/MacOS/kitty"
+alias icat="kitty +kitten icat"
+
 alias -g C="| wc -l"                 # [C]ount
 alias -g G="| egrep -i --color=auto" # [G]rep
 alias -g H="| head"                  # [H]ead

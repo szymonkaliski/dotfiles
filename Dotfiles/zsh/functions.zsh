@@ -1,56 +1,3 @@
-# tmux
-tm() {
-  local attach=""
-  local title=""
-
-  if [ "$#" -ne 0 ]; then
-    title=$1
-  else
-    if [[ $PWD != $HOME ]]; then
-      local dir=""
-      if [[ ${PWD##*/} == "Code" ]]; then
-        local dirname="$(dirname "$PWD")"
-        dir=$(basename "$dirname")
-      else
-        dir=${PWD##*/}
-      fi
-
-      title="$(echo $dir | tr "[:upper:]" "[:lower:]" | sed "s/[\ |\.]/\-/g")"
-    else
-      title="home"
-    fi
-  fi
-
-  tmux has-session -t $title > /dev/null 2>&1
-
-  if [ $? -eq 0 ]; then
-    attach=$title
-  else
-    for session in $(tmux ls 2>/dev/null | cut -d: -f1); do
-      if [[ $session =~ $title  ]]; then
-        attach=$session
-        break
-      fi
-    done
-  fi
-
-  if [[ $attach != "" ]]; then
-    if [ -z $TMUX ]; then
-      tmux attach -t $attach
-    else
-      tmux switch-client -t $attach
-    fi
-  else
-    if [ -z $TMUX ]; then
-      tmux new -s $title
-    else
-      TMUX=$(tmux new-session -d -s $title)
-      tmux switch-client -t $title
-    fi
-  fi
-}
-compctl -s "$(tmux ls 2> /dev/null | cut -d: -f1)" tm
-
 # use local npm binaries
 npm-exec() {
   PATH="$(npm bin):$PATH" "$@"
@@ -109,6 +56,13 @@ bak() {
   done
 }
 
+# quickly duplicate things
+dup() {
+  for file in "$@"; do
+    cp -f "$file" "${file}.dup"
+  done
+}
+
 # rename files
 name() {
   local newname="$1"
@@ -142,12 +96,12 @@ serve() {
 
 # simple find functions
 if hash fd 2> /dev/null; then
-  alias fn="$(which fd) --hidden"
+  alias fn="$(which fd) --hidden --follow --exclude .git"
 
   alias fd="fn --type directory"
   alias ff="fn --type file"
 else
-  fn() { find . -iname "*$@*" 2>/dev/null         }
+  fn() { find . -iname "*$@*"         2>/dev/null }
   fd() { find . -iname "*$@*" -type d 2>/dev/null }
   ff() { find . -iname "*$@*" -type f 2>/dev/null }
 fi
@@ -176,7 +130,6 @@ extract() {
     echo "file '$1' does not exist!"
   fi
 }
-compctl -g '*.tar.bz2 *.tar.gz *.bz2 *.gz *.jar *.rar *.tar *.tbz2 *.tgz *.zip *.Z' + -g '*(-/)' extract
 
 # sanitize permissions
 sanitize() {
@@ -215,7 +168,6 @@ retry() {
     echo -e "\n[$(date +'%T')] $(tput setaf 1)retrying:$(tput sgr0) $@\n"
   done
 }
-compctl -f -x "c[-1,retry]" -c -- retry
 
 # re-run command every second
 repeatedly() {
@@ -226,7 +178,6 @@ repeatedly() {
     sleep 1
   done
 }
-compctl -f -x "c[-1,retry]" -c -- repeatedly
 
 timer() {
   local start=$(($(date +%s) + $(seconds $1)));
@@ -245,14 +196,30 @@ stopwatch() {
   done
 }
 
-draft() {
-  local draftfile=$HOME/Documents/Dropbox/Notes/drafts.txt
-  if [ "$#" -eq 0 ]; then
-    cat $draftfile
-  else
-    echo "\n$@\n" >> $draftfile
-  fi
-}
+# wiki
+if [ -d $HOME/Documents/Dropbox/Wiki ]; then
+  alias wiki-search="v +'WikiSearch'"
+
+  wiki() {
+    if [ "$#" -eq 0 ]; then
+      v +"Wiki index"
+    else
+      v +"Wiki $1"
+    fi
+  }
+
+  # even quicker inbox access
+  inbox() {
+    local file=$HOME/Documents/Dropbox/Wiki/index.md
+
+    if [ "$#" -eq 0 ]; then
+      cat $file
+    else
+      echo "\n$@\n" >> $file
+    fi
+  }
+fi
+
 
 # faster youtbe-dl --batch-file
 parallel-youtube-dl() {
@@ -266,22 +233,22 @@ parallel-wget() {
 
 # check if website is up
 is-up() {
-  if curl --silent http://downforeveryoneorjustme.com/"$1" | grep -q "just you"; then
+  if curl --silent https://downforeveryoneorjustme.com/"$1" | grep -q "just you"; then
     echo "$1 is up"
   else
     echo "$1 is down"
   fi
 }
+alias is-down="is-up"
 
 # nnn
 n() {
-  local TMPFILE=$(mktemp)
-  local COPIER="echo -n $1 | pbcopy"
+  export NNN_TMPFILE=${XDG_CONFIG_HOME:-$HOME/.config}/nnn/.lastd
 
-  NNN_TMPFILE=$TMPFILE NNN_COPIER=$COPIER NNN_USE_EDITOR=1 nnn "$@"
+  nnn "$@"
 
-  if [ -f $TMPFILE ]; then
-    source $TMPFILE
-    /bin/rm $TMPFILE
+  if [ -f $NNN_TMPFILE ]; then
+    source $NNN_TMPFILE
+    /bin/rm $NNN_TMPFILE
   fi
 }

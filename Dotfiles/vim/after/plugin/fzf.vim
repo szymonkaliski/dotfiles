@@ -1,7 +1,7 @@
 augroup fzf_plugin
   au!
 
-  au FileType fzf tnoremap <Esc> <c-\><c-n>:Sayonara!<cr>
+  au FileType fzf tnoremap <Esc> <c-c><c-\><c-n>:Sayonara!<cr>:echo<cr>
 augroup END
 
 let s:fzf_default_opt = { 'window': 'enew' }
@@ -9,6 +9,7 @@ let s:fzf_default_opt = { 'window': 'enew' }
 let s:fzf_preview_opt = ''
 
 let s:rg_globs = "-g '!*.{png,jpg,jpeg,mp4,mkv,obj,ttf,sketch,zip}' -g '!.DS_Store'"
+let s:wiki_dir = '~/Documents/Dropbox/Wiki/'
 
 function! fzf#buffers_list()
   let l:all = range(0, bufnr('$'))
@@ -42,15 +43,26 @@ function! fzf#buffers_lines()
 endfunction
 
 function! fzf#buffers_lines_open(l)
-  let keys = split(a:l, ':')
-  exe 'buffer ' . keys[0]
-  exe keys[1]
+  let l:keys = split(a:l, ':')
+  exe 'buffer ' . l:keys[0]
+  exe l:keys[1]
   silent! normal! zozz
+endfunction
+
+" FIXME: this should probably be part of muninn scripts
+function! fzf#wiki_open(l)
+  let l:keys = split(a:l, ':')
+
+  let l:file = l:keys[0]
+  let l:line = l:keys[1]
+
+  exe 'e ' . s:wiki_dir . l:file
+  exe ':' . l:line
 endfunction
 
 function! s:fzf_dir_files()
   call fzf#run(extend(s:fzf_default_opt, {
-        \ 'source':   'rg --files --hidden --follow --no-messages ' . s:rg_globs,
+        \ 'source':  'rg --files --hidden --follow --no-messages ' . s:rg_globs,
         \ 'sink':    'e',
         \ 'dir':     dirvish#get_current_path(),
         \ 'options': '--reverse --multi --exit-0 --prompt="files > "' . s:fzf_preview_opt
@@ -59,15 +71,25 @@ endfunction
 
 function! s:fzf_files()
   call fzf#run(extend(s:fzf_default_opt, {
-        \ 'source':   'rg --files --hidden --follow --no-messages ' . s:rg_globs,
+        \ 'source':  'rg --files --hidden --follow --no-messages ' . s:rg_globs,
         \ 'sink':    'e',
         \ 'dir':     getcwd(),
         \ 'options': '--reverse --multi --exit-0 --prompt="files > "' . s:fzf_preview_opt
         \ }))
 endfunction
 
+function! s:fzf_wiki()
+  call fzf#run(extend(s:fzf_default_opt, {
+        \ 'source':  'rg --no-heading --line-number --with-filename "." ' . s:rg_globs,
+        \ 'sink':    function('fzf#wiki_open'),
+        \ 'dir':     s:wiki_dir,
+        \ 'options': '--reverse --exit-0 --prompt="wiki > "' . s:fzf_preview_opt
+        \ }))
+endfunction
+
 command! FZFFiles    call <sid>fzf_files()
 command! FZFDirFiles call <sid>fzf_dir_files()
+command! FZFWiki     call <sid>fzf_wiki()
 
 command! FZFBuffers call fzf#run(extend(s:fzf_default_opt, {
       \ 'source':  fzf#buffers_list(),
@@ -92,3 +114,4 @@ nnoremap <silent> <c-b>      :FZFBuffers<cr>
 
 nnoremap <silent> <leader>fl :FZFLines<cr>
 nnoremap <silent> <leader>fh :FZFMru<cr>
+nnoremap <silent> <leader>fw :FZFWiki<cr>

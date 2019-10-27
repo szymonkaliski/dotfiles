@@ -8,11 +8,11 @@ local cache = {
 local module = { cache = cache }
 
 module.forceFocus = function(win)
-  -- -- activate the app - flickers...
+  -- this flickers
   -- win:application():activate()
-  -- then focus the window
+
+  win:becomeMain()
   win:raise():focus()
-  -- then higlight if needed
   highlightWindow()
 end
 
@@ -98,7 +98,6 @@ end
 
 -- show hints with highlight
 module.windowHints = function()
-  hs.hints.iconAlpha = 1.0
   hs.hints.windowHints(nil, highlightWindow)
 end
 
@@ -125,7 +124,7 @@ module.persistPosition = function(win, option)
   end
 
   -- remove first element if we hit history limit (adjusting index if needed)
-  if #frames > window.historyLimit then
+  if #frames > config.window.historyLimit then
     table.remove(frames, 1)
     index = index > #frames and #frames or math.max(index - 1, 1)
   end

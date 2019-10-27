@@ -34,6 +34,7 @@ case $1 in
     ;;
   *)
     echo "Usage: $0 [preset] [files]"
+    exit 0
     ;;
 esac
 

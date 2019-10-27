@@ -45,9 +45,8 @@ fi
 # alias timav="(cd $HOME/Documents/Projects/Timav && NODE_ENV=production npm start) > /dev/null &"
 alias neutron="~/Documents/Projects/neutron/node_modules/.bin/electron ~/Documents/Projects/neutron/src/index.js"
 
-# taskpaper
-if [ -d ~/Documents/Dropbox/Tasks/ ]; then
-  alias tasks="node ~/Documents/Projects/taskpaper-next/app.js --path ~/Documents/Dropbox/Tasks/Todo.taskpaper"
+if [ -d ~/Documents/Dropbox/Wiki/ ]; then
+  alias tasks="muninn --dir ~/Documents/Dropbox/Wiki/ tasks"
 fi
 
 # cd to currently open dir in finder

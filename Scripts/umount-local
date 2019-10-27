@@ -2,12 +2,13 @@
 
 # tmutil stopbackup
 
-NIFTY="Storage SD"
+# NIFTY="Storage SD"
 
 # find /Volumes -type d -maxdepth 1 | grep -v "com.apple" | grep -v "$NIFTY" | tail -n +2 | while read -r drive; do
 # find /Volumes -type d -maxdepth 1 | grep -v "com.apple" | tail -n +2 | while read -r drive; do
 
-mount | grep -v afpfs | grep Volumes | cut -d ' ' -f3- | cut -d '(' -f1 | grep -v "$NIFTY" | while read -r drive; do
+# mount | grep -v afpfs | grep Volumes | cut -d ' ' -f3- | cut -d '(' -f1 | grep -v "$NIFTY" | while read -r drive; do
+mount | grep -v afpfs | grep Volumes | cut -d ' ' -f3- | cut -d '(' -f1 | while read -r drive; do
   # diskutil umount "$drive" &
   diskutil eject "$drive" &
 done

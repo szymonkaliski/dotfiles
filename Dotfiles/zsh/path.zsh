@@ -54,5 +54,10 @@ if [ -d $HOME/Library/Android ]; then
   export PATH=$PATH:$ANDROID_HOME/platform-tools
 fi
 
+# nix
+if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
+  . $HOME/.nix-profile/etc/profile.d/nix.sh
+fi
+
 # clean paths
 typeset -gU path

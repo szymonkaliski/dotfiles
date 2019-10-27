@@ -2,6 +2,8 @@ local module = {}
 
 local activateFrontmost = require('ext.application').activateFrontmost
 local bluetooth         = require('hs._asm.undocumented.bluetooth')
+local capitalize        = require('ext.utils').capitalize
+local template          = require('ext.template')
 
 -- show notification center
 -- NOTE: you can do that from Settings > Keyboard > Mission Control
@@ -22,7 +24,7 @@ module.toggleDND = function()
   local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/notification-center.png'
 
   local isEnabled = module.isDNDEnabled()
-  local afterTime = isEnabled and 0.0 or 4.0
+  local afterTime = isEnabled and 0.0 or 6.0
 
   -- is not enabled, will be enabled
   if not isEnabled then
@@ -94,20 +96,25 @@ module.isDarkModeEnabled = function()
   return res
 end
 
-module.toggleTheme = function()
-  hs.osascript.javascript([[
+module.setTheme = function(theme)
+  hs.osascript.javascript(template([[
     var systemEvents = Application("System Events");
-    var alfredApp = Application("Alfred 3");
+    var alfredApp = Application("Alfred 4");
 
     ObjC.import("stdlib");
 
-    var isDark = systemEvents.appearancePreferences.darkMode();
-    systemEvents.appearancePreferences.darkMode = !isDark;
+    systemEvents.appearancePreferences.darkMode = {DARK_MODE};
 
-    if (alfredApp) {
-      alfredApp.setTheme("Mojave " + (isDark ? "Light" : "Dark"));
-    }
-  ]])
+    // has to be done this way so template function works, lol
+    alfredApp && alfredApp.setTheme("{ALFRED_THEME}");
+  ]], {
+    ALFRED_THEME = 'Mojave ' .. capitalize(theme),
+    DARK_MODE = theme == 'dark' and 'true' or 'false',
+  }))
+end
+
+module.toggleTheme = function()
+  module.setTheme(module.isDarkModeEnabled() and 'light' or 'dark')
 end
 
 module.reloadHS = function()

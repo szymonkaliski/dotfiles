@@ -6,8 +6,8 @@ if [ -d /usr/local/share/zsh-completions ]; then
   export FPATH="/usr/local/share/zsh-completions:$FPATH"
 fi
 
-if [ -d ~/.zsh/completion ]; then
-  export FPATH="~/.zsh/completion:$FPATH"
+if [ -d ~/.zsh/completions ]; then
+  export FPATH="~/.zsh/completions:$FPATH"
 fi
 
 typeset -gU fpath     # clean fpaths
@@ -54,6 +54,9 @@ zstyle -e ':completion:*:(mosh|ssh|scp):*' hosts 'reply=(
 # ignore completions for commands that we dont have
 zstyle ":completion:*" ignored-patterns "_*"
 
+# lowercase letters also match uppercase letters
+zstyle ":completion:*" matcher-list "" "m:{[:lower:][:upper:]}={[:upper:][:lower:]}" "+l:|?=** r:|?=**"
+
 # auto rehash commands
 zstyle ":completion:*" rehash true
 
@@ -62,3 +65,40 @@ if [[ -o interactive ]]; then
   ZLE_REMOVE_SUFFIX_CHARS=$' \n\t;'
 fi
 
+# custom completions
+function _comp_wiki() {
+  IFS=$'\n'
+  for f in $(find $HOME/Documents/Dropbox/Wiki/**/*.md -type f | sed 's/^.*Wiki\/\(.*\).md/\1/'); do
+    reply+="$f"
+  done
+}
+
+function _comp_tm() {
+  IFS=$'\n'
+  for t in $(tmux ls 2> /dev/null | cut -d: -f1); do
+    reply+="$t"
+  done
+}
+
+function _comp_p() {
+  IFS=$'\n'
+  for line in $(p --ls); do
+    reply+="$line"
+  done
+}
+
+function _comp_base16() {
+  IFS=$'\n'
+  for c in $(find $BASE16_SHELL/scripts/ -type f | sed 's/^.*base16-\(.*\).sh/\1/' | cut -d '.' -f1); do
+    reply+="$c"
+  done
+}
+
+compctl -K _comp_base16 base16
+compctl -K _comp_wiki   wiki
+compctl -K _comp_p      p
+compctl -K _comp_tm     tm
+
+compctl -g '*.tar.bz2 *.tar.gz *.bz2 *.gz *.jar *.rar *.tar *.tbz2 *.tgz *.zip *.Z' + -g '*(-/)' extract
+compctl -f -x "c[-1,retry]" -c -- retry
+compctl -f -x "c[-1,repeatedly]" -c -- repeatedly

@@ -1,39 +1,64 @@
-local hhtwm = require('hhtwm')
+local activeScreen = require("ext.screen").activeScreen
+local table        = require('ext.table')
+local hhtwm        = require('hhtwm')
+local log          = hs.logger.new('wm', 'debug')
 
-local cache  = { hhtwm = hhtwm }
-local module = { cache = cache }
+local cache        = { hhtwm = hhtwm }
+local module       = { cache = cache }
 
-local screenWatcher = function(_, _, _, prevScreenCount, screenCount)
-  if prevScreenCount ~= nil and prevScreenCount ~= screenCount then
-    hhtwm.displayLayouts = calculateDisplayLayouts()
-    hhtwm.resetLayouts()
-    hhtwm.tile()
-  end
+local IMAGE_PATH   = os.getenv('HOME') .. '/.hammerspoon/assets/modal.png'
+
+local notify = function(text)
+  hs.notify.new({
+    title        = 'Tiling',
+    subTitle     = text,
+    contentImage = IMAGE_PATH
+  }):send()
 end
 
-local calculateDisplayLayouts = function()
-  local leftScreen       = nil
-  local rightScreen      = nil
-
-  for screen, position in pairs(hs.screen.screenPositions()) do
-    if position.x == -1 then leftScreen  = screen end
-    if position.x == 0  then rightScreen = screen end
+local screenWatcher = function(_, _, _, prevScreens, screens)
+  if prevScreens == nil or #prevScreens == 0 then
+    return
   end
 
-  local displayLayouts = { ['Color LCD'] = 'cards' }
+  if table.equal(prevScreens, screens) then
+    return
+  end
 
-  if leftScreen  then displayLayouts[leftScreen:id()]  = 'equal-right' end
-  if rightScreen then displayLayouts[rightScreen:id()] = 'equal-left'  end
+  log.d('resetting display layouts')
 
-  return displayLayouts
+  hhtwm.displayLayouts = config.wm.defaultDisplayLayouts
+  hhtwm.resetLayouts()
+  hhtwm.tile()
 end
 
 local calcResizeStep = function(screen)
   return 1 / hs.grid.getGrid(screen).w
 end
 
+module.setLayout = function(layout)
+  hhtwm.setLayout(layout)
+  hhtwm.resizeLayout()
+
+  notify('Switching to: ' .. layout)
+end
+
+module.cycleLayout = function()
+  local screen = activeScreen()
+
+  local layouts = config.wm.displayLayouts[screen:name()]
+
+  local currentLayout = hhtwm.getLayout()
+  local currentLayoutIndex = hs.fnutils.indexOf(layouts, currentLayout) or 0
+
+  local nextLayoutIndex = (currentLayoutIndex % #layouts) + 1
+  local nextLayout = layouts[nextLayoutIndex]
+
+  module.setLayout(nextLayout)
+end
+
 module.start = function()
-  cache.watcher = hs.watchable.watch('status.connectedScreens', screenWatcher)
+  cache.watcher = hs.watchable.watch('status.connectedScreenIds', screenWatcher)
 
   local filters = {
     { app = 'AppCleaner', tile = false                                },
@@ -89,9 +114,8 @@ module.start = function()
   hhtwm.screenMargin   = screenMargin
   hhtwm.filters        = filters
   hhtwm.calcResizeStep = calcResizeStep
-  hhtwm.displayLayouts = calculateDisplayLayouts()
-  hhtwm.defaultLayout  = 'equal-left'
-  hhtwm.enabledLayouts = { 'monocle', 'cards', 'equal-left', 'equal-right', 'main-left', 'main-right' }
+  hhtwm.displayLayouts = DEFAULT_DISPLAY_LAYOUTS
+  hhtwm.defaultLayout  = 'monocle'
 
   hhtwm.start()
 end

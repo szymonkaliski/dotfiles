@@ -1,1 +1,1 @@
-au BufNewFile,BufRead *.md,~/Documents/Dropbox/Notes/* setlocal filetype=markdown
+au BufNewFile,BufRead *.markdown setlocal filetype=markdown

@@ -35,10 +35,15 @@ fi
 if [ -f ~/.zsh/plugins/zsh-nvm/zsh-nvm.plugin.zsh ]; then
   export NVM_NO_USE=true # don't load node by default - we have quicker PATH hack for that
   export NVM_LAZY_LOAD=true # don't load nvm if it's not used
+
   source ~/.zsh/plugins/zsh-nvm/zsh-nvm.plugin.zsh
+
+  # for direnv
+  export NODE_VERSIONS=~/.nvm/versions/node/
+  export NODE_VERSION_PREFIX=""
 fi
 
-# for different lua versions
+# luaver for different lua versions
 if hash luaver 2> /dev/null; then
   group_lazy_load "$(which luaver)" lua luarocks luaver
 fi
@@ -64,22 +69,38 @@ if [ -f ~/.zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.
   FAST_HIGHLIGHT[use_async]=1
 fi
 
-# async
-if [ -f ~/.zsh/plugins/zsh-async/async.zsh ]; then
-  source ~/.zsh/plugins/zsh-async/async.zsh
-  async_init
+# gitstatus
+if [ -f ~/.zsh/plugins/gitstatus/gitstatus.plugin.zsh ]; then
+  source ~/.zsh/plugins/gitstatus/gitstatus.plugin.zsh
+
+  OS="$(uname -s)"
+  ARCH="$(uname -m)"
+  GITSTATUS_DAEMON=~/.zsh/plugins/gitstatus/bin/gitstatusd-${OS:l}-${ARCH:l}
+
+  if ! gitstatus_check gitstatus; then
+    gitstatus_stop gitstatus && gitstatus_start -t 0.1 gitstatus
+  fi
 fi
+
+# back directories
+# if [ -d ~/.zsh/plugins/zsh-bdi/ ]; then
+#   if [ ! -f ~/.zsh/completions/_bdi.zsh ]; then
+#     ln -s ~/.zsh/plugins/zsh-bdi/_bdi.zsh ~/.zsh/completions/_bdi.zsh
+#   fi
+#   autoload -Uz ~/.zsh/plugins/zsh-bdi/bdi
+# fi
 
 zsh_plugins_install() {
   mkdir -p ~/.zsh/plugins/
   pushd ~/.zsh/plugins/ > /dev/null
 
+  git clone -b zsh-flock git://github.com/mafredri/z
+  git clone git://github.com/chriskempson/base16-shell
   git clone git://github.com/hlissner/zsh-autopair
   git clone git://github.com/lukechilds/zsh-nvm
   git clone git://github.com/zdharma/fast-syntax-highlighting
-  git clone -b zsh-flock git://github.com/mafredri/z
-  git clone git://github.com/mafredri/zsh-async
-  git clone git://github.com/chriskempson/base16-shell
+  # git clone https://github.com/einiges/zsh-bdi
+  git clone git://github.com/romkatv/gitstatus
 
   popd > /dev/null
 }
@@ -102,8 +123,8 @@ tmux_plugins_install() {
   mkdir -p ~/.tmux/plugins/
   pushd ~/.tmux/plugins > /dev/null
 
-  git clone git://github.com/tmux-plugins/tmux-continuum
-  git clone git://github.com/tmux-plugins/tmux-resurrect
+  # git clone git://github.com/tmux-plugins/tmux-continuum
+  # git clone git://github.com/tmux-plugins/tmux-resurrect
 
   popd > /dev/null
 }

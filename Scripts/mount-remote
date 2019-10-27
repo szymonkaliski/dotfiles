@@ -2,7 +2,6 @@
 
 tell application "Finder"
   try
-    mount volume "afp://szymon@stelis.local/TimeMachine"
     mount volume "afp://szymon@stelis.local/Data"
   end try
 end tell

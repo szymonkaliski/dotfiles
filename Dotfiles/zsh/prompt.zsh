@@ -20,48 +20,31 @@ prompt_arrow() {
   print "%{$reset_color%} > "
 }
 
-# https://medium.com/@henrebotha/how-to-write-an-asynchronous-zsh-prompt-b53e81720d32
-# https://github.com/rswiernik/dotfiles/blob/0d35f288b124e53b126fa2e0977b072e4968e591/.config/rzsh/plugins/prompts.zsh
-
 ZSH_MAIN_PROMPT="$(prompt_arrow)"
 
-git_status() {
-  cd "$1"
+git_prompt_status() {
+  gitstatus_query -d $PWD gitstatus
 
-  if ! git rev-parse --is-inside-work-tree &> /dev/null; then
-    prompt_arrow
-    exit
+  if [ -z $VCS_STATUS_LOCAL_BRANCH ]; then
+    PROMPT='$(prompt_pwd)$ZSH_MAIN_PROMPT'
+    zle && zle reset-prompt
+    return
   fi
 
-  git_status=$(git status --porcelain)
-  git_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null) || git_branch=""
-
-  if [ -z $git_status ]; then
+  if [ $VCS_STATUS_HAS_STAGED ] && [ $VCS_STATUS_HAS_UNSTAGED = 0 ] && [ $VCS_STATUS_HAS_UNTRACKED = 0 ]; then
     branch_color="%{$fg[green]%}"
   else
     branch_color="%{$fg[red]%}"
   fi
 
-  print -n " $branch_color$git_branch"
-  prompt_arrow
+  git_branch=" $VCS_STATUS_LOCAL_BRANCH"
+
+  PROMPT='$(prompt_pwd)$branch_color$git_branch$ZSH_MAIN_PROMPT'
+  zle && zle reset-prompt
 }
 
-git_prompt_callback() {
-  # on completion set main prompt part, and reset prompt to reload
-  ZSH_MAIN_PROMPT="$3"
-  zle reset-prompt
-}
-
-git_prompt_async() {
-  async_job git_prompt_worker git_status "$(pwd)"
-}
-
-# run async prompt generation before each command
-add-zsh-hook precmd git_prompt_async
-
-# async_init assumed from plugins.zsh
-async_start_worker git_prompt_worker -n
-async_register_callback git_prompt_worker git_prompt_callback
+add-zsh-hook precmd  git_prompt_status
+add-zsh-hook preexec git_prompt_status
 
 # single-quote comments are important here!
 PROMPT='$(prompt_pwd)$ZSH_MAIN_PROMPT'

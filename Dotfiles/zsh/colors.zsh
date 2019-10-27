@@ -45,12 +45,12 @@ if [ -d ~/.zsh/plugins/base16-shell/ ]; then
     if [ ! -z $THEME ]; then
       local FILENAME="base16-$THEME.sh"
 
-      rm ~/.base16_theme > /dev/null
+      rm -f ~/.base16_theme > /dev/null
       ln -s $BASE16_SHELL/scripts/$FILENAME ~/.base16_theme
       echo -e "colorscheme base16-$THEME" > ~/.vimrc_background
-
-      base16-load
     fi
+
+    base16-load
   }
 
   # source only if we don't have BASE16_THEME set
@@ -61,8 +61,5 @@ if [ -d ~/.zsh/plugins/base16-shell/ ]; then
       base16-load
     fi
   fi
-
-  # tab completion!
-  compctl -s "$(find $BASE16_SHELL/scripts/ | sed 's/^.*base16-\(.*\).sh/\1/' | cut -d '.' -f1)" base16
 fi
 

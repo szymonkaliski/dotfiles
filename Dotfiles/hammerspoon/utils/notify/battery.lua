@@ -2,12 +2,19 @@
 local cache  = {
   batteryCharged    = hs.battery.isCharged(),
   batteryPercentage = hs.battery.percentage(),
-  powerSource       = hs.battery.powerSource()
+  powerSource       = hs.battery.powerSource(),
+  isBurnRateHigh    = false
 }
 
 local module = { cache = cache }
 
-local IMAGE_PATH = os.getenv('HOME') .. '/.hammerspoon/assets/battery.png'
+local HIGH_BURNRATE = 5
+local IMAGE_PATH    = os.getenv('HOME') .. '/.hammerspoon/assets/battery.png'
+
+local round = function(num, numDecimalPlaces)
+  local mult = 10^(numDecimalPlaces or 0)
+  return math.floor(num * mult + 0.5) / mult
+end
 
 local notifyBattery = function(_, _, _, _, status)
   if status.percentage < 100 then
@@ -32,6 +39,21 @@ local notifyBattery = function(_, _, _, _, status)
     }):send()
 
     cache.powerSource = status.powerSource
+  end
+
+  local isBurnRateHigh = status.burnRate < HIGH_BURNRATE
+
+  if (isBurnRateHigh and status.burnRate ~= cache.burnRate) or (not isBurnRateHigh and cache.isBurnRateHigh) then
+    local subTitle = isBurnRateHigh and 'High 🚨' or 'Back To Normal'
+
+    hs.notify.new({
+      title        = 'Burn Rate',
+      subTitle     = subTitle,
+      contentImage = IMAGE_PATH
+    }):send()
+
+    cache.isBurnRateHigh = status.isBurnRateHigh
+    cache.burnRate       = status.burnRate
   end
 end
 

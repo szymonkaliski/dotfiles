@@ -1,4 +1,4 @@
-export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --no-messages"
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
 export FZF_DEFAULT_OPTS="--inline-info --cycle
                          --history=$HOME/.fzfhistory
                          --history-size=1000
@@ -21,7 +21,7 @@ fe() {
   # local preview="highlight --config-file=$HOME/.highlight/hybrid-bw.theme -q -t 2 --force -O xterm256 {}"
   local preview=""
 
-  fzf --multi --select-1 --exit-0 --query="$1" --prompt="files > " --reverse --preview=$preview | tr "\n" "\0" | xargs -0 -o vim
+  fzf --multi --select-1 --exit-0 --query="$1" --prompt="files > " --reverse --preview=$preview | tr "\n" "\0" | xargs -0 -o v
 }
 
 # open file
@@ -35,8 +35,8 @@ fcd() {
   local preview=""
   local dir=""
 
-  if hash blsd 2> /dev/null; then
-    dir="$(blsd | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --reverse --preview=$preview)"
+  if hash fd 2> /dev/null; then
+    dir="$(fd --type d | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --reverse --preview=$preview)"
   else
     dir="$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --reverse --preview=$preview)"
   fi

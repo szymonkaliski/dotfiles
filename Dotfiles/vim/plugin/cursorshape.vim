@@ -1,5 +1,5 @@
 if has('nvim')
-  finish
+  set guicursor=n-v-c-sm:block,i-ci-ve:ver20,r-cr-o:hor20
 endif
 
 " if ($TMUX != '')

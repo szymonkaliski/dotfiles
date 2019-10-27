@@ -8,19 +8,24 @@ local module = { cache = cache }
 -- local NETWORK_SHARING = "com.apple.NetworkSharing"
 
 local updateBattery = function()
+  local burnRate = hs.battery.designCapacity() / math.abs(hs.battery.amperage())
+
   status.battery = {
     isCharged     = hs.battery.isCharged(),
     percentage    = hs.battery.percentage(),
-    powerSource   = hs.battery.powerSource()
+    powerSource   = hs.battery.powerSource(),
+    amperage      = hs.battery.amperage(),
+    burnRate      = burnRate,
   }
 end
 
 local updateScreen = function()
   status.connectedScreens        = #hs.screen.allScreens()
+  status.connectedScreenIds      = hs.fnutils.map(hs.screen.allScreens(), function(screen) return screen:id() end)
   status.isThunderboltConnected  = hs.screen.findByName('Thunderbolt Display') ~= nil
   status.isLaptopScreenConnected = hs.screen.findByName('Color LCD') ~= nil
 
-  log.d('updated screens:', status.connectedScreens)
+  log.d('updated screens:', hs.inspect(status.connectedScreenIds))
 end
 
 -- local updateNetwork = function()

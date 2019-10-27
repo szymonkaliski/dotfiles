@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+set -e
+
+update() {
+  sudo wget https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts -O /etc/hosts
+
+  if [ -f ~/.hosts.conf ]; then
+    cat ~/.hosts.conf | sudo tee -a /etc/hosts
+    echo
+  fi
+
+  if [ "$(uname)" = "Darwin" ]; then
+    sudo dscacheutil -flushcache
+    sudo killall -HUP mDNSResponder
+  fi
+}
+
+usage() {
+  echo "Update hosts file, optional custom hosts config can be stored as ~/.hosts.conf"
+  echo "Usage:"
+  echo
+  echo "  hosts update"
+  echo
+  exit 0
+}
+
+main() {
+  if [ -z "$1" ]; then
+    usage
+  fi
+
+  case "$1" in
+    update)
+      update
+      ;;
+    *)
+      usage
+      ;;
+  esac
+  shift
+}
+
+main "$@"

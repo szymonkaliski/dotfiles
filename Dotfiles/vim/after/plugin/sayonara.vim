@@ -1,1 +1,1 @@
-nnoremap <leader>q :Sayonara!<cr>
+nnoremap <leader>q :Sayonara!<cr>:echo<cr>

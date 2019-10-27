@@ -50,6 +50,10 @@ let g:lightline.component_function = {
       \ 'utils_statusline_right': 'utils#statusline_right',
       \ }
 
+let g:lightline.tab_component_function = {
+      \ 'filename': 'LightlineTabFilename'
+      \ }
+
 let g:lightline.component_expand = {
       \ 'ale_status': 'utils#statusline_ale'
       \ }
@@ -83,4 +87,13 @@ endfunction
 
 function! LightlineInactiveMode()
   return '-'
+endfunction
+
+" better tabs
+function! LightlineTabFilename(n)
+  let buflist = tabpagebuflist(a:n)
+  let winnr   = tabpagewinnr(a:n)
+  let bufnum  = buflist[winnr - 1]
+
+  return utils#format_buffer_nr(bufnum)
 endfunction

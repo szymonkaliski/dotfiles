@@ -1,0 +1,27 @@
+{
+  "coc.preferences.colorSupport": false,
+
+  "suggest.autoTrigger": "none",
+  "suggest.triggerAfterInsertEnter": false,
+
+  "codeLens.enable": false,
+
+  "diagnostic.enable": false,
+  "diagnostic.displayByAle": false,
+
+  "languageserver": {
+    "golang": {
+      "command": "go-langserver",
+      "filetypes": ["go"],
+      "initializationOptions": {
+        "gocodeCompletionEnabled": true,
+        "diagnosticsEnabled": true,
+        "lintTool": "golint"
+      }
+    },
+    "clojure": {
+      "command": "clojure-lsp",
+      "filetypes": ["clojure", "clj"]
+    }
+  }
+}

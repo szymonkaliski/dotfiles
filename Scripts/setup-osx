@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 
-# mostly stolen from: https://github.com/mathiasbynens/dotfiles/blob/master/.osx
+# mostly stolen from: https://github.com/mathiasbynens/dotfiles/blob/master/.macos
 
-# # disable press-and-hold
-# defaults write -g ApplePressAndHoldEnabled -bool false
+# disable new window animation
+defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
+
+# disable focus ring animation
+defaults write NSGlobalDomain NSUseAnimatedFocusRing -bool false
+
+# increase window resize speed
+defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 
 # set the icon size of Dock items
-defaults write com.apple.dock tilesize -int 44
+defaults write com.apple.dock tilesize -int 40
 
 # lock Dock size
 defaults write com.apple.dock size-immutable -bool true
-
-# font smoothing (0-3, 3 is default)
-# go back to defaults: defaults delete NSGlobalDomain AppleFontSmoothing
-# defaults write NSGlobalDomain AppleFontSmoothing -int 1
 
 # expand save panel by default
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
@@ -26,24 +28,10 @@ defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
 # save to disk (not to iCloud) by default
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
-# save screenshots in Dropbox
+# save screenshots to Dropbox
 defaults write com.apple.screencapture location ~/Documents/Dropbox/Screenshots/
 
 # disable Sudden Motion Sensor (default - 1)
 sudo pmset -a sms 0 &> /dev/null
 
-# enable trim 10.10.4+
-if system_profiler SPSerialATADataType | grep 'TRIM' | grep -q 'No'; then
-  read -r -p "Enble trim? (y/n) " RESP
-
-  if [ "$RESP" = "y" ]; then
-    sudo trimforce enable
-  fi
-fi
-
-# kill affected apps
-for app in "Dock" "Finder" "SystemUIServer"
-do
-  killall "$app" > /dev/null 2>&1
-done
-echo "$(tput setaf 1)Done. Note that some of these changes require a logout/restart to take effect.$(tput sgr0)"
+echo "$(tput setaf 1)done, note that some of these changes require app restart or logout to take effect...$(tput sgr0)"

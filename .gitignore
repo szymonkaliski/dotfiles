@@ -8,13 +8,14 @@ Dotfiles/hammerspoon/hs/
 Dotfiles/zsh/plugins/
 
 # vim plugins and other stuff
+Dotfiles/vim/.init.vim-rplugin~
 Dotfiles/vim/autoload/
 Dotfiles/vim/backup/
 Dotfiles/vim/plugged/
 Dotfiles/vim/spell/
+Dotfiles/vim/swap/
 Dotfiles/vim/undo/
 Dotfiles/vim/view/
-Dotfiles/vim/.init.vim-rplugin~
 
 # lein
 Dotfiles/lein/repl-history

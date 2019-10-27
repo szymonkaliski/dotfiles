@@ -2,20 +2,21 @@ call plug#begin('~/.vim/plugged')
 call plugutils#load()
 
 " always load
-Plug 'Konfekt/FastFold'
+Plug 'MarcWeber/vim-addon-qf-layout'
 Plug 'airblade/vim-rooter'
 Plug 'bfredl/nvim-miniyank'
+Plug 'chriskempson/base16-vim'
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'danielwe/base16-vim'
 Plug 'daviesjamie/vim-base16-lightline'
+Plug 'farmergreg/vim-lastplace'
+Plug 'honza/vim-snippets'
 Plug 'itchyny/lightline.vim'
-Plug 'itchyny/vim-qfedit'
 Plug 'junegunn/vim-slash'
 Plug 'justinmk/vim-dirvish'
+Plug 'michaeljsmith/vim-indent-object'
 Plug 'tpope/vim-sleuth'
 
 " deferred
-DeferPlug 'Raimondi/delimitMate'
 DeferPlug 'chaoren/vim-wordmotion'
 DeferPlug 'pbrisbin/vim-mkdir'
 DeferPlug 'tpope/vim-abolish'
@@ -23,17 +24,11 @@ DeferPlug 'tpope/vim-repeat'
 DeferPlug 'tpope/vim-surround'
 DeferPlug 'tpope/vim-unimpaired'
 DeferPlug 'vim-scripts/matchit.zip'
-DeferPlug 'w0rp/ale',
+DeferPlug 'w0rp/ale'
 DeferPlug 'yssl/QFEnter'
 
 " completion
-Plug 'prabirshrestha/async.vim'
-Plug 'prabirshrestha/asyncomplete-buffer.vim'
-Plug 'prabirshrestha/asyncomplete-file.vim'
-Plug 'prabirshrestha/asyncomplete-lsp.vim'
-Plug 'prabirshrestha/asyncomplete.vim'
-Plug 'prabirshrestha/vim-lsp'
-Plug 'yami-beta/asyncomplete-omni.vim'
+Plug 'neoclide/coc.nvim',                  { 'do': { -> coc#util#install() } }
 
 " on demand loading
 Plug 'chilicuil/sprunge.vim',              { 'on': [ 'Sprunge', 'IX' ] }
@@ -54,25 +49,25 @@ Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterO
 Plug 'tmux-plugins/vim-tmux-focus-events', Cond($TMUX != '')
 
 " filetype based plugins
+Plug 'LnL7/vim-nix',                       { 'for': 'nix' }
 Plug 'cespare/vim-toml',                   { 'for': 'toml' }
-Plug 'davidoc/taskpaper.vim',              { 'for': 'taskpaper' }
 Plug 'digitaltoad/vim-pug',                { 'for': 'pug' }
 Plug 'elzr/vim-json',                      { 'for': 'json' }
 Plug 'eraserhd/parinfer-rust',             { 'for': 'clojure', 'do': 'cargo build --release'}
 Plug 'groenewege/vim-less',                { 'for': 'less' }
 Plug 'itchyny/vim-haskell-indent',         { 'for': 'haskell' }
 Plug 'keith/swift.vim',                    { 'for': 'swift' }
-Plug 'leafgarland/typescript-vim',         { 'for': [ 'typescript', 'typescript.tsx', 'markdown' ] }
+Plug 'leafgarland/typescript-vim',         { 'for': [ 'typescript', 'typescript.tsx' ] }
 Plug 'moll/vim-node',                      { 'for': 'javascript' }
-Plug 'nelstrom/vim-markdown-folding',      { 'for': 'markdown' }
-Plug 'neoclide/vim-jsx-improve',           { 'for': [ 'javascript', 'html', 'markdown' ] }
+Plug 'neoclide/vim-jsx-improve',           { 'for': [ 'javascript', 'html' ] }
 Plug 'octol/vim-cpp-enhanced-highlight',   { 'for': [ 'cpp', 'c' ] }
 Plug 'othree/html5.vim',                   { 'for': 'html' }
+Plug 'peterhoeg/vim-qml',                  { 'for': 'qml' }
+Plug 'plasticboy/vim-markdown',            { 'for': 'markdown' }
 Plug 'sophacles/vim-processing',           { 'for': 'processing' }
 Plug 'sudar/vim-arduino-syntax',           { 'for': 'arduino' }
-Plug 'tasn/vim-tsx',                       { 'for': [ 'markdown', 'typescript.tsx' ] }
-Plug 'tikhomirov/vim-glsl',                { 'for': [ 'javascript', 'glsl', 'markdown' ] }
-Plug 'tpope/vim-markdown',                 { 'for': 'markdown' }
+Plug 'tasn/vim-tsx',                       { 'for': 'typescript.tsx' }
+Plug 'tikhomirov/vim-glsl',                { 'for': [ 'javascript', 'glsl' ] }
 Plug 'vim-scripts/ck.vim',                 { 'for': 'ck' }
 
 " smart FZF loading
@@ -175,6 +170,8 @@ function! s:base16_customize() abort
   call g:Base16hi('ALEWarningSign',               g:base16_gui0A, g:base16_gui01, g:base16_cterm0A, g:base16_cterm01, 'reverse', '')
 
   call g:Base16hi('CleverFDefaultLabel',          g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, 'none',    '')
+  call g:Base16hi('CocHighlightText',             '',             g:base16_gui01, '',               g:base16_cterm01, 'none',    '')
+
 
   call g:Base16hi('cPreCondit',                   g:base16_gui08, '',             g:base16_cterm08, '',               '',        '')
   call g:Base16hi('clojureAnonArg',               g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
@@ -186,6 +183,7 @@ function! s:base16_customize() abort
   call g:Base16hi('cssClassName',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
   call g:Base16hi('htmlArg',                      g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
   call g:Base16hi('htmlBold',                     g:base16_gui05, '',             g:base16_cterm05, '',               'bold',    '')
+  call g:Base16hi('htmlItalic',                   g:base16_gui05, '',             g:base16_cterm05, '',               'italic',  '')
   call g:Base16hi('htmlLink',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
   call g:Base16hi('htmlSpecialTagName',           g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
   call g:Base16hi('jsArrowFunction',              g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
@@ -206,6 +204,12 @@ function! s:base16_customize() abort
   call g:Base16hi('markdownItalic',               g:base16_gui05, '',             g:base16_cterm05, '',               'italic',  '')
   call g:Base16hi('markdownListMarker',           g:base16_gui03, '',             g:base16_cterm03, '',               '',        '')
   call g:Base16hi('markdownUrl',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call g:Base16hi('mkdCode',                      g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call g:Base16hi('mkdCodeEnd',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call g:Base16hi('mkdCodeStart',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call g:Base16hi('mkdHeading',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call g:Base16hi('mkdItalic',                    g:base16_gui05, '',             g:base16_cterm05, '',               'italic',  '')
+  call g:Base16hi('mkdUrl',                       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
   call g:Base16hi('rustFuncName',                 g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
   call g:Base16hi('taskpaperContext',             g:base16_gui03, '',             g:base16_cterm03, '',               '',        '')
   call g:Base16hi('taskpaperDone',                g:base16_gui02, '',             g:base16_cterm02, '',               '',        '')
@@ -215,11 +219,21 @@ function! s:base16_customize() abort
   call g:Base16hi('typescriptHtmlEvents',         g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
   call g:Base16hi('xmlAttrib',                    g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
 
+  " extended markdown
+  call g:Base16hi('markdownTodoToday',            g:base16_gui0B, '',             g:base16_cterm0B, '',               '',        '')
+  call g:Base16hi('markdownTag',                  g:base16_gui03, '',             g:base16_cterm03, '',               '',        '')
+  call g:Base16hi('markdownListItemDone',         g:base16_gui02, '',             g:base16_cterm02, '',               '',        '')
+  call g:Base16hi('markdownChecked',              g:base16_gui02, '',             g:base16_cterm02, '',               '',        '')
+  call g:Base16hi('markdownUnchecked',            g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+
   " nvim fix for flickering on start
-  hi Normal ctermbg=NONE
+  hi! Normal ctermbg=NONE
+
+  " highlight concealed text like normal text
+  hi! link Conceal Normal
 
   " fix cursorline underline in vim
-  hi CursorLine cterm=NONE term=NONE
+  hi! CursorLine cterm=NONE term=NONE
 endfunction
 
 augroup base16_colorscheme
@@ -280,14 +294,26 @@ set nolist
 set switchbuf=useopen
 set hidden
 
-" no backups or swapfiles, with centralized and persistent undo/view history
+" centralized backup,swap,undo
+set swapfile
+set writebackup
 set nobackup
-set noswapfile
 set undofile
+
+set directory=~/.vim/swap//
+set backupdir=~/.vim/backup//
 set undodir=~/.vim/undo//
 set viewdir=~/.vim/view//
 
 " create dirs if needed
+if !isdirectory(&directory)
+  call mkdir(&directory, 'p')
+endif
+
+if !isdirectory(&backupdir)
+  call mkdir(&backupdir, 'p')
+endif
+
 if !isdirectory(&undodir)
   call mkdir(&undodir, 'p')
 endif
@@ -327,7 +353,11 @@ set noshowcmd
 
 " completion in command line
 set wildmenu
-set wildmode=full
+set wildmode=longest:full,full
+
+if has('wildoptions')
+  set wildoptions=pum,tagfile
+endif
 
 " insert completion height and options
 set pumheight=10
@@ -374,7 +404,7 @@ if has('mac')
   let g:python_host_skip_check = 1
   let g:python_host_prog = '/usr/local/bin/python'
 
-  " let g:loaded_python3_provider = 1 " disable python 3
+  let g:loaded_python3_provider = 1 " disable python 3
   let g:python3_host_skip_check = 1
   let g:python3_host_prog = '/usr/local/bin/python3'
 endif
@@ -400,7 +430,8 @@ map <tab> %
 nnoremap <F6> <c-i>
 
 " so you can gf to non-existing (new) files
-map gf :e <cfile><cr>
+" this breaks gf for relative paths
+" map gf :e <cfile><cr>
 
 " " c-a / c-e everywhere
 " inoremap <c-a> <c-o>0
@@ -471,18 +502,6 @@ xnoremap L g_
 " split line
 nnoremap S i<cr><esc>^mwgk:silent! s/\v +$//<cr>:noh<cr>
 
-" open common files
-nnoremap <leader>ov :e ~/.vimrc<cr>
-nnoremap <leader>og :e ~/.gvimrc<cr>
-nnoremap <leader>oz :e ~/.zshrc<cr>
-nnoremap <leader>om :e ~/.tmux.conf<cr>
-
-if has('mac')
-  nnoremap <leader>od :e ~/Documents/Dropbox/Notes/drafts.txt<cr>
-  nnoremap <leader>ot :e ~/Documents/Dropbox/Tasks/Todo.taskpaper<cr>
-  nnoremap <leader>oh :e ~/.hammerspoon/init.lua<cr>
-endif
-
 " simpler visual search (requires vim-plug for * in visual mode)
 xmap / *
 xmap ? #
@@ -508,11 +527,6 @@ nnoremap <silent> <leader>k :KillWhitespace<cr>
 nnoremap <space>t g<c-]>
 xnoremap <space>t g<c-]>
 
-" notes
-if isdirectory($HOME . '/Documents/Dropbox/Notes')
-  nnoremap <leader>n :Note<space>
-endif
-
 " clean current search and quickhl
 nmap <silent> <leader>c :nohlsearch<cr>:redraw!<cr>
 nmap <silent> <leader>C <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
@@ -520,8 +534,9 @@ nmap <silent> <leader>C <Plug>(quickhl-manual-reset):nohlsearch<cr>:redraw!<cr>
 " aligns
 nnoremap <leader>= :let align_view=winsaveview()<cr>=i}<cr>:call winrestview(align_view)<cr>
 
-" leader leader folds
+" folds
 nnoremap <leader><leader> za
+nnoremap zf zMzv
 
 " zoom window
 nnoremap <silent> <c-w>z :ZoomToggle<cr>
@@ -532,3 +547,4 @@ nnoremap <silent>m :make<cr>
 " duplicate line and comment (requires vim-commentary)
 nmap <leader>cc yygccp
 xmap <leader>cc m'ygvgc''jp
+
