@@ -16,3 +16,4 @@ tell application "Google Chrome"
 end tell
 
 return urls
+

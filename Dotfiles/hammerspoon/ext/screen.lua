@@ -17,7 +17,7 @@ module.quietFocusScreen = function(screen)
   screen = screen or hs.mouse.getCurrentScreen()
 
   local frame         = screen:frame()
-  local mousePosition = hs.mouse.getAbsolutePosition()
+  local mousePosition = hs.mouse.absolutePosition()
 
   -- if mouse is already on the given screen we can safely return
   if hs.geometry(mousePosition):inside(frame) then return false end
@@ -29,7 +29,7 @@ module.quietFocusScreen = function(screen)
     y = frame.y + frame.h - 1
   }
 
-  hs.mouse.setAbsolutePosition(newMousePosition)
+  hs.mouse.absolutePosition(newMousePosition)
   hs.timer.usleep(1000)
 end
 

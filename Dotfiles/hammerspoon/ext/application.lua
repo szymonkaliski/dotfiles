@@ -36,10 +36,7 @@ module.forceLaunchOrFocus = function(appName)
     end
 
     if #frontmostWindows == 0 then
-      if appName == 'Hyper' then
-        -- otherwise some other Hyper window gets focused
-        hs.eventtap.keyStroke({ 'cmd' }, 'n')
-      elseif frontmostApp:findMenuItem({ 'Window', appName }) then
+      if frontmostApp:findMenuItem({ 'Window', appName }) then
         -- check if there's app name in window menu (Calendar, Messages, etc...)
         -- select it, usually moves to space with this window
         frontmostApp:selectMenuItem({ 'Window', appName })

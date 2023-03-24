@@ -9,41 +9,35 @@ Plug 'chriskempson/base16-vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'daviesjamie/vim-base16-lightline'
 Plug 'farmergreg/vim-lastplace'
-Plug 'honza/vim-snippets'
 Plug 'itchyny/lightline.vim'
 Plug 'junegunn/vim-slash'
 Plug 'justinmk/vim-dirvish'
-Plug 'michaeljsmith/vim-indent-object'
+Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-sleuth'
 
 " deferred
 DeferPlug 'chaoren/vim-wordmotion'
+DeferPlug 'neoclide/coc.nvim',             { 'do': { -> coc#util#install() } }
 DeferPlug 'pbrisbin/vim-mkdir'
-DeferPlug 'tpope/vim-abolish'
 DeferPlug 'tpope/vim-repeat'
 DeferPlug 'tpope/vim-surround'
 DeferPlug 'tpope/vim-unimpaired'
 DeferPlug 'vim-scripts/matchit.zip'
-DeferPlug 'w0rp/ale'
 DeferPlug 'yssl/QFEnter'
 
-" completion
-Plug 'neoclide/coc.nvim',                  { 'do': { -> coc#util#install() } }
-
 " on demand loading
-Plug 'chilicuil/sprunge.vim',              { 'on': [ 'Sprunge', 'IX' ] }
 Plug 'christoomey/vim-sort-motion',        { 'on': [ '<Plug>SortMotion', '<Plug>SortLines' ] }
 Plug 'duff/vim-scratch',                   { 'on': 'Scratch' }
-Plug 'epeli/slimux',                       { 'on': [ 'SlimuxREPL', 'SlimuxREPLSendSelection', 'SlimuxREPLSendBuffer', 'SlimuxREPLSendLine', 'SlimuxREPLSendParagraph', 'SlimuxGlobalConfigure' ] }
-Plug 'junegunn/goyo.vim',                  { 'on': 'Goyo' }
+Plug 'esamattis/slimux',                   { 'on': [ 'SlimuxREPLSendLine', 'SlimuxREPLSendBuffer', 'SlimuxREPLSendParagraph', 'SlimuxREPLSendSelection' ] }
 Plug 'junegunn/vim-easy-align',            { 'on': [ '<Plug>(EasyAlign)', 'EasyAlign' ] }
 Plug 'mbbill/undotree',                    { 'on': 'UndotreeToggle' }
 Plug 'mhinz/vim-grepper',                  { 'on': [ 'Grepper', 'GrepperRg', '<Plug>(GrepperOperator)' ] }
 Plug 'mhinz/vim-sayonara',                 { 'on': 'Sayonara' }
 Plug 'rhysd/clever-f.vim',                 { 'on': '<Plug>(clever-f-' }
+Plug 'suy/vim-context-commentstring',      { 'on': '<Plug>Commentary' }
 Plug 't9md/vim-quickhl',                   { 'on': '<Plug>(quickhl-manual-' }
 Plug 'tpope/vim-commentary',               { 'on': '<Plug>Commentary' }
-Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegisterOperator', '<Plug>ReplaceWithRegisterLine', '<Plug>ReplaceWithRegisterVisual' ] }
+Plug 'vim-scripts/ReplaceWithRegister',    { 'on': [ '<Plug>ReplaceWithRegister', '<Plug>ReplaceWithRegisterLine', '<Plug>ReplaceWithRegisterVisual' ] }
 
 " conditional loads
 Plug 'tmux-plugins/vim-tmux-focus-events', Cond($TMUX != '')
@@ -57,18 +51,20 @@ Plug 'eraserhd/parinfer-rust',             { 'for': 'clojure', 'do': 'cargo buil
 Plug 'groenewege/vim-less',                { 'for': 'less' }
 Plug 'itchyny/vim-haskell-indent',         { 'for': 'haskell' }
 Plug 'keith/swift.vim',                    { 'for': 'swift' }
-Plug 'leafgarland/typescript-vim',         { 'for': [ 'typescript', 'typescript.tsx' ] }
+Plug 'leafgarland/typescript-vim',         { 'for': [ 'typescript', 'typescriptreact' ] }
 Plug 'moll/vim-node',                      { 'for': 'javascript' }
 Plug 'neoclide/vim-jsx-improve',           { 'for': [ 'javascript', 'html' ] }
 Plug 'octol/vim-cpp-enhanced-highlight',   { 'for': [ 'cpp', 'c' ] }
 Plug 'othree/html5.vim',                   { 'for': 'html' }
+Plug 'peitalin/vim-jsx-typescript',        { 'for': 'typescriptreact' }
 Plug 'peterhoeg/vim-qml',                  { 'for': 'qml' }
 Plug 'plasticboy/vim-markdown',            { 'for': 'markdown' }
 Plug 'sophacles/vim-processing',           { 'for': 'processing' }
 Plug 'sudar/vim-arduino-syntax',           { 'for': 'arduino' }
-Plug 'tasn/vim-tsx',                       { 'for': 'typescript.tsx' }
+Plug 'supercollider/scvim',                { 'for': 'supercollider' }
 Plug 'tikhomirov/vim-glsl',                { 'for': [ 'javascript', 'glsl' ] }
 Plug 'vim-scripts/ck.vim',                 { 'for': 'ck' }
+Plug 'elixir-editors/vim-elixir',          { 'for': 'elixir', }
 
 " smart FZF loading
 let g:fzfdir = globpath('/usr/local/Cellar/fzf/', '*', 1, 1)
@@ -78,6 +74,19 @@ endif
 
 if len(g:fzfdir) >= 1
   Plug g:fzfdir[0]
+endif
+
+" local
+if isdirectory(expand('~/Documents/Projects/muninn-vim/'))
+  Plug '~/Documents/Projects/muninn-vim'
+endif
+
+if isdirectory(expand('~/Documents/Projects/coc-muninn/'))
+  let &runtimepath = &runtimepath . ',' . expand('~/Documents/Projects/coc-muninn/')
+endif
+
+if isdirectory(expand('~/Documents/Projects/coc-vale/'))
+  let &runtimepath = &runtimepath . ',' . expand('~/Documents/Projects/coc-vale/')
 endif
 
 call plug#end()
@@ -105,9 +114,11 @@ set lazyredraw
 set notimeout
 set ttimeout
 
-if !has('nvim')
+if has('nvim')
+  set mousescroll=ver:1,hor:1
+else
   set ttyfast
-  set ttyscroll=3
+  set ttyscroll=1
   set ttimeoutlen=10
 endif
 
@@ -124,107 +135,139 @@ set shortmess+=Ic
 set cmdwinheight=3
 
 " syntax coloring
-if !exists('g:syntax_on')
-  syntax enable
-endif
+syntax on
 
 " don't syntax highlight long lines
-set synmaxcol=1024
+set synmaxcol=8192
 
-function! s:base16_customize() abort
-  call g:Base16hi('Comment',                      g:base16_gui03, '',             g:base16_cterm03, '',               'italic',  '')
-  call g:Base16hi('Conditional',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('Constant',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('Delimiter',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('Function',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('Identifier',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('IncSearch',                    g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, 'none',    '')
-  call g:Base16hi('Keyword',                      g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('Label',                        g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('NonText',                      g:base16_gui00, '',             g:base16_cterm00, '',               '',        '')
-  call g:Base16hi('Operator',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('Repeat',                       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('Search',                       g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, 'none',    '')
-  call g:Base16hi('Special',                      g:base16_gui08, '',             g:base16_cterm08, '',               '',        '')
-  call g:Base16hi('SpecialChar',                  g:base16_gui0C, '',             g:base16_cterm0C, '',               '',        '')
-  call g:Base16hi('Statement',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('StatusLine',                   g:base16_gui05, g:base16_gui01, g:base16_cterm05, g:base16_cterm01, 'none',    '')
-  call g:Base16hi('StatusLineNC',                 g:base16_gui04, g:base16_gui01, g:base16_cterm04, g:base16_cterm01, '',        '')
-  call g:Base16hi('StorageClass',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('Structure',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('Substitute',                   g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, 'none',    '')
-  call g:Base16hi('Todo',                         g:base16_gui0F, g:base16_gui01, g:base16_cterm0F, g:base16_cterm01, 'reverse', '')
-  call g:Base16hi('Type',                         g:base16_gui08, '',             g:base16_cterm08, '',               '',        '')
-  call g:Base16hi('Typedef',                      g:base16_gui08, '',             g:base16_cterm08, '',               '',        '')
-  call g:Base16hi('VertSplit',                    g:base16_gui01, g:base16_gui00, g:base16_cterm01, g:base16_cterm00, 'none',    '')
-  call g:Base16hi('Wildmenu',                     g:base16_gui00, g:base16_gui03, g:base16_cterm00, g:base16_cterm03, '',        '')
+function! Base16Customize()
+  call g:Base16hi('Comment',                      g:base16_gui03, '',             g:base16_cterm03, '',               'italic',        '')
 
-  call g:Base16hi('SpellBad',                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
-  call g:Base16hi('SpellCap',                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
-  call g:Base16hi('SpellLocal',                   g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
-  call g:Base16hi('SpellRare',                    g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
+  call g:Base16hi('Conditional',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('Constant',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('Delimiter',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('Function',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('Identifier',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('IncSearch',                    g:base16_gui00, g:base16_gui09, g:base16_cterm00, g:base16_cterm09, 'none',          '')
+  call g:Base16hi('Keyword',                      g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('Label',                        g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('NonText',                      g:base16_gui00, '',             g:base16_cterm00, '',               '',              '')
+  call g:Base16hi('Operator',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('Repeat',                       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('Search',                       g:base16_gui00, g:base16_gui09, g:base16_cterm00, g:base16_cterm09, 'none',          '')
+  call g:Base16hi('Special',                      g:base16_gui08, '',             g:base16_cterm08, '',               '',              '')
+  call g:Base16hi('SpecialChar',                  g:base16_gui0C, '',             g:base16_cterm0C, '',               '',              '')
+  call g:Base16hi('Statement',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('StatusLine',                   g:base16_gui05, g:base16_gui01, g:base16_cterm05, g:base16_cterm01, 'none',          '')
+  call g:Base16hi('StatusLineNC',                 g:base16_gui04, g:base16_gui01, g:base16_cterm04, g:base16_cterm01, '',              '')
+  call g:Base16hi('StorageClass',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('Structure',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('Substitute',                   g:base16_gui00, g:base16_gui09, g:base16_cterm00, g:base16_cterm09, 'none',          '')
+  call g:Base16hi('Todo',                         g:base16_gui0F, g:base16_gui00, g:base16_cterm0F, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('Type',                         g:base16_gui08, '',             g:base16_cterm08, '',               '',              '')
+  call g:Base16hi('Typedef',                      g:base16_gui08, '',             g:base16_cterm08, '',               '',              '')
+  call g:Base16hi('VertSplit',                    g:base16_gui01, g:base16_gui00, g:base16_cterm01, g:base16_cterm00, 'none',          '')
+  call g:Base16hi('Wildmenu',                     g:base16_gui00, g:base16_gui03, g:base16_cterm00, g:base16_cterm03, '',              '')
 
-  call g:Base16hi('ALEError',                     g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
-  call g:Base16hi('ALEErrorSign',                 g:base16_gui08, g:base16_gui01, g:base16_cterm08, g:base16_cterm01, 'reverse', '')
-  call g:Base16hi('ALEWarning',                   g:base16_gui0A, g:base16_gui01, g:base16_cterm0A, g:base16_cterm01, 'reverse', '')
-  call g:Base16hi('ALEWarningSign',               g:base16_gui0A, g:base16_gui01, g:base16_cterm0A, g:base16_cterm01, 'reverse', '')
+  call g:Base16hi('SpellBad',                     g:base16_gui08, g:base16_gui00, g:base16_cterm08, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('SpellCap',                     g:base16_gui08, g:base16_gui00, g:base16_cterm08, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('SpellLocal',                   g:base16_gui08, g:base16_gui00, g:base16_cterm08, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('SpellRare',                    g:base16_gui08, g:base16_gui00, g:base16_cterm08, g:base16_cterm00, 'reverse',       '')
 
-  call g:Base16hi('CleverFDefaultLabel',          g:base16_gui01, g:base16_gui09, g:base16_cterm01, g:base16_cterm09, 'none',    '')
-  call g:Base16hi('CocHighlightText',             '',             g:base16_gui01, '',               g:base16_cterm01, 'none',    '')
+  call g:Base16hi('ALEError',                     g:base16_gui08, g:base16_gui00, g:base16_cterm08, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('ALEErrorSign',                 g:base16_gui08, g:base16_gui00, g:base16_cterm08, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('ALEWarning',                   g:base16_gui0A, g:base16_gui00, g:base16_cterm0A, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('ALEWarningSign',               g:base16_gui0A, g:base16_gui00, g:base16_cterm0A, g:base16_cterm00, 'reverse',       '')
 
+  call g:Base16hi('CocHighlightText',             '',             g:base16_gui01, '',               g:base16_cterm01, 'none',          '')
+  call g:Base16hi('CocErrorHighlight',            g:base16_gui08, g:base16_gui00, g:base16_cterm08, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('CocWarningHighlight',          g:base16_gui0A, g:base16_gui00, g:base16_cterm0A, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('CocInfoHighlight',             g:base16_gui0A, g:base16_gui00, g:base16_cterm0A, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('CocInfoVirtualText',           g:base16_gui0A, '',             g:base16_cterm0A, '',               '',              '')
+  call g:Base16hi('CocUnusedHighlight',           g:base16_gui0A, g:base16_gui00, g:base16_cterm0A, g:base16_cterm00, 'reverse',       '')
+  call g:Base16hi('CocDeprecatedHighlight',       g:base16_gui0A, g:base16_gui00, g:base16_cterm0A, g:base16_cterm00, 'reverse',       '')
 
-  call g:Base16hi('cPreCondit',                   g:base16_gui08, '',             g:base16_cterm08, '',               '',        '')
-  call g:Base16hi('clojureAnonArg',               g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('clojureDefine',                g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('clojureDispatch',              g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('clojureMacro',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('clojureSpecial',               g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('clojureVarArg',                g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('cssClassName',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('htmlArg',                      g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
-  call g:Base16hi('htmlBold',                     g:base16_gui05, '',             g:base16_cterm05, '',               'bold',    '')
-  call g:Base16hi('htmlItalic',                   g:base16_gui05, '',             g:base16_cterm05, '',               'italic',  '')
-  call g:Base16hi('htmlLink',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('htmlSpecialTagName',           g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsArrowFunction',              g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsBuiltins',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsClassDefinition',            g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
-  call g:Base16hi('jsClassMethodType',            g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsDecorator',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsFuncName',                   g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
-  call g:Base16hi('jsFunction',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsGlobalNodeObjects',          g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsGlobalObjects',              g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsReturn',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsThis',                       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsonQuote',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('jsxAttrib',                    g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
-  call g:Base16hi('luaConstant',                  g:base16_gui09, '',             g:base16_cterm09, '',               '',        '')
-  call g:Base16hi('markdownCode',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('markdownItalic',               g:base16_gui05, '',             g:base16_cterm05, '',               'italic',  '')
-  call g:Base16hi('markdownListMarker',           g:base16_gui03, '',             g:base16_cterm03, '',               '',        '')
-  call g:Base16hi('markdownUrl',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('mkdCode',                      g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('mkdCodeEnd',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('mkdCodeStart',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('mkdHeading',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('mkdItalic',                    g:base16_gui05, '',             g:base16_cterm05, '',               'italic',  '')
-  call g:Base16hi('mkdUrl',                       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
-  call g:Base16hi('rustFuncName',                 g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
-  call g:Base16hi('taskpaperContext',             g:base16_gui03, '',             g:base16_cterm03, '',               '',        '')
-  call g:Base16hi('taskpaperDone',                g:base16_gui02, '',             g:base16_cterm02, '',               '',        '')
-  call g:Base16hi('typescriptEndColons',          g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
-  call g:Base16hi('typescriptGlobalObjects',      g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
-  call g:Base16hi('typescriptHtmlElemProperties', g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
-  call g:Base16hi('typescriptHtmlEvents',         g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
-  call g:Base16hi('xmlAttrib',                    g:base16_gui05, '',             g:base16_cterm05, '',               '',        '')
+  call g:Base16hi('CocErrorFloat',                g:base16_gui08, g:base16_gui00, g:base16_cterm08, g:base16_cterm00, '',              '')
+  call g:Base16hi('CocWarningFloat',              g:base16_gui0A, g:base16_gui00, g:base16_cterm0A, g:base16_cterm00, '',              '')
+  call g:Base16hi('CocInfoFloat',                 g:base16_gui0A, g:base16_gui00, g:base16_cterm0A, g:base16_cterm00, '',              '')
+
+  call g:Base16hi('CocPumSearch',                 g:base16_gui09, '',             g:base16_cterm09, '',               '',              '')
+  call g:Base16hi('CocPumShortcut',               g:base16_gui02, '',             g:base16_cterm02, '',               '',              '')
+  call g:Base16hi('CocMenuSel',                   g:base16_gui05, g:base16_gui02, g:base16_cterm05, g:base16_cterm02, '',              '')
+  call g:Base16hi('PmenuSbar',                    g:base16_gui01, g:base16_gui01, g:base16_cterm01, g:base16_cterm01, '',              '')
+  call g:Base16hi('PmenuThumb',                   g:base16_gui02, g:base16_gui02, g:base16_cterm02, g:base16_cterm02, '',              '')
+
+  call g:Base16hi('CocLineSign',                  '',             g:base16_gui01, '',               g:base16_cterm01, '',              '')
+
+  call g:Base16hi('CleverFDefaultLabel',          g:base16_gui00, g:base16_gui09, g:base16_cterm00, g:base16_cterm09, 'none',          '')
+
+  call g:Base16hi('cOperator',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('cPreCondit',                   g:base16_gui08, '',             g:base16_cterm08, '',               '',              '')
+  call g:Base16hi('clojureAnonArg',               g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('clojureDefine',                g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('clojureDispatch',              g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('clojureMacro',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('clojureSpecial',               g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('clojureVarArg',                g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('cssClassName',                 g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('htmlArg',                      g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('htmlLink',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('htmlSpecialTagName',           g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsArrowFunction',              g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsBuiltins',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsClassDefinition',            g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('jsClassMethodType',            g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsDecorator',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsFuncCall',                   g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('jsFuncName',                   g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('jsFunction',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsGlobalNodeObjects',          g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('jsGlobalObjects',              g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('jsReturn',                     g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsStatement',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsThis',                       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsonQuote',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsxAttrib',                    g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('jsxEndTag',                    g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('jsxTag',                       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('luaConstant',                  g:base16_gui09, '',             g:base16_cterm09, '',               '',              '')
+  call g:Base16hi('rustFuncName',                 g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('taskpaperContext',             g:base16_gui03, '',             g:base16_cterm03, '',               '',              '')
+  call g:Base16hi('taskpaperDone',                g:base16_gui02, '',             g:base16_cterm02, '',               '',              '')
+  call g:Base16hi('tsxCloseComponentName',        g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('tsxCloseTag',                  g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('tsxCloseTagName',              g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('tsxComponentName',             g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('tsxTag',                       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('tsxTagName',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('typescriptBraces',             g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('typescriptEndColons',          g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('typescriptGlobalObjects',      g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('typescriptHtmlElemProperties', g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('typescriptHtmlEvents',         g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('typescriptLogicSymbols',       g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('typescriptParens',             g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('xmlAttrib',                    g:base16_gui05, '',             g:base16_cterm05, '',               '',              '')
+  call g:Base16hi('yamlKeyValueDelimiter',        g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
 
   " extended markdown
-  call g:Base16hi('markdownTodoToday',            g:base16_gui0B, '',             g:base16_cterm0B, '',               '',        '')
-  call g:Base16hi('markdownTag',                  g:base16_gui03, '',             g:base16_cterm03, '',               '',        '')
-  call g:Base16hi('markdownListItemDone',         g:base16_gui02, '',             g:base16_cterm02, '',               '',        '')
-  call g:Base16hi('markdownChecked',              g:base16_gui02, '',             g:base16_cterm02, '',               '',        '')
-  call g:Base16hi('markdownUnchecked',            g:base16_gui0D, '',             g:base16_cterm0D, '',               '',        '')
+  call g:Base16hi('mkdCode',                      g:base16_gui03, '',             g:base16_cterm03, '',               '',              '')
+  call g:Base16hi('mkdCodeDelimiter',             g:base16_gui02, '',             g:base16_cterm02, '',               '',              '')
+  call g:Base16hi('mkdCodeEnd',                   g:base16_gui02, '',             g:base16_cterm02, '',               '',              '')
+  call g:Base16hi('mkdCodeStart',                 g:base16_gui02, '',             g:base16_cterm02, '',               '',              '')
+  call g:Base16hi('mkdDelimiter',                 g:base16_gui02, '',             g:base16_cterm02, '',               '',              '')
+  call g:Base16hi('mkdHeading',                   g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
+  call g:Base16hi('mkdUrl',                       g:base16_gui02, '',             g:base16_cterm02, '',               '',              '')
+  call g:Base16hi('htmlBold',                     g:base16_gui05, '',             g:base16_cterm05, '',               'bold',          '')
+  call g:Base16hi('htmlItalic',                   g:base16_gui05, '',             g:base16_cterm05, '',               'italic',        '')
+  call g:Base16hi('markdownStrikethrough',        g:base16_gui05, '',             g:base16_cterm05, '',               'strikethrough', '')
+
+  call g:Base16hi('markdownChecked',              g:base16_gui02, '',             g:base16_cterm02, '',               '',              '')
+  call g:Base16hi('markdownListItemDone',         g:base16_gui02, '',             g:base16_cterm02, '',               '',              '')
+  call g:Base16hi('markdownTag',                  g:base16_gui03, '',             g:base16_cterm03, '',               '',              '')
+  call g:Base16hi('markdownTagDueToday',          g:base16_gui0B, '',             g:base16_cterm0B, '',               '',              '')
+  call g:Base16hi('markdownTagReview',            g:base16_gui08, '',             g:base16_cterm08, '',               '',              '')
+  call g:Base16hi('markdownUnchecked',            g:base16_gui0D, '',             g:base16_cterm0D, '',               '',              '')
 
   " nvim fix for flickering on start
   hi! Normal ctermbg=NONE
@@ -238,9 +281,11 @@ endfunction
 
 augroup base16_colorscheme
   au!
-  au ColorScheme * call s:base16_customize()
+
+  au ColorScheme * call Base16Customize()
 augroup END
 
+set background=dark " no idea why this is needed, but without it colors look wrong
 let base16colorspace=256
 
 if filereadable(expand('~/.vimrc_background'))
@@ -273,8 +318,8 @@ set ruler
 " set virtualedit=all
 
 set sidescroll=1
-set sidescrolloff=6
-set scrolloff=3
+set sidescrolloff=0
+set scrolloff=0
 
 " path used by gf, :find, etc..
 set path=.,,,./**
@@ -295,7 +340,7 @@ set switchbuf=useopen
 set hidden
 
 " centralized backup,swap,undo
-set swapfile
+set noswapfile
 set writebackup
 set nobackup
 set undofile
@@ -330,7 +375,7 @@ set history=10000
 set undolevels=10000
 set undoreload=10000
 
-" search settings
+" " search settings
 set hlsearch
 set ignorecase
 set smartcase
@@ -341,8 +386,13 @@ if has('nvim')
   set inccommand=nosplit
 endif
 
-" always display statusline
-set laststatus=2
+if has('nvim')
+  " always display statusline, once per whole window
+  set laststatus=3
+else
+  " always display statusline, duplicates for vertical splits
+  set laststatus=2
+endif
 
 " always display tabline
 set showtabline=1
@@ -370,9 +420,6 @@ set splitbelow
 " guicursor without blink
 set guicursor=a:blinkon0
 
-" cursor line
-" set cursorline
-
 " fillchars with nice utf8 vert split, and no fold char
 set fillchars=fold:\ ,vert:│
 
@@ -382,11 +429,6 @@ set grepformat=%f:%l:%c:%m
 
 " tags
 set tags=./tags,./.tags,tags,.tags
-
-" " set path
-" if has('mac')
-"   let $PATH='/usr/local/bin:' . $PATH . ':/Users/Szymon/Documents/Code/Scripts'
-" endif
 
 " code folding
 set foldenable
@@ -398,15 +440,18 @@ set foldtext=foldtext#foldtext()
 " yes mouse
 set mouse=a
 
+" dictionaries for tab completion with coc-dictionary
+set dictionary+=/usr/share/dict/words,~/.vim/spell/en.utf-8.add
+
 " python on osx
 if has('mac')
   let g:loaded_python_provider = 1 " disable python 2
   let g:python_host_skip_check = 1
   let g:python_host_prog = '/usr/local/bin/python'
 
-  let g:loaded_python3_provider = 1 " disable python 3
+  " let g:loaded_python3_provider = 1 " disable python 3
   let g:python3_host_skip_check = 1
-  let g:python3_host_prog = '/usr/local/bin/python3'
+  let g:python3_host_prog = '/usr/bin/python3'
 endif
 
 " disable ruby
@@ -416,8 +461,11 @@ let g:loaded_ruby_provider = 1
 set belloff=all
 set noerrorbells
 
-" re-source vimrc
-nnoremap <leader>sv :ReloadSettings<cr>
+" gui stuff
+set guifont=JetBrains_Mono:h13
+if exists("g:neovide")
+  let g:neovide_cursor_animation_length = 0
+endif
 
 " expand %% to directory of current file in command-line mode
 cnoremap %% <c-r>=fnameescape(expand('%:~:h'))<cr>/
@@ -425,12 +473,12 @@ cnoremap %% <c-r>=fnameescape(expand('%:~:h'))<cr>/
 " tab as %
 map <tab> %
 
-" HS rebinds ctrl-i to F6, and here we bind it back,
+" HammerSpoon rebinds ctrl-i to F6, and here we bind it back,
 " because ctrl-i is tab in terminal
 nnoremap <F6> <c-i>
 
 " so you can gf to non-existing (new) files
-" this breaks gf for relative paths
+" breaks gf for relative paths though
 " map gf :e <cfile><cr>
 
 " " c-a / c-e everywhere
@@ -485,6 +533,9 @@ nnoremap <expr> { foldclosed(search('^$', 'Wnb')) == -1 ? '{' : '{k{'
 xnoremap > >gv
 xnoremap < <gv
 
+" select the text that was last edited/pasted
+nnoremap gV `[v`]
+
 " dot in visual mode
 xnoremap . :norm .<cr>
 
@@ -507,7 +558,7 @@ xmap / *
 xmap ? #
 
 " replace current word (requires vim-plug for * in visual mode)
-nnoremap <leader>r :<c-u>let replace_view=winsaveview()<cr>/\<<c-r><c-w>\><cr>:redraw!<cr>:call winrestview(replace_view)<cr>:%s//
+nnoremap <leader>r /\<<c-r><c-w>\><cr>:redraw!<cr>:%s//
 xmap     <leader>r *:redraw!<cr>:%s//
 
 " buffers
@@ -515,6 +566,10 @@ nnoremap gb         :bnext<cr>
 nnoremap gB         :bprev<cr>
 nnoremap <leader>bd :bdelete!<cr>
 nnoremap <leader>bb :b#<cr>
+
+" quicker open in vertical split - same like gD/gd for go to definition
+nnoremap gf gF
+nnoremap gF <c-w>vgF
 
 " new buffer / tab
 nnoremap <leader>B :enew<cr>
@@ -542,9 +597,8 @@ nnoremap zf zMzv
 nnoremap <silent> <c-w>z :ZoomToggle<cr>
 
 " make
-nnoremap <silent>m :make<cr>
+" nnoremap <silent>m :make<cr>
 
 " duplicate line and comment (requires vim-commentary)
 nmap <leader>cc yygccp
 xmap <leader>cc m'ygvgc''jp
-

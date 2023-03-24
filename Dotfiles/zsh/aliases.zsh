@@ -1,8 +1,7 @@
-alias sudo="sudo "
-
-alias ls="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable"
-alias ll="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable -l"
-alias la="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable -l --almost-all"
+alias ls="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable --time-style=long-iso"
+alias ll="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable --time-style=long-iso -l"
+alias la="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable --time-style=long-iso -l --almost-all"
+alias lt="LC_COLLATE=C ls --color=auto --group-directories-first --classify --human-readable --time-style=long-iso -l --almost-all -t --reverse"
 
 alias rm="rm -iv"
 alias mv="mv -iv"
@@ -20,7 +19,7 @@ alias du="du -sh"
 alias rg="rg --smart-case"
 alias grep="egrep --color=auto"
 alias less="less -i --tabs=2 -r"
-alias diff="colordiff"
+alias diff="difft"
 alias wget="wget -c"
 alias watch="watch -n1 -c -t"
 alias picocom="picocom -e x"
@@ -37,13 +36,8 @@ alias td="tree -adC --dirsfirst -I '.git|node_modules|bower_components'"
 
 alias tl="tmux ls | sed 's/:/;/' | sed 's/\[.*\]//g' | column -t -s ';' | sed 's/(.*) //'"
 
-alias today="$EDITOR +Today"
-
 alias timestamp="date +%Y%m%d-%H%M"
 alias datestamp="date +%Y-%m-%d"
-
-alias kitty="/Applications/kitty.app/Contents/MacOS/kitty"
-alias icat="kitty +kitten icat"
 
 alias -g C="| wc -l"                 # [C]ount
 alias -g G="| egrep -i --color=auto" # [G]rep

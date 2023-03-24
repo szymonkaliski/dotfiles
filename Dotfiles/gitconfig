@@ -5,13 +5,14 @@
   quotepath = false
   pager = less -x2
   safecrlf = false
-  excludesfile = /Users/szymon/.gitignore_global
+  excludesfile = ~/.gitignore_global
 [system]
   untrackedCache = true
 [diff]
   color = auto
   algorithm = patience
   compactionHeuristic = true
+  external = difft
 [pager]
   color = true
 [status]
@@ -20,9 +21,11 @@
 [merge]
   conflictstyle = diff3
 [alias]
-  this  = !git init && git add . && git commit -m \"initial commit\"
+  this = !git init && git add . && git commit -m \"initial commit\"
   amend = !git log -n 1 --pretty=tformat:%s%n%n%b | git commit -F - --amend
-  edit  = !$EDITOR $(git ls-files -m)
+
+  # [h]istory [s]earch
+  hs = log -p -G
 
   ci = !git add -A && git commit -am
   cm = commit -m
@@ -34,6 +37,9 @@
   ll = log --pretty=format:"%C(yellow)%h%x09%C(green)%cd%x09%C(reset)%s\\%C(magenta)%d\\ %C(blue)[%cn]" --decorate --numstat
 [push]
   default = current
+  autoSetupRemote = true
+[pull]
+  ff = only
 [rere]
   enabled = true
 [filter "lfs"]
@@ -41,3 +47,8 @@
   process = git-lfs filter-process
   required = true
   clean = git-lfs clean -- %f
+[init]
+  defaultBranch = main
+[url "git@github.com:"]
+  insteadOf = git://github.com/
+

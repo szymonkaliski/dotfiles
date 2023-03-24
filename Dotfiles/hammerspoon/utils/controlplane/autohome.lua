@@ -9,7 +9,11 @@ local sleepWatcher = function(_, _, _, _, event)
   local isAtHome     = hs.wifi.currentNetwork() == config.network.home
 
   if isTurningOff and isAtHome and not hs.itunes.isPlaying() then
-    homebridge.set(config.homebridge.studioSpeakers, 0)
+    local studioSpeakers = homebridge.find("Studio Audio")
+
+    if studioSpeakers then
+      homebridge.set(studioSpeakers, 0)
+    end
   end
 end
 
@@ -18,7 +22,7 @@ module.start = function()
 end
 
 module.stop = function()
-  -- cache.watcherSleep:release()
+  cache.watcherSleep:release()
 end
 
 return module

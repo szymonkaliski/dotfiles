@@ -1,1 +1,1 @@
-map <plug>(slash-after) zz
+" map <plug>(slash-after) zz

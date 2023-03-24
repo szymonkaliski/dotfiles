@@ -8,9 +8,3 @@ map <Plug>OpenURLVisual :call utils#open_url(1)<cr>:call repeat#set('\<Plug>Open
 nmap gx <Plug>OpenURLNormal
 xmap gx <Plug>OpenURLVisual
 
-" map <Plug>OpenQuicklookNormal :call utils#open_quicklook(0)<cr>:call repeat#set('\<Plug>OpenQuicklookNormal')<cr>
-" map <Plug>OpenQuicklookVisual :call utils#open_quicklook(1)<cr>:call repeat#set('\<Plug>OpenQuicklookVisual')<cr>
-
-nmap go :call utils#open_quicklook(0)<cr>
-xmap go :call utils#open_quicklook(1)<cr>
-

@@ -27,10 +27,10 @@ command! SaveSession :call session#save()
 command! LoadSession :call session#load()
 
 " plug
-command! PlugUp :PlugUpdate | PlugUpgrade
+command! PlugUp :PlugUpdate | PlugUpgrade | CocUpdate
 
 " copy full file path (to system clipboard)
-command! CPWD :let @+ = expand('%:p')
+command! CPWD :let @+ = expand('%:p') | echomsg expand('%:p')
 
 " redirect vim command output to scratch buffer
 function! Redir(cmd)
@@ -56,3 +56,29 @@ function! Redir(cmd)
 endfunction
 
 command! -nargs=1 -complete=command Redir silent call Redir(<f-args>)
+
+function! ToAscii()
+  silent! %s/[“”„]/"/
+  silent! %s/[‘’]/'/
+  silent! %s/—–/-/
+endfunction
+
+command! ToAscii :call ToAscii()
+
+function! CountWorkTime() range
+  echomsg utils#pipe_through_script(getline(a:firstline, a:lastline), 'count-work-time')
+endfunction
+
+command! -range=% -nargs=0 CountWorkTime :<line1>,<line2>call CountWorkTime()
+
+function! RunCmd(...)
+  let l:cmd = join(a:000, ' ')
+  let l:cwd = expand('%:p:h')
+
+  let l:final_cmd = 'cd ' . l:cwd . '; ' . l:cmd
+
+  call jobstart(['/bin/zsh', '-ci', l:final_cmd])
+endfunction
+
+command! -nargs=+ Run :call RunCmd(<f-args>)
+

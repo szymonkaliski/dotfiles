@@ -5,11 +5,19 @@ augroup fzf_plugin
 augroup END
 
 let s:fzf_default_opt = { 'window': 'enew' }
+
 " let s:fzf_preview_opt = ' --preview="highlight --config-file=$HOME/.highlight/hybrid-bw.theme -q -t 2 --force -O xterm256 {}"'
+" let s:fzf_preview_opt = ' --preview="bat --style=plain --color=always --theme=base16-256 --line-range=:200 {}"'
 let s:fzf_preview_opt = ''
 
-let s:rg_globs = "-g '!*.{png,jpg,jpeg,mp4,mkv,obj,ttf,sketch,zip}' -g '!.DS_Store'"
-let s:wiki_dir = '~/Documents/Dropbox/Wiki/'
+let s:ignore_glob   = '*.{gif,png,jpg,jpeg,mp4,mkv,obj,ttf,sketch,zip}'
+let s:ds_store_glob = '.DS_Store'
+let s:rg_globs      = "-g '!" .. s:ignore_glob .. "' -g '!" .. s:ds_store_glob .. "'"
+let s:fd_globs      = "-E '"  .. s:ignore_glob .. "' -E "   .. s:ds_store_glob
+
+let s:fd_sort_modified_time = ' --exec stat -c "%Y:%n" | sort -nr | cut -d ":" -f2' " very slow
+let s:fd_sort_none          = ''
+let s:fd_sort               = s:fd_sort_none
 
 function! fzf#buffers_list()
   let l:all = range(0, bufnr('$'))
@@ -32,23 +40,6 @@ function! fzf#recent_files()
   return v:oldfiles
 endfunction
 
-function! fzf#buffers_lines()
-  let res = []
-
-  for b in filter(range(1, bufnr('$')), 'buflisted(v:val)')
-    call extend(res, map(getbufline(b,0,'$'), "b . ':' . (v:key + 1) . ':\t' . v:val "))
-  endfor
-
-  return res
-endfunction
-
-function! fzf#buffers_lines_open(l)
-  let l:keys = split(a:l, ':')
-  exe 'buffer ' . l:keys[0]
-  exe l:keys[1]
-  silent! normal! zozz
-endfunction
-
 " FIXME: this should probably be part of muninn scripts
 function! fzf#wiki_open(l)
   let l:keys = split(a:l, ':')
@@ -56,62 +47,59 @@ function! fzf#wiki_open(l)
   let l:file = l:keys[0]
   let l:line = l:keys[1]
 
-  exe 'e ' . s:wiki_dir . l:file
+  exe 'e ' . muninn#wiki_path() . l:file
   exe ':' . l:line
+  norm zz
 endfunction
 
-function! s:fzf_dir_files()
-  call fzf#run(extend(s:fzf_default_opt, {
-        \ 'source':  'rg --files --hidden --follow --no-messages ' . s:rg_globs,
-        \ 'sink':    'e',
-        \ 'dir':     dirvish#get_current_path(),
-        \ 'options': '--reverse --multi --exit-0 --prompt="files > "' . s:fzf_preview_opt
-        \ }))
+function! fzf#file_line_open(l)
+  let l:keys = split(a:l, ':')
+
+  let l:file = l:keys[0]
+  let l:line = l:keys[1]
+
+  exe 'e ' . l:file
+  exe ':' . l:line
+  norm zz
 endfunction
 
-function! s:fzf_files()
-  call fzf#run(extend(s:fzf_default_opt, {
-        \ 'source':  'rg --files --hidden --follow --no-messages ' . s:rg_globs,
-        \ 'sink':    'e',
-        \ 'dir':     getcwd(),
-        \ 'options': '--reverse --multi --exit-0 --prompt="files > "' . s:fzf_preview_opt
-        \ }))
-endfunction
+command! FZFFilesFolders call fzf#run(extend(s:fzf_default_opt, {
+      \ 'source':  'fd --hidden --follow --exclude .git ' . s:fd_globs . s:fd_sort,
+      \ 'sink':    'e',
+      \ 'dir':     getcwd(),
+      \ 'options': '--multi --exit-0 --prompt="files > "' . s:fzf_preview_opt
+      \ }))
 
-function! s:fzf_wiki()
-  call fzf#run(extend(s:fzf_default_opt, {
-        \ 'source':  'rg --no-heading --line-number --with-filename "." ' . s:rg_globs,
-        \ 'sink':    function('fzf#wiki_open'),
-        \ 'dir':     s:wiki_dir,
-        \ 'options': '--reverse --exit-0 --prompt="wiki > "' . s:fzf_preview_opt
-        \ }))
-endfunction
+command! FZFWiki call fzf#run(extend(s:fzf_default_opt, {
+      \ 'source':  'rg --no-heading --line-number --with-filename "." ' . s:rg_globs,
+      \ 'sink':    function('fzf#wiki_open'),
+      \ 'dir':     muninn#wiki_path(),
+      \ 'options': '--exit-0 --prompt="wiki > "' . s:fzf_preview_opt
+      \ }))
 
-command! FZFFiles    call <sid>fzf_files()
-command! FZFDirFiles call <sid>fzf_dir_files()
-command! FZFWiki     call <sid>fzf_wiki()
+command! FZFLines call fzf#run(extend(s:fzf_default_opt, {
+      \ 'source':  'rg --no-heading --line-number --with-filename "." ' . s:rg_globs,
+      \ 'sink':    function('fzf#file_line_open'),
+      \ 'dir':     getcwd(),
+      \ 'options': '--exit-0 --prompt="lines > "'
+      \ }))
 
 command! FZFBuffers call fzf#run(extend(s:fzf_default_opt, {
       \ 'source':  fzf#buffers_list(),
       \ 'sink':    'e',
-      \ 'options': '--reverse --no-sort --prompt="buffers > "' . s:fzf_preview_opt
+      \ 'options': '--exit-0 --prompt="buffers > "' . s:fzf_preview_opt
       \ }))
 
 command! FZFMru call fzf#run(extend(s:fzf_default_opt, {
       \ 'source':  fzf#recent_files(),
       \ 'sink':    'e',
-      \ 'options': '--reverse --multi --exit-0 --no-sort --prompt="mru > "' . s:fzf_preview_opt
+      \ 'options': '--multi --exit-0 --prompt="mru > "' . s:fzf_preview_opt
       \ }))
 
-command! FZFLines call fzf#run(extend(s:fzf_default_opt, {
-      \ 'source':  fzf#buffers_lines(),
-      \ 'sink':    function('fzf#buffers_lines_open'),
-      \ 'options': '--reverse --no-sort --exit-0 --nth=3.. --prompt="lines > "'
-      \ }))
-
-nnoremap <silent> <c-p>      :FZFFiles<cr>
+nnoremap <silent> <c-p>      :FZFFilesFolders<cr>
 nnoremap <silent> <c-b>      :FZFBuffers<cr>
 
 nnoremap <silent> <leader>fl :FZFLines<cr>
 nnoremap <silent> <leader>fh :FZFMru<cr>
 nnoremap <silent> <leader>fw :FZFWiki<cr>
+

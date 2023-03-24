@@ -1,5 +1,17 @@
 local module = {}
 
+module.flatten = function(xs)
+  local result = {}
+
+  hs.fnutils.each(xs, function(xs)
+    hs.fnutils.each(xs, function(x)
+      table.insert(result, x)
+    end)
+  end)
+
+  return result
+end
+
 module.keys = function(T)
   local keys = {}
 

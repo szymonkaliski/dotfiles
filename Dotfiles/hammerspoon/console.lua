@@ -1,27 +1,35 @@
-local axuiWindowElement = require('hs._asm.axuielement').windowElement
-local reloadHS          = require('ext.system').reloadHS
+local windowMetadata = require('ext.window').windowMetadata
 
 local module = {}
 
 module.init = function()
   -- some global functions for console
   inspect = hs.inspect
-  reload  = reloadHS
 
   dumpWindows = function()
+    local windowList = {}
+
     hs.fnutils.each(hs.window.allWindows(), function(win)
-      print(hs.inspect({
+      local title, meta = windowMetadata(win)
+      local app         = win:application()
+      local axWin       = hs.axuielement.windowElement(win)
+
+      table.insert(windowList, {
         id               = win:id(),
-        title            = win:title(),
-        app              = win:application():name(),
+        appName          = app:name(),
+        bundleId         = app:bundleID(),
         role             = win:role(),
         subrole          = win:subrole(),
-        frame            = win:frame(),
-        buttonZoom       = axuiWindowElement(win):attributeValue('AXZoomButton'),
-        buttonFullScreen = axuiWindowElement(win):attributeValue('AXFullScreenButton'),
-        isResizable      = axuiWindowElement(win):isAttributeSettable('AXSize')
-      }))
+        frame            = win:frame().string,
+        buttonZoom       = axWin:attributeValue('AXZoomButton') and 'exists' or 'doesn\'t exist',
+        buttonFullScreen = axWin:attributeValue('AXFullScreenButton') and 'exists' or 'doesn\'t exist',
+        isResizable      = axWin:isAttributeSettable('AXSize'),
+        title            = title,
+        meta             = meta,
+      })
     end)
+
+    print(hs.inspect(windowList))
   end
 
   dumpScreens = function()

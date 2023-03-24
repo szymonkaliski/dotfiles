@@ -1,16 +1,7 @@
-export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
-export FZF_DEFAULT_OPTS="--inline-info --cycle
-                         --history=$HOME/.fzfhistory
-                         --history-size=1000
-                         --tiebreak=end,length
-                         --no-bold
-                         --color=fg+:007,bg+:018,hl:016,hl+:016
-                         --color=prompt:008,marker:008,pointer:008,spinner:018,info:008"
-
 # z with fzf
 j() {
   if [[ -z "$*" ]]; then
-    cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf --tac --prompt='jump > ' --reverse)"
+    cd "$(_z -l 2>&1 | sed -n 's/^[ 0-9.,]*//p' | fzf --prompt='jump > ')"
   else
     _z "$@"
   fi
@@ -18,27 +9,25 @@ j() {
 
 # edit files in editor
 fe() {
-  # local preview="highlight --config-file=$HOME/.highlight/hybrid-bw.theme -q -t 2 --force -O xterm256 {}"
-  local preview=""
+  local preview="bat --style=plain --color=always --theme=base16-256 --line-range=:200 {}"
 
-  fzf --multi --select-1 --exit-0 --query="$1" --prompt="files > " --reverse --preview=$preview | tr "\n" "\0" | xargs -0 -o v
+  fzf --multi --select-1 --exit-0 --query="$1" --prompt="files > " --preview=$preview | tr "\n" "\0" | xargs -0 -o v
 }
 
 # open file
 fo() {
-  open $(fzf --select-1 --exit-0 --query="$1" --prompt="open > " --reverse)
+  open $(fzf --select-1 --exit-0 --query="$1" --prompt="open > ")
 }
 
 # cd to directory
 fcd() {
-  # local preview="tree -aC --dirsfirst {}"
-  local preview=""
+  local preview="tree -aC --dirsfirst {}"
   local dir=""
 
   if hash fd 2> /dev/null; then
-    dir="$(fd --type d | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --reverse --preview=$preview)"
+    dir="$(fd --type d | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --preview=$preview)"
   else
-    dir="$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --reverse --preview=$preview)"
+    dir="$(find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf --select-1 --exit-0 --query="$1" --prompt='dir > ' --preview=$preview)"
   fi
 
   [ -n "$dir" ] && cd "$dir"
@@ -46,12 +35,12 @@ fcd() {
 
 # search through history
 fh() {
-  print -z $(fc -l 1 | fzf --tac --no-sort --nth=2.. --reverse --query="$1" --prompt="history > " --reverse | sed 's/ *[0-9]* *//')
+  print -z $(fc -l 1 | fzf --tac --query="$1" --prompt="history > " | sed 's/ *[0-9]* *//')
 }
 
 # kill process
 fkill() {
-  ps -ef | sed 1d | fzf --multi --query="$1" --prompt="kill > " --reverse | awk '{ print $2 }' | xargs kill -${1:-9}
+  ps -ef | sed 1d | fzf --multi --query="$1" --prompt="kill > " | awk '{ print $2 }' | xargs kill -${1:-9}
 }
 
 # checkout git commit

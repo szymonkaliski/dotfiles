@@ -2,9 +2,9 @@
 
 local cache  = {}
 local module = { cache = cache }
-local log    = hs.logger.new('ctrl-esc', 'debug');
+local log    = hs.logger.new('ctrl-esc', 'debug')
 
-local CANCEL_DELAY_SECONDS = 0.75
+local CANCEL_DELAY_SECONDS = 0.15
 
 module.reset = function()
   cache.sendEscape = false
@@ -22,7 +22,7 @@ module.start = function()
   cache.controlTap = hs.eventtap.new({ hs.eventtap.event.types.flagsChanged }, function(event)
     local newModifiers = event:getFlags()
 
-    -- if this change to the modifier keys does not invole a *change* to the
+    -- if this change to the modifier keys does not involve a *change* to the
     -- up/down state of the `control` key (i.e., it was up before and it's
     -- still up, or it was down before and it's still down), then don't take
     -- any action
@@ -76,8 +76,9 @@ module.start = function()
 end
 
 module.stop = function()
-  -- FIXME: this breaks with `attempting to call nil value` on `:release`?
-  -- cache.watcher:release()
+  -- if cache.watcher then
+  --   cache.watcher:release()
+  -- end
 
   -- stop monitoring keystrokes
   cache.controlTap:stop()

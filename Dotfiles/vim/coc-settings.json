@@ -1,13 +1,37 @@
 {
-  "coc.preferences.colorSupport": false,
-
+  "suggest.noselect": true,
   "suggest.autoTrigger": "none",
-  "suggest.triggerAfterInsertEnter": false,
 
   "codeLens.enable": false,
-
-  "diagnostic.enable": false,
+  "diagnostic.enable": true,
+  "diagnostic.enableSign": false,
   "diagnostic.displayByAle": false,
+
+  "diagnostic.virtualText": false,
+  "diagnostic.virtualTextCurrentLineOnly": false,
+
+  "rust-analyzer.inlayHints.chainingHints.enable": false,
+  "rust-analyzer.inlayHints.closingBraceHints.enable": false,
+  "rust-analyzer.inlayHints.parameterHints.enable": false,
+  "rust-analyzer.inlayHints.typeHints.enable": false,
+
+  "ltex.disabledRules": {
+    "en-US": [
+      "DASH_RULE",
+      "EN_QUOTES",
+      "WHITESPACE_RULE",
+      "TO_DO_HYPHEN",
+      "DOUBLE_PUNCTUATION",
+      "UPPERCASE_SENTENCE_START",
+      "ARROWS",
+      "PUNCTUATION_PARAGRAPH_END",
+      "UNIT_SPACE",
+      "DATE_NEW_YEAR",
+      "MORFOLOGIK_RULE_EN_US"
+    ]
+  },
+  "ltex.additionalRules.motherTongue": "pl-PL",
+  "ltex.checkFrequency": "save",
 
   "languageserver": {
     "golang": {
@@ -21,7 +45,7 @@
     },
     "clojure": {
       "command": "clojure-lsp",
-      "filetypes": ["clojure", "clj"]
+      "filetypes": ["clojure", "clojurescript"]
     }
   }
 }

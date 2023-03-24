@@ -1,1 +1,1 @@
-au BufNewFile,BufRead *.js,*.jsx setlocal filetype=html filetype=javascript
+au BufNewFile,BufRead *.js,*.jsx setlocal filetype=html filetype=javascriptreact

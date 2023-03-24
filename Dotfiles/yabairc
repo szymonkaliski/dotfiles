@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# jq and yabai are installed with homebrew
+export PATH="/usr/local/bin:$PATH"
+
+# rules first, so they apply before space is retiled
+yabai -m rule --add app="AppCleaner"          manage=off
+yabai -m rule --add app="Archive Utility"     manage=off
+yabai -m rule --add app="Calendar" title="^$" manage=off # Calendar autocomplete popup
+yabai -m rule --add app="DaisyDisk"           manage=off
+yabai -m rule --add app="Hammerspoon"         manage=off # yabai doesn't like Hammerspoon's console
+yabai -m rule --add app="Messages"            manage=off
+yabai -m rule --add app="Reminders"           manage=off
+yabai -m rule --add app="Simulator"           manage=off
+yabai -m rule --add app="System Preferences"  manage=off
+yabai -m rule --add app="coconutBattery"      manage=off
+
+yabai -m config layout              float
+yabai -m config mouse_follows_focus off
+yabai -m config auto_balance        off
+
+yabai -m config top_padding    12
+yabai -m config bottom_padding 12
+yabai -m config left_padding   12
+yabai -m config right_padding  12
+
+yabai -m config window_gap     12
+

@@ -24,5 +24,5 @@ let g:easy_align_delimiters = {
 
 let g:easy_align_bypass_fold = 1
 
-xmap <leader>a =gv<Plug>(EasyAlign)
-nmap ga        <Plug>(EasyAlign)
+xmap ga <Plug>(EasyAlign)
+nmap ga <Plug>(EasyAlign)

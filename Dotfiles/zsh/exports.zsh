@@ -10,13 +10,6 @@ export HOMEBREW_NO_INSECURE_REDIRECT=1
 
 export MOSH_TITLE_NOPREFIX=1
 
-# if [ -d /usr/local/include/ni2 ]; then
-#   export OPENNI2_INCLUDE=/usr/local/include/ni2
-#   export OPENNI2_REDIST=/usr/local/lib/ni2
-# fi
-
-# if [ -d $HOME/Documents/Code/Frameworks/NiTE-MacOSX-x64-2.2/ ]; then
-#   export NITE2_INCLUDE=$HOME/Documents/Code/Frameworks/NiTE-MacOSX-x64-2.2/Include
-#   export NITE2_REDIST64=$HOME/Documents/Code/Frameworks/NiTE-MacOSX-x64-2.2/Redist
-# fi
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
+export FZF_DEFAULT_OPTS="--no-separator --reverse --inline-info --cycle --history=$HOME/.fzfhistory --history-size=1000 --no-bold --color=fg+:007,bg+:018,hl:016,hl+:016 --color=prompt:008,marker:008,pointer:008,spinner:018,info:008"
 

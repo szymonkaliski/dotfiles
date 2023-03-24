@@ -1,3 +1,6 @@
+-- utils
+local flatten = require('ext.table').flatten
+
 -- global stuff
 require('console').init()
 require('overrides').init()
@@ -5,51 +8,53 @@ require('overrides').init()
 -- ensure IPC is there
 hs.ipc.cliInstall()
 
+-- https://developer.apple.com/documentation/applicationservices/1459345-axuielementsetmessagingtimeout
+hs.window.timeout(0.5)
+
 -- lower logging level for hotkeys
-require('hs.hotkey').setLogLevel("warning")
+require('hs.hotkey').setLogLevel('warning')
 
 -- global config
 config = {
   apps = {
-    terms    = { 'kitty'                   },
-    browsers = { 'Google Chrome', 'Safari' }
+    terms    = { 'kitty', 'Terminal'       },
+    browsers = { 'Safari', 'Google Chrome' }
   },
 
   wm = {
-    defaultDisplayLayouts = {
-      ['Color LCD']    = 'monocle',
-      ['DELL U3818DW'] = 'main-center'
-    },
+    -- tilingMethod = 'hhtwm',
+    tilingMethod = 'yabai',
+    -- tilingMethod = 'grid',
+    -- tilingMethod = 'autogrid',
 
+    defaultLayouts = { 'monocle', 'main-left' },
     displayLayouts = {
-      ['Color LCD']    = { 'monocle', 'main-right', 'side-by-side'     },
-      ['DELL U3818DW'] = { 'main-center', 'main-right', 'side-by-side' }
+      ['Color LCD']    = { 'monocle', 'main-left' },
+      ['DELL U3818DW'] = { 'main-left', 'main-right', 'main-center', 'monocle' }
     }
   },
 
   window = {
     highlightBorder = false,
     highlightMouse  = true,
-    historyLimit    = 0
+    historyLimit    = 100
   },
 
   network = {
     home = 'Skynet 5G'
   },
 
-  homebridge = {
-    studioSpeakers = { aid = 10, iid = 11, name = "Studio Speakers" },
-    studioLights   = { aid = 9,  iid = 11, name = "Studio Lights"   },
-    tvLights       = { aid = 6,  iid = 11, name = "TV Lights"       }
-  }
+  logger = {
+    path = os.getenv('HOME') .. '/.logger/data.db'
+  },
 }
 
 -- requires
-bindings                    = require('bindings')
-controlplane                = require('utils.controlplane')
-watchables                  = require('utils.watchables')
-watchers                    = require('utils.watchers')
-wm                          = require('utils.wm')
+bindings   = require('bindings')
+logger     = require('utils.logger')
+ui         = require('utils.ui')
+watchables = require('utils.watchables')
+watchers   = require('utils.watchers')
 
 -- no animations
 hs.window.animationDuration = 0.0
@@ -61,20 +66,35 @@ hs.hints.hintChars          = { 'A', 'S', 'D', 'F', 'J', 'K', 'L', 'Q', 'W', 'E'
 hs.hints.iconAlpha          = 1.0
 hs.hints.showTitleThresh    = 0
 
--- controlplane
-controlplane.enabled        = { 'autohome', 'automount' }
-
 -- watchers
-watchers.enabled            = { 'urlevent' }
-watchers.urlPreference      = config.apps.browsers
+watchers.enabled            = { 'theme', 'urlevent' }
 
--- bindings
-bindings.enabled            = { 'ask-before-quit', 'block-hide', 'ctrl-esc', 'f-keys', 'focus', 'global', 'tiling', 'term-ctrl-i', 'viscosity' }
-bindings.askBeforeQuitApps  = config.apps.browsers
+-- ui
+ui.enabled                  = { 'battery-menubar' }
+
+-- bindings & modules
+local modules               = { bindings, logger, watchers, ui, watchables } -- watchables have to come last to refresh all the things that depend on them
+local basicBindings         = { 'annotate', 'ask-before-quit', 'block-hide', 'ctrl-esc', 'f-keys', 'focus', 'global', 'mediakeys', 'screenshot-with-meta', 'term-ctrl-i' }
+bindings.askBeforeQuitApps  = flatten({ config.apps.browsers, config.apps.terms, { 'Preview' } })
+
+if config.wm.tilingMethod == 'yabai' then
+  bindings.enabled = flatten({ basicBindings, { 'yabai' } })
+end
+
+if config.wm.tilingMethod == 'hhtwm' then
+  bindings.enabled = flatten({ basicBindings, { 'hhtwm' } })
+end
+
+if config.wm.tilingMethod == 'grid' then
+  bindings.enabled = flatten({ basicBindings, { 'grid' } })
+end
+
+if config.wm.tilingMethod == 'autogrid' then
+  bindings.enabled = flatten({ basicBindings, { 'grid' } })
+  table.insert(watchers.enabled, 'autogrid')
+end
 
 -- start/stop modules
-local modules               = { bindings, controlplane, watchables, watchers, wm }
-
 hs.fnutils.each(modules, function(module)
   if module then module.start() end
 end)
@@ -85,3 +105,10 @@ hs.shutdownCallback = function()
     if module then module.stop() end
   end)
 end
+
+-- notify when ready
+hs.notify.new({
+  title    = 'Hammerspoon',
+  subTitle = 'Ready'
+}):send()
+

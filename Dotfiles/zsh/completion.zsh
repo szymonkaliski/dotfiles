@@ -12,7 +12,7 @@ fi
 
 typeset -gU fpath     # clean fpaths
 autoload -Uz compinit # load completions
-compinit -C           # without securiy checks
+compinit -C
 
 # complete with dots, useful on slow systems
 expand-or-complete-with-dots() {
@@ -66,12 +66,6 @@ if [[ -o interactive ]]; then
 fi
 
 # custom completions
-function _comp_wiki() {
-  IFS=$'\n'
-  for f in $(find $HOME/Documents/Dropbox/Wiki/**/*.md -type f | sed 's/^.*Wiki\/\(.*\).md/\1/'); do
-    reply+="$f"
-  done
-}
 
 function _comp_tm() {
   IFS=$'\n'
@@ -95,10 +89,16 @@ function _comp_base16() {
 }
 
 compctl -K _comp_base16 base16
-compctl -K _comp_wiki   wiki
 compctl -K _comp_p      p
 compctl -K _comp_tm     tm
 
 compctl -g '*.tar.bz2 *.tar.gz *.bz2 *.gz *.jar *.rar *.tar *.tbz2 *.tgz *.zip *.Z' + -g '*(-/)' extract
 compctl -f -x "c[-1,retry]" -c -- retry
 compctl -f -x "c[-1,repeatedly]" -c -- repeatedly
+
+# make `open` aware of /Applications
+compctl -f \
+  -x 'p[2]' \
+  -s "$(/bin/ls -d1 /Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g')" \
+  -- open
+

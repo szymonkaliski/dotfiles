@@ -1,48 +1,56 @@
 #!/usr/bin/env bash
 # simple interactive mac cleanup script
 
-read -pr "$(tput setaf 3)Clean pacakger caches?$(tput sgr0) (y/n) " RESP
+read -p "$(tput setaf 3)Clean pacakger caches?$(tput sgr0) (y/n) " RESP
 if [ "$RESP" != "n" ]; then
   if hash yarn > /dev/null; then
     yarn cache clean
   fi
 
+  if hash npm > /dev/null; then
+    npm cache clean --force
+  fi
+
   if hash pod > /dev/null; then
     pod cache clean --all
   fi
+
+  if hash brew > /dev/null; then
+    brew cleanup -s
+  fi
 fi
 
-read -pr "$(tput setaf 3)Clean docker caches?$(tput sgr0) (y/n) " RESP
+read -p "$(tput setaf 3)Clean docker caches?$(tput sgr0) (y/n) " RESP
 if [ "$RESP" != "n" ]; then
   docker system prune --all --force --volumes
 fi
 
-read -pr "$(tput setaf 3)Clean nix garbage?$(tput sgr0) (y/n) " RESP
-if [ "$RESP" != "n" ]; then
-  nix-collect-garbage -d
-fi
+# read -p "$(tput setaf 3)Clean nix garbage?$(tput sgr0) (y/n) " RESP
+# if [ "$RESP" != "n" ]; then
+#   nix-collect-garbage -d
+# fi
 
-read -pr "$(tput setaf 3)Clean xcode caches?$(tput sgr0) (y/n) " RESP
+read -p "$(tput setaf 3)Clean xcode caches?$(tput sgr0) (y/n) " RESP
 if [ "$RESP" != "n" ]; then
   xcrun simctl delete unavailable
 fi
 
-read -pr "$(tput setaf 3)Clean library caches?$(tput sgr0) (y/n) " RESP
-if [ "$RESP" != "n" ]; then
-  rm -rf ~/Library/Caches/*
-fi
+# read -p "$(tput setaf 3)Clean library caches?$(tput sgr0) (y/n) " RESP
+# if [ "$RESP" != "n" ]; then
+#   rm -rf ~/Library/Caches/*
+# fi
 
-read -pr "$(tput setaf 3)Run periodic scripts?$(tput sgr0) (y/n) " RESP
+read -p "$(tput setaf 3)Run periodic scripts?$(tput sgr0) (y/n) " RESP
 if [ "$RESP" != "n" ]; then
   sudo periodic daily weekly monthly
 fi
 
-read -pr "$(tput setaf 3)Clean .DS_Store files?$(tput sgr0) (y/n) " RESP
-if [ "$RESP" != "n" ]; then
-  sudo find / -name ".DS_Store" -exec rm {} \;
-fi
+# read -p "$(tput setaf 3)Clean .DS_Store files?$(tput sgr0) (y/n) " RESP
+# if [ "$RESP" != "n" ]; then
+#   sudo find / -name ".DS_Store" -exec rm {} \;
+# fi
 
-read -pr "$(tput setaf 3)Rebuild Spotlight?$(tput sgr0) (y/n) " RESP
+read -p "$(tput setaf 3)Rebuild Spotlight?$(tput sgr0) (y/n) " RESP
 if [ "$RESP" != "n" ]; then
   sudo mdutil -E /
 fi

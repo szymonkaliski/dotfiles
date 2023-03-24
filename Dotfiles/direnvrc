@@ -1,8 +1,0 @@
-use_nvm() {
-  nvm_sh=~/.nvm/nvm.sh
-
-  if [[ -e $nvm_sh ]]; then
-    source $nvm_sh
-    nvm use
-  fi
-}

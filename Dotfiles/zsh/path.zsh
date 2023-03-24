@@ -1,14 +1,18 @@
-export PATH="/usr/local/bin:/usr/bin:/bin/:/usr/sbin:/sbin"
+export PATH="/usr/local/bin:/usr/bin:/bin/:/usr/local/sbin:/usr/sbin:/sbin"
 
 if [ -d $HOME/Documents/Code/Scripts ]; then
   export PATH="$HOME/Documents/Code/Scripts:$PATH"
-elif [ -d $HOME/Documents/Scripts ]; then
+fi
+
+if [ -d $HOME/Documents/Scripts ]; then
   export PATH="$HOME/Documents/Scripts:$PATH"
 fi
 
 if [ -d $HOME/Documents/Code/Bin ]; then
   export PATH="$HOME/Documents/Code/Bin:$PATH"
-elif [ -d $HOME/Documents/Bin ]; then
+fi
+
+if [ -d $HOME/Documents/Bin ]; then
   export PATH="$HOME/Documents/Bin:$PATH"
 fi
 
@@ -59,5 +63,11 @@ if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
   . $HOME/.nix-profile/etc/profile.d/nix.sh
 fi
 
+# java
+if [ -d /usr/local/opt/openjdk@11/bin ]; then
+  export PATH="/usr/local/opt/openjdk@11/bin:$PATH"
+fi
+
 # clean paths
 typeset -gU path
+

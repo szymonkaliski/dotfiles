@@ -8,7 +8,7 @@ function! goyo#before()
     silent !tmux resize-pane -Z > /dev/null
   endif
 
-  set scrolloff=999
+  " set scrolloff=999
 endfunction
 
 function! goyo#after()
@@ -21,11 +21,11 @@ function! goyo#after()
     silent !tmux resize-pane -Z > /dev/null
   endif
 
-  set scrolloff=3
+  " set scrolloff=3
 endfunction
 
 let g:goyo_callbacks = [ function('goyo#before'), function('goyo#after') ]
-let g:goyo_width = 120
+let g:goyo_width = 80
 
 command! Zen :Goyo
 

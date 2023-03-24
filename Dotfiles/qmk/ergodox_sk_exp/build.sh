@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
-QMK_FOLDER=~/Documents/Code/Utils/QMK\ Firmware/
+QMK_FOLDER=~/Documents/Code/Repos/QMK\ Firmware
 
-pushd "$QMK_FOLDER" > /dev/null
+pushd "$QMK_FOLDER" || exit
 
-docker run -e keymap=sk_exp -e keyboard=ergodox -v "$QMK_FOLDER":/qmk --rm edasque/qmk_firmware
+./util/docker_build.sh ergodox_ez:ergodox_sk_exp
+printf "\n\nUpload 'ergodox_ez_ergodox_sk_exp.hex' with Teensy uploader\n"
 
-popd > /dev/null
-
-
-
+popd || exit

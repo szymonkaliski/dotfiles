@@ -1,0 +1,1 @@
+--listen-on unix:/tmp/kitty.sock --single-instance

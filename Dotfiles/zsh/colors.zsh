@@ -7,9 +7,12 @@ colors
 export GREP_COLOR=34
 
 # dircolors
-if [ -f ~/.dircolors ]; then
-  eval $(dircolors -b ~/.dircolors)
-fi
+load_dircolors() {
+  if [ -f ~/.dircolors ]; then
+    eval $(dircolors -b ~/.dircolors)
+  fi
+}
+zsh-defer -t 1.0 +1 load_dircolors
 
 # grc for commands
 if hash grc 2> /dev/null; then
@@ -29,14 +32,26 @@ fi
 if [ -d ~/.zsh/plugins/base16-shell/ ]; then
   export BASE16_SHELL=~/.zsh/plugins/base16-shell/
 
-  base16-load() {
+  # update all opened terms on mac os by sending the color values directly to the tty
+  # TODO: this could be extended to support linux
+  # reference:
+  # - https://writing.grantcuster.com/posts/2020-07-12-swapping-color-schemes-across-all-terminals-and-vim-with-pywal-and-base16/
+  # - https://github.com/dylanaraps/pywal/blob/42ad8f014dfe11defe094a3ce33b60f7ec27b83b/pywal/sequences.py#L83
+  base16_send() {
+    # this is still broken!
+    # something about different escape codes for tmux and non-tmux
+    for tty in /dev/ttys00[0-9]*; do
+      if tmux list-clients | grep -q $tty; then
+        TMUX="FORCE_TMUX" base16_load > $tty
+      else
+        TMUX="" base16_load > $tty
+      fi
+    done
+  }
+
+  base16_load() {
     source ~/.base16_theme
-
-    export BASE16_THEME="$(basename $(realpath ~/.base16_theme) .sh)"
-
-    if [ ! -z $TMUX ]; then
-      tmux set-environment BASE16_THEME "$BASE16_THEME"
-    fi
+    # export BASE16_THEME="$(basename $(realpath ~/.base16_theme) .sh)"
   }
 
   base16() {
@@ -50,7 +65,7 @@ if [ -d ~/.zsh/plugins/base16-shell/ ]; then
       echo -e "colorscheme base16-$THEME" > ~/.vimrc_background
     fi
 
-    base16-load
+    base16_load
   }
 
   # source only if we don't have BASE16_THEME set
@@ -58,7 +73,7 @@ if [ -d ~/.zsh/plugins/base16-shell/ ]; then
     local CURRENT_BASE16_THEME="$(basename $(realpath ~/.base16_theme) .sh)"
 
     if [ -z $BASE16_THEME ] || [ $CURRENT_BASE16_THEME != $BASE16_THEME ]; then
-      base16-load
+      base16_load
     fi
   fi
 fi

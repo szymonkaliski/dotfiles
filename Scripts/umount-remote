@@ -1,7 +1,0 @@
-#!/usr/bin/env osascript
-
-tell application "Finder"
-  try
-    eject "Data"
-  end try
-end tell

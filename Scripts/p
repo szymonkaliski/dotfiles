@@ -6,6 +6,7 @@ paths=(
   ~/Documents/Work/Archive
   ~/Documents/Code
   ~/Documents/Talks
+  ~/Documents/Teaching
 )
 
 list_projects() {
@@ -25,43 +26,6 @@ open_project() {
   done
 }
 
-new_project() {
-  local type=$2
-  local project_name=${*:3}
-
-  if [[ -z "${project_name// }" ]]; then
-    echo "Supply a project name"
-    exit 1
-  fi
-
-  case $type in
-    "project")
-      pushd ~/Documents/Projects || exit 1
-      ;;
-    "work")
-      pushd ~/Documents/Work || exit 1
-      ;;
-    "talk")
-      pushd ~/Documents/Talks || exit 1
-      ;;
-    *)
-      echo "\"$type\" is not a valid type of project, supported types: "
-      echo "work | project | talk"
-      exit 1
-      ;;
-  esac
-
-  mkdir "$project_name"
-  pushd "$project_name" || exit 1
-
-  touch Worklog.md
-  mkdir Code
-
-  tm
-
-  popd > /dev/null || exit 1
-}
-
 choose() {
   local project
 
@@ -79,7 +43,6 @@ usage() {
   echo
   echo "  p project               open existing project"
   echo "  p --ls                  list all projects"
-  echo "  p --new type project    create new project, type = project | work | talk"
   echo
   exit 0
 }
@@ -91,9 +54,6 @@ main() {
   fi
 
   case "$1" in
-    "--new")
-      new_project "$@"
-      ;;
     "--list"|"--ls")
       list_projects
       ;;

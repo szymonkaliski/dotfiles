@@ -25,4 +25,37 @@ module.capitalize = function(str)
   return str:gsub("^%l", string.upper)
 end
 
+module.unescape = function(str)
+  local ret = string.gsub(str, "+", " ")
+
+  ret = string.gsub(ret, "%%(%x%x)", function(hex)
+    return string.char(tonumber(hex, 16))
+  end)
+
+  return ret
+end
+
+module.debounce = function(func, wait, immediate)
+  local timeout = false
+
+  return function()
+    local later = function()
+      timeout = nil
+
+      if not immediate then
+        func()
+      end
+    end
+
+    local callNow = immediate and not timeout
+
+    if timeout then timeout:stop() end
+
+    timeout = hs.timer.doAfter(wait, later)
+
+    if callNow then func() end
+  end
+end
+
 return module
+

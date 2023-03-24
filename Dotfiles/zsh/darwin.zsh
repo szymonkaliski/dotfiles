@@ -1,8 +1,3 @@
-# make completion /Applications aware
-compctl -f \
-  -x 'p[2]' \
-  -s "$(/bin/ls -d1 /Applications/*/*.app /Applications/*.app | sed 's|^.*/\([^/]*\)\.app.*|\\1|;s/ /\\\\ /g')" \
-  -- open
 alias run="open -a"
 alias qopen="qlmanage -p "$@" >& /dev/null"
 
@@ -28,26 +23,11 @@ alias ssh="TERM=xterm-256color ssh"
 
 # fixes for processess getting stuck
 alias fix-camera="sudo killall VDCAssistant"
-alias fix-icloud="sudo killall cloudd bird"
+alias fix-icloud="sudo killll cloudd bird"
 
-# ethereum
-alias geth="$HOME/Library/Application\ Support/Ethereum\ Wallet/binaries/Geth/unpacked/geth"
-
-# hammerspoon
+# apps
+alias fork="/Applications/Fork.app/Contents/Resources/fork_cli"
 alias hs="/usr/local/bin/hs"
-
-# nice markdown files in cli using markdown-pdf from npm
-if hash markdown-pdf 2> /dev/null; then
-  alias markdown-pdf-nice="markdown-pdf --css-path ~/Documents/Code/Markdown/Byword.css --render-delay 50 --paper-border 2cm"
-fi
-
-# local projects
-# alias timav="(cd $HOME/Documents/Projects/Timav && NODE_ENV=production npm start) > /dev/null &"
-alias neutron="~/Documents/Projects/neutron/node_modules/.bin/electron ~/Documents/Projects/neutron/src/index.js"
-
-if [ -d ~/Documents/Dropbox/Wiki/ ]; then
-  alias tasks="muninn --dir ~/Documents/Dropbox/Wiki/ tasks"
-fi
 
 # cd to currently open dir in finder
 cdf() {
@@ -68,7 +48,9 @@ o() {
   open $ARG
 }
 
-# dash
-dash() {
-  open "dash://$*"
-}
+if [ "$TERM_PROGRAM" = "kitty" ]; then
+  alias kitty="/Applications/kitty.app/Contents/MacOS/kitty"
+  alias icat="kitty icat --align=left"
+  alias isvg="rsvg-convert | icat"
+fi
+

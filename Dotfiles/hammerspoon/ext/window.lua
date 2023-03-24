@@ -124,7 +124,7 @@ module.persistPosition = function(win, option)
   end
 
   -- remove first element if we hit history limit (adjusting index if needed)
-  if #frames > config.window.historyLimit then
+  if #frames > math.max(1, config.window.historyLimit) then
     table.remove(frames, 1)
     index = index > #frames and #frames or math.max(index - 1, 1)
   end
@@ -164,6 +164,69 @@ module.persistPosition = function(win, option)
     index  = index,
     frames = frames
   }
+end
+
+module.windowMetadata = function(win)
+  if not win then return nil end
+
+  local app = win:application()
+  if not app then return nil end
+
+  local name  = app:name()
+  local title = win:title()
+  local meta  = ''
+
+  if name == 'Google Chrome' then
+    if string.match(title, 'Find in page') then
+      title = ''
+      meta = ''
+    elseif string.match(title, '(Incognito)') then
+      -- don't log incognito windows
+      title = '(Incognito)'
+    else
+      -- log URLs
+      local _, result = hs.applescript.applescript([[
+        tell application "Google Chrome" to get URL of active tab of first window
+      ]])
+
+      if result ~= nil then
+        meta = result
+      end
+    end
+  elseif name == 'Safari' then
+    if string.match(title, 'Private Browsing') then
+      -- don't log incognito windows
+      title = 'Private Browsing'
+    else
+      -- log URLs
+      local _, metaResult = hs.applescript.applescript([[
+        tell application "Safari" to get URL of current tab of first window
+      ]])
+
+      if metaResult ~= nil then
+        meta = metaResult
+      end
+    end
+  elseif name == 'Finder' then
+    -- log paths
+    local _, result = hs.applescript.applescript([[
+      tell application "Finder" to get POSIX path of (target of front Finder window as text)
+    ]])
+
+    if result ~= nil then
+      meta = result
+    end
+  else
+    -- default to trying to grab AXDocument from window
+    -- works for Preview, Keynote, Pages, and most of document-based macOS apps
+    local document = hs.axuielement.windowElement(win):attributeValue('AXDocument')
+
+    if document ~= nil then
+      meta = document
+    end
+  end
+
+  return title, meta
 end
 
 return module

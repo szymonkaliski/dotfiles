@@ -1,4 +1,4 @@
-local activeScreen = require("ext.screen").activeScreen
+local activeScreen = require('ext.screen').activeScreen
 local table        = require('ext.table')
 local hhtwm        = require('hhtwm')
 local log          = hs.logger.new('wm', 'debug')
@@ -6,60 +6,9 @@ local log          = hs.logger.new('wm', 'debug')
 local cache        = { hhtwm = hhtwm }
 local module       = { cache = cache }
 
-local IMAGE_PATH   = os.getenv('HOME') .. '/.hammerspoon/assets/modal.png'
+-- local IMAGE_PATH   = os.getenv('HOME') .. '/.hammerspoon/assets/modal.png'
 
-local notify = function(text)
-  hs.notify.new({
-    title        = 'Tiling',
-    subTitle     = text,
-    contentImage = IMAGE_PATH
-  }):send()
-end
-
-local screenWatcher = function(_, _, _, prevScreens, screens)
-  if prevScreens == nil or #prevScreens == 0 then
-    return
-  end
-
-  if table.equal(prevScreens, screens) then
-    return
-  end
-
-  log.d('resetting display layouts')
-
-  hhtwm.displayLayouts = config.wm.defaultDisplayLayouts
-  hhtwm.resetLayouts()
-  hhtwm.tile()
-end
-
-local calcResizeStep = function(screen)
-  return 1 / hs.grid.getGrid(screen).w
-end
-
-module.setLayout = function(layout)
-  hhtwm.setLayout(layout)
-  hhtwm.resizeLayout()
-
-  notify('Switching to: ' .. layout)
-end
-
-module.cycleLayout = function()
-  local screen = activeScreen()
-
-  local layouts = config.wm.displayLayouts[screen:name()]
-
-  local currentLayout = hhtwm.getLayout()
-  local currentLayoutIndex = hs.fnutils.indexOf(layouts, currentLayout) or 0
-
-  local nextLayoutIndex = (currentLayoutIndex % #layouts) + 1
-  local nextLayout = layouts[nextLayoutIndex]
-
-  module.setLayout(nextLayout)
-end
-
-module.start = function()
-  cache.watcher = hs.watchable.watch('status.connectedScreenIds', screenWatcher)
-
+local setup = function()
   local filters = {
     { app = 'AppCleaner', tile = false                                },
     { app = 'Application Loader', tile = true                         },
@@ -113,17 +62,63 @@ module.start = function()
   hhtwm.margin         = fullMargin
   hhtwm.screenMargin   = screenMargin
   hhtwm.filters        = filters
-  hhtwm.calcResizeStep = calcResizeStep
-  hhtwm.displayLayouts = DEFAULT_DISPLAY_LAYOUTS
-  hhtwm.defaultLayout  = 'monocle'
+  hhtwm.calcResizeStep = function(screen) return 1 / hs.grid.getGrid(screen).w end
 
+  -- displayLayouts set up from first config.wm.displayLayouts
+  local displayLayouts = {}
+
+  for displayName, layouts in pairs(config.wm.displayLayouts) do
+    displayLayouts[displayName] = layouts[1]
+  end
+
+  hhtwm.displayLayouts = displayLayouts
+end
+
+local screenWatcher = function(_, _, _, prevScreens, screens)
+  if prevScreens == nil or #prevScreens == 0 then
+    return
+  end
+
+  if table.equal(prevScreens, screens) then
+    return
+  end
+
+  log.d('resetting display layouts', hs.inspect({ prev = prevScreens, curr = screens }))
+
+  setup()
+
+  hhtwm.resetLayouts()
+  hhtwm.tile()
+end
+
+module.setLayout = function(layout)
+  hhtwm.setLayout(layout)
+  hhtwm.resizeLayout()
+end
+
+module.cycleLayout = function()
+  local screen = activeScreen()
+
+  local layouts = config.wm.displayLayouts[screen:name()] or config.wm.defaultLayouts
+
+  local currentLayout = hhtwm.getLayout()
+  local currentLayoutIndex = hs.fnutils.indexOf(layouts, currentLayout) or 0
+
+  local nextLayoutIndex = (currentLayoutIndex % #layouts) + 1
+  local nextLayout = layouts[nextLayoutIndex]
+
+  module.setLayout(nextLayout)
+end
+
+module.start = function()
+  setup()
   hhtwm.start()
+  cache.watcher = hs.watchable.watch('status.connectedScreenNames', screenWatcher)
 end
 
 module.stop = function()
-  cache.watcher:release()
   hhtwm.stop()
+  cache.watcher:release()
 end
 
 return module
-

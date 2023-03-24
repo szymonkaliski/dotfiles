@@ -83,7 +83,7 @@ module.highlightWindow = function(win)
 
     local frameCenter = hs.geometry.getcenter(focusedWindow:frame())
 
-    hs.mouse.setAbsolutePosition(frameCenter)
+    hs.mouse.absolutePosition(frameCenter)
   end
 end
 

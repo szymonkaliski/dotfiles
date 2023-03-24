@@ -1,26 +1,3 @@
-# use local npm binaries
-npm-exec() {
-  PATH="$(npm bin):$PATH" "$@"
-}
-
-# switch npm account
-# I use .npmrc.account-name so I can easily switch between public and companies accounts
-npm-account() {
-  rm -f ~/.npmrc > /dev/null 2>&1
-  ln -s ~/.npmrc.$1 ~/.npmrc
-}
-
-# sudo previous command
-sudothat() {
-  echo -e "$(tput setaf 1)sudo:$(tput sgr0) $(fc -ln -1)"
-  eval "sudo $(fc -ln -1)"
-}
-
-# grep with vim
-vigrep() {
-  $EDITOR -c "Grep \"$@\""
-}
-
 # history
 h() {
   if [ "$#" -eq 0 ]; then
@@ -78,10 +55,10 @@ serve() {
     port="$@"
   fi
 
-  if hash http-server 2> /dev/null; then
-    http-server -p $port -c-1
+  if hash serve-http 2> /dev/null; then
+    serve-http -p $port -public
   elif hash caddy 2> /dev/null; then
-    caddy -port "$port" browse
+    caddy file-server -browse -listen :$port
   else
     local command=""
     if [ "$(uname)" = "Darwin" ]; then
@@ -100,10 +77,10 @@ if hash fd 2> /dev/null; then
 
   alias fd="fn --type directory"
   alias ff="fn --type file"
-else
-  fn() { find . -iname "*$@*"         2>/dev/null }
-  fd() { find . -iname "*$@*" -type d 2>/dev/null }
-  ff() { find . -iname "*$@*" -type f 2>/dev/null }
+# else
+#   fn() { find . -iname "*$@*"         2>/dev/null }
+#   fd() { find . -iname "*$@*" -type d 2>/dev/null }
+#   ff() { find . -iname "*$@*" -type f 2>/dev/null }
 fi
 
 # extract archives
@@ -180,50 +157,32 @@ repeatedly() {
 }
 
 timer() {
-  local start=$(($(date +%s) + $(seconds $1)));
+  if [ "$#" -eq 0 ]; then
+    # count up if no time given
+    stopwatch
+  else
+    # count down if time given
+    local start=$(($(date +%s) + $(seconds $1)));
 
-  while [ "$start" -ge $(date +%s) ]; do
-    echo -ne "$(date -u --date @$(($start - $(date +%s))) +%H:%M:%S)\r";
-    sleep 0.1
-  done
+    while [ "$start" -ge $(date +%s) ]; do
+      echo -ne "$(date -u --date @$(($start - $(date +%s))) +%H:%M:%S)\r";
+      sleep 0.1
+    done
+  fi
 }
 
 stopwatch() {
   local start=$(date +%s);
+
   while true; do
     echo -ne "$(date -u --date @$(($(date +%s) - $start)) +%H:%M:%S)\r";
     sleep 0.1
   done
 }
 
-# wiki
-if [ -d $HOME/Documents/Dropbox/Wiki ]; then
-  alias wiki-search="v +'WikiSearch'"
-
-  wiki() {
-    if [ "$#" -eq 0 ]; then
-      v +"Wiki index"
-    else
-      v +"Wiki $1"
-    fi
-  }
-
-  # even quicker inbox access
-  inbox() {
-    local file=$HOME/Documents/Dropbox/Wiki/index.md
-
-    if [ "$#" -eq 0 ]; then
-      cat $file
-    else
-      echo "\n$@\n" >> $file
-    fi
-  }
-fi
-
-
-# faster youtbe-dl --batch-file
-parallel-youtube-dl() {
-  cat "$@" | sort | uniq | parallel -u -j 16 --progress --eta "youtube-dl --newline {}"
+# faster yt-dl --batch-file
+parallel-yt-dlp() {
+  cat "$@" | sort | uniq | parallel -u -j 16 --progress --eta "yt-dlp --newline {}"
 }
 
 # useful if there's a lot of files, but they download slowly
@@ -239,11 +198,14 @@ is-up() {
     echo "$1 is down"
   fi
 }
+
 alias is-down="is-up"
 
 # nnn
 n() {
   export NNN_TMPFILE=${XDG_CONFIG_HOME:-$HOME/.config}/nnn/.lastd
+  export NNN_FCOLORS="0b0304020f0e050740020a08" # man nnn
+  export NNN_COLORS="7"
 
   nnn "$@"
 
@@ -251,4 +213,25 @@ n() {
     source $NNN_TMPFILE
     /bin/rm $NNN_TMPFILE
   fi
+}
+
+# pretty print CSV
+catcsv() {
+  column -s , -t < "$@" | less -S
+}
+
+# archive stuff by year
+archive() {
+  if [ "$#" -eq 0 ]; then
+    echo "pass file/folder as argument"
+  else
+    mkdir -p Archive
+    mv "$@" "Archive/$(date +%Y) - $@"
+  fi
+}
+
+# watchexec with nicer format and default options
+watchexec() {
+  cmd="echo \"$(tput setaf 8)[$(date +'%Y-%m-%d %T')]$(tput sgr0) $@\" ; $@ ; echo"
+  /usr/local/bin/watchexec --project-origin . --restart $cmd
 }

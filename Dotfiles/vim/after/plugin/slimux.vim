@@ -13,16 +13,17 @@ map  <Plug>SlimuxSendParagraph :SlimuxREPLSendParagraph<cr>:call repeat#set('\<P
 
 map  <Plug>SlimuxSendParens :let slimux_view=winsaveview()<cr>
       \va):SlimuxREPLSendSelection<cr>
-      \:call SlimuxSendKeys('Enter')<cr>
+      \:call SlimuxSendCode("\n")<cr>
       \:call winrestview(slimux_view)<cr>
       \:call repeat#set('\<Plug>SlimuxSendParens')<cr>
 
 map  <leader>sc :SlimuxGlobalConfigure<cr>
 map  <leader>ss <Plug>SlimuxSendParagraph
+map  <leader>sl :SlimuxREPLSendLine<cr>
 map  <leader>sp <Plug>SlimuxSendParens
 map  <leader>sb <Plug>SlimuxSendBuffer
 map  <leader>s] <Plug>SlimuxSendNextParagraph
 map  <leader>s[ <Plug>SlimuxSendPrevParagraph
 
-xmap <leader>ss :SlimuxREPLSendSelection<cr>:call SlimuxSendKeys('Enter')<cr>
+xmap <leader>ss :SlimuxREPLSendSelection<cr>:call SlimuxSendCode("\n")<cr>
 

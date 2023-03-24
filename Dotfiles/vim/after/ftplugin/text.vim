@@ -1,1 +1,1 @@
-setlocal nolist
+setlocal spell

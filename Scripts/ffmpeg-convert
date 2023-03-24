@@ -50,9 +50,9 @@ fi
 for f in "$@"
 do
   if [[ -n $EXT ]]; then
-    nice -n 10 ffmpeg -threads 0 -i "${f}" $OPTIONS "${f%.*}$EXT"
+    ffmpeg -threads 0 -i "${f}" $OPTIONS "${f%.*}$EXT"
   else
-    nice -n 10 ffmpeg -threads 0 -i "${f}" $OPTIONS
+    ffmpeg -threads 0 -i "${f}" $OPTIONS
   fi
 done
 

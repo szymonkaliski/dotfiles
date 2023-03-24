@@ -1,7 +1,5 @@
 if [ "$(uname)" = "Darwin" ]; then
   PROMPTCOLOR=blue
-elif [ "$(hostname)" = "Stelis" ]; then
-  PROMPTCOLOR=cyan
 else
   PROMPTCOLOR=magenta
 fi
@@ -23,7 +21,7 @@ prompt_arrow() {
 ZSH_MAIN_PROMPT="$(prompt_arrow)"
 
 git_prompt_status() {
-  gitstatus_query -d $PWD gitstatus
+  gitstatus_query -d $PWD "GITSTATUS"
 
   if [ -z $VCS_STATUS_LOCAL_BRANCH ]; then
     PROMPT='$(prompt_pwd)$ZSH_MAIN_PROMPT'
@@ -31,7 +29,7 @@ git_prompt_status() {
     return
   fi
 
-  if [ $VCS_STATUS_HAS_STAGED ] && [ $VCS_STATUS_HAS_UNSTAGED = 0 ] && [ $VCS_STATUS_HAS_UNTRACKED = 0 ]; then
+  if [ $VCS_STATUS_HAS_STAGED = 0 ] && [ $VCS_STATUS_HAS_UNSTAGED = 0 ] && [ $VCS_STATUS_HAS_CONFLICTED = 0 ] && [ $VCS_STATUS_HAS_UNTRACKED = 0 ]; then
     branch_color="%{$fg[green]%}"
   else
     branch_color="%{$fg[red]%}"
@@ -43,10 +41,15 @@ git_prompt_status() {
   zle && zle reset-prompt
 }
 
-add-zsh-hook precmd  git_prompt_status
-add-zsh-hook preexec git_prompt_status
+setup_git_prompt_status() {
+  git_prompt_status
+
+  add-zsh-hook precmd  git_prompt_status
+  add-zsh-hook preexec git_prompt_status
+}
 
 # single-quote comments are important here!
 PROMPT='$(prompt_pwd)$ZSH_MAIN_PROMPT'
 PROMPT2='%{$fg[yellow]%}%_%{$reset_color%} > '
 SPROMPT="correct "%R" to "%r' ? ([Y]es/[N]o/[E]dit/[A]bort) '
+

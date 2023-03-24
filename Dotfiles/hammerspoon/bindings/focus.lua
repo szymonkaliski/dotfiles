@@ -29,7 +29,7 @@ local focusAndHighlight = function(cmd)
   end
 
   -- focus window if we have any, and it's on nearest or current screen (don't jump over empty screens)
-  if #windowsToFocus > 0 and windowOnSameOrNextScreen(windowsToFocus[1], focusedScreen, screenInDirection) then
+  if windowsToFocus and #windowsToFocus > 0 and windowOnSameOrNextScreen(windowsToFocus[1], focusedScreen, screenInDirection) then
     forceFocus(windowsToFocus[1])
   -- focus screen in given direction if exists
   elseif screenInDirection then

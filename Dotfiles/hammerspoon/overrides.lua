@@ -1,16 +1,15 @@
-local axuiWindowElement = require('hs._asm.axuielement').windowElement
-
 local module = {}
 local log    = hs.logger.new('overrides', 'debug');
 
 -- detects if window can be resized
 -- this is not ideal, but works for me
 local isResizable = function(win)
-  return axuiWindowElement(win):isAttributeSettable('AXSize')
+  return hs.axuielement.windowElement(win):isAttributeSettable('AXSize')
 end
 
 module.init = function()
-  local gridMargin = (hhtwm and hhtwm.margin) or 12
+  -- local gridMargin = (hhtwm and hhtwm.margin) or 12
+  local gridMargin = 12
 
   -- hs.grid.setGrid('16x10', '1680x1050') -- cell: 105 x 105
   -- hs.grid.setGrid('16x9',  '1920x1080') -- cell: 120 x 120
@@ -22,12 +21,30 @@ module.init = function()
   hs.grid.setGrid('24x15', '1680x1050') -- cell: 70 x 70
   hs.grid.setGrid('32x18', '1920x1080') -- cell: 60 x 60
   hs.grid.setGrid('32x18', '2560x1440') -- cell: 80 x 80
-  hs.grid.setGrid('18x32', '1440x2560') -- cell: 80 x 80
 
+  hs.grid.setGrid('24x15', '1440x900')  -- cell: 60 x 60
   hs.grid.setGrid('48x20', '3840x1600') -- cell: 60 x 60
 
   hs.grid.setMargins({ gridMargin, gridMargin })
   hs.grid.getMargins = function() return { gridMargin, gridMargin } end
+
+  -- push to next screen without resizing
+  hs.grid.pushWindowNextScreen = function(win)
+    local noResize = true
+    local ensureInScreenBounds = true
+
+    win:moveToScreen(win:screen():next(), noResize, ensureInScreenBounds)
+    hs.grid.snap(win)
+  end
+
+  -- push to prev screen without resizing
+  hs.grid.pushWindowPrevScreen = function(win)
+    local noResize = true
+    local ensureInScreenBounds = true
+
+    win:moveToScreen(win:screen():previous(), noResize, ensureInScreenBounds)
+    hs.grid.snap(win)
+  end
 
   hs.grid.center = function(win)
     local cell       = hs.grid.get(win)
@@ -48,14 +65,14 @@ module.init = function()
     if not screen then screen = win:screen() end
     cell = hs.geometry.new(cell)
 
-    local screenRect = screen:fullFrame()
+    -- local screenRect = screen:fullFrame()
+    local screenRect = screen:frame()
 
-    if hhtwm then
-      local screenMarginFromTiling = hhtwm.screenMargin.top - hhtwm.margin / 2
-
-      screenRect.y = screenRect.y + screenMarginFromTiling
-      screenRect.h = screenRect.h - screenMarginFromTiling
-    end
+    -- if hhtwm then
+    --   local screenMarginFromTiling = hhtwm.screenMargin.top - hhtwm.margin / 2
+    --   screenRect.y = screenRect.y + screenMarginFromTiling
+    --   screenRect.h = screenRect.h - screenMarginFromTiling
+    -- end
 
     local screenGrid = hs.grid.getGrid(screen)
 

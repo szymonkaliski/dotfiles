@@ -1,9 +1,9 @@
-local module = {}
-
 local activateFrontmost = require('ext.application').activateFrontmost
 local bluetooth         = require('hs._asm.undocumented.bluetooth')
 local capitalize        = require('ext.utils').capitalize
 local template          = require('ext.template')
+
+local module = {}
 
 -- show notification center
 -- NOTE: you can do that from Settings > Keyboard > Mission Control
@@ -15,40 +15,42 @@ module.toggleNotificationCenter = function()
   ]])
 end
 
-module.isDNDEnabled = function()
-  local _, _, _, rc = hs.execute('do-not-disturb status | grep -q "on"', true)
-  return rc == 0
-end
+-- DND is not working on Big Sur anymore
 
-module.toggleDND = function()
-  local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/notification-center.png'
+-- module.isDNDEnabled = function()
+--   local _, _, _, rc = hs.execute('do-not-disturb status | grep -q "on"', true)
+--   return rc == 0
+-- end
 
-  local isEnabled = module.isDNDEnabled()
-  local afterTime = isEnabled and 0.0 or 6.0
+-- module.toggleDND = function()
+--   local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/notification-center.png'
 
-  -- is not enabled, will be enabled
-  if not isEnabled then
-    hs.notify.new({
-      title        = 'Do Not Disturb',
-      subTitle     = 'Enabled',
-      contentImage = imagePath
-    }):send()
-  end
+--   local isEnabled = module.isDNDEnabled()
+--   local afterTime = isEnabled and 0.0 or 6.0
 
-  -- toggle, wait a bit if we've send notification
-  hs.timer.doAfter(afterTime, function()
-    hs.execute('do-not-disturb ' .. (isEnabled == true and 'off' or 'on'), true)
+--   -- is not enabled, will be enabled
+--   if not isEnabled then
+--     hs.notify.new({
+--       title        = 'Do Not Disturb',
+--       subTitle     = 'Enabled',
+--       contentImage = imagePath
+--     }):send()
+--   end
 
-    -- is enabled, was disabled
-    if isEnabled then
-      hs.notify.new({
-        title        = 'Do Not Disturb',
-        subTitle     = 'Disabled',
-        contentImage = imagePath
-      }):send()
-    end
-  end)
-end
+--   -- toggle, wait a bit if we've send notification
+--   hs.timer.doAfter(afterTime, function()
+--     hs.execute('do-not-disturb ' .. (isEnabled == true and 'off' or 'on'), true)
+
+--     -- is enabled, was disabled
+--     if isEnabled then
+--       hs.notify.new({
+--         title        = 'Do Not Disturb',
+--         subTitle     = 'Disabled',
+--         contentImage = imagePath
+--       }):send()
+--     end
+--   end)
+-- end
 
 module.toggleBluetooth = function()
   local newStatus = not bluetooth.power()
@@ -79,7 +81,6 @@ module.toggleWiFi = function()
 end
 
 module.toggleConsole = function()
-  hs.console.darkMode(module.isDarkModeEnabled())
   hs.toggleConsole()
   activateFrontmost()
 end
@@ -93,13 +94,13 @@ module.isDarkModeEnabled = function()
     Application("System Events").appearancePreferences.darkMode()
   ]])
 
-  return res
+  return res == true -- getting nil here sometimes
 end
 
 module.setTheme = function(theme)
   hs.osascript.javascript(template([[
     var systemEvents = Application("System Events");
-    var alfredApp = Application("Alfred 4");
+    var alfredApp = Application("Alfred 5");
 
     ObjC.import("stdlib");
 
@@ -114,16 +115,22 @@ module.setTheme = function(theme)
 end
 
 module.toggleTheme = function()
-  module.setTheme(module.isDarkModeEnabled() and 'light' or 'dark')
-end
+  local isDarkModeEnabled = module.isDarkModeEnabled()
 
-module.reloadHS = function()
-  hs.reload()
+  module.setTheme(isDarkModeEnabled and 'light' or 'dark')
+
+  local imagePath = os.getenv('HOME') .. '/.hammerspoon/assets/theme.png'
 
   hs.notify.new({
-    title    = 'Hammerspoon',
-    subTitle = 'Reloaded'
+    title        = 'Theme',
+    subTitle     = 'Switched to: ' .. (isDarkModeEnabled and 'Light' or 'Dark'),
+    contentImage = imagePath
   }):send()
+end
+
+module.restartHammerspoon = function()
+  -- hs.relaunch()
+  hs.reload()
 end
 
 return module
