@@ -15,24 +15,6 @@
   "rust-analyzer.inlayHints.parameterHints.enable": false,
   "rust-analyzer.inlayHints.typeHints.enable": false,
 
-  "ltex.disabledRules": {
-    "en-US": [
-      "DASH_RULE",
-      "EN_QUOTES",
-      "WHITESPACE_RULE",
-      "TO_DO_HYPHEN",
-      "DOUBLE_PUNCTUATION",
-      "UPPERCASE_SENTENCE_START",
-      "ARROWS",
-      "PUNCTUATION_PARAGRAPH_END",
-      "UNIT_SPACE",
-      "DATE_NEW_YEAR",
-      "MORFOLOGIK_RULE_EN_US"
-    ]
-  },
-  "ltex.additionalRules.motherTongue": "pl-PL",
-  "ltex.checkFrequency": "save",
-
   "languageserver": {
     "golang": {
       "command": "go-langserver",

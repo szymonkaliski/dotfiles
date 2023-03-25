@@ -23,7 +23,7 @@ alias ssh="TERM=xterm-256color ssh"
 
 # fixes for processess getting stuck
 alias fix-camera="sudo killall VDCAssistant"
-alias fix-icloud="sudo killll cloudd bird"
+alias fix-icloud="sudo killall cloudd bird"
 
 # apps
 alias fork="/Applications/Fork.app/Contents/Resources/fork_cli"

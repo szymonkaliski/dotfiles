@@ -65,12 +65,6 @@ endfunction
 
 command! ToAscii :call ToAscii()
 
-function! CountWorkTime() range
-  echomsg utils#pipe_through_script(getline(a:firstline, a:lastline), 'count-work-time')
-endfunction
-
-command! -range=% -nargs=0 CountWorkTime :<line1>,<line2>call CountWorkTime()
-
 function! RunCmd(...)
   let l:cmd = join(a:000, ' ')
   let l:cwd = expand('%:p:h')

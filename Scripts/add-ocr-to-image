@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# kMDItemTextContent would be a better fit, but doesn't seem to work everywhere (for example in Alfred)
+#
+# using full paths for brew-installed utilities so it works when running with launchctl
+#
+# requirements: brew install tesseract tesseract-lang xmlstartlet
+#
+# resource: https://gist.github.com/pnc/b7fb38d70f157cd40595d9e52bebc055
+
+set -e
+
+if [ -z "$*" ]; then
+  echo "pass image file as argument"
+  exit 1
+fi
+
+echo "adding OCR data to: $1"
+
+# TODO: add --force option to skip this step
+if xattr "$1" | grep -q "kMDItemFinderComment"; then
+  echo "file $1 alredy has kMDItemFinderComment, exiting"
+  exit 0
+fi
+
+TINYOCR="/Users/szymon/Documents/Code/Bin/tinyocr"
+
+if hash $TINYOCR 2> /dev/null; then
+  CONTENTS=$("$TINYOCR" "$1" | /usr/local/bin/xml esc)
+else
+  CONTENTS=$(/usr/local/bin/convert "$1" -magnify -alpha remove - | /usr/local/bin/tesseract stdin stdout -l eng+pol | /usr/local/bin/xml esc)
+fi
+
+HEX=$((cat << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<string>$CONTENTS</string>
+</plist>
+EOF
+) | plutil -convert binary1 - -o - | /usr/bin/xxd -p | tr -d '\n')
+
+xattr -w -x com.apple.metadata:kMDItemFinderComment "$HEX" "$1"
+
+mdimport "$1"
+
